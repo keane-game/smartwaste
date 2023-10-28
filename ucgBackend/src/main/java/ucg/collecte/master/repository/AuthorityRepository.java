@@ -2,9 +2,9 @@ package ucg.collecte.master.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ucg.collecte.master.model.Role;
+import ucg.collecte.master.model.Authority;
 
 
 @Repository
-public interface RoleRepository  extends JpaRepository<Role, Long> {
+public interface AuthorityRepository  extends JpaRepository<Authority, String> {
 }

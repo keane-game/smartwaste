@@ -1,26 +1,23 @@
 package ucg.collecte.master.model;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
-@Data
 @Entity
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Table(name = "ROLE")
-public class Role {
+@AllArgsConstructor
+@Table(name = "UCG_TYPEDEPOT")
+public class TypeDepot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long roleId;
+    @Column(name = "typeDepotId")
+    private  Long typeDepotId;
 
-    @Column
-    private String roleName;
-
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    @Column(name = "typeDepotName")
+    private String typeDepotName;
 }
