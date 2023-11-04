@@ -30,8 +30,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserDto> getOneUser(@PathVariable("userId") Long userid){
-        UserDto userDto = userService.getOneUser(userid);
+    public ResponseEntity<UserDto> getOneUser(@PathVariable("userId") Long userId){
+        UserDto userDto = userService.getOneUser(userId);
         return ResponseEntity
                 .ok()
                 .body(userDto);

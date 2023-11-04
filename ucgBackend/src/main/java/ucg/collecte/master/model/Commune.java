@@ -2,11 +2,13 @@ package ucg.collecte.master.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "UCG_COMMUNE")
@@ -32,8 +34,8 @@ public class Commune {
     @Column(name = "manResident")
     private String manResident;
 
-    @Column(name = "communeLenghth")
-    private String communeLenghth;
+    @Column(name = "communeLength")
+    private String communeLength;
 
     @Column(name = "communeArea")
     private String communeArea;

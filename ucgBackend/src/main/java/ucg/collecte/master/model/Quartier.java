@@ -2,11 +2,13 @@ package ucg.collecte.master.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "UCG_QUARTIER")
@@ -21,7 +23,7 @@ public class Quartier {
     private String quartierName;
 
     @Column(name = "quartierCode")
-    private String qquartierCode;
+    private String quartierCode;
 
     @Column(name = "quartierCav")
     private String quartierCav;

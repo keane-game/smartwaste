@@ -1,7 +1,6 @@
 package ucg.collecte.master.service;
 
 import ucg.collecte.master.dto.UserDto;
-import ucg.collecte.master.model.User;
 
 import java.util.List;
 

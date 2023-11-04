@@ -9,6 +9,14 @@
 # General
 --------------------------------------------------------------*/
 :root {
+  --blue: #2a2185;
+  --white: #fff;
+  --gray: #f5f5f5;
+  --black1: #222;
+  --black2: #999;
+  --white1: #f6f9ff;
+  --green: #045211;
+  --green1:rgb(248, 255, 250);
   scroll-behavior: smooth;
 }
 

@@ -37,6 +37,9 @@ public class User  extends  AbstractAuditingEntity<Long> implements Serializable
     private String userEmail;
 
     @Column
+    private String password;
+
+    @Column
     private String userCode;
 
     @Column
