@@ -3,10 +3,10 @@ package ucg.collecte.master.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ucg.collecte.master.dto.TypeDepotDto;
 import ucg.collecte.master.exception.ResourceNotFoundException;
-import ucg.collecte.master.mapper.UserMapper;
+import ucg.collecte.master.mapper.TypeDepotMapper;
 import ucg.collecte.master.model.TypeDepot;
-import ucg.collecte.master.model.User;
 import ucg.collecte.master.repository.TypeDepotRepository;
 import ucg.collecte.master.service.TypeDepotService;
 
@@ -24,49 +24,55 @@ public class TypeDepotServiceImpl implements TypeDepotService {
      * @return
      */
     @Override
-    public TypeDepot getOneTypeDepot(Long typeDepotId) {
+    public TypeDepotDto getOneTypeDepot(Long typeDepotId) {
         TypeDepot typeDepot  = typeDepotRepository.findById(typeDepotId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "TypeDepot with id [%s] not found ".formatted(typeDepotId)
                 ));
-        return typeDepot;
+
+        return TypeDepotMapper.TDMP.modelToDto(typeDepot);
     }
 
     /**
      * @return 
      */
     @Override
-    public List<TypeDepot> getAllTypeDepot() {
+    public List<TypeDepotDto> getAllTypeDepot() {
         List<TypeDepot> typeDepotList = typeDepotRepository.findAll();
-        return typeDepotList.stream().toList();
+        return TypeDepotMapper.TDMP.listModelToDto(typeDepotList);
     }
 
     /**
-     * @param typeDepot 
+     * @param typeDepotDto
      * @return
      */
     @Override
-    public TypeDepot createOneTypeDepot(TypeDepot typeDepot) {
-        return typeDepotRepository.save(typeDepot);
+    public TypeDepotDto createOneTypeDepot(TypeDepotDto typeDepotDto) {
+        TypeDepot typeDepot = TypeDepot.builder()
+                .typeDepotName(typeDepotDto.getTypeDepotName())
+                .build();
+        return TypeDepotMapper.TDMP.modelToDto(typeDepotRepository.save(typeDepot));
     }
 
     /**
      * @param typeDepotId 
-     * @param typeDepot
+     * @param typeDepotDto
      * @return
      */
     @Override
-    public TypeDepot updateOneTypeDepot(Long typeDepotId, TypeDepot typeDepot) {
+    public TypeDepotDto updateOneTypeDepot(Long typeDepotId, TypeDepotDto typeDepotDto) {
         TypeDepot existedtypeDepot = typeDepotRepository.findById(typeDepotId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depot with id [%s] not found to update ".formatted(typeDepotId)
                 ));
-        if (!Objects.equals(existedtypeDepot.getTypeDepotId(), typeDepot.getTypeDepotId())) {
+        if (!Objects.equals(existedtypeDepot.getTypeDepotId(), typeDepotDto.getTypeDepotId())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }
-        existedtypeDepot.setTypeDepotName(typeDepot.getTypeDepotName());
-        return typeDepotRepository.save(existedtypeDepot);
+        existedtypeDepot.setTypeDepotName(typeDepotDto.getTypeDepotName());
+        return TypeDepotMapper
+                .TDMP.modelToDto(
+                    typeDepotRepository.save(existedtypeDepot));
     }
 
     /**

@@ -19,9 +19,14 @@ import java.util.Set;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Authority implements Serializable {
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "authorityId")
+    private  Long authorityId;
+
     @NotNull
     @Size(max = 50)
-    @Id
     @Column(length = 50)
     private String name;
 

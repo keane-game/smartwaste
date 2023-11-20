@@ -93,8 +93,8 @@ public class UserServiceImpl  implements UserService {
         if (userDto.getAuthorities() != null){
             existedUser.setAuthorities(userDto.getAuthorities());
         }
-        User updateUser = userRepository.save(existedUser);
-        return UserMapper.UMP.modelToDto(updateUser);
+        User updatedUser = userRepository.save(existedUser);
+        return UserMapper.UMP.modelToDto(updatedUser);
     }
 
     /**

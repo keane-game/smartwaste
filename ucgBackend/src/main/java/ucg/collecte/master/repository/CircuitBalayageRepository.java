@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ucg.collecte.master.model.CircuitBalayage;
 
 @Repository
-public interface CircuitBalayadeRepository extends JpaRepository<CircuitBalayage, Long> {
+public interface CircuitBalayageRepository extends JpaRepository<CircuitBalayage, Long> {
 }

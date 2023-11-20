@@ -6,5 +6,5 @@ import ucg.collecte.master.model.Authority;
 
 
 @Repository
-public interface AuthorityRepository  extends JpaRepository<Authority, String> {
+public interface AuthorityRepository  extends JpaRepository<Authority, Long> {
 }
