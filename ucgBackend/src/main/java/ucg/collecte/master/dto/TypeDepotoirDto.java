@@ -1,6 +1,6 @@
 package ucg.collecte.master.dto;
 
-import jakarta.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,9 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DepotDto {
+public class TypeDepotoirDto {
 
-    private  Long depotId;
+    private  Long typeDepotoirId;
 
-    private String depotAddress;
+    private String typeDepotoirName;
 }

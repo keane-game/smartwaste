@@ -1,6 +1,6 @@
 package ucg.collecte.master.dto;
 
-
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,11 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class MobilieUrbainDto {
+public class DepotoirDto {
 
-    private  Long mobilieUrbainId;
+    private  Long depotoirId;
 
-    private String mobilieUrbainName;
-
-    private String mobilieUrbainCode;
+    private String depotoirAddress;
 }

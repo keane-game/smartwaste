@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "UCG_MOBILIEURBAIN")
-public class MobilieUrbain {
+public class MoblierUrbain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mobilieUrbainId")

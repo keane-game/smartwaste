@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "UCG_TYPEDEPOT")
-public class TypeDepot {
+@Table(name = "UCG_TYPEDEPOTOIR")
+public class TypeDepotoir {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,8 +2,8 @@ package ucg.collecte.master.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ucg.collecte.master.model.TypeDepot;
+import ucg.collecte.master.model.Departement;
 
 @Repository
-public interface TypeDepotRepository extends JpaRepository<TypeDepot, Long> {
+public interface DepartementRepository extends JpaRepository<Departement, Long> {
 }

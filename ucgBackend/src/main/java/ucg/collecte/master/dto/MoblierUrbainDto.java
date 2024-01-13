@@ -8,11 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DepartmentDto {
+public class MoblierUrbainDto {
 
-    private  Long departmentId;
+    private  Long moblierUrbainId;
 
-    private String departmentName;
+    private String moblierUrbainName;
 
-    private String departmentCode;
+    private String moblierUrbainCode;
 }

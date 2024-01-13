@@ -58,7 +58,7 @@ $ucg_front-theme: mat.define-light-theme((
 }
 
 body {
-  font-family: "Open Sans", sans-serif;
+  //font-family: "Poppins", sans-serif;
   background: #f6f9ff;
   color: #444444;
   scrollbar-width: thin !important;
@@ -66,7 +66,7 @@ body {
 }
 
 a {
-  color: #4154f1;ls
+  color: #4154f1;
   text-decoration: none;
 }
 
@@ -82,9 +82,9 @@ h1, h2, h3, h4, h5, h6 {
 /*--------------------------------------------------------------
 # Main
 --------------------------------------------------------------*/
-#main {
-  margin-top: 60px;
-  padding: 20px 30px;
+#main-content {
+  // margin-top: 60px;
+  padding: 0px 20px;
   transition: all 0.3s;
 }
 @media (max-width: 1199px) {
@@ -386,7 +386,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (min-width: 1200px) {
-  #main, #footer {
+  #main-content, #footer , #main-header{
     margin-left: 300px;
   }
 }
@@ -396,7 +396,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 @media (min-width: 1200px) {
-  .toggle-sidebar #main, .toggle-sidebar #footer {
+  .toggle-sidebar #main-content, .toggle-sidebar #footer {
     margin-left: 0;
   }
   .toggle-sidebar .sidebar {
@@ -800,6 +800,3 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

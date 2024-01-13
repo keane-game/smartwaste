@@ -43,13 +43,13 @@ h1, h2, h3, h4, h5, h6 {
 /*--------------------------------------------------------------
 # Main
 --------------------------------------------------------------*/
-#main {
-  margin-top: 60px;
-  padding: 20px 30px;
+#main-content {
+  /* margin-top: 60px; */
+  padding: 0px 30px;
   transition: all 0.3s;
 }
 @media (max-width: 1199px) {
-  #main {
+  #main-content {
     padding: 20px;
   }
 }
@@ -338,24 +338,7 @@ h1, h2, h3, h4, h5, h6 {
 /*--------------------------------------------------------------
 # Header
 --------------------------------------------------------------*/
-.logo {
-  line-height: 1;
-}
-@media (min-width: 1200px) {
-  .logo {
-    width: 280px;
-  }
-}
-.logo img {
-  max-height: 26px;
-  margin-right: 6px;
-}
-.logo span {
-  font-size: 26px;
-  font-weight: 700;
-  color: #012970;
-  font-family: "Nunito", sans-serif;
-}
+
 
 .header {
   transition: all 0.5s;
@@ -564,7 +547,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (min-width: 1200px) {
-  #main, #footer {
+  #main-content, #footer {
     margin-left: 300px;
   }
 }

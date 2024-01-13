@@ -8,9 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class TypeDepotDto {
+public class DepartementDto {
 
-    private  Long typeDepotId;
+    private  Long departementId;
 
-    private String typeDepotName;
+    private String departementName;
+
+    private String departementCode;
 }

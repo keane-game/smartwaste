@@ -16,6 +16,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { HeaderBreadcrumbComponent } from './share/header-breadcrumb/header-breadcrumb.component';
+import { MaterialsModule } from './materials/material.module';
 
 @NgModule({
   declarations: [
@@ -31,8 +32,9 @@ import { HeaderBreadcrumbComponent } from './share/header-breadcrumb/header-brea
     HeaderBreadcrumbComponent
   ],
   imports: [
-  BrowserModule,
+    BrowserModule,
     AppRoutingModule,
+    MaterialsModule,
     IonicModule.forRoot(),
     BrowserAnimationsModule,
     HttpClientModule
