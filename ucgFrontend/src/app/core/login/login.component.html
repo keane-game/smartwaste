@@ -1,1 +1,62 @@
-<p>login works!</p>
+<div class="container ">
+    <div class="content">
+
+        <div class="row  no-guetters ">
+            <div class="col-md-7 d-none d-md-block px-0">
+                <img src="../../../assets/images/loginImg1.png" alt="login Img" class="img-fluid">
+            </div>
+                    <div class="col-md-5 ">
+                        <form class="login-form" (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
+                            <h1 class="app-name">Connexion</h1>
+                            <p>Veuilez renseigner votre e-mail
+                                et votre mot de passe </p>
+                            <div class="form-input">
+                                <input type="text" placeholder="username" class="form-control" name="username"
+                                    [(ngModel)]="form.username" required minlength="6" #username="ngModel" />
+                                <span class="alert-u " role="alert" *ngIf="f.submitted && username.invalid">
+                                    Username is required!
+                                </span>
+                            </div>
+                            <div class="form-input">
+                                <input type="password" placeholder="Password" class="form-control" name="password"
+                                    [(ngModel)]="form.password" required minlength="5" #password="ngModel" />
+                                <div class="alert-p " role="alert" *ngIf="f.submitted && password.invalid">
+                                    <span *ngIf="password.errors?.['required']">Password is required</span>
+                                    <span *ngIf="password.errors?.['minlength']">
+                                        Password must be at least 5 characters
+                                    </span>
+                                </div>
+
+                            </div>
+                            <button [disabled]="" class="btn btn-  w-100"> Sign In</button>
+                            <a href="#" class="text-sm">Forgot your password?</a>
+            
+                        </form>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+<!-- <div class="service-error" *ngIf="error">
+    <h1>{{error.errorTitle}}</h1>
+    <h3>{{error.errorDesc}}</h3>
+  </div> -->
+
+
+
+
+
+
+
+
+
+<!-- 
+<footer>
+    <p>
+        Created with <i class="fa fa-heart"></i> by
+        <a target="_blank" href="#">Keaner</a>
+        - ODC challenge
+        <a target="_blank" href="#">here</a>.
+    </p>
+</footer> -->

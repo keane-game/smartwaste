@@ -52,9 +52,12 @@
               "src/assets/vendor/echarts/echarts.min.js",
               "src/assets/vendor/quill/quill.min.js",
               "src/assets/vendor/simple-datatables/simple-datatables.js",
-              "src/assets/vendor/tinymce/tinymce.min.js",
+              "src/assets/vendor/tinymce/tinymce.js",
               "src/assets/vendor/php-email-form/validate.js",
-              "src/assets/js/main.js"
+              "src/assets/js/main.js",
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+
             ]
           },
           "configurations": {

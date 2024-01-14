@@ -14,9 +14,17 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { IonicModule } from '@ionic/angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { TapbarWidget } from './share/widget/tapbar.widget';
+
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { HeaderBreadcrumbComponent } from './share/header-breadcrumb/header-breadcrumb.component';
 import { MaterialsModule } from './materials/material.module';
+import { JwtModule } from "@auth0/angular-jwt";
+import { AppCommonModule } from './app.common.module';
+
+export function tokenGetter() {
+  return localStorage.getItem("access_token");
+}
 
 @NgModule({
   declarations: [
@@ -29,7 +37,8 @@ import { MaterialsModule } from './materials/material.module';
     FooterComponent,
     HeaderComponent,
     DashboardComponent,
-    HeaderBreadcrumbComponent
+    HeaderBreadcrumbComponent,
+    TapbarWidget
   ],
   imports: [
     BrowserModule,
@@ -37,7 +46,15 @@ import { MaterialsModule } from './materials/material.module';
     MaterialsModule,
     IonicModule.forRoot(),
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    AppCommonModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        allowedDomains: ["example.com"],
+        disallowedRoutes: ["http://example.com/examplebadroute/"],
+      },
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]

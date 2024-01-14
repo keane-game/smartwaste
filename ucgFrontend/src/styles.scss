@@ -64,7 +64,9 @@ body {
   scrollbar-width: thin !important;
   scrollbar-color: red;
 }
-
+.toggle-sidebar{
+  background: red !important;
+}
 a {
   color: #4154f1;
   text-decoration: none;
@@ -86,11 +88,6 @@ h1, h2, h3, h4, h5, h6 {
   // margin-top: 60px;
   padding: 0px 20px;
   transition: all 0.3s;
-}
-@media (max-width: 1199px) {
-  #main {
-    padding: 20px;
-  }
 }
 
 /*--------------------------------------------------------------
@@ -376,17 +373,42 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /*--------------------------------------------------------------
-# Sidebar
+# Sidebar toggle
 --------------------------------------------------------------*/
+
+
+.sidebar {
+  position: fixed;
+  top: 0px;
+  left:0px;
+  bottom: 0;
+  width: 300px;
+  z-index: 996;
+  transition: all 0.3s;
+  padding: 20px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #aab7cf transparent;
+  box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
+  background-color: #fff !important;
+}
 
 @media (max-width: 1199px) {
   .sidebar {
     left: -300px;
   }
 }
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #fff;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #aab7cf;
+}
 
 @media (min-width: 1200px) {
-  #main-content, #footer , #main-header{
+  #main-content, #main-header{
     margin-left: 300px;
   }
 }
@@ -396,13 +418,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 @media (min-width: 1200px) {
-  .toggle-sidebar #main-content, .toggle-sidebar #footer {
+  .toggle-sidebar #main-content, .toggle-sidebar #main-header {
     margin-left: 0;
   }
   .toggle-sidebar .sidebar {
     left: -300px;
   }
 }
+
 /*--------------------------------------------------------------
 # Dashboard
 --------------------------------------------------------------*/
