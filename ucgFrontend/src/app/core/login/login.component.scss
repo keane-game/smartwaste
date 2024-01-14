@@ -24,12 +24,8 @@
 }
 
 .loginImg {
-    background-image: url('../../../assets/images/loginImg1.png');
-    background-size: contain;
-    background-position: center center;
-    background-repeat: no-repeat;
-    height: 100vh;
     img{
+        min-height: 100%;
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
@@ -67,7 +63,6 @@ button.btn {
     font-weight: bold;
     padding: .6em;
     letter-spacing: 1px;
-    width: 23em !important;
     text-transform: uppercase;
     transition: transform 80ms ease-in;
     margin-top: 20px;
@@ -93,7 +88,6 @@ input {
     border: none;
     padding:1em;
     margin: 15px  0px ;
-    width: 25.5em !important;
     font-size: 18px
 }
 
@@ -150,66 +144,17 @@ button.ghost {
 .contact-message { text-align: center; }*/
 
 
-@media (max-width: 1400px){
- .content{
-   width: 60%;
- }
- input{
-   width: 22.5em;
- }
+
+
+
+@media (min-width: 768px){
+.container {
+    min-width: 920px;
 }
-@media (max-width: 1150px){
-  .content{
-    width: 75%;
-  }
-  input{
-    width: 20em;
-  }
-  button{
-    width: 23em !important;
-  }
- }
- @media (max-width: 900px){
-  .content{
-    width: 95%;
-  }
-  input{
-    width: 20em;
-  }
- }
- @media (max-width: 750px){
-  .content{
-    width: 100%;
-  }
-  input{
-    width: 20em;
-    padding: 1.1em;
-  }
-  button{
-    padding: .8em !important;
-  }
-  .img-odc{
-    text-align: center;
-  }
-  .img{
-    width: 8em;
-    border-radius: 50%;
-  }
-  .app-name {
-    text-align: center;
-    top: 0em;
-    margin-bottom: .5em;
-  }
- }
- @media (max-width: 450px){
-  .content{
-    width: 100%;
-  }
-  input{
-    width: 15em !important;
-    padding: 1.1em;
-  }
-  button{
-    padding: .8em !important;
-  }
+}
+
+@media (min-width: 768px){
+    .container {
+        min-width: 920px;
+    }
 }
