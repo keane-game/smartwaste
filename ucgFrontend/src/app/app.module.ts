@@ -1,26 +1,27 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { LoginComponent } from './core/login/login.component';
-import { UserComponent } from './entity/user/user.component';
-import { DepotComponent } from './entity/depot/depot.component';
-import { LayoutComponent } from './share/layout/layout.component';
-import { SidebarComponent } from './share/sidebar/sidebar.component';
-import { FooterComponent } from './share/footer/footer.component';
-import { HeaderComponent } from './share/header/header.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { IonicModule } from '@ionic/angular';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { TapbarWidget } from './share/widget/tapbar.widget';
-
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { HeaderBreadcrumbComponent } from './share/header-breadcrumb/header-breadcrumb.component';
 import { MaterialsModule } from './materials/material.module';
 import { JwtModule } from "@auth0/angular-jwt";
-import { AppCommonModule } from './app.common.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+import { LoginComponent } from './core/login/login.component';
+import { LayoutComponent } from './shares/layout/layout.component';
+import { SidebarComponent } from './shares/sidebar/sidebar.component';
+import { FooterComponent } from './shares/footer/footer.component';
+import { HeaderComponent } from './shares/header/header.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { HeaderBreadcrumbComponent } from './shares/header-breadcrumb/header-breadcrumb.component';
+
+import { TapbarWidget } from './shares/widget/tapbar.widget';
+import { PuPopWidget } from './shares/widget/pupop.widget'
+import { EntitiesModule } from './entity/entities.module';
+
 
 export function tokenGetter() {
   return localStorage.getItem("access_token");
@@ -30,15 +31,14 @@ export function tokenGetter() {
   declarations: [
     AppComponent,
     LoginComponent,
-    UserComponent,
-    DepotComponent,
     LayoutComponent,
     SidebarComponent,
     FooterComponent,
     HeaderComponent,
     DashboardComponent,
     HeaderBreadcrumbComponent,
-    TapbarWidget
+    TapbarWidget,
+    PuPopWidget
   ],
   imports: [
     BrowserModule,
@@ -47,7 +47,9 @@ export function tokenGetter() {
     IonicModule.forRoot(),
     BrowserAnimationsModule,
     HttpClientModule,
-    AppCommonModule,
+    EntitiesModule,
+    ReactiveFormsModule, 
+    FormsModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,

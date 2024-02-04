@@ -23,7 +23,7 @@ export class SessionService {
      */
     getItem(key: string): any {
         var value = sessionStorage.getItem(key);
-        return JSON.parse(value);
+        return JSON.parse(value || '');
     }
 
     /**

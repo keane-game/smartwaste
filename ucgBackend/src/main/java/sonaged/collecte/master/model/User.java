@@ -3,20 +3,19 @@ package sonaged.collecte.master.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
+import lombok.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -48,8 +47,13 @@ public class User  extends  AbstractAuditingEntity<Long> implements Serializable
     @Column
     private String userPhone;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "UM_RoleId", nullable = false)
+    @EqualsAndHashCode.Include
+    Authority authority;
+
     @JsonIgnore
-    @ManyToMany
+  /*  @ManyToMany
     @JoinTable(
             name = "ucg_user_authority",
             joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "userId") },
@@ -57,10 +61,26 @@ public class User  extends  AbstractAuditingEntity<Long> implements Serializable
     )
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)
-    private Set<Authority> authorities = new HashSet<>();
+    private Set<Authority> authorities = new HashSet<>();*/
 
     @Override
     public Long getId() {
         return userId;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        User user = (User) o;
+        return getUserId() != null && Objects.equals(getUserId(), user.getUserId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }
