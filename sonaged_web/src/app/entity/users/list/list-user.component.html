@@ -64,8 +64,8 @@
       <ng-container matColumnDef="action">
         <th style="border-top-right-radius: 1.25rem" mat-header-cell *matHeaderCellDef> Actions </th>
         <td mat-cell *matCellDef="let element">
-          <i class="bi bi-pencil-square " (click)="OpenUpdateUserModal(element.id)"></i>&nbsp;
-          <i class="bi bi-trash-fill"  (click)="onDeleteUser(element.id)"></i>
+          <i class="bi bi-pencil-square " (click)="OpenUpdateUserModal(element.userId)"></i>&nbsp;
+          <i class="bi bi-trash-fill"  (click)="onDeleteUser(element.userId)"></i>
           
         </td>
       </ng-container>

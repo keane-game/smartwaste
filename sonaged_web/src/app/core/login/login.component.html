@@ -20,22 +20,22 @@
             <form action="#" class="signin-form" (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
              
               <div class="form-group mb-3">
-                <label class="label" for="name">Username</label>
-                <input type="text" placeholder="username" class="form-control" name="username"
+                <label class="label" for="name">Adresse mail</label>
+                <input type="text" placeholder="exemple@sonaged.sn" class="form-control" name="username"
                     [(ngModel)]="form.username" required minlength="6" #username="ngModel" />
-                <span class="alert-u " role="alert" *ngIf="f.submitted && username.invalid">
-                    Username is required!
+                <span class="alert-u " role="alert" *ngIf="f.submitted && username.valid">
+                    E-mail requis!
                 </span>
               </div>
               <div class="form-group mb-3">
-                <label class="label" for="password">Password</label>
-                <input type="password" placeholder="Password" class="form-control" name="password"
+                <label class="label" for="password">Mot de passe</label>
+                <input type="password" placeholder="*********" class="form-control" name="password"
                 [(ngModel)]="form.password" required minlength="5" #password="ngModel" />
                 <div class="alert-p " role="alert" *ngIf="f.submitted && password.invalid">
-                    <span *ngIf="password.errors?.['required']">Password is required</span>
-                    <span *ngIf="password.errors?.['minlength']">
+                    <span *ngIf="password.errors?.['required']">Mot de passe requis</span>
+                    <!-- <span *ngIf="password.errors?.['minlength']">
                         Password must be at least 5 characters
-                    </span>
+                    </span> -->
                 </div>
               </div>
               <div class="form-group d-flex mb-3">

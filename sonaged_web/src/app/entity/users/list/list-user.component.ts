@@ -86,7 +86,8 @@ export class ListUserComponent implements  OnInit {
     });
     this.updateUserDialogRef.componentInstance.id = id;
     this.updateUserDialogRef.componentInstance
-    .currentUser = this.users.filter((item: any)=>item.id == id)[0];
+    .currentUser = this.users.filter((item: any)=>item.userId == id)[0];
+   // console.log(this.users, id);
   }
 
 
@@ -188,6 +189,7 @@ export class ListUserComponent implements  OnInit {
 
   onDeleteUser(id: number): void{
     console.log(id);
+    this.sharedService.url = '/delete/user';
     if(confirm('Voulez vous vraiment supprimer cet collaborateur')){
       this.sharedService.delete(+id)
       .pipe(first())

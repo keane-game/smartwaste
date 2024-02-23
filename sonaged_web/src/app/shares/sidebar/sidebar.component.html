@@ -16,7 +16,8 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " routerLink="/">
+        <a class="nav-link collapsed" routerLink="/" [routerLinkActiveOptions]={exact:true}
+          routerLinkActive="active-link">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -24,26 +25,26 @@
 
       
       <li class="nav-item">
-        <a class="nav-link collapsed" routerLink="/users">
+        <a class="nav-link collapsed" routerLink="/users"  routerLinkActive="active-link">
           <i class="bi bi-person"></i>
           <span>Gestion Utilisateur</span>
         </a>
       </li><!-- End Profile Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Departement</span>
         </a>
       </li><!-- End Register Page Nav -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Commune</span>
         </a>
       </li><!-- End Register Page Nav -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss"  routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Quartier</span>
         </a>
@@ -51,40 +52,40 @@
 
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-faq.html">
+        <a class="nav-link collapsed" routerLink="/userss"  routerLinkActive="active-link">
           <i class="bi bi-question-circle"></i>
           <span>Gestion Depotoir</span>
         </a>
       </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-contact.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-envelope"></i>
           <span>Gestion Moblier Urbain</span>
         </a>
       </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Circuit</span>
         </a>
       </li><!-- End Register Page Nav -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Notification</span>
         </a>
       </li><!-- End Register Page Nav -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
+        <a class="nav-link collapsed" routerLink="/userss" routerLinkActive="active-link">
           <i class="bi bi-card-list"></i>
           <span>Gestion Alerte</span>
         </a>
       </li><!-- End Register Page Nav -->
 
       <li class="nav-item btn-disconnect">
-        <a class="nav-link collapsed" href="pages-login.html">
+        <a class="nav-link collapsed"  routerLinkActive="active-link">
           <i class="bi bi-box-arrow-right"></i>
           <span>Se déconnecter</span>
         </a>

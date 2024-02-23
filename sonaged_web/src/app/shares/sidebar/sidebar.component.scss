@@ -69,7 +69,7 @@ a[data-toggle="collapse"] {
     border-radius: 0px !important;
     padding: 12px 0 12px 30px !important;
     i {
-      font-size: 20px;
+      font-size: 18px;
       margin-right: 20px;
       color: #5D8B47;
     }
@@ -97,27 +97,18 @@ a[data-toggle="collapse"] {
 .sidebar-nav .nav-link {
   display: flex;
   align-items: center;
-  font-size: 1em;
-  font-weight: 500;
+  font-weight: 400;
   color: #fff;
+  font-size: 14px;
   transition: 0.4;
   color: #000;
   background: #fff;
   padding: 6px 15px;
   border-radius: 4px;
   i {
-    font-size: 24px;
+    font-size: 14px;
     margin-right: 20px;
     color: #fff;
-  }
-}
-.sidebar-nav .nav-link:not(.collapsed)  {
-  color: #fff;
-  background: #5D8B47;
-  i {
-    &::before{
-      font-weight: 700 !important;
-    }
   }
 }
 
@@ -128,16 +119,29 @@ a[data-toggle="collapse"] {
 
  .sidebar-nav .nav-link.collapsed i {
   color: #000;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
 }
 
-.sidebar-nav .nav-link:hover {
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active-link:hover {
   color: #5D8B47;
   background: #CAD8C8;
   i{
     color: #5D8B47;
   }
 }
+.sidebar-nav .nav-link.active-link {
+  color: #fff;
+  background: #5D8B47;
+  i {
+
+    color: #fff;
+    &::before{
+      font-weight: 700 !important;
+    }
+  }
+}
+
 
 .sidebar-nav .nav-link .bi-chevron-down {
   margin-right: 0;

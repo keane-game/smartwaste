@@ -204,7 +204,20 @@ div a.float-end, div a.float-start{
 		}
 	}
 }
+.alert-p, .alert-u {
+	position: absolute;
+	font-size: 12px;
+	height: 10px;
+	margin: none;
+	left: 6px;
+	top: 5.9em;
+	text-align: left !important;
+	color: #ff0000;
+ }
 
+ .text-center {
+   text-align: center;
+ }
 
 
 

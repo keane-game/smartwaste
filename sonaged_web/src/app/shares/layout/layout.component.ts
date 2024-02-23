@@ -36,13 +36,11 @@ pageTitle = "Dashboard"
         this.renderer.removeClass(element, 'toggle-sidebar');
     });
     if(this.isClicked){
-      this.renderer.addClass(el, 'active');
       this.renderer.addClass(body, 'toggle-sidebar');
       el2.forEach((element: any) => {
       //  this.renderer.addClass(element, 'toggle-sidebar');
     });
     }else{
-      this.renderer.removeClass(el, 'active');
       this.renderer.removeClass(body, 'toggle-sidebar');
       el2.forEach((element: any) => {
        // this.renderer.removeClass(element, 'toggle-sidebar');

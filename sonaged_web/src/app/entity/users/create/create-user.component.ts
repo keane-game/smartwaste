@@ -20,8 +20,6 @@ export class CreateUserComponent implements OnInit {
   selectedItemsRole: any[] = [];
   roleSettings = {};
   submitted = false;
-  fieldPrenom = "";
-  fieldNom = "";
   userForm!: FormGroup;
 
 
@@ -45,7 +43,7 @@ export class CreateUserComponent implements OnInit {
       password: ['', Validators.required],
       userAddress: ['', Validators.required],
       userPhone: ['', Validators.required],
-      roles: [null, Validators.required],
+      authority: [null, Validators.required],
     });
 
 
@@ -125,11 +123,12 @@ export class CreateUserComponent implements OnInit {
 
 
   CreateUser() {
-    this.userForm.value.fullName = `${this.fieldPrenom} ${this.fieldNom}`;;
+    // this.userForm.value.fullName = `${this.fieldPrenom} ${this.fieldNom}`;;
     if (!this.userForm.invalid) {
       console.log(this.userForm.invalid)
       return;
     }
+    this.userForm.value.authority = this.userForm.value.authority[0];
     this.sharedService.create(this.userForm.value)
       .pipe(first())
       .subscribe({

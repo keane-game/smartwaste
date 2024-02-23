@@ -16,17 +16,12 @@ export class UpdateUserComponent implements OnInit {
   isSelected: any = "label_after";
   selected: boolean = false;
   listRoles: any;
-  listProjets: any;
   selectedItemsRole: any[] = [];
-  selectedItemsProjet: any[] = [];
-  projetSettings = {};
   roleSettings = {};
   submitted = false;
   id: any;
   updateUserForm!: FormGroup;
   currentUser: any;
-  fieldPrenom = "";
-  fieldNom = "";
 
 
   successDialogRef!: MatDialogRef<PuPopWidget>;
@@ -43,31 +38,26 @@ export class UpdateUserComponent implements OnInit {
   ngOnInit(): void {
 
     this.updateUserForm = this.formBuilder.group({
-      fullName: [this.currentUser.fullName, Validators.required],
-      adressMail: [this.currentUser.adressMail, Validators.required],
-      das: [this.currentUser.das, Validators.required],
-      roles: [this.currentUser.roles, Validators.required],
-      projects: [this.currentUser.projects, Validators.required],
+      userFirstname: ['', Validators.required],
+      userLastname: ['', Validators.required],
+      userEmail: ['', Validators.required],
+      password: ['', Validators.required],
+      userAddress: ['', Validators.required],
+      userPhone: ['', Validators.required],
+      authority: [this.currentUser.authority, Validators.required],
     });
-    this.spliteFullName(this.currentUser.fullName);
+    const {authorityId, authorityName} = this.currentUser.authority;
 
-     
+    console.log(authorityId)
+    this.currentUser.authority= {authorityId, authorityName};
+    this.updateUserForm.patchValue(this.currentUser);
+   
     this.selectedItemsRole = [];
-    this.selectedItemsProjet = [];
-
-    this.projetSettings = {
-      singleSelection: false,
-      idField: 'projectId',
-      textField: 'projectName',
-      itemsShowLimit: 3,
-      allowSearchFilter: false,
-      enableCheckAll: false,
-    }
 
     this.roleSettings = {
-      singleSelection: false,
-      idField: 'id',
-      textField: 'roleName',
+      singleSelection: true,
+      idField: 'authorityId',
+      textField: 'authorityName',
       itemsShowLimit: 3,
       allowSearchFilter: false,
       enableCheckAll: false,
@@ -91,10 +81,20 @@ export class UpdateUserComponent implements OnInit {
   }
 
 
-  // Event drop down to select role
-  onDropDownCloseRole() {
+   // Event drop down to select role
+   onDropDownCloseRole() {
+    // let myTag = this.el.nativeElement.querySelector("label.label-role");
+    // if (this.selectedItemsRole.length != 0) {
+    //   console.log(this.selectedItemsRole.length);
+    //   myTag.classList.add('label_after');
+    // } else {
+    //   myTag.classList.remove('label_after');
+    // }
+    this.sharedService.url = "/authorities"
+    this.sharedService.getAll()
+      .subscribe(roles => this.listRoles = roles);
+    console.log("AfterView" + JSON.stringify(this.listRoles));
   }
-
  
 
   // select methods for role
@@ -108,23 +108,13 @@ export class UpdateUserComponent implements OnInit {
     console.log('form model', this.selectedItemsRole);
   }
 
-  // select methods for projet
-  onItemSelectProjet(item: any) {
-    this.selectedItemsProjet.push(item)
-    console.log('form model', this.selectedItemsProjet);
-  }
-
-  onItemDeSelectProjet(item: any) {
-    this.selectedItemsProjet = this.selectedItemsProjet.filter(itm => itm.item_id !== item.item_id)
-    console.log('form model', this.selectedItemsProjet);
-  }
+ 
 
   // convenience getter for easy access to form fields
   get f() { return this.updateUserForm.controls; }
 
   onSubmit() {
     this.submitted = true;
-    this.updateUserForm.value.fullName = `${this.fieldPrenom} ${this.fieldNom}`;;
    
     console.log(this.updateUserForm.value)
     // stop here if form is invalid
@@ -149,22 +139,6 @@ export class UpdateUserComponent implements OnInit {
   }
 
 
-  // splite user fullName to firstname and lastname 
-  //and set it on fielNom and fielPrenom
-  //
-
-  spliteFullName(fullName: string){
-    const fullNames = fullName.trim().split(" ");
-    
-    fullNames.forEach((element, index) => {
-      if(index == fullNames.length-1)
-        this.fieldNom = element;
-      else
-        this.fieldPrenom += element
-      
-    });
-
-  }
 
   async reload(url: string): Promise<boolean> {
     await this.router.navigateByUrl('/', { skipLocationChange: true });
