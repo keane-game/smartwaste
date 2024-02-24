@@ -1,9 +1,9 @@
 package sonaged.collecte.master.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import sonaged.collecte.master.model.Department;
 
 
 @Getter
@@ -26,4 +26,6 @@ public class CommuneDto {
     private String communeLength;
 
     private String communeArea;
+
+    private Department department;
 }

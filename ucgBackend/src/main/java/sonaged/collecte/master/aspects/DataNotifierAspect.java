@@ -20,55 +20,55 @@ public class DataNotifierAspect {
 
     @Around("execution(@com.worldline.tapandgo.user.annotations.Notifiable * *.*(..)) && @annotation(notifiable)")
     public Object notifyData(ProceedingJoinPoint p, Notifiable notifiable) throws Throwable {
-        /* Getting method output object */
+        /* Getting method output object *
         Object object = p.proceed();
 
         /* Getting notification parameters
         String topicName = notifiable.topicName();
         boolean isActive = notifiable.active();
 
-        /* Checking if object is null or an empty Optional */
+        /* Checking if object is null or an empty Optional *
         if (object == null || (Optional.class.isInstance(object) && !((Optional) object).isPresent())) {
 
             log.warn("notifyData aborted ! - topicName: {} - isActive: {} - object: {}", topicName, isActive, object);
 
         } else {
 
-            /* Checking if notification is active */
+            /* Checking if notification is active *
             if (isActive) {
 
                 log.debug("notifyData start - topicName: {} - object: {}", topicName, object);
 
-                /* Initializing objects list */
+                /* Initializing objects list *
                 final List<Object> objects;
 
-                /* Checking if object is a list */
+                /* Checking if object is a list *
                 if (ArrayList.class.isInstance(object)) {
 
-                    /* Setting objects list */
+                    /* Setting objects list *
                     objects = (List<Object>) object;
 
                 } else if (Optional.class.isInstance(object) && ((Optional) object).isPresent()) {
 
-                    /* Setting objects list */
+                    /* Setting objects list *
                     objects = Arrays.asList(((Optional) object).get());
 
                 } else {
 
-                    /* Setting objects list */
+                    /* Setting objects list *
                     objects = Arrays.asList(object);
 
                 }
 
                 log.debug("notifyData - topicName: {} - objects: {}", topicName, objects);
 
-                /* Setting virtualTopicName */
+                /* Setting virtualTopicName *
                 String virtualTopicName = new StringBuilder().append("VirtualTopic.").append(topicName).toString();
 
-                /* Iterate over objects list */
+                /* Iterate over objects list *
                 for (Object currentObject : objects) {
 
-                    /* Publishing object */
+                    /* Publishing object *
                  //   jmsTemplate.convertAndSend(virtualTopicName, currentObject);
 
                     log.info("notifyData end ok - topicName: {}", virtualTopicName);

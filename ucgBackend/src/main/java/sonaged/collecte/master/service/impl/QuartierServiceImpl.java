@@ -79,7 +79,7 @@ public class QuartierServiceImpl implements QuartierService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found to update ".formatted(quartierId)
                 ));
-        if (!Objects.equals(existedQuartier.getQquartierId(), quartierDto.getQquartierId())) {
+        if (!Objects.equals(existedQuartier.getQuartierId(), quartierDto.getQuartierId())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }

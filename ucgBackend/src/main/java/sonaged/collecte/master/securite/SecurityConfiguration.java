@@ -1,48 +1,59 @@
-package sonaged.collecte.master.security;
+package sonaged.collecte.master.securite;
 
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import sonaged.collecte.master.securite.JwtFilter;
+
+import java.util.Collections;
 
 import static org.springframework.http.HttpMethod.POST;
 
-
-
 @Configuration
 @EnableWebSecurity
-public class ConfigurationSecuriteApplication{
+public class SecurityConfiguration{
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JWTAuthorizationFilter jwtFilter;
+    private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
-    public ConfigurationSecuriteApplication(BCryptPasswordEncoder bCryptPasswordEncoder, JWTAuthorizationFilter jwtFilter, UserDetailsService userDetailsService) {
+    public SecurityConfiguration(BCryptPasswordEncoder bCryptPasswordEncoder, JwtFilter jwtFilter, UserDetailsService userDetailsService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
     }
 
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return
                 httpSecurity
+
+
+                        .cors(cors -> cors.configurationSource(new CorsConfigurationSource () {
+                            @Override
+                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                                CorsConfiguration cors = new CorsConfiguration();
+                                cors.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                                cors.setAllowedMethods(Collections.singletonList("*"));
+                                cors.setAllowCredentials(true);
+                                cors.setAllowedHeaders(Collections.singletonList("*"));
+                                cors.setExposedHeaders(Collections.singletonList("Authorization"));
+                                cors.setMaxAge(3600L);
+                                return cors;
+                            }
+                        }))
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(
                                 authorize ->
@@ -50,13 +61,16 @@ public class ConfigurationSecuriteApplication{
                                                 .requestMatchers(POST,"/inscription").permitAll()
                                                 .requestMatchers(POST,"/activation").permitAll()
                                                 .requestMatchers(POST,"/connexion").permitAll()
+                                                .requestMatchers("/swagger-ui/**", "/sonaged-docs/**", "/error", "/").permitAll()
+                                                .requestMatchers("/api/").permitAll()
+                                                .requestMatchers("/api/**").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->
                                 httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-                        )
-                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                                )
+                        //.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                         .build();
     }
 

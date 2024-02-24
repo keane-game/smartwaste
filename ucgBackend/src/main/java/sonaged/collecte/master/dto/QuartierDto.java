@@ -5,13 +5,16 @@ import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import sonaged.collecte.master.model.Depotoir;
+
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class QuartierDto {
 
-    private  Long qquartierId;
+    private  Long quartierId;
 
     private String quartierName;
 
@@ -38,4 +41,6 @@ public class QuartierDto {
     private String quartierLength;
 
     private String quartierArea;
+
+    private List<Depotoir> depotoirs;
 }

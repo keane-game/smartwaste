@@ -14,17 +14,21 @@ import java.util.Set;
 public class UserDto {
     private  Long userId;
 
-    private String userName;
+    private String userFirstname;
+
+    private String userLastname;
 
     private String userEmail;
 
     private String userCode;
 
+    private String password;
+
     private String userAddress;
 
     private String userPhone;
 
-    private Set<Authority> authorities;
+    private Authority authority;
 
     private Instant createAt;
 

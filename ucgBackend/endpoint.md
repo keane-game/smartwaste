@@ -106,4 +106,4 @@ List of all endpoints from ths api
     * `[POST]` - api/create/user/
     * `[PUT]` - api/update/user/
     * `[DELETE]` - api/delete/user/
-  
+

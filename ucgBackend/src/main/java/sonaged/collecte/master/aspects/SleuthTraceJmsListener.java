@@ -18,7 +18,7 @@ public class SleuthTraceJmsListener {
      *  This proxy around the method call allow to bypass the issue
      *  related spring issue : https://github.com/spring-projects/spring-framework/issues/19247
      */
-    @Around("@annotation(org.springframework.jms.annotation.JmsListener)")
+  //  @Around("@annotation(org.springframework.jms.annotation.JmsListener)")
     public Object traceJmsListener(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             return joinPoint.proceed();

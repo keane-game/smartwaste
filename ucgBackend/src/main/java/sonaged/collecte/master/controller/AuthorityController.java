@@ -5,16 +5,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sonaged.collecte.master.annotations.SonagedApi;
 import sonaged.collecte.master.model.Authority;
 import sonaged.collecte.master.service.AuthorityService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
+@RequestMapping("/api/authorities")
 public class AuthorityController {
 
     private final AuthorityService authorityService;
@@ -26,7 +30,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/authority/{id}")
+    @GetMapping("/{authorityId}")
     public ResponseEntity<Authority> getOneAuthority(@PathVariable("authorityId") Long authorityId){
         Authority authority = authorityService.getOneAuthority(authorityId);
         return ResponseEntity
@@ -41,21 +45,22 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/authoritys/all")
+    @GetMapping(name = "/", produces = "application/json")
     public ResponseEntity<List<Authority>> getAllAuthority(){
         return ResponseEntity
                 .ok()
                 .body(authorityService.getAllAuthority());
     }
 
-    @Operation(summary = "Create one Authority")
+    @Operation(summary = "Create one Authority", description = "A role is a set of permissions that give access to product features")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Create one authority"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
+            @ApiResponse(responseCode = "201", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
     })
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/authority")
+    @ResponseStatus(HttpStatus.CREATED)
+    @SonagedApi
+    @PostMapping(name = "/authority", consumes = "application/json")
     public ResponseEntity<Authority> createOneAuthority(@RequestBody Authority authority){
         Authority createAuthority = authorityService.createOneAuthority(authority);
         return ResponseEntity.ok()
@@ -69,7 +74,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/authority/{id}")
+    @PutMapping(name = "/{authorityId}")
     public ResponseEntity<Authority>  updateOneAuthority(@PathVariable("authorityId") Long authorityId, @RequestBody() Authority authority) {
         Authority updatedAuthority = authorityService.updateOneAuthority(authorityId, authority);
         return ResponseEntity.ok()
@@ -83,11 +88,13 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/authority/{id}")
+    @DeleteMapping(name = "/authorityId}")
     public ResponseEntity<String> deleteOneAuthority(@PathVariable("authorityId") Long authorityId) {
         authorityService.deleteOneAuthority(authorityId);
+        log.debug("deleteRole end ok - roQleId: {}", authorityId);
         return ResponseEntity.ok()
                 .body("Successfully delete");
+
     }
 
 }

@@ -3,6 +3,9 @@ package sonaged.collecte.master.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import sonaged.collecte.master.model.Depotoir;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,4 +17,7 @@ public class RegionDto {
     private String regionName;
 
     private String regionCode;
+
+    private List<Depotoir> depotoirs;
+
 }

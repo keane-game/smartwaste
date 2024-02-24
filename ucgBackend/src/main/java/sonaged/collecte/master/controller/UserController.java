@@ -15,7 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api.ucg/v1")
+@RequestMapping("api")
 public class UserController {
 
 
@@ -28,7 +28,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<UserDto> getOneUser(@PathVariable("userId") Long userId){
         UserDto userDto = userService.getOneUser(userId);
         return ResponseEntity
@@ -43,7 +43,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/users/all")
+    @GetMapping(path = "/users/all")
     public ResponseEntity<List<UserDto>> getAllUser(){
         return ResponseEntity
                 .ok()
@@ -71,7 +71,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/user/{id}")
+    @PutMapping("/update/user/{userId}")
     public ResponseEntity<UserDto>  updateOneUser(@PathVariable("userId") Long userId, @RequestBody() UserDto userDto) {
         UserDto user = userService.updateOneUser(userId, userDto);
         return ResponseEntity.ok()
@@ -85,7 +85,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/user/{id}")
+    @DeleteMapping("/delete/user/{userId}")
     public ResponseEntity<String> deleteOneUser(@PathVariable("userId") Long userId) {
         userService.deleteOneUser(userId);
         return ResponseEntity.ok()
