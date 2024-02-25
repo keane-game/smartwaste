@@ -7,7 +7,6 @@ import { UpdateUserComponent } from './update/update-user.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialsModule } from '../../materials/material.module';
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
 
 @NgModule({
  
@@ -18,7 +17,6 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
     ReactiveFormsModule,
     FormsModule,
     MaterialsModule,
-    NgMultiSelectDropDownModule
   ],
   declarations: [
     CreateUserComponent,

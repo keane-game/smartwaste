@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
 import { PuPopWidget } from "../../../shares/widget/pupop.widget";
+import { SuccessComponent } from "../../../shares/success/success.component";
 
 @Component({
   selector: 'app-update-user',
@@ -24,7 +25,8 @@ export class UpdateUserComponent implements OnInit {
   currentUser: any;
 
 
-  successDialogRef!: MatDialogRef<PuPopWidget>;
+ 
+  successDialogRef!: MatDialogRef<SuccessComponent>;
   constructor(
     private updateUserModal: MatDialogRef<UpdateUserComponent>,
     private el: ElementRef,
@@ -41,7 +43,8 @@ export class UpdateUserComponent implements OnInit {
       userFirstname: ['', Validators.required],
       userLastname: ['', Validators.required],
       userEmail: ['', Validators.required],
-      password: ['', Validators.required],
+      password: [''],
+      userId: [''],
       userAddress: ['', Validators.required],
       userPhone: ['', Validators.required],
       authority: [this.currentUser.authority, Validators.required],
@@ -73,7 +76,7 @@ export class UpdateUserComponent implements OnInit {
   }
 
   OpenSuccessModal() {
-    this.successDialogRef = this.matDialog.open(PuPopWidget, {
+    this.successDialogRef = this.matDialog.open(SuccessComponent, {
       disableClose: false,
       panelClass: ['success-with-dialog'],
     });
@@ -118,12 +121,12 @@ export class UpdateUserComponent implements OnInit {
    
     console.log(this.updateUserForm.value)
     // stop here if form is invalid
- 
+    this.sharedService.url = '/update/user';
     this.sharedService.update(this.updateUserForm.value, this.id)
     .pipe(first())
     .subscribe({
       next:  () => {
-        this.reload("/kpireview/users")
+        this.reload("/users")
         this.CloseCreateUserModal()
         setTimeout(()=>  {
           //window.location.reload()

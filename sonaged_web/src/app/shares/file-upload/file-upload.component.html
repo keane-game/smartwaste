@@ -1,0 +1,15 @@
+<label
+  class="drag-zone"
+  [appDragDrop]="dragDropEnabled"
+  (dropped)="handleFileDrop($event)"
+>
+  <input
+    type="file"
+    [accept]="fileType"
+    [multiple]="multiple"
+    #fileInput
+    (change)="addFiles(fileInput.files)"
+    class="visually-hidden"
+  />
+  <ng-content></ng-content>
+</label>

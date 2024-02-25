@@ -12,6 +12,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { headerTitleService } from '../../../services/headerTitle.service';
 import { CreateUserComponent } from '../create/create-user.component';
 import { UpdateUserComponent } from '../update/update-user.component';
+import { DeleteComponent } from '../../../shares/delete/delete.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -36,6 +38,7 @@ export class ListUserComponent implements  OnInit {
 
   @Input() userChangeEvent = new EventEmitter<number>();
 
+  deleteDialogRef!: MatDialogRef<DeleteComponent>;
   createUserDialogRef!: MatDialogRef<CreateUserComponent>;
   updateUserDialogRef!: MatDialogRef<UpdateUserComponent>;
   constructor(
@@ -43,6 +46,8 @@ export class ListUserComponent implements  OnInit {
     private sharedService: SharedService,
     private createUserMatDialog: MatDialog,
     private updateUserMatDialog: MatDialog,
+    private matDialog: MatDialog,
+    private router: Router,
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService
     ) { }
@@ -187,6 +192,18 @@ export class ListUserComponent implements  OnInit {
     }
   }
 
+  CloseSuccessModal() {
+    this.deleteDialogRef.close();
+  }
+
+  OpenSuccessModal() {
+    this.deleteDialogRef = this.matDialog.open(DeleteComponent, {
+      disableClose: false,
+      panelClass: ['success-with-dialog'],
+    });
+  }
+
+
   onDeleteUser(id: number): void{
     console.log(id);
     this.sharedService.url = '/delete/user';
@@ -194,14 +211,23 @@ export class ListUserComponent implements  OnInit {
       this.sharedService.delete(+id)
       .pipe(first())
       .subscribe({
-        next: (response) => {
-        //  console.log(response);
-          this.ngOnInit();
+        next: () => {
+        this.reload("/users")
+        this.OpenSuccessModal()
+        setTimeout(()=>  {
+          //window.location.reload()
+          this.CloseSuccessModal()
+        }, 1500 );
         },
         error:  error => { this.error = error}
       })
         
     }
+  }
+
+  async reload(url: string): Promise<boolean> {
+    await this.router.navigateByUrl('/', { skipLocationChange: true });
+    return this.router.navigateByUrl(url);
   }
 
 }

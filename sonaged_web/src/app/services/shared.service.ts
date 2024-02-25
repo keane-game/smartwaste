@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { throwError, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -12,7 +12,12 @@ export class SharedService {
 
   public url = '';
   constructor(private http: HttpClient) { }
-
+   httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    })
+  };
   getAll(): Observable<any>{
     return this.http
      .get(environment.apiUrl + this.url, {headers: {Accept: 'application/json'} })
@@ -38,13 +43,13 @@ export class SharedService {
      .pipe( catchError(this.handleError));
   }
 
-  update(data: any, id: number): Observable<any>{
-    return this.http.put(`${environment.apiUrl}${this.url}/${id}`, data).pipe(
+  update(data: any, userId: number): Observable<any>{
+    return this.http.put(`${environment.apiUrl}${this.url}/${userId}`, data).pipe(
       catchError(this.handleError));
   }
 
-  delete(id: number): Observable<any>{
-    return this.http.delete(`${environment.apiUrl}${this.url}/${id}`).pipe(
+  delete(userId: number): Observable<any>{
+    return this.http.delete(`${environment.apiUrl}${this.url}/${userId}`).pipe(
     catchError(this.handleError)
     );
   }

@@ -51,28 +51,28 @@
           <div class="col-md sm-pb-3">
             <div class="form-floating">
               <input type="text" class="form-control" id="userAddress"
-              formControlName="userAddress"
-               placeholder="Hamo 6" required>
+                formControlName="userAddress"
+                placeholder="Hamo 6" required
+              >
               <label for="userAddress">Adresse</label>
             </div>
           </div> 
           <div class="col-md sm-pb-3">
             <div class="form-floating">
               
-            <label for="role" class="label-role label_after" >Role</label>
-              <ng-multiselect-dropdown
-              formControlName="authority"
-              required="true"
-              placeholder=""
-              id="role"
-              [settings]="roleSettings"
-              [data]="listRoles"
-              (onSelect)="onItemSelectRole($event)"
-              (onDropDownClose)="onDropDownCloseRole()"
-              (onDeSelect)="onItemDeSelectRole($event)"
-              >
-              
-            </ng-multiselect-dropdown>
+              <label for="role" class="label-role" >Role</label>
+                <ng-multiselect-dropdown
+                  formControlName="authority"
+                  required="true"
+                  placeholder=""
+                  id="role"
+                  [settings]="roleSettings"
+                  [data]="listRoles"
+                  (onSelect)="onItemSelectRole($event)"
+                  (onDropDownClose)="onDropDownCloseRole()"
+                  (onDeSelect)="onItemDeSelectRole($event)"
+                  >
+                </ng-multiselect-dropdown>
             </div>
           </div>
         </div>

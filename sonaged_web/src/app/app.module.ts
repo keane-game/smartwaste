@@ -25,6 +25,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { TapbarWidget } from './shares/widget/tapbar.widget';
 import { PuPopWidget } from './shares/widget/pupop.widget'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
+import { DragDropDirective } from './directives/drag-drop.directive';
+import { FileUploadComponent } from './shares/file-upload/file-upload.component';
 
 
 export function tokenGetter() {
@@ -39,7 +41,9 @@ export function tokenGetter() {
     FooterComponent,
     HeaderComponent,
     TapbarWidget,
-    PuPopWidget
+    PuPopWidget,
+    FileUploadComponent,
+    DragDropDirective
   ],
   imports: [
     BrowserModule,
@@ -58,6 +62,8 @@ export function tokenGetter() {
         disallowedRoutes: ["http://example.com/examplebadroute/"],
       },
     }),
+
+    MaterialsModule,
   ],
   providers: [AppRoutingModule],
   bootstrap: [AppComponent]

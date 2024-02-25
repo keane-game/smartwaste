@@ -73,7 +73,9 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-
+    <div class="text-center my-5 lg-text" *ngIf="dataSource?.length <= 0">
+      Auncune donnée n'est disponible sur ce tableau
+  </div >
   <mat-paginator [hidePageSize]="true" [pageSizeOptions]="[20, 40, 60]"
     style="border: none; display: none;"></mat-paginator>
 

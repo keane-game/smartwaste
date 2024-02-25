@@ -14,6 +14,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatCheckboxModule } from "@angular/material/checkbox";
 
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
+
 // import { A11yModule } from '@angular/cdk/a11y';
 // import { DragDropModule } from '@angular/cdk/drag-drop';
 // import { PortalModule } from '@angular/cdk/portal';
@@ -63,7 +65,8 @@ const MAT_MATERIAL = [
         MatDividerModule,
         MatListModule,
         MatSidenavModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        NgMultiSelectDropDownModule
     ];
 
  @NgModule({

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
 import { PuPopWidget } from "../../../shares/widget/pupop.widget";
+import { SuccessComponent } from "../../../shares/success/success.component";
 
 
 @Component({
@@ -23,7 +24,7 @@ export class CreateUserComponent implements OnInit {
   userForm!: FormGroup;
 
 
-  successDialogRef!: MatDialogRef<PuPopWidget>;
+  successDialogRef!: MatDialogRef<SuccessComponent>;
   constructor(
     private createUserModal: MatDialogRef<CreateUserComponent>,
     private el: ElementRef,
@@ -64,12 +65,13 @@ export class CreateUserComponent implements OnInit {
     this.createUserModal.close(false)
     this.OpenSuccessModal()
   }
+  
   CloseSuccessModal() {
     this.successDialogRef.close();
   }
 
   OpenSuccessModal() {
-    this.successDialogRef = this.matDialog.open(PuPopWidget, {
+    this.successDialogRef = this.matDialog.open(SuccessComponent, {
       disableClose: false,
       panelClass: ['success-with-dialog'],
     });
