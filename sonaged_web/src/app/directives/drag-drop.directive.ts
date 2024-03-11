@@ -17,7 +17,7 @@ export class DragDropDirective {
     return this._dragInProgress;
   }
 
-  @Output() dropped: EventEmitter<any>;
+  @Output() dropped!: EventEmitter<any>;
 
   constructor() {
     this.dropped = new EventEmitter();

@@ -15,8 +15,9 @@ import sonaged.collecte.master.service.RegionService;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Service
 @Slf4j
+@RestController
+@RequestMapping("api")
 public class RegionController {
 
 
@@ -28,7 +29,7 @@ public class RegionController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/region/{id}")
+    @GetMapping("/region/{regionId}")
     public ResponseEntity<RegionDto> getOneRegion(@PathVariable("regionId") Long regionid){
         RegionDto regionDto = regionService.getOneRegion(regionid);
         return ResponseEntity

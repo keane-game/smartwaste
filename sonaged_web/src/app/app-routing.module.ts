@@ -18,7 +18,7 @@ const routes: Routes = [
       },
       {
         path: '',
-        loadChildren: () => import('./entity/entities.module').then(m => m.EntitiesModule)
+        loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule)
       },
       {
         path: 'password',
@@ -52,6 +52,7 @@ const routes: Routes = [
     path: 'about',
     loadChildren: () => import('./pages/general/about/about.routes').then(routes => routes.routes)
   },
+
 
  
   { path: '**', component: NotFoundComponent }

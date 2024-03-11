@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class GeometryController {
     private final GeometryService geometryService;
 
@@ -24,7 +25,7 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/geometry/{id}")
+    @GetMapping("/geometry/{geometryId}")
     public ResponseEntity<GeometryDto> getOneGeometry(@PathVariable("geometryId") Long geometryId){
         GeometryDto geometryDto = geometryService.getOneGeometry(geometryId);
         return ResponseEntity
@@ -67,7 +68,7 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/geometry/{id}")
+    @PutMapping("/update/geometry/{geometryId}")
     public ResponseEntity<GeometryDto>  updateOneGeometry(@PathVariable("geometryId") Long geometryId, @RequestBody() GeometryDto geometryDto) {
         GeometryDto geometry = geometryService.updateOneGeometry(geometryId, geometryDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/geometry/{id}")
+    @DeleteMapping("/delete/geometry/{geometryId}")
     public ResponseEntity<String> deleteOneGeometry(@PathVariable("geometryId") Long geometryId) {
         geometryService.deleteOneGeometry(geometryId);
         return ResponseEntity.ok()

@@ -1,0 +1,14 @@
+<label for="role" class="label-role " >Région</label>
+<ng-multiselect-dropdown
+formControlName="region"
+required="true"
+placeholder=""
+id="role"
+[settings]="regionSettings"
+[data]="listRegions"
+(onSelect)="onItemSelectRegion($event)"
+(onDropDownClose)="onDropDownCloseRegion()"
+(onDeSelect)="onItemDeSelectRegion($event)"
+>
+
+</ng-multiselect-dropdown>

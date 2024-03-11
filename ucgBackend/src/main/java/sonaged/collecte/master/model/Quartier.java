@@ -68,13 +68,16 @@ public class Quartier {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "quartier")
-    @ToString.Exclude
     List<Depotoir> depotoirs;
 
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "communeId")
+    @JsonIgnore
+    private Commune commune;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
-    @EqualsAndHashCode.Include
+    @JsonIgnore
     Geometry geometry;
 
     @Override

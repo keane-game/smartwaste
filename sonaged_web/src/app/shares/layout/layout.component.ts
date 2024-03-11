@@ -2,6 +2,7 @@ import { AfterContentChecked, AfterViewInit, ChangeDetectorRef, Component, Eleme
 import { Title } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { headerTitleService } from '../../services/headerTitle.service'; ;
+import * as Leaflet from 'leaflet';
 
 declare var $: any;
 
@@ -14,6 +15,12 @@ export class LayoutComponent  implements  AfterViewInit, OnInit, AfterContentChe
 isClicked = false;
 pageTitle = "Dashboard"
 
+
+options: Leaflet.MapOptions = {
+  layers: getLayers(),
+  zoom: 20,
+  center: new Leaflet.LatLng(14.693425, -17.447938, 20)
+};
   constructor(
     private elRef: ElementRef,
     private renderer: Renderer2,
@@ -72,3 +79,11 @@ pageTitle = "Dashboard"
 
 
 }
+
+export const getLayers = (): Leaflet.Layer[] => {
+  return [
+    new Leaflet.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    } as Leaflet.TileLayerOptions),
+  ] as Leaflet.Layer[];
+};

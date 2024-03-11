@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping
+@RequestMapping("api")
 public class CoordinateController {
     private final CoordinateService coordinateService;
 
@@ -26,7 +26,7 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/coordinate/{id}")
+    @GetMapping("/coordinate/{coordinateId}")
     public ResponseEntity<CoordinateDto> getOneCoordinate(@PathVariable("coordinateId") Long coordinateId){
         CoordinateDto coordinateDto = coordinateService.getOneCoordinate(coordinateId);
         return ResponseEntity
@@ -70,7 +70,7 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/coordinate/{id}")
+    @PutMapping("/update/coordinate/{coordinateId}")
     public ResponseEntity<CoordinateDto>  updateOneCoordinate(@PathVariable("coordinateId") Long coordinateId, @RequestBody() CoordinateDto coordinateDto) {
         CoordinateDto coordinate = coordinateService.updateOneCoordinate(coordinateId, coordinateDto);
         return ResponseEntity.ok()
@@ -84,7 +84,7 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/coordinate/{id}")
+    @DeleteMapping("/delete/coordinate/{coordinateId}")
     public ResponseEntity<String> deleteOneCoordinate(@PathVariable("coordinateId") Long coordinateId) {
         coordinateService.deleteOneCoordinate(coordinateId);
         return ResponseEntity.ok()

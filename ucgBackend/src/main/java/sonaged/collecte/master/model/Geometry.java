@@ -34,29 +34,12 @@ public class Geometry  implements Serializable {
     @Column(name = "geometryRing")
     private String geometryRing;
 
-    @JsonIgnore
     @OneToMany(
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            mappedBy = "geometry")
-    @ToString.Exclude
-    //@JoinColumn(name = "geometryId")
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "geometryId")
     private List<Coordinate> coordinates;
 
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Geometry geometry = (Geometry) o;
-        return getGeometryId() != null && Objects.equals(getGeometryId(), geometry.getGeometryId());
-    }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
 }

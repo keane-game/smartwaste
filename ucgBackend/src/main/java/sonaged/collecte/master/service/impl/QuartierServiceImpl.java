@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.CommuneMapper;
+import sonaged.collecte.master.mapper.RegionMapper;
+import sonaged.collecte.master.repository.CommuneRepository;
 import sonaged.collecte.master.repository.QuartierRepository;
 import sonaged.collecte.master.dto.QuartierDto;
 import sonaged.collecte.master.mapper.QuartierMapper;
@@ -17,6 +20,7 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class QuartierServiceImpl implements QuartierService {
+    private final CommuneRepository communeRepository;
 
     private final QuartierRepository quartierRepository;
     /**
@@ -47,24 +51,15 @@ public class QuartierServiceImpl implements QuartierService {
      */
     @Override
     public QuartierDto createOneQuartier(QuartierDto quartierDto) {
-        Quartier quartier = Quartier.builder()
-                .quartierName(quartierDto.getQuartierName())
-                .quartierArea(quartierDto.getQuartierArea())
-                .quartierCav(quartierDto.getQuartierCav())
-                .quartierCcrca(quartierDto.getQuartierCcrca())
-                .quartierLength(quartierDto.getQuartierLength())
-                .quartierNumerozr(quartierDto.getQuartierNumerozr())
-                .quartierPoucentage(quartierDto.getQuartierPoucentage())
-                .quartierCodeCav(quartierDto.getQuartierCodeCav())
-                .quartierCodeCcrca(quartierDto.getQuartierCodeCcrca())
-                .quartierCodeEntity(quartierDto.getQuartierCodeEntity())
-                .quartierCodeSzr(quartierDto.getQuartierCodeSzr())
-                .quartierZoneCoron(quartierDto.getQuartierZoneCoron())
-                .quartierCode(quartierDto.getQuartierCode())
-                .quartierArea(quartierDto.getQuartierArea())
-                .build();
 
-        Quartier quartierSave = quartierRepository.save(quartier);
+        var communeId = quartierDto.getCommune().getCommuneId ();
+        if(communeId != null) {
+            var commune = communeRepository.findById (communeId).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+            quartierDto.setCommune (CommuneMapper.COMP.modelToDto (commune));
+        }
+        var quartierSave = quartierRepository.save(QuartierMapper.QMP.dtoToModel (quartierDto));
         return QuartierMapper.QMP.modelToDto(quartierSave);
     }
 

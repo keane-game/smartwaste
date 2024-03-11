@@ -29,21 +29,21 @@ public class Department {
     @Column(name = "departmentCode")
     private String departmentCode;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
-    @EqualsAndHashCode.Include
+    @JsonIgnore
     Geometry geometry;
 
-    @JsonIgnore
     @OneToMany(
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "department")
-    @ToString.Exclude
+    @JsonIgnore
     private List<Commune> communes;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "regionId")
+    @JsonIgnore
     private Region region;
 
 

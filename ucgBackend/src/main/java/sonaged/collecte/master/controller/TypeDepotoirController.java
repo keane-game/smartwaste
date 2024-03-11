@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class TypeDepotoirController {
 
     private final TypeDepotoirService typeDepotoirService;

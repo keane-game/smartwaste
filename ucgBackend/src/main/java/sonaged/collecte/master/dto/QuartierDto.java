@@ -1,11 +1,13 @@
 package sonaged.collecte.master.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import sonaged.collecte.master.model.Depotoir;
+import sonaged.collecte.master.model.Geometry;
 
 import java.util.List;
 
@@ -42,5 +44,10 @@ public class QuartierDto {
 
     private String quartierArea;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Depotoir> depotoirs;
+
+    private CommuneDto commune;
+
+    private GeometryDto geometry;
 }

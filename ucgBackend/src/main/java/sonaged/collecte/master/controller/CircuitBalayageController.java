@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class CircuitBalayageController {
     private final CircuitBalayageService circuitBalayageService;
 
@@ -24,7 +25,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-balayage/{id}")
+    @GetMapping("/circuit-balayage/{circuitBalayageId}")
     public ResponseEntity<CircuitBalayageDto> getOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId){
         CircuitBalayageDto circuitBalayageDto = circuitBalayageService.getOneCircuitBalayage(circuitBalayageId);
         return ResponseEntity
@@ -67,7 +68,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/circuit-balayage/{id}")
+    @PutMapping("/update/circuit-balayage/{circuitBalayageId}")
     public ResponseEntity<CircuitBalayageDto>  updateOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId, @RequestBody() CircuitBalayageDto circuitBalayageDto) {
         CircuitBalayageDto circuitBalayage = circuitBalayageService.updateOneCircuitBalayage(circuitBalayageId, circuitBalayageDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/circuit-balayage/{id}")
+    @DeleteMapping("/delete/circuit-balayage/{circuitBalayageId}")
     public ResponseEntity<String> deleteOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId) {
         circuitBalayageService.deleteOneCircuitBalayage(circuitBalayageId);
         return ResponseEntity.ok()

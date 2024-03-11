@@ -37,7 +37,7 @@ public class Authority extends AbstractAuditingEntity<Long> implements Serializa
     private String authorityName;
 
 
-    @Column(name = "authorityRealm", nullable = false)
+    @Column(name = "authorityRealm", nullable = true)
     String authorityRealm;
 
     @Column(name = "authorityDescription")

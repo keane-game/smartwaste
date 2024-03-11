@@ -49,7 +49,6 @@ public class CoordinateServiceImpl implements CoordinateService {
                 .latitude(coordinateDto.getLatitude())
                 .longitude(coordinateDto.getLongitude())
                 .altitude(coordinateDto.getAltitude())
-                .geometry(coordinateDto.getGeometry())
                 .build();
 
          coordinate = coordinateRepository.save(coordinate);

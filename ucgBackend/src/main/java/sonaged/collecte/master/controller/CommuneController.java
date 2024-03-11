@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class CommuneController {
 
     private final CommuneService communeService;
@@ -24,7 +25,7 @@ public class CommuneController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/commune/{id}")
+    @GetMapping("/commune/{communeId}")
     public ResponseEntity<CommuneDto> getOneCommune(@PathVariable("communeId") Long communeid){
         CommuneDto communeDto = communeService.getOneCommune(communeid);
         return ResponseEntity
@@ -67,7 +68,7 @@ public class CommuneController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/commune/{id}")
+    @PutMapping("/update/commune/{communeId}")
     public ResponseEntity<CommuneDto>  updateOneCommune(@PathVariable("communeId") Long communeId, @RequestBody() CommuneDto communeDto) {
         CommuneDto commune = communeService.updateOneCommune(communeId, communeDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class CommuneController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/commune/{id}")
+    @DeleteMapping("/delete/commune/{communeId}")
     public ResponseEntity<String> deleteOneCommune(@PathVariable("communeId") Long communeId) {
         communeService.deleteOneCommune(communeId);
         return ResponseEntity.ok()

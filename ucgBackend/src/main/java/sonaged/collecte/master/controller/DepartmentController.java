@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class DepartmentController {
     private final DepartmentService departmentService;
 
@@ -24,7 +25,7 @@ public class DepartmentController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/department/{id}")
+    @GetMapping("/department/{departmentId}")
     public ResponseEntity<DepartmentDto> getOneDepartment(@PathVariable("departmentId") Long departmentid){
         DepartmentDto departmentDto = departmentService.getOneDepartment(departmentid);
         return ResponseEntity
@@ -67,7 +68,7 @@ public class DepartmentController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/department/{id}")
+    @PutMapping("/update/department/{departmentId}")
     public ResponseEntity<DepartmentDto>  updateOneDepartment(@PathVariable("departmentId") Long departmentId, @RequestBody() DepartmentDto departmentDto) {
         DepartmentDto department = departmentService.updateOneDepartment(departmentId, departmentDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class DepartmentController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/department/{id}")
+    @DeleteMapping("/delete/department/{departmentId}")
     public ResponseEntity<String> deleteOneDepartment(@PathVariable("departmentId") Long departmentId) {
         departmentService.deleteOneDepartment(departmentId);
         return ResponseEntity.ok()

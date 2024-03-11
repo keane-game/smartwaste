@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.DepartmentMapper;
+import sonaged.collecte.master.mapper.RegionMapper;
 import sonaged.collecte.master.repository.CommuneRepository;
 import sonaged.collecte.master.dto.CommuneDto;
 import sonaged.collecte.master.mapper.CommuneMapper;
 import sonaged.collecte.master.model.Commune;
+import sonaged.collecte.master.repository.DepartmentRepository;
 import sonaged.collecte.master.service.CommuneService;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class CommuneServiceImpl implements CommuneService {
+    private final DepartmentRepository departmentRepository;
 
     private final CommuneRepository communeRepository;
     /**
@@ -47,18 +51,15 @@ public class CommuneServiceImpl implements CommuneService {
      */
     @Override
     public CommuneDto createOneCommune(CommuneDto communeDto) {
-        Commune commune = Commune.builder()
-                .communeName(communeDto.getCommuneName())
-                .communeCode(communeDto.getCommuneCode())
-                .communeArea(communeDto.getCommuneArea())
-                .communeLength(communeDto.getCommuneLength())
-                .manResident(communeDto.getManResident())
-                .womanResident(communeDto.getWomanResident())
-                .residentTotal(communeDto.getResidentTotal())
-                .build();
 
-        Commune communeSave = communeRepository.save(commune);
-        return CommuneMapper.COMP.modelToDto(commune);
+        if(communeDto.getDepartment ().getDepartmentId () != null) {
+            var department = departmentRepository.findById (communeDto.getDepartment ().getDepartmentId () ).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+            communeDto.setDepartment ( DepartmentMapper.DMP.modelToDto(department));
+        }
+        var communeSave = communeRepository.save(CommuneMapper.COMP.dtoToModel (communeDto));
+        return CommuneMapper.COMP.modelToDto(communeSave);
     }
 
     /**

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sonaged.collecte.master.dto.UserDto;
+import sonaged.collecte.master.dto.UserResponse;
 import sonaged.collecte.master.service.UserService;
 
 import java.util.List;
@@ -29,11 +30,11 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/user/{userId}")
-    public ResponseEntity<UserDto> getOneUser(@PathVariable("userId") Long userId){
-        UserDto userDto = userService.getOneUser(userId);
+    public ResponseEntity<UserResponse> getOneUser(@PathVariable("userId") Long userId){
+        UserResponse userResponse = userService.getOneUser(userId);
         return ResponseEntity
                 .ok()
-                .body(userDto);
+                .body(userResponse);
     }
 
     @Operation(summary = "Get All User")
@@ -44,7 +45,7 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/users/all")
-    public ResponseEntity<List<UserDto>> getAllUser(){
+    public ResponseEntity<List<UserResponse>> getAllUser(){
         return ResponseEntity
                 .ok()
                 .body(userService.getAllUser());
@@ -58,8 +59,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/create/user")
-    public ResponseEntity<UserDto> createOneUser(@RequestBody UserDto userDto){
-        UserDto user = userService.createOneUser(userDto);
+    public ResponseEntity<UserResponse> createOneUser(@RequestBody UserDto userDto){
+        UserResponse user = userService.createOneUser(userDto);
         return ResponseEntity.ok()
                 .body(user);
     }
@@ -72,8 +73,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/update/user/{userId}")
-    public ResponseEntity<UserDto>  updateOneUser(@PathVariable("userId") Long userId, @RequestBody() UserDto userDto) {
-        UserDto user = userService.updateOneUser(userId, userDto);
+    public ResponseEntity<UserResponse>  updateOneUser(@PathVariable("userId") Long userId, @RequestBody() UserResponse userResponse) {
+        UserResponse user = userService.updateOneUser(userId, userResponse);
         return ResponseEntity.ok()
                 .body(user);
     }

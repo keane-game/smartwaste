@@ -3,14 +3,13 @@ package sonaged.collecte.master.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.dto.UserResponse;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.model.Authority;
+import sonaged.collecte.master.repository.AuthorityRepository;
 import sonaged.collecte.master.repository.UserRepository;
 import sonaged.collecte.master.dto.UserDto;
 import sonaged.collecte.master.mapper.UserMapper;
@@ -27,6 +26,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserServiceImpl  implements UserService {
+    private final AuthorityRepository authorityRepository;
 
     private final UserRepository userRepository;
 
@@ -39,7 +39,7 @@ public class UserServiceImpl  implements UserService {
      * @throws ResourceNotFoundException
      */
     @Override
-    public UserDto getOneUser(Long userId) {
+    public UserResponse getOneUser(Long userId) {
         User user  = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(userId)
@@ -52,7 +52,7 @@ public class UserServiceImpl  implements UserService {
      *
      */
     @Override
-    public List<UserDto> getAllUser() {
+    public List<UserResponse> getAllUser() {
         List<User> userList = userRepository.findAll();
         return UserMapper.UMP.listModelToDto(userList);
     }
@@ -62,7 +62,7 @@ public class UserServiceImpl  implements UserService {
      * @return UserDto
      */
     @Override
-    public UserDto createOneUser(UserDto userDto) {
+    public UserResponse createOneUser(UserDto userDto) {
         User user = User.builder()
                 .userFirstname (userDto.getUserFirstname ())
                 .userLastname (userDto.getUserLastname ())
@@ -79,38 +79,39 @@ public class UserServiceImpl  implements UserService {
 
     /**
      * @param userId 
-     * @param userDto
+     * @param userResponse
      * @return
      */
     @Override
-    public UserDto updateOneUser(Long userId, UserDto userDto) {
+    public UserResponse updateOneUser(Long userId, UserResponse userResponse) {
         User existedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                 "User with id [%s] not found to update ".formatted(userId)
         ));
-        if (!Objects.equals(existedUser.getUserId(), userDto.getUserId())) {
+        if (!Objects.equals(existedUser.getUserId(), userResponse.getUserId())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }
-        if (userDto.getUserEmail() != null){
-            existedUser.setUserEmail(userDto.getUserEmail());
+        if (userResponse.getUserEmail() != null){
+            existedUser.setUserEmail(userResponse.getUserEmail());
         }
-        if (userDto.getUserFirstname () != null){
-            existedUser.setUserFirstname (userDto.getUserFirstname ());
-        }
-
-        if (userDto.getUserLastname () != null){
-            existedUser.setUserLastname (userDto.getUserLastname ());
+        if (userResponse.getUserFirstname () != null){
+            existedUser.setUserFirstname (userResponse.getUserFirstname ());
         }
 
-        if (userDto.getUserCode() != null){
-            existedUser.setUserCode(userDto.getUserCode());
+        if (userResponse.getUserLastname () != null){
+            existedUser.setUserLastname (userResponse.getUserLastname ());
         }
-        if (userDto.getUserPhone() != null){
-            existedUser.setUserPhone(userDto.getUserPhone());
+
+        if (userResponse.getUserCode() != null){
+            existedUser.setUserCode(userResponse.getUserCode());
         }
-        if (userDto.getAuthority() != null){
-            existedUser.setAuthority(userDto.getAuthority());
+        if (userResponse.getUserPhone() != null){
+            existedUser.setUserPhone(userResponse.getUserPhone());
+        }
+        if (userResponse.getAuthority() != null){
+            Authority authority = authorityRepository.findById (userResponse.getAuthority().getAuthorityId ()).get();
+            existedUser.setAuthority(authority);
         }
         User updatedUser = userRepository.save(existedUser);
         return UserMapper.UMP.modelToDto(updatedUser);

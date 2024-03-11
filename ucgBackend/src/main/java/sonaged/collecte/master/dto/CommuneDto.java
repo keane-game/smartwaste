@@ -1,9 +1,15 @@
 package sonaged.collecte.master.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import sonaged.collecte.master.model.Commune;
 import sonaged.collecte.master.model.Department;
+import sonaged.collecte.master.model.Geometry;
+import sonaged.collecte.master.model.Quartier;
+
+import java.util.List;
 
 
 @Getter
@@ -27,5 +33,10 @@ public class CommuneDto {
 
     private String communeArea;
 
-    private Department department;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<Quartier> quartiers;
+
+    private DepartmentDto department;
+
+    private GeometryDto geometry;
 }

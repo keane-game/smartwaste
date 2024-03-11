@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class MoblierUrbainController {
     private final MoblierUrbainService moblierUrbainService;
     @Operation(summary = "Get One MoblierUrbain by Id")
@@ -23,7 +24,7 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/moblier-urbain/{id}")
+    @GetMapping("/moblier-urbain/{moblierUrbainId}")
     public ResponseEntity<MoblierUrbainDto> getOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainid){
         MoblierUrbainDto moblierUrbainDto = moblierUrbainService.getOneMoblierUrbain(moblierUrbainid);
         return ResponseEntity
@@ -66,7 +67,7 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/moblier-urbain/{id}")
+    @PutMapping("/update/moblier-urbain/{moblierUrbainId}")
     public ResponseEntity<MoblierUrbainDto>  updateOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId, @RequestBody() MoblierUrbainDto moblierUrbainDto) {
         MoblierUrbainDto moblierUrbain = moblierUrbainService.updateOneMoblierUrbain(moblierUrbainId, moblierUrbainDto);
         return ResponseEntity.ok()
@@ -80,7 +81,7 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/moblier-urbain/{id}")
+    @DeleteMapping("/delete/moblier-urbain/{moblierUrbainId}")
     public ResponseEntity<String> deleteOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId) {
         moblierUrbainService.deleteOneMoblierUrbain(moblierUrbainId);
         return ResponseEntity.ok()

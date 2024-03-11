@@ -1,9 +1,12 @@
 package sonaged.collecte.master.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import sonaged.collecte.master.model.Department;
 import sonaged.collecte.master.model.Depotoir;
+import sonaged.collecte.master.model.Geometry;
 
 import java.util.List;
 
@@ -18,6 +21,9 @@ public class RegionDto {
 
     private String regionCode;
 
-    private List<Depotoir> depotoirs;
+    private GeometryDto geometry;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<Department> departments;
 
 }

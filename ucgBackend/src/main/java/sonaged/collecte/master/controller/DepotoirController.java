@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class DepotoirController {
     private final DepotoirService depotoirService;
 
@@ -24,9 +25,9 @@ public class DepotoirController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/depotoir/{id}")
-    public ResponseEntity<DepotoirDto> getOneDepotoir(@PathVariable("depotoirId") Long depotoirid){
-        DepotoirDto depotoirDto = depotoirService.getOneDepotoir(depotoirid);
+    @GetMapping("/depotoir/{depotoirId}")
+    public ResponseEntity<DepotoirDto> getOneDepotoir(@PathVariable("depotoirId") Long depotoirId){
+        DepotoirDto depotoirDto = depotoirService.getOneDepotoir(depotoirId);
         return ResponseEntity
                 .ok()
                 .body(depotoirDto);
@@ -67,7 +68,7 @@ public class DepotoirController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/depotoir/{id}")
+    @PutMapping("/update/depotoir/{depotoirId}")
     public ResponseEntity<DepotoirDto>  updateOneDepotoir(@PathVariable("depotoirId") Long depotoirId, @RequestBody() DepotoirDto depotoirDto) {
         DepotoirDto depotoir = depotoirService.updateOneDepotoir(depotoirId, depotoirDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class DepotoirController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/depotoir/{id}")
+    @DeleteMapping("/delete/depotoir/{depotoirId}")
     public ResponseEntity<String> deleteOneDepotoir(@PathVariable("depotoirId") Long depotoirId) {
         depotoirService.deleteOneDepotoir(depotoirId);
         return ResponseEntity.ok()

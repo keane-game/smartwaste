@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class QuartierController {
 
 
@@ -25,7 +26,7 @@ public class QuartierController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/quartier/{id}")
+    @GetMapping("/quartier/{quartierId}")
     public ResponseEntity<QuartierDto> getOneQuartier(@PathVariable("quartierId") Long quartierId){
         QuartierDto quartierDto = quartierService.getOneQuartier(quartierId);
         return ResponseEntity
@@ -68,7 +69,7 @@ public class QuartierController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/quartier/{id}")
+    @PutMapping("/update/quartier/{quartierId}")
     public ResponseEntity<QuartierDto>  updateOneQuartier(@PathVariable("quartierId") Long quartierId, @RequestBody() QuartierDto quartierDto) {
         QuartierDto quartier = quartierService.updateOneQuartier(quartierId, quartierDto);
         return ResponseEntity.ok()
@@ -82,7 +83,7 @@ public class QuartierController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/quartier/{id}")
+    @DeleteMapping("/delete/quartier/{quartierId}")
     public ResponseEntity<String> deleteOneQuartier(@PathVariable("quartierId") Long quartierId) {
         quartierService.deleteOneQuartier(quartierId);
         return ResponseEntity.ok()

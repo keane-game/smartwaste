@@ -1,9 +1,11 @@
 package sonaged.collecte.master.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -42,13 +44,21 @@ public class Commune {
     @Column(name = "communeArea")
     private String communeArea;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
-    @EqualsAndHashCode.Include
+    @JsonIgnore
     Geometry geometry;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "commune")
+    @JsonIgnore
+    private List<Quartier> quartiers;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "departmentId")
+    @JsonIgnore
     private Department department;
 
     @Override

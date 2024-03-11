@@ -4,10 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.RegionMapper;
+import sonaged.collecte.master.model.Geometry;
+import sonaged.collecte.master.model.Region;
 import sonaged.collecte.master.repository.DepartmentRepository;
 import sonaged.collecte.master.dto.DepartmentDto;
 import sonaged.collecte.master.mapper.DepartmentMapper;
 import sonaged.collecte.master.model.Department;
+import sonaged.collecte.master.repository.GeometryRepository;
+import sonaged.collecte.master.repository.RegionRepository;
 import sonaged.collecte.master.service.DepartmentService;
 
 import java.util.List;
@@ -16,8 +21,10 @@ import java.util.List;
 @Service
 @Slf4j
 public class DepartmentServiceImpl implements DepartmentService {
+    private final RegionRepository regionRepository;
 
     private final DepartmentRepository departmentRepository;
+    private final GeometryRepository geometryRepository;
     /**
      * @param departmentId
      * @return
@@ -36,6 +43,7 @@ public class DepartmentServiceImpl implements DepartmentService {
      */
     @Override
     public List<DepartmentDto> getAllDepartment() {
+
         List<Department> departmentList = departmentRepository.findAll();
         return DepartmentMapper.DMP.listModelToDto(departmentList);
     }
@@ -46,11 +54,14 @@ public class DepartmentServiceImpl implements DepartmentService {
      */
     @Override
     public DepartmentDto createOneDepartment(DepartmentDto departmentDto) {
-        Department department = Department.builder()
-                .departmentName(departmentDto.getDepartmentName())
-                .departmentCode(departmentDto.getDepartmentCode())
-                .build();
-        Department departmentSave = departmentRepository.save(department);
+        if(departmentDto.getRegion ().getRegionId () != null) {
+            var region = regionRepository.findById (departmentDto.getRegion ( ).getRegionId ( )).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+            departmentDto.setRegion (RegionMapper.RMP.modelToDto (region));
+        }
+
+        var departmentSave = departmentRepository.save(DepartmentMapper.DMP.dtoToModel (departmentDto));
         return DepartmentMapper.DMP.modelToDto(departmentSave);
     }
 
@@ -105,4 +116,13 @@ public class DepartmentServiceImpl implements DepartmentService {
      return  department.get();
      }
      * */
+
+    private Region getRegion(Region region){
+        if(region.getRegionId () != null){
+            return regionRepository.findById (region.getRegionId ( )).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+        }
+        return null;
+    }
 }

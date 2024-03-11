@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping
+@RequestMapping("api")
 public class AlertController {
     private final AlertService alertService;
 
@@ -26,7 +26,7 @@ public class AlertController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/alert/{id}")
+    @GetMapping("/alert/{alertId}")
     public ResponseEntity<AlertDto> getOneAlert(@PathVariable("alertId") Long alertId){
         AlertDto alertDto = alertService.getOneAlert(alertId);
         return ResponseEntity
@@ -70,7 +70,7 @@ public class AlertController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/alert/{id}")
+    @PutMapping("/update/alert/{alertId}")
     public ResponseEntity<AlertDto>  updateOneAlert(@PathVariable("alertId") Long alertId, @RequestBody() AlertDto alertDto) {
         AlertDto alert = alertService.updateOneAlert(alertId, alertDto);
         return ResponseEntity.ok()
@@ -84,7 +84,7 @@ public class AlertController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/alert/{id}")
+    @DeleteMapping("/delete/alert/{alertId}")
     public ResponseEntity<String> deleteOneAlert(@PathVariable("alertId") Long alertId) {
         alertService.deleteOneAlert(alertId);
         return ResponseEntity.ok()

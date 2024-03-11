@@ -13,6 +13,7 @@ import sonaged.collecte.master.service.CircuitCollectService;
 import java.util.List;
 @RestController
 @AllArgsConstructor
+@RequestMapping("api")
 public class CircuitCollectController {
 
     private final CircuitCollectService circuitCollectService;
@@ -24,7 +25,7 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-collect/{id}")
+    @GetMapping("/circuit-collect/{circuitCollectId}")
     public ResponseEntity<CircuitCollectDto> getOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId){
         CircuitCollectDto circuitCollectDto = circuitCollectService.getOneCircuitCollect(circuitCollectId);
         return ResponseEntity
@@ -67,7 +68,7 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/circuit-collect/{id}")
+    @PutMapping("/update/circuit-collect/{circuitCollectId}")
     public ResponseEntity<CircuitCollectDto>  updateOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId, @RequestBody() CircuitCollectDto circuitCollectDto) {
         CircuitCollectDto circuitCollect = circuitCollectService.updateOneCircuitCollect(circuitCollectId, circuitCollectDto);
         return ResponseEntity.ok()
@@ -81,7 +82,7 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/circuit-collect/{id}")
+    @DeleteMapping("/delete/circuit-collect/{circuitCollectId}")
     public ResponseEntity<String> deleteOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId) {
         circuitCollectService.deleteOneCircuitCollect(circuitCollectId);
         return ResponseEntity.ok()

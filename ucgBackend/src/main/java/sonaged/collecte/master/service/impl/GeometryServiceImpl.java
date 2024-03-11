@@ -52,15 +52,11 @@ public class GeometryServiceImpl implements GeometryService {
      */
     @Override
     public GeometryDto createOneGeometry(GeometryDto geometryDto) {
-        Geometry geometry = Geometry.builder()
-                .geometryType(geometryDto.getGeometryType())
-                .geometryRing(geometryDto.getGeometryRing())
-                .spatialReference(geometryDto.getSpatialReference())
-                //.coordinates(geometryDto.getCoordinates())
-                .build();
-        addExistedCoordinateToGeometry(geometryDto, geometry);
+
+        var geometry = geometryRepository.save(GeometryMapper.GMP.dtoToModel (geometryDto));
+        //addExistedCoordinateToGeometry(geometryDto, geometry);
         //log.info("coodinate_232 {}",geometry.getCoordinates());
-        return GeometryMapper.GMP.modelToDto(geometryRepository.save(geometry));
+        return GeometryMapper.GMP.modelToDto(geometry);
     }
 
     /**

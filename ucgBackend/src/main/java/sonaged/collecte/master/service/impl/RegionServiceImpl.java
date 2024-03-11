@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.GeometryMapper;
+import sonaged.collecte.master.repository.GeometryRepository;
 import sonaged.collecte.master.repository.RegionRepository;
 import sonaged.collecte.master.dto.RegionDto;
 import sonaged.collecte.master.mapper.RegionMapper;
@@ -18,7 +20,7 @@ import java.util.List;
 public class RegionServiceImpl implements RegionService {
 
     private final RegionRepository regionRepository;
-
+    private final GeometryRepository geometryRepository;
     /**
      * @param regionId 
      * @return
@@ -47,15 +49,9 @@ public class RegionServiceImpl implements RegionService {
      */
     @Override
     public RegionDto createOneRegion(RegionDto regionDto) {
-        Region region = Region.builder()
-                .regionName(regionDto.getRegionName())
-                .regionCode(regionDto.getRegionCode())
-                .build();
 
-        return RegionMapper
-                .RMP
-                .modelToDto(regionRepository
-                        .save(region));
+        Region region = regionRepository.save(RegionMapper.RMP.dtoToModel(regionDto));
+        return RegionMapper.RMP.modelToDto(region);
     }
 
     /**

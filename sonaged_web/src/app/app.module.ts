@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 
@@ -15,19 +15,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './core/login/login.component';
 import { LayoutComponent } from './shares/layout/layout.component';
 import { SidebarComponent } from './shares/sidebar/sidebar.component';
 import { FooterComponent } from './shares/footer/footer.component';
 import { HeaderComponent } from './shares/header/header.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 
-import { TapbarWidget } from './shares/widget/tapbar.widget';
-import { PuPopWidget } from './shares/widget/pupop.widget'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
 import { DragDropDirective } from './directives/drag-drop.directive';
 import { FileUploadComponent } from './shares/file-upload/file-upload.component';
-
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 export function tokenGetter() {
   return localStorage.getItem("access_token");
@@ -40,8 +36,6 @@ export function tokenGetter() {
     SidebarComponent,
     FooterComponent,
     HeaderComponent,
-    TapbarWidget,
-    PuPopWidget,
     FileUploadComponent,
     DragDropDirective
   ],
@@ -62,11 +56,12 @@ export function tokenGetter() {
         disallowedRoutes: ["http://example.com/examplebadroute/"],
       },
     }),
+    LeafletModule,
 
     MaterialsModule,
-  ],
+  ],schemas:[CUSTOM_ELEMENTS_SCHEMA],
   providers: [AppRoutingModule],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 
 export class AppModule { }
