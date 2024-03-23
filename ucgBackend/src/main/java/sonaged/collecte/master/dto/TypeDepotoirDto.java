@@ -1,6 +1,7 @@
 package sonaged.collecte.master.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +18,6 @@ public class TypeDepotoirDto {
 
     private String typeDepotoirName;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Depotoir> depotoirs;
 }

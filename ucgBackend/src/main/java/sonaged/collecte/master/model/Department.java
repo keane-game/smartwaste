@@ -46,7 +46,6 @@ public class Department {
     @JsonIgnore
     private Region region;
 
-
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

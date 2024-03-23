@@ -16,6 +16,7 @@ import sonaged.collecte.master.repository.RegionRepository;
 import sonaged.collecte.master.service.DepartmentService;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -66,13 +67,22 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     /**
-     * @param DepartmentId
+     * @param departmentId
      * @param departmentDto
      * @return
      */
     @Override
-    public DepartmentDto updateOneDepartment(Long DepartmentId, DepartmentDto departmentDto) {
-        return null;
+    public DepartmentDto updateOneDepartment(Long departmentId, DepartmentDto departmentDto) {
+        Department depDB = departmentRepository.findById(departmentId).get();
+        if(Objects.nonNull(departmentDto.getDepartmentName()) &&
+                !"".equalsIgnoreCase(departmentDto.getDepartmentName())) {
+            depDB.setDepartmentName(departmentDto.getDepartmentName());
+        }
+        if(Objects.nonNull(departmentDto.getDepartmentCode()) &&
+                !"".equalsIgnoreCase(departmentDto.getDepartmentCode())) {
+            depDB.setDepartmentCode(departmentDto.getDepartmentCode());
+        }
+        return DepartmentMapper.DMP.modelToDto(departmentRepository.save(depDB));
     }
 
     /**

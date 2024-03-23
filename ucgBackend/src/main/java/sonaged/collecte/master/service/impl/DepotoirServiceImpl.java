@@ -5,9 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.dto.DepotoirDto;
+import sonaged.collecte.master.mapper.CommuneMapper;
 import sonaged.collecte.master.mapper.DepotoirMapper;
 import sonaged.collecte.master.model.Depotoir;
 import sonaged.collecte.master.repository.DepotoirRepository;
+import sonaged.collecte.master.repository.QuartierRepository;
+import sonaged.collecte.master.repository.TypeDepotoirRepository;
 import sonaged.collecte.master.service.DepotoirService;
 
 import java.util.List;
@@ -17,6 +20,8 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class DepotoirServiceImpl implements DepotoirService {
+    private final QuartierRepository quartierRepository;
+    private final TypeDepotoirRepository typeDepotoirRepository;
 
     private final DepotoirRepository depotoirRepository;
     /**
@@ -47,10 +52,20 @@ public class DepotoirServiceImpl implements DepotoirService {
      */
     @Override
     public DepotoirDto createOneDepotoir(DepotoirDto depotoirDto) {
-        Depotoir depotoir  = Depotoir.builder()
-                .depotoirAddress(depotoirDto.getDepotoirAddress())
-                .build();
-        return DepotoirMapper.DETMP.modelToDto(depotoirRepository.save(depotoir));
+        var t_depotId = depotoirDto.getTypeDepotoir ().getTypeDepotoirId ();
+        var quartierId = depotoirDto.getQuartier ().getQuartierId ();
+        if(t_depotId != null && quartierId != null) {
+            var typeDepotoir = typeDepotoirRepository.findById (t_depotId).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+            var quartier = quartierRepository.findById (quartierId).orElseThrow (
+                    () -> new ResourceNotFoundException ("")
+            );
+            depotoirDto.setTypeDepotoir (typeDepotoir);
+            depotoirDto.setQuartier (quartier);
+        }
+        var depotoir = depotoirRepository.save(DepotoirMapper.DETMP.dtoToModel (depotoirDto));
+        return DepotoirMapper.DETMP.modelToDto (depotoirRepository.save(depotoir));
     }
 
     /**
@@ -64,10 +79,7 @@ public class DepotoirServiceImpl implements DepotoirService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         " de depotoir with id [%s] not found to update ".formatted(depotoirId)
                 ));
-        if (!Objects.equals(existedDepotoir.getDepotoirId(), depotoirDto.getDepotoirId())) {
-            throw new ResourceNotFoundException(
-                    "Corrupted body request or route");
-        }
+
         existedDepotoir.setDepotoirAddress(depotoirDto.getDepotoirAddress());
         Depotoir updateDepotoir = depotoirRepository.save(existedDepotoir);
         return DepotoirMapper.DETMP.modelToDto(updateDepotoir);

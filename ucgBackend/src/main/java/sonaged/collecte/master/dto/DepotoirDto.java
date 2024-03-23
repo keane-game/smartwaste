@@ -16,6 +16,8 @@ public class DepotoirDto {
 
     private String depotoirAddress;
 
+    private GeometryDto geometry;
+
     private TypeDepotoir typeDepotoir;
 
     private Quartier quartier;

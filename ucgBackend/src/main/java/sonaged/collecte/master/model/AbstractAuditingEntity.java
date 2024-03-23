@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 
 /**
@@ -37,7 +38,7 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
 
     @CreatedDate
     @Column(name = "createdDate", updatable = false)
-    private Instant createdDate = Instant.now();
+    private LocalDateTime createdDate;
 
     @LastModifiedBy
     @Column(name = "lastModifiedBy", length = 50)
@@ -45,7 +46,7 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
 
     @LastModifiedDate
     @Column(name = "lastModifiedDate")
-    private Instant lastModifiedDate = Instant.now();
+    private LocalDateTime lastModifiedDate;
 
 
 }

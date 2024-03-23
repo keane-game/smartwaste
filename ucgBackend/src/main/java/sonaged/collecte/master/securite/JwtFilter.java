@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sonaged.collecte.master.service.UserService;
-import sonaged.collecte.master.service.UtilisateurService;
 
 import java.io.IOException;
 

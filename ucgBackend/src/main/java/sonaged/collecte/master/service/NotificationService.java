@@ -12,12 +12,12 @@ public class NotificationService {
     public void envoyer(Validation validation) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("no-reply@chillo.tech");
-        message.setTo(validation.getUtilisateur().getEmail());
+        message.setTo(validation.getUser ().getUserEmail ());
         message.setSubject("Votre code d'activation");
 
         String texte = String.format(
                 "Bonjour %s, <br /> Votre code d'action est %s; A bientôt",
-                validation.getUtilisateur().getNom(),
+                validation.getUser ().getUserLastname (),
                 validation.getCode()
                 );
         message.setText(texte);

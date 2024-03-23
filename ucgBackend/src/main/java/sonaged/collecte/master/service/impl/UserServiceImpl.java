@@ -69,7 +69,7 @@ public class UserServiceImpl  implements UserService {
                 .userAddress(userDto.getUserAddress())
                 .userPhone(userDto.getUserPhone())
                 .userCode(userDto.getUserCode())
-                .password(bCryptPasswordEncoder.encode(userDto.getPassword()))
+                .password(bCryptPasswordEncoder.encode("Sonaged@123"))
                 .userEmail(userDto.getUserEmail())
                 .authority(userDto.getAuthority())
                 .build();

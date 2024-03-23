@@ -1,6 +1,7 @@
 package sonaged.collecte.master.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -25,13 +26,20 @@ public class Depotoir {
     @Column(name = "depotoirAddress")
     private String depotoirAddress;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
+//    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+//    @JoinColumn(name = "geometryId", nullable = false)
+//    @JsonIgnore
+//    Geometry geometry;
+
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "typeDepotoirId")
+    @JsonIgnore
     private TypeDepotoir typeDepotoir;
 
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "quartierId")
+    @JsonIgnore
     private Quartier quartier;
 
     @Override

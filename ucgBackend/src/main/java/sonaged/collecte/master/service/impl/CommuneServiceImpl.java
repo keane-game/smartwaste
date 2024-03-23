@@ -73,14 +73,8 @@ public class CommuneServiceImpl implements CommuneService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Commune  with id [%s] not found to update".formatted(communeId)
                 ));
-        if(!Objects.equals(existedCommune.getCommuneId(), communeDto.getCommuneId())){
-            throw new ResourceNotFoundException(
-                    "Corrupted body request or route"
-            );
-        }
-        if (communeDto.getCommuneName() != null){
 
-        }
+
         if (communeDto.getCommuneName() != null){
            existedCommune.setCommuneName(communeDto.getCommuneName() );
         }

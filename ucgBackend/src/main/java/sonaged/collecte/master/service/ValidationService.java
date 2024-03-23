@@ -1,6 +1,7 @@
 package sonaged.collecte.master.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.model.User;
 import sonaged.collecte.master.model.Utilisateur;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.ValidationRepository;
@@ -17,9 +18,9 @@ public class ValidationService {
     private ValidationRepository validationRepository;
     private NotificationService notificationService;
 
-    public void enregistrer(Utilisateur utilisateur) {
+    public void enregistrer(User user) {
         Validation validation = new Validation();
-        validation.setUtilisateur(utilisateur);
+        validation.setUser (user);
         Instant creation = Instant.now();
         validation.setCreation(creation);
         Instant expiration = creation.plus(10, MINUTES);

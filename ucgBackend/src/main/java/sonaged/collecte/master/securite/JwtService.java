@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
+import static java.time.LocalTime.now;
+
 @AllArgsConstructor
 @Service
 public class JwtService {
@@ -63,23 +65,27 @@ public class JwtService {
                 .getPayload();
     }
 
-    private Map<String, String> generateJwt(User utilisateur) {
+    private Map<String, String> generateJwt(User user) {
         final long currentTime = System.currentTimeMillis();
-        final long expirationTime = currentTime + 30 * 60 * 1000;
+        final long expirationTime = currentTime + SecurityConstants.EXPIRATION_TIME;
 
         final Map<String, Object> claims = Map.of(
-                "nom", utilisateur.getUserFirstname (),
-                Claims.EXPIRATION, new Date(expirationTime),
-                Claims.SUBJECT, utilisateur.getUserEmail ()
+                "nom", user.getUserFirstname (),
+                "role", user.getAuthorities(),
+                Claims.ISSUED_AT, currentTime,
+
+                Claims.EXPIRATION, new Date(System.currentTimeMillis()+ SecurityConstants.EXPIRATION_TIME),
+                Claims.SUBJECT, user.getUserEmail ()
         );
 
-        final String bearer = Jwts.builder()
-                .setIssuedAt(new Date(currentTime))
-                .setExpiration(new Date(expirationTime))
-                .setSubject(utilisateur.getUserEmail ())
-                .setClaims(claims)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        final String bearer =  Jwts.builder()
+                .claims().add(claims)
+                .and()
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
+
+
+
         return Map.of("bearer", bearer);
     }
 

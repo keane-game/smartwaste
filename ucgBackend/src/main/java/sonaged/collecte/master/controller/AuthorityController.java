@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.annotations.SonagedApi;
 import sonaged.collecte.master.model.Authority;
 import sonaged.collecte.master.service.AuthorityService;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/authorities")
+@RequestMapping("/api/authority")
 public class AuthorityController {
 
     private final AuthorityService authorityService;
@@ -45,7 +44,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(name = "/", produces = "application/json")
+    @GetMapping
     public ResponseEntity<List<Authority>> getAllAuthority(){
         return ResponseEntity
                 .ok()
@@ -59,8 +58,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @SonagedApi
-    @PostMapping(name = "/authority", consumes = "application/json")
+    @PostMapping
     public ResponseEntity<Authority> createOneAuthority(@RequestBody Authority authority){
         Authority createAuthority = authorityService.createOneAuthority(authority);
         return ResponseEntity.ok()
@@ -74,7 +72,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping(name = "/{authorityId}")
+    @PutMapping("/{authorityId}")
     public ResponseEntity<Authority>  updateOneAuthority(@PathVariable("authorityId") Long authorityId, @RequestBody() Authority authority) {
         Authority updatedAuthority = authorityService.updateOneAuthority(authorityId, authority);
         return ResponseEntity.ok()
@@ -88,7 +86,7 @@ public class AuthorityController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping(name = "/authorityId}")
+    @DeleteMapping("/{authorityId}")
     public ResponseEntity<String> deleteOneAuthority(@PathVariable("authorityId") Long authorityId) {
         authorityService.deleteOneAuthority(authorityId);
         log.debug("deleteRole end ok - roQleId: {}", authorityId);

@@ -32,7 +32,6 @@ public class TypeDepotoir {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "typeDepotoir")
-    @ToString.Exclude
     private List<Depotoir> depotoirs;
 
     @Override
