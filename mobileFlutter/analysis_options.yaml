@@ -15,6 +15,10 @@ linter:
   # included above or to enable additional rules. A list of all available lints
   # and their documentation is published at https://dart.dev/lints.
   #
+  rules:
+    omit_local_variable_types: false
+    constant_identifier_names: false
+    non_constant_identifier_names: false
   # Instead of disabling a lint rule for the entire project in the
   # section below, it can also be suppressed for a single line of code
   # or a specific dart file by using the `// ignore: name_of_lint` and
@@ -26,3 +30,7 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+analyzer:
+  plugins:
+    - custom_lint
+

@@ -1,0 +1,31 @@
+      backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: Image(
+                    image: AssetImage("assets/images/sonadeg-img.png"),
+                  ),
+                ),
+              ),
+              AuthField(
+                hintText: 'Username',
+                controller: emailController,
+              ),
+              AuthField(
+                hintText: 'Password',
+                obscureText: true,
+                controller: passwordController,
+              ),
+              state.maybeMap(
+                loading: (_) =>
+                    const Center(child: CircularProgressIndicator()),
+                orElse: () => loginButton(ref),
+              ),
+            ],
+          ),
+        ));

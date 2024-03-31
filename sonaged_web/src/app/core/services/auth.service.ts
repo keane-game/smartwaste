@@ -3,6 +3,7 @@ import { User } from '../../models/user.model';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 
 @Injectable({ providedIn: 'root' })
@@ -30,7 +31,7 @@ export class AuthService {
   }
 
   login(data: any): Observable<any> {
-    return this.http.post<any>('http://localhost:8000/api/login', data)
+    return this.http.post<any>(environment.apiUrl +'/connexion', data)
     .pipe(map(user => {
 
       // store user details and jwt token in local storage to keep user logged in between page refreshes

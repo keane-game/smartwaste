@@ -47,31 +47,29 @@ export class LoginComponent implements OnInit, AfterViewInit {
         userData => {
 
           const helper = new JwtHelperService();
+console.log(userData);
 
           // tslint:disable-next-line: no-string-literal
-          const decodedToken = helper.decodeToken(userData['token']);
+          const decodedToken = helper.decodeToken(userData['bearer']);
           const expirationDate = decodedToken.exp;
-          const isExpired = decodedToken.iat;
-
-          switch (decodedToken.roles[0]){
+          const isExpired = decodedToken.sub;
+          //console.log(decodedToken.role[0]);
+          
+          //  this.router.navigate(['/dashboard']);
+          let role = decodedToken.role[0].authority
+          switch (role){
             case 'ROLE_ADMIN' : {
               console.log(decodedToken);
-              this.router.navigate(['/admin']);
+              this.router.navigate(['/']);
               break;
             }
-            case 'ROLE_CM' : {
-              this.router.navigate(['/cm']);
+            case 'ROLE_USER' : {
+              this.router.navigate(['/']);
               break;
             }
-            case 'ROLE_APPRENANT' : {
-              this.router.navigate(['/apprenant']);
-              break;
-            }
-            case 'ROLE_FORMATEUR' : {
-              this.router.navigate(['/formateur']);
-              break;
-            }
-
+            default :
+            this.router.navigate(['/']);
+            
 
           }
 
@@ -94,7 +92,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       if(user.email == this.email && user.password == this.password)
       {
         // alors c'est bon // on redirige vers kpi
-        this.router.navigateByUrl("/kpireview")
+        this.router.navigateByUrl("/dashboard")
         this.display_error = false
         this.connexion_success = true;
       }
@@ -125,7 +123,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       if(user.email == this.email && user.password == this.password)
       {
         // alors c'est bon // on redirige vers kpi
-        this.router.navigateByUrl("/kpireview")
+        this.router.navigateByUrl("/dashboard")
         this.display_error = false
         this.connexion_success = true;
       }

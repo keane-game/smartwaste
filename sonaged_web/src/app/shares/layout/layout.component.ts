@@ -45,12 +45,10 @@ options: Leaflet.MapOptions = {
     if(this.isClicked){
       this.renderer.addClass(body, 'toggle-sidebar');
       el2.forEach((element: any) => {
-      //  this.renderer.addClass(element, 'toggle-sidebar');
     });
     }else{
       this.renderer.removeClass(body, 'toggle-sidebar');
       el2.forEach((element: any) => {
-       // this.renderer.removeClass(element, 'toggle-sidebar');
     });
     }
     //console.log("toggle-sidebar-btn")

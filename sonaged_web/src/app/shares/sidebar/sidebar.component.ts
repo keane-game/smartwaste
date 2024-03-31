@@ -1,4 +1,4 @@
-import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 declare var $: any;
 
 @Component({
@@ -15,8 +15,9 @@ export class SidebarComponent {
     private renderer: Renderer2
   ) { }
 
-
-
+  ngAfterViewInit(){
+    this.logoutBtn();
+  }
 
   jquery(event: any): void{
     const el = this.elRef.nativeElement.querySelector('#sidebar');
@@ -28,4 +29,12 @@ export class SidebarComponent {
     });
 
   }
+
+  //get height element
+  logoutBtn() {
+    const el = this.elRef.nativeElement.querySelector('#sidebar');
+    const height = el.offsetWidth; // Get the height of the element
+    console.log("Height of the element: " + height);
+  }
+  
 }

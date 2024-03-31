@@ -44,7 +44,6 @@ $ucg_front-theme: mat.define-light-theme((
 # General
 --------------------------------------------------------------*/
 :root {
-  --blue: #2a2185;
   --white: #fff;
   --gray: #f5f5f5;
   --black1: #222;
@@ -55,54 +54,47 @@ $ucg_front-theme: mat.define-light-theme((
   scroll-behavior: smooth;
   scrollbar-width: 5px !important;
   scrollbar-color: red;
+  --font-poppine: "Poppins", sans-serif;
+
+  --secondary: #423f3f;
+  --green: #5D8B47;
+  --light_green: #CAD8C8;
+  --light_green1: #F0FCEF;
+  --black: #000000;
+  --blue_black : #011229;
+
 }
 
 body {
-  //font-family: "Poppins", sans-serif;
-  background: #f6f9ff;
-  color: #444444;
-  scrollbar-width: thin !important;
-  scrollbar-color: red;
+  font-family: var(--font-poppine);
+  background-color: #f6f9ff;
 }
 
-a {
-  color: #4154f1;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #717ff5;
+a ,a:hover {
   text-decoration: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Nunito", sans-serif;
+  font-family: var(--font-poppine);
 }
-
 /*--------------------------------------------------------------
 # Main
 --------------------------------------------------------------*/
-#main-content {
-  // margin-top: 60px;
-  padding: 0px 20px;
-}
-::ng-deep .mat-drawer-container{
-  transition: all 0.7s !important;
+
+#main-content{
+  padding: 16px 16px;
+  background-color: #f6f9ff !important;
+  overflow: hidden;
+  
 }
 
-/*--------------------------------------------------------------
-# Page Title
---------------------------------------------------------------*/
-.pagetitle {
-  margin-bottom: 10px;
+mat-drawer-content{
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100%;
+  overflow: hidden !important;
 }
-.pagetitle h1 {
-  font-size: 24px;
-  margin-bottom: 0;
-  font-weight: 600;
-  color: #012970;
-}
-
 /*--------------------------------------------------------------
 # Back to top button
 --------------------------------------------------------------*/
@@ -150,7 +142,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 20px 5px 0px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #aab7cf transparent;
+  scrollbar-color: #ccc transparent;
   box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
   background-color: #fff !important;
 }
@@ -176,137 +168,25 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 @media (max-width: 1199px) {
-  .toggle-sidebar .sidebar {
+  .toggle-sidebar .sidebar ,  .custom-menu{
     left: 0;
+  }
+
+  .toggle-sidebar   .custom-menu{
+    left: 230px !important;
+  transition: all 0.6s !important;
   }
 }
 @media (min-width: 1200px) {
   .toggle-sidebar #main-content, .toggle-sidebar #main-header {
     margin-left: 0;
   }
-  .toggle-sidebar .sidebar {
+  .toggle-sidebar .sidebar , .custom-menu{
     left: -260px;
   }
 }
 
 
-/*--------------------------------------------------------------
-# Override some default Bootstrap stylings
---------------------------------------------------------------*/
-/* Dropdown menus */
-.dropdown-menu {
-  border-radius: 4px;
-  padding: 10px 0;
-  -webkit-animation-name: dropdown-animate;
-  animation-name: dropdown-animate;
-  -webkit-animation-duration: 0.2s;
-  animation-duration: 0.2s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-  border: 0;
-  box-shadow: 0 5px 30px 0 rgba(82, 63, 105, 0.2);
-}
-.dropdown-menu .dropdown-header, .dropdown-menu .dropdown-footer {
-  text-align: center;
-  font-size: 15px;
-  padding: 10px 25px;
-}
-.dropdown-menu .dropdown-footer a {
-  color: #444444;
-  text-decoration: underline;
-}
-.dropdown-menu .dropdown-footer a:hover {
-  text-decoration: none;
-}
-.dropdown-menu .dropdown-divider {
-  color: #a5c5fe;
-  margin: 0;
-}
-.dropdown-menu .dropdown-item {
-  font-size: 14px;
-  padding: 10px 15px;
-  transition: 0.3s;
-}
-.dropdown-menu .dropdown-item i {
-  margin-right: 10px;
-  font-size: 18px;
-  line-height: 0;
-}
-.dropdown-menu .dropdown-item:hover {
-  background-color: #f6f9ff;
-}
-
-@media (min-width: 768px) {
-  .dropdown-menu-arrow::before {
-    content: "";
-    width: 13px;
-    height: 13px;
-    background: #fff;
-    position: absolute;
-    top: -7px;
-    right: 20px;
-    transform: rotate(45deg);
-    border-top: 1px solid #eaedf1;
-    border-left: 1px solid #eaedf1;
-  }
-}
-@-webkit-keyframes dropdown-animate {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-  0% {
-    opacity: 0;
-  }
-}
-@keyframes dropdown-animate {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-  0% {
-    opacity: 0;
-  }
-}
-/* Light Backgrounds */
-.bg-primary-light {
-  background-color: #cfe2ff;
-  border-color: #cfe2ff;
-}
-
-.bg-secondary-light {
-  background-color: #e2e3e5;
-  border-color: #e2e3e5;
-}
-
-.bg-success-light {
-  background-color: #d1e7dd;
-  border-color: #d1e7dd;
-}
-
-.bg-danger-light {
-  background-color: #f8d7da;
-  border-color: #f8d7da;
-}
-
-.bg-warning-light {
-  background-color: #fff3cd;
-  border-color: #fff3cd;
-}
-
-.bg-info-light {
-  background-color: #cff4fc;
-  border-color: #cff4fc;
-}
-
-.bg-dark-light {
-  background-color: #d3d3d4;
-  border-color: #d3d3d4;
-}
 
 /* Card */
 .card {
@@ -336,7 +216,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
 }
 .card-body {
-  padding: 0 20px 20px 20px;
+ // padding: 0 20px 20px 20px;
 }
 
 .card-img-overlay {
@@ -391,7 +271,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Breadcrumbs */
 .breadcrumb {
   font-size: 14px;
-  font-family: "Nunito", sans-serif;
+  font-family: "Poppins", sans-serif;
   color: #899bbd;
   font-weight: 600;
 }
@@ -834,33 +714,19 @@ h1, h2, h3, h4, h5, h6 {
 # About
 --------------------------------------------------------------*/
 
-/* Scroolbar personnalisÃ© */
-.scrollbar {
-  max-width:100%;
-  height:518px;
-  overflow-y:auto;
-}
 
 body::-webkit-scrollbar {
   width: 12px;
-	background-color: #F5F5F5;
+	background-color: #3e4f6f;
+
+  color: #444444;
+  scrollbar-width: thin !important;
+  scrollbar-color: red !important;
 }
 
-::-webkit-scrollbar:horizontal {
-  height:12px;
-}
-::-webkit-scrollbar-track
-{
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0,0, .3);
-    border-radius: 10px;
-    background-color: #F5F5F5;
-}
-#about::-webkit-scrollbar{
-    width:13px;
 
-}
 
-#about::-webkit-scrollbar-thumb{
+body::-webkit-scrollbar-thumb{
     border-radius: 30px;
     background:var(--color);
     box-shadow: inset 2px 2px 2px rgba(0,0,0, .3),
@@ -869,9 +735,10 @@ body::-webkit-scrollbar {
 }
 
 
-#about::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track {
   box-shadow : inset 0 0 6px rgba(0,0,0,0.3);
 	background-color: #F5F5F5;
+  color: #000000;
 	border-radius: 10px;
 }
 #about::-webkit-scrollbar-thumb {

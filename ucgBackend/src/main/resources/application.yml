@@ -1,0 +1,47 @@
+application-description: ''
+application-version: ''
+project-version: ''
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+ 
+server:
+  port: 8089
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: keane
+    url: jdbc:postgresql://localhost:5432/sonaged
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: true
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    password: '********************'
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    username: nadhem.belhadj.abdallah@gmail.com
+  main:
+    allow-circular-references: true
+springdoc:
+  api-docs:
+    path: /sonaged-docs
+  enable-data-rest: true
+  use-fqn: true

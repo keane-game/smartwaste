@@ -1,0 +1,32 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/sonaged
+spring.datasource.username=postgres
+spring.datasource.password=keane
+spring.datasource.driver-class-name=org.postgresql.Driver
+server.port = 8089
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation= true
+spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+
+spring.jpa.show-sql= true
+spring.jpa.hibernate.ddl-auto=update
+#update create-drop create
+
+spring.main.allow-circular-references=true
+
+#configuration de emailSender
+spring.mail.default-encoding=UTF-8
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=nadhem.belhadj.abdallah@gmail.com
+spring.mail.password=********************
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+
+application-description=
+application-version=
+project-version=
+
+springdoc.enable-data-rest=true
+springdoc.use-fqn=true
+springdoc.api-docs.path=/sonaged-docs
+

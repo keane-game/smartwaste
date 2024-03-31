@@ -150,8 +150,6 @@ input:-webkit-autofill:focus {
 }
 
 
-
-
 /** modal media query **/
 @media (min-width: 200px){
     mat-dialog-container{
@@ -164,9 +162,7 @@ input:-webkit-autofill:focus {
     }
 }
 
-
 /* ng-multiselect css */
-
 :host ::ng-deep .multiselect-dropdown .dropdown-btn {
     display: inline-block!important;
     width: 100%!important;

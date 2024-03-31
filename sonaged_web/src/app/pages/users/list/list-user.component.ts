@@ -5,7 +5,6 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
-import { UserService } from '../../../services/user.service';
 import { SharedService } from '../../../services/shared.service';
 import { first } from 'rxjs';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -42,7 +41,6 @@ export class ListUserComponent implements  OnInit {
   createUserDialogRef!: MatDialogRef<CreateUserComponent>;
   updateUserDialogRef!: MatDialogRef<UpdateUserComponent>;
   constructor(
-    private userService: UserService,
     private sharedService: SharedService,
     private createUserMatDialog: MatDialog,
     private updateUserMatDialog: MatDialog,

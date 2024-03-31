@@ -25,6 +25,7 @@ import { DragDropDirective } from './directives/drag-drop.directive';
 import { FileUploadComponent } from './shares/file-upload/file-upload.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
+
 export function tokenGetter() {
   return localStorage.getItem("access_token");
 }
@@ -37,7 +38,7 @@ export function tokenGetter() {
     FooterComponent,
     HeaderComponent,
     FileUploadComponent,
-    DragDropDirective
+    DragDropDirective,
   ],
   imports: [
     BrowserModule,
@@ -48,6 +49,7 @@ export function tokenGetter() {
     HttpClientModule,
     ReactiveFormsModule, 
     FormsModule,
+
     NgMultiSelectDropDownModule.forRoot(),
     JwtModule.forRoot({
       config: {
@@ -59,6 +61,8 @@ export function tokenGetter() {
     LeafletModule,
 
     MaterialsModule,
+
+
   ],schemas:[CUSTOM_ELEMENTS_SCHEMA],
   providers: [AppRoutingModule],
   bootstrap: [AppComponent],

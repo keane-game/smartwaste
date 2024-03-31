@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './shares/layout/layout.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/general/home/home.component';
 import { NotFoundComponent } from './pages/general/not-found/not-found.component';
 

@@ -8,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './profil.component.scss'
 })
 export class ProfilComponent {
-
+//Mon profil
 }
