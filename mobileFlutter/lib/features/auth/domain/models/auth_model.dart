@@ -1,39 +1,31 @@
-class AuthArgs {
-  final String email;
+import 'package:equatable/equatable.dart';
+
+class AuthArgs extends Equatable {
+  final String username;
   final String password;
-  AuthArgs({required this.email, required this.password});
-}
+  AuthArgs({required this.username, required this.password});
 
-class AuthValues {
-  AuthValues({
-    required this.token,
-    required this.refreshToken,
-    required this.email,
-    required this.clientId,
-  });
-  final String token;
-  final String refreshToken;
-  final String clientId;
-  final String email;
+  @override
+  List<Object?> get props => [
+        username,
+        password,
+      ];
 
-  AuthValues.fromJson(Map<String, dynamic> json)
-      : email = json['email'],
-        token = json['token'],
-        refreshToken = json['refreshToken'],
-        clientId = json['clientId'];
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'username': username,
+      'password': password,
+    };
+  }
 }
 
 class AuthResponse {
-  AuthResponse({required this.authValues, required this.statusCode});
-  final AuthValues authValues;
-  final int statusCode;
-}
+  AuthResponse({required this.token, required this.statusCode});
 
-class AuthenticationHandler {
-  late AuthValues authValues = AuthValues(
-    email: '',
-    clientId: '',
-    refreshToken: '',
-    token: '',
-  );
+  final String token;
+  final int statusCode;
+
+  AuthResponse.fromJson(Map<String, dynamic> json)
+      : token = json['token'],
+        statusCode = json['statusCode'];
 }

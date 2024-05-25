@@ -7,7 +7,7 @@ import 'package:sonaged/shared/data/remote/network_service.dart';
 import 'package:sonaged/shared/domain/models/either.dart';
 import 'package:sonaged/shared/domain/models/response.dart' as response;
 import 'package:sonaged/shared/exceptions/http_exception.dart';
-import 'package:sonaged/shared/globals.dart';
+import 'package:sonaged/configs/globals.dart';
 import 'package:sonaged/shared/mixins/exception_handler_mixin.dart';
 
 class DioNetworkService extends NetworkService with ExceptionHandlerMixin {

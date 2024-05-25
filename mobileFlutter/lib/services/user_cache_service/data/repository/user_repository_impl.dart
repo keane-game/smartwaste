@@ -28,4 +28,9 @@ class UserRepositoryImpl extends UserRepository {
   Future<bool> hasUser() {
     return dataSource.hasUser();
   }
+
+  @override
+  Future<bool> saveBearer({required String bearer}) {
+    return dataSource.saveBearer(bearer: bearer);
+  }
 }

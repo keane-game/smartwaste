@@ -11,3 +11,5 @@ const String APP_THEME_STORAGE_KEY = 'AppTheme';
 String IS_AUTHENTICATED_KEY = 'IS_AUTHENTICATED_KEY';
 // ignore:  non_constant_identifier_names
 String AUTHENTICATED_USER_EMAIL_KEY = 'AUTHENTICATED_USER_EMAIL_KEY';
+
+const String TOKEN_KEY = "tokenKey";

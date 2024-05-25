@@ -6,11 +6,18 @@ class Response {
   final String? statusMessage;
   final dynamic data;
 
-  Response(
-      {required this.statusCode, this.statusMessage, this.data = const {}});
+  Response({required this.statusCode, this.statusMessage, this.data});
   @override
   String toString() {
     return 'statusCode=$statusCode\nstatusMessage=$statusMessage\n data=$data';
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'statusCode': statusCode,
+      'statusMessage': statusMessage,
+      'data': data['bearer'],
+    };
   }
 }
 

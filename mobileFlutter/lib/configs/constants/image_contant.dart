@@ -1,6 +1,6 @@
 const String tSplashTopIcon = "assets/images/sonadeg-img.png";
 const String tSplashImage = "assets/images/sonadeg-img.png";
-
+const String sonageglogo = "assets/images/sonagedlogo.png";
 // -- OnBoarding Screen Images
 const String tOnBoardingImage1 =
     "assets/images/gestion-et-valorisation-des-dechet.png";

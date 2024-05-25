@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonaged/configs/constants/image_contant.dart';
+import 'package:sonaged/configs/constants/text_constant.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -13,7 +15,7 @@ class WelcomeScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/bg.png"),
+                image: AssetImage(tWelcomeScreenImage),
                 fit: BoxFit.cover,
               ),
             ),
@@ -25,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: Text(
-                    "BIENVENUE",
+                    tWelcome,
                     style: TextStyle(
                       fontSize: 35,
                       color: Colors.white,
@@ -38,7 +40,7 @@ class WelcomeScreen extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 50),
                   child: Text(
-                    "Un environnement sain et propre \n pour une santé durable",
+                    tSlogan,
                     style: TextStyle(
                       fontSize: 20,
                       color: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sonaged/shared/data/remote/network_service.dart';
 import 'package:sonaged/shared/domain/models/either.dart';
 import 'package:sonaged/shared/domain/models/user/user_model.dart';
@@ -24,12 +25,18 @@ class LoginUserRemoteDataSource implements LoginUserDataSource {
           return Left(exception);
         },
         (response) {
-          final user = User.fromJson(response.data);
+          /// GET RESPONSE TO JSON (TOKEN)
+          Map<String, dynamic> token = response.toJson();
 
-          // print(response.data.toString());
-          // update the token for requests
+          /// DECOCETOKEN
+          Map<String, dynamic> decodeToken = JwtDecoder.decode(token['data']);
+
+          decodeToken['token'] = token['data'];
+          final user = User.fromJson(decodeToken);
+          //print('data : $user');
+          //print('data : $decodeToken');
           networkService.updateHeader(
-            {'Authorization': 'bearer ${response.data!.bearer}'},
+            {'Authorization': 'bearer ${token['data']}'},
           );
 
           return Right(user);

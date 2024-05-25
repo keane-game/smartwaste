@@ -4,7 +4,7 @@ import 'package:sonaged/shared/domain/models/either.dart';
 import 'package:sonaged/shared/domain/models/paginated_response.dart';
 import 'package:sonaged/shared/domain/models/product/product_model.dart';
 import 'package:sonaged/shared/exceptions/http_exception.dart';
-import 'package:sonaged/shared/globals.dart';
+import 'package:sonaged/configs/globals.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardNotifier extends StateNotifier<DashboardState> {

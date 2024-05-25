@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonaged/configs/constants/image_contant.dart';
+import 'package:sonaged/configs/constants/text_constant.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
             Expanded(
               flex: 5,
               child: Image(
-                image: AssetImage("assets/images/sonadeg-img.png"),
+                image: AssetImage(tSplashImage),
                 height: 120,
                 width: 120,
               ), //Your widget here,
@@ -51,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 18.0),
                   child: Text(
-                    "V1.0.0",
+                    tVersion,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey,

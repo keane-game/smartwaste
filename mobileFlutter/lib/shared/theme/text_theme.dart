@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sonaged/shared/theme/app_colors.dart';
-import 'package:sonaged/shared/theme/test_styles.dart';
+import 'package:sonaged/configs/constants/app_colors.dart';
+import 'package:sonaged/configs/constants/style_constant.dart';
 
 class TextThemes {
   /// Main text theme

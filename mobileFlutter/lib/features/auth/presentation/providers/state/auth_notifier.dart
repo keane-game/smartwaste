@@ -23,6 +23,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = await response.fold(
       (failure) => AuthState.failure(failure),
       (user) async {
+        print('data save : $user');
         final hasSavedUser = await userRepository.saveUser(user: user);
         if (hasSavedUser) {
           return const AuthState.success();

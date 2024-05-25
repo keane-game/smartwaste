@@ -4,7 +4,7 @@ class User extends Equatable {
   final int id;
   final String username;
   final String password;
-  final String userEmail;
+  final String role;
   final String firstName;
   final String lastName;
   final String gender;
@@ -14,7 +14,7 @@ class User extends Equatable {
     this.id = 0,
     this.username = '',
     this.password = '',
-    this.userEmail = '',
+    this.role = '',
     this.firstName = '',
     this.lastName = '',
     this.gender = '',
@@ -27,7 +27,7 @@ class User extends Equatable {
         id,
         username,
         password,
-        userEmail,
+        role,
         firstName,
         lastName,
         gender,
@@ -42,7 +42,7 @@ class User extends Equatable {
       'id': id,
       'username': username,
       'password': password,
-      'userEmail': userEmail,
+      'role': role,
       'firstName': firstName,
       'lastName': lastName,
       'gender': gender,
@@ -53,11 +53,11 @@ class User extends Equatable {
 
   factory User.fromJson(Map<String, dynamic> map) => User(
         id: map['id'] ?? 0,
-        username: map['username'] ?? '',
+        username: map['sub'] ?? '',
         password: map['password'] ?? '',
-        userEmail: map['userEmail'] ?? '',
-        firstName: map['firstName'] ?? '',
-        lastName: map['lastName'] ?? '',
+        role: map['role'] ?? '',
+        firstName: map['firstname'] ?? '',
+        lastName: map['lastname'] ?? '',
         gender: map['gender'] ?? '',
         image: map['image'] ?? '',
         token: map['token'] ?? '',
@@ -67,7 +67,7 @@ class User extends Equatable {
     int? id,
     String? username,
     String? password,
-    String? userEmail,
+    String? role,
     String? firstName,
     String? lastName,
     String? gender,
@@ -78,7 +78,7 @@ class User extends Equatable {
       id: id ?? this.id,
       username: username ?? this.username,
       password: password ?? this.password,
-      userEmail: userEmail ?? this.userEmail,
+      role: role ?? this.role,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       gender: gender ?? this.gender,

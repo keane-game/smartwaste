@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sonaged/features/account/presentation/signup_screen.dart';
 import 'package:sonaged/features/auth/presentation/screens/login_screen.dart';
-import 'package:sonaged/features/auth/presentation/screens/register.dart';
+import 'package:sonaged/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:sonaged/features/googleMapScreen/test.dart';
 import 'package:sonaged/features/welcome/presentation/screens/splash_screen.dart';
 
 import '../features/welcome/presentation/screens/welcome_screen.dart';
@@ -27,12 +29,7 @@ import '../features/welcome/presentation/screens/welcome_screen.dart';
 
 part 'app_router.g.dart';
 
-enum Routes {
-  splash,
-  welcome,
-  login,
-  register,
-}
+enum Routes { splash, welcome, login, register, dashboard, test }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -44,7 +41,7 @@ GoRouter goRouter(GoRouterRef ref) {
     debugLogDiagnostics: true,
     routes: [
       GoRoute(
-        path: '/',
+        path: '/splash',
         name: Routes.splash.name,
         builder: (context, state) => SplashScreen(key: state.pageKey),
       ),
@@ -61,7 +58,17 @@ GoRouter goRouter(GoRouterRef ref) {
       GoRoute(
         path: '/register',
         name: Routes.register.name,
-        builder: (context, state) => RegisterPage(key: state.pageKey),
+        builder: (context, state) => SignUpScreen(key: state.pageKey),
+      ),
+      GoRoute(
+        path: '/dashboard',
+        name: Routes.dashboard.name,
+        builder: (context, state) => DashboardScreen(key: state.pageKey),
+      ),
+      GoRoute(
+        path: '/',
+        name: Routes.test.name,
+        builder: (context, state) => TestScreen(key: state.pageKey),
       ),
     ],
   );

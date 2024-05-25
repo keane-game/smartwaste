@@ -2,15 +2,22 @@
 
 // -- GLOBAL Texts
 const String tNext = "Next";
-const String tLogin = "Login";
-const String tEmail = "E-Mail";
-const String tSignup = "Signup";
-const String tPhoneNo = "Phone No";
-const String tPassword = "Password";
-const String tFullName = "Full Name";
-const String tForgetPassword = "Forget Password";
+const String tLogin = "Connexion";
+const String tLoginBtn = "SE CONNECTER";
+const String tEmail = "Votre e-mail";
+const String tSignup = "Inscription";
+const String tSignupBtn = "S'inscrire";
+const String tPhoneNo = "Votre n° téléphone";
+const String tPassword = "Votre mot de passe";
+const String tUsername = "Votre e-mail/tel";
+const String tAdress = "Votre addresse";
+const String tFullName = "Votre nom complét";
+const String tForgetPassword = "Mot de passe oublié?";
 const String tSignInWithGoogle = "Sign-In with Google";
-
+const String tWelcome = "BIENVENU";
+const String tSlogan =
+    "Un environnement sain et propre \n pour une santé durable";
+const String tVersion = "V1.0.0";
 // -- Splash Screen Text
 const String tAppName = ".appable/";
 const String tAppTagLine = "Learn To Code. \nFree For Everyone";
@@ -36,14 +43,15 @@ const String tWelcomeSubTitle =
 
 // -- Login Screen Text
 const String tLoginTitle = "Welcome Back,";
-const String tLoginSubTitle = "Make it work, make it right, make it fast.";
+const String tLoginSubTitle =
+    "Veuillez renseigner votre numéro et mot de passe";
 const String tRememberMe = "Remember Me?";
-const String tDontHaveAnAccount = "Don't have an Account? ";
+const String tDontHaveAnAccount = "Pas encore de compte?  ";
 
 // -- Sign Up Screen Text
 const String tSignUpTitle = "Get On Board!";
 const String tSignUpSubTitle = "Create your profile to start your Journey.";
-const String tAlreadyHaveAnAccount = "Already have an Account? ";
+const String tAlreadyHaveAnAccount = "J’ai dèjà un compte? ";
 
 // -- Forget Password Text
 const String tForgetPasswordTitle = "Make Selection!";

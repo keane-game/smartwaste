@@ -47,7 +47,14 @@ dependencies:
   shared_preferences:
   equatable:
   email_validator:
-
+  jwt_decoder: ^2.0.1
+  location: ^6.0.1
+  http: ^1.2.0 
+  google_maps_flutter: ^2.5.3
+  google_maps_flutter_web: ^0.5.4+3
+  firebase_database: ^10.4.9
+  firebase_core_dart: ^1.0.1
+  mobile_device_identifier: ^0.0.2
 
 dev_dependencies:
   flutter_test:

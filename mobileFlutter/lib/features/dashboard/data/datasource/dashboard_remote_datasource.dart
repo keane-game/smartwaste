@@ -2,7 +2,7 @@ import 'package:sonaged/shared/data/remote/remote.dart';
 import 'package:sonaged/shared/domain/models/either.dart';
 import 'package:sonaged/shared/domain/models/paginated_response.dart';
 import 'package:sonaged/shared/exceptions/http_exception.dart';
-import 'package:sonaged/shared/globals.dart';
+import 'package:sonaged/configs/globals.dart';
 
 abstract class DashboardDatasource {
   Future<Either<AppException, PaginatedResponse>> fetchPaginatedProducts(

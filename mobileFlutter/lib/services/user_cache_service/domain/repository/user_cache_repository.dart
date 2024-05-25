@@ -7,4 +7,5 @@ abstract class UserRepository {
   Future<bool> saveUser({required User user});
   Future<bool> deleteUser();
   Future<bool> hasUser();
+  Future<bool> saveBearer({required String bearer});
 }

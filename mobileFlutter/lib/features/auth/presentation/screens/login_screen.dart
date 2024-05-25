@@ -1,21 +1,21 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonaged/configs/constants/text_constant.dart';
 import 'package:sonaged/features/auth/presentation/providers/login_provider.dart';
 import 'package:sonaged/features/auth/presentation/providers/state/auth_state.dart';
-import 'package:sonaged/features/auth/presentation/widgets/login_field.dart';
+import 'package:sonaged/features/auth/presentation/widgets/login_widget.dart';
+import 'package:sonaged/shared/widgets/responsive.dart';
+import 'package:sonaged/shared/widgets/background.dart';
 
 class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final size = MediaQuery.of(context).size;
     final state = ref.watch(authStateNotifierProvider);
     ref.listen(
       authStateNotifierProvider.select((value) => value),
@@ -25,40 +25,47 @@ class LoginScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(next.exception.message.toString())));
         } else if (next is Success) {
-          (context).goNamed("dashoard");
+          context.go("/dashboard");
         }
       }),
     );
-    return Scaffold(
-        body: SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Image(
-                image: AssetImage("assets/images/sonadeg-img.png"),
-              ),
+    return Background(
+      child: SingleChildScrollView(
+        child: Responsive(
+          mobile: MobileLoginScreen(
+            child: LoginForm(
+              emailController: emailController,
+              passwordController: passwordController,
+              state: state,
+              ref: ref,
             ),
           ),
-          AuthField(
-            hintText: 'Username',
-            controller: emailController,
+          desktop: Row(
+            children: [
+              const Expanded(
+                child: LoginScreenTopImage(),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 450,
+                      child: LoginForm(
+                        emailController: emailController,
+                        passwordController: passwordController,
+                        state: state,
+                        ref: ref,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          AuthField(
-            hintText: 'Password',
-            obscureText: true,
-            controller: passwordController,
-          ),
-          state.maybeMap(
-            loading: (_) => const Center(child: CircularProgressIndicator()),
-            orElse: () => loginButton(ref),
-          ),
-        ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget loginButton(WidgetRef ref) {
@@ -74,10 +81,38 @@ class LoginScreen extends ConsumerWidget {
       },
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        backgroundColor: Color(0xDB5D8B47),
+        backgroundColor: const Color(0xDB5D8B47),
         fixedSize: const Size(300, 65),
       ),
-      child: const Text('SE CONNECTER'),
+      child: const Text(tLoginBtn),
+    );
+  }
+}
+
+class MobileLoginScreen extends StatelessWidget {
+  const MobileLoginScreen({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const LoginScreenTopImage(),
+        Row(
+          children: [
+            const Spacer(),
+            Expanded(
+              flex: 8,
+              child: child,
+            ),
+            const Spacer(),
+          ],
+        ),
+      ],
     );
   }
 }

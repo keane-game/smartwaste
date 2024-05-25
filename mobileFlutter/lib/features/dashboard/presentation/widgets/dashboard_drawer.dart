@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sonaged/configs/constants/image_contant.dart';
 import 'package:sonaged/services/user_cache_service/domain/providers/current_user_provider.dart';
 import 'package:sonaged/services/user_cache_service/domain/providers/user_cache_provider.dart';
 import 'package:sonaged/shared/theme/app_theme.dart';
@@ -6,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardDrawer extends ConsumerWidget {
   const DashboardDrawer({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider).asData?.value;
-
+    print(currentUser);
     return SafeArea(
       bottom: false,
       child: Drawer(
@@ -24,15 +25,18 @@ class DashboardDrawer extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.background,
               ),
               accountName: Text(
-                '${currentUser?.firstName}',
+                //'${currentUser?.firstName}',
+                'Admin',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               accountEmail: Text(
-                '${currentUser?.email}',
+                //'${currentUser?.username}',
+                'admin@g.net',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage('${currentUser?.image}'),
+              currentAccountPicture: const CircleAvatar(
+                backgroundImage: AssetImage(tSplashImage),
+                backgroundColor: Colors.transparent,
               ),
               otherAccountsPictures: [
                 InkWell(

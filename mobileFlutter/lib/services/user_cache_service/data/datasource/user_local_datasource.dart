@@ -4,15 +4,17 @@ import 'package:sonaged/shared/data/local/storage_service.dart';
 import 'package:sonaged/shared/domain/models/either.dart';
 import 'package:sonaged/shared/domain/models/user/user_model.dart';
 import 'package:sonaged/shared/exceptions/http_exception.dart';
-import 'package:sonaged/shared/globals.dart';
+import 'package:sonaged/configs/globals.dart';
 
 abstract class UserDataSource {
   String get storageKey;
+  String get tokenKey;
 
   Future<Either<AppException, User>> fetchUser();
   Future<bool> saveUser({required User user});
   Future<bool> deleteUser();
   Future<bool> hasUser();
+  Future<bool> saveBearer({required String bearer});
 }
 
 class UserLocalDatasource extends UserDataSource {
@@ -22,6 +24,9 @@ class UserLocalDatasource extends UserDataSource {
 
   @override
   String get storageKey => USER_LOCAL_STORAGE_KEY;
+
+  @override
+  String get tokenKey => TOKEN_KEY;
 
   @override
   Future<Either<AppException, User>> fetchUser() async {
@@ -53,5 +58,10 @@ class UserLocalDatasource extends UserDataSource {
   @override
   Future<bool> hasUser() async {
     return await storageService.has(storageKey);
+  }
+
+  @override
+  Future<bool> saveBearer({required String bearer}) async {
+    return await storageService.set(tokenKey, jsonEncode(bearer));
   }
 }

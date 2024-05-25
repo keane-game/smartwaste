@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonaged/configs/constants/style_constant.dart';
 import 'package:sonaged/shared/data/local/storage_service.dart';
 import 'package:sonaged/shared/domain/providers/shared_preferences_storage_service_provider.dart';
-import 'package:sonaged/shared/globals.dart';
-import 'package:sonaged/shared/theme/app_colors.dart';
-import 'package:sonaged/shared/theme/test_styles.dart';
+import 'package:sonaged/configs/globals.dart';
+import 'package:sonaged/configs/constants/app_colors.dart';
 import 'package:sonaged/shared/theme/text_theme.dart';
 
 final appThemeProvider = StateNotifierProvider<AppThemeModeNotifier, ThemeMode>(
@@ -40,6 +40,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       fontFamily: AppTextStyles.fontFamily,
+
       primaryColor: AppColors.primary,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
@@ -70,6 +71,50 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.lightGrey,
         error: AppColors.error,
+      ),
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: AppColors.primary,
+      ),
+    );
+  }
+
+  static ThemeData get greenTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      primaryColor: AppColors.kPrimaryColor,
+      fontFamily: AppTextStyles.fontFamily,
+      scaffoldBackgroundColor: Colors.white,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        secondary: AppColors.lightGrey,
+        error: AppColors.error,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          foregroundColor: Colors.white,
+          backgroundColor: AppColors.kPrimaryColor,
+          shape: const StadiumBorder(),
+          maximumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 50),
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.kSecondedaryLightColor,
+        iconColor: AppColors.kPrimaryColor,
+        prefixIconColor: AppColors.kPrimaryColor,
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(width: 1, color: AppColors.kPrimaryLightColor),
+          borderRadius: BorderRadius.all(Radius.circular(tDefaultSize)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(width: 1, color: AppColors.kPrimaryColor),
+          borderRadius: BorderRadius.all(Radius.circular(tDefaultSize)),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,
