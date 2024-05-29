@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.AlertDto;
+import sonaged.collecte.master.dto.Alert;
 
 import java.util.List;
 
 public interface AlertService {
-    AlertDto getOneAlert(Long alertId);
+    Alert getOneAlert(Long alertId);
 
-    List<AlertDto> getAllAlert();
+    List<Alert> getAllAlert();
 
-    AlertDto createOneAlert(AlertDto alertDto);
+    Alert createOneAlert(Alert alert);
 
-    AlertDto updateOneAlert(Long AlertId, AlertDto alertDto);
+    Alert updateOneAlert(Long AlertId, Alert alert);
 
     void deleteOneAlert(Long alertId);
 }

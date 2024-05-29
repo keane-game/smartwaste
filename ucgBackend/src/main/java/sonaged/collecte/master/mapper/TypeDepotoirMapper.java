@@ -3,19 +3,19 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.TypeDepotoirDto;
-import sonaged.collecte.master.model.TypeDepotoir;
+import sonaged.collecte.master.dto.TypeDepotoir;
+import sonaged.collecte.master.model.TypeDepotoirEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface TypeDepotoirMapper {
 
     TypeDepotoirMapper TDMP = Mappers.getMapper(TypeDepotoirMapper.class);
 
-    TypeDepotoirDto modelToDto(TypeDepotoir typeDepotoir);
+    TypeDepotoir asDto(TypeDepotoirEntity typeDepotoir);
 
-    TypeDepotoir dtoToModel (TypeDepotoirDto typeDepotoirDto);
+    TypeDepotoirEntity asModel(TypeDepotoir typeDepotoir);
 
-    List<TypeDepotoirDto> listModelToDto(List<TypeDepotoir> typeDepotoirs);
+    List<TypeDepotoir> asListDto(List<TypeDepotoirEntity> typeDepotoirs);
 }

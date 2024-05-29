@@ -1,19 +1,14 @@
 package sonaged.collecte.master.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import sonaged.collecte.master.dto.AuthentificationDTO;
-import sonaged.collecte.master.dto.UserDto;
-import sonaged.collecte.master.enums.Permission;
-import sonaged.collecte.master.model.Role;
-import sonaged.collecte.master.model.User;
-import sonaged.collecte.master.model.Utilisateur;
+import sonaged.collecte.master.dto.Authentification;
+import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.UserRepository;
 import sonaged.collecte.master.securite.JwtService;
@@ -34,18 +29,18 @@ public class AuthService   {
     private JwtService jwtService;
     private UserRepository userRepository;
 
-    public void inscription(User user) {
+    public void inscription(UserEntity user) {
 
         if(!user.getUserEmail().contains("@")) {
-            throw  new RuntimeException("Votre mail invalide");
+            throw  new ResourceNotFoundException("Votre email est invalide");
         }
         if(!user.getUserEmail().contains(".")) {
-            throw  new RuntimeException("Votre mail invalide");
+            throw  new ResourceNotFoundException("Votre email est invalide");
         }
 
-        Optional<User> utilisateurOptional = this.userRepository.findByUserEmail(user.getUserEmail());
+        Optional<UserEntity> utilisateurOptional = this.userRepository.findByUserEmail(user.getUserEmail());
         if(utilisateurOptional.isPresent()) {
-            throw  new RuntimeException("Votre mail est déjà utilisé");
+            throw  new ResourceNotFoundException ("Votre email est déjà utilisé");
         }
         String mdpCrypte = this.passwordEncoder.encode("Sonaged@123");
         user.setPassword(mdpCrypte);
@@ -60,26 +55,26 @@ public class AuthService   {
     public void activation(Map<String, String> activation) {
         Validation validation = this.validationService.lireEnFonctionDuCode(activation.get("code"));
         if(Instant.now().isAfter(validation.getExpiration())){
-            throw  new RuntimeException("Votre code a expiré");
+            throw  new ResourceNotFoundException("Votre code a expiré");
         }
-        User userActive = this.userRepository.findById(validation.getUser ( ).getUserId ()).orElseThrow(() -> new RuntimeException("Utilisateur inconnu"));
+        UserEntity userActive = this.userRepository.findById(validation.getUser ( ).getUserId ()).orElseThrow(() -> new ResourceNotFoundException("Utilisateur inconnu"));
         userActive.setActivated (true);
         this.userRepository.save(userActive);
     }
 
-    public Map<String, String> connexion(AuthentificationDTO authentificationDTO) {
+    public Map<String, String> connexion(Authentification authentification) {
         log.info("connexion");
         final Authentication authenticate = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken (authentificationDTO.username(), authentificationDTO.password())
+                new UsernamePasswordAuthenticationToken (authentification.username(), authentification.password())
         );
         log.info("connexion");
         if(authenticate.isAuthenticated()) {
-            return this.jwtService.generate(authentificationDTO.username());
+            return this.jwtService.generate(authentification.username());
         }
         return null;
     }
 
-    public List<User> getAllUser() {
-        return (List<User>) userRepository.findAll ();
+    public List<UserEntity> getAllUser() {
+        return (List<UserEntity>) userRepository.findAll ();
     }
 }

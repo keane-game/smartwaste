@@ -132,10 +132,10 @@ public class UserServiceImpl  implements UserService {
 
 
     @Override
-    public User  loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User  loadUserByUsername(String username) throws ResourceNotFoundException {
         return this.userRepository
                 .findByUserEmail (username)
-                .orElseThrow(() -> new  UsernameNotFoundException("Aucun utilisateur ne corespond à cet identifiant"));
+                .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
     }
 
 

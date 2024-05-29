@@ -1,19 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.TypeDepotoirDto;
-import sonaged.collecte.master.model.TypeDepotoir;
+import sonaged.collecte.master.dto.TypeDepotoir;
 
 import java.util.List;
 
 public interface TypeDepotoirService {
-    TypeDepotoirDto getOneTypeDepotoir(Long typeDepotoirId);
+    TypeDepotoir getOneTypeDepotoir(Long typeDepotoirId);
 
-    List<TypeDepotoirDto> getAllTypeDepotoir();
+    List<TypeDepotoir> getAllTypeDepotoir();
 
-    TypeDepotoirDto createOneTypeDepotoir(TypeDepotoirDto typeDepotoir);
+    TypeDepotoir createOneTypeDepotoir(TypeDepotoir typeDepotoir);
 
-    TypeDepotoirDto updateOneTypeDepotoir(Long typeDepotoirId, TypeDepotoirDto typeDepotoir);
-
+    TypeDepotoir updateOneTypeDepotoir(Long typeDepotoirId, TypeDepotoir typeDepotoir);
 
     void deleteOneTypeDepotoir(Long typeDepotoirId);
 }

@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.GeometryDto;
+import sonaged.collecte.master.dto.Geometry;
 
 import java.util.List;
 
 public interface GeometryService {
-    GeometryDto getOneGeometry(Long geometryId);
+    Geometry getOneGeometry(Long geometryId);
 
-    List<GeometryDto> getAllGeometry();
+    List<Geometry> getAllGeometry();
 
-    GeometryDto createOneGeometry(GeometryDto geometryDto);
+    Geometry createOneGeometry(Geometry geometry);
 
-    GeometryDto updateOneGeometry(Long geometryId, GeometryDto geometryDto);
+    Geometry updateOneGeometry(Long geometryId, Geometry geometry);
     void deleteOneGeometry(Long geometryId);
 }

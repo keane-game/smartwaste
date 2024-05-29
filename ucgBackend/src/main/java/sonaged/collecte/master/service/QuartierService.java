@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.QuartierDto;
+import sonaged.collecte.master.dto.Quartier;
 
 import java.util.List;
 
 public interface QuartierService{
-    QuartierDto getOneQuartier(Long quartierId);
+    Quartier getOneQuartier(Long quartierId);
 
-    List<QuartierDto> getAllQuartier();
+    List<Quartier> getAllQuartier();
 
-    QuartierDto createOneQuartier(QuartierDto quartierDto);
+    Quartier createOneQuartier(Quartier quartier);
 
-    QuartierDto updateOneQuartier(Long QuartierId, QuartierDto quartierDto);
+    Quartier updateOneQuartier(Long QuartierId, Quartier quartier);
     void deleteOneQuartier(Long quartierId);
 
 }

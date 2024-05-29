@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.CircuitBalayageDto;
+import sonaged.collecte.master.dto.CircuitBalayage;
 
 import java.util.List;
 
 public interface CircuitBalayageService {
-    CircuitBalayageDto getOneCircuitBalayage(Long circuitBalayageId);
+    CircuitBalayage getOneCircuitBalayage(Long circuitBalayageId);
 
-    List<CircuitBalayageDto> getAllCircuitBalayage();
+    List<CircuitBalayage> getAllCircuitBalayage();
 
-    CircuitBalayageDto createOneCircuitBalayage(CircuitBalayageDto circuitBalayageDto);
+    CircuitBalayage createOneCircuitBalayage(CircuitBalayage circuitBalayageDto);
 
-    CircuitBalayageDto updateOneCircuitBalayage(Long circuitBalayageId, CircuitBalayageDto circuitBalayageDto);
+    CircuitBalayage updateOneCircuitBalayage(Long circuitBalayageId, CircuitBalayage circuitBalayage);
     void deleteOneCircuitBalayage(Long circuitBalayageId);
 }

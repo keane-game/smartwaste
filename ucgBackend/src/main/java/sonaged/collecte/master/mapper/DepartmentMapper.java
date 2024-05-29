@@ -4,18 +4,18 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.DepartmentDto;
-import sonaged.collecte.master.model.Department;
+import sonaged.collecte.master.dto.Department;
+import sonaged.collecte.master.model.DepartmentEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface DepartmentMapper {
     DepartmentMapper DMP = Mappers.getMapper(DepartmentMapper.class);
 
-    DepartmentDto modelToDto(Department department);
+    Department asDto(DepartmentEntity department);
 
-    Department dtoToModel (DepartmentDto departmentDto);
+    DepartmentEntity asModel(Department department);
 
-    List<DepartmentDto> listModelToDto(List<Department> departments);
+    List<Department> asListDto(List<DepartmentEntity> departments);
 }

@@ -3,18 +3,19 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.MoblierUrbainDto;
-import sonaged.collecte.master.model.MoblierUrbain;
+import sonaged.collecte.master.dto.MoblierUrbain;
+import sonaged.collecte.master.model.MoblierUrbainEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface MoblierUrbainMapper {
+
     MoblierUrbainMapper MUMP = Mappers.getMapper(MoblierUrbainMapper.class);
 
-    MoblierUrbainDto modelToDto(MoblierUrbain moblierUrbain);
+    MoblierUrbain asDto(MoblierUrbainEntity moblierUrbain);
 
-    MoblierUrbain dtoToModel (MoblierUrbainDto moblierUrbainDto);
+    MoblierUrbainEntity asModel(MoblierUrbain moblierUrbain);
 
-    List<MoblierUrbainDto> listModelToDto(List<MoblierUrbain> moblierUrbains);
+    List<MoblierUrbain> asListDto(List<MoblierUrbain> moblierUrbains);
 }

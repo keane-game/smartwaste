@@ -1,18 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.DepotoirDto;
-import sonaged.collecte.master.model.Depotoir;
+import sonaged.collecte.master.dto.Depotoir;
 
 import java.util.List;
 
 public interface DepotoirService {
-    DepotoirDto getOneDepotoir(Long depotoirId);
+    Depotoir getOneDepotoir(Long depotoirId);
 
-    List<DepotoirDto> getAllDepotoir();
+    List<Depotoir> getAllDepotoir();
 
-    DepotoirDto createOneDepotoir(DepotoirDto depotoirDto);
+    Depotoir createOneDepotoir(Depotoir depotoir);
 
-    DepotoirDto updateOneDepotoir(Long depotoirId, DepotoirDto depotoirDto);
+    Depotoir updateOneDepotoir(Long depotoirId, Depotoir depotoir);
 
 
     void deleteOneDepotoir(Long depotoirId);

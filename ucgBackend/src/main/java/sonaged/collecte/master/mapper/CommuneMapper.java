@@ -3,19 +3,20 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.CommuneDto;
-import sonaged.collecte.master.model.Commune;
+import sonaged.collecte.master.dto.Commune;
+import sonaged.collecte.master.model.CommuneEntity;
 
 import java.util.List;
 
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface CommuneMapper {
+
     CommuneMapper COMP = Mappers.getMapper(CommuneMapper.class);
 
-    CommuneDto modelToDto(Commune commune);
+    Commune asDto(CommuneEntity commune);
 
-    Commune dtoToModel (CommuneDto communeDto);
+    CommuneEntity asModel (Commune commune);
 
-    List<CommuneDto> listModelToDto(List<Commune> communes);
+    List<Commune> asListDto(List<CommuneEntity> communes);
 }

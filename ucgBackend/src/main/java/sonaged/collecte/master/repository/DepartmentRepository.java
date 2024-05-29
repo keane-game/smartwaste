@@ -2,8 +2,8 @@ package sonaged.collecte.master.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import sonaged.collecte.master.model.Department;
+import sonaged.collecte.master.model.DepartmentEntity;
 
 @Repository
-public interface DepartmentRepository extends JpaRepository<Department, Long> {
+public interface DepartmentRepository extends JpaRepository<DepartmentEntity, Long> {
 }

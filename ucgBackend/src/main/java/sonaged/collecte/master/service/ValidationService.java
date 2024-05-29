@@ -1,7 +1,8 @@
 package sonaged.collecte.master.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.model.User;
+import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Utilisateur;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.ValidationRepository;
@@ -18,7 +19,7 @@ public class ValidationService {
     private ValidationRepository validationRepository;
     private NotificationService notificationService;
 
-    public void enregistrer(User user) {
+    public void enregistrer(UserEntity user) {
         Validation validation = new Validation();
         validation.setUser (user);
         Instant creation = Instant.now();
@@ -35,6 +36,6 @@ public class ValidationService {
     }
 
     public Validation lireEnFonctionDuCode(String code) {
-        return this.validationRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Votre code est invalide"));
+        return this.validationRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException ("Votre code est invalide"));
     }
 }

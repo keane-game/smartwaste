@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Collection;
 
 /**
- * Projection for {@link Authority}
+ * Projection for {@link AuthorityEntity}
  */
 public interface AuthorityInfo {
     String getCreatedBy();

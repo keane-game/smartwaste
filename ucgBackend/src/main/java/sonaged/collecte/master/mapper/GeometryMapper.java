@@ -3,8 +3,8 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.GeometryDto;
-import sonaged.collecte.master.model.Geometry;
+import sonaged.collecte.master.dto.Geometry;
+import sonaged.collecte.master.model.GeometryEntity;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
 public interface GeometryMapper {
     GeometryMapper GMP = Mappers.getMapper(GeometryMapper.class);
 
-    GeometryDto modelToDto(Geometry geometry);
+    Geometry asDto(GeometryEntity geometry);
 
-    Geometry dtoToModel (GeometryDto geometryDto);
+    GeometryEntity asModel(Geometry geometry);
 
-    List<GeometryDto> listModelToDto(List<Geometry> geometries);
+    List<Geometry> asListDto(List<GeometryEntity> geometries);
 }

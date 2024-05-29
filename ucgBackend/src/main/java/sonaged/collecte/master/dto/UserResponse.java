@@ -1,34 +1,40 @@
 package sonaged.collecte.master.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import sonaged.collecte.master.model.Authority;
+import sonaged.collecte.master.model.AuthorityEntity;
 
 import java.time.Instant;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
+
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserResponse {
-    private  Long userId;
+public class UserResponse implements Serializable{
+    Long userId;
 
-    private String userFirstname;
+    String userFirstname;
 
-    private String userLastname;
+    String userLastname;
 
-    private String userEmail;
+    String userEmail;
 
-    private String userCode;
+    String userCode;
 
-    private String userAddress;
+    String userAddress;
 
-    private String userPhone;
+    String userPhone;
 
-    private Authority authority;
+    AuthorityEntity authority;
 
-    private Instant createAt;
+    Instant createAt;
 
-    private Instant updateAt;
+    Instant updateAt;
 }

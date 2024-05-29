@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.CircuitDto;
+import sonaged.collecte.master.dto.Circuit;
 
 import java.util.List;
 
 public interface CircuitService {
 
-    CircuitDto getOneCircuit(Long circuitId);
+    Circuit getOneCircuit(Long circuitId);
 
-    List<CircuitDto> getAllCircuit();
+    List<Circuit> getAllCircuit();
 
-    CircuitDto createOneCircuit(CircuitDto circuitDto);
+    Circuit createOneCircuit(Circuit circuit);
 
-    CircuitDto updateOneCircuit(Long circuitId, CircuitDto circuitDto);
+    Circuit updateOneCircuit(Long circuitId, Circuit circuitDto);
     void deleteOneCircuit(Long circuitId);
 }

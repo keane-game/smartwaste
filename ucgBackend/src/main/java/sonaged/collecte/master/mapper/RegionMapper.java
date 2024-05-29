@@ -3,8 +3,8 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.RegionDto;
-import sonaged.collecte.master.model.Region;
+import sonaged.collecte.master.dto.Region;
+import sonaged.collecte.master.model.RegionEntity;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ public interface RegionMapper {
 
     RegionMapper RMP = Mappers.getMapper(RegionMapper.class);
 
-    RegionDto modelToDto(Region region);
+    Region asDto(RegionEntity region);
 
-    Region dtoToModel (RegionDto regionDto);
+    RegionEntity asModel(Region region);
 
-    List<RegionDto> listModelToDto(List<Region> regions);
+    List<Region> asListDto(List<RegionEntity> regions);
 }

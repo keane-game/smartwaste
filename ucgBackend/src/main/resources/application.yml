@@ -16,9 +16,17 @@ spring:
     password: keane
     url: jdbc:postgresql://localhost:5432/sonaged
     username: postgres
+
+  liquibase:
+    change-log: classpath:master.xml
+    enabled: true
   jpa:
     hibernate:
       ddl-auto: update
+      naming:
+        #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

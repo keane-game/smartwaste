@@ -1,0 +1,357 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="keane (generated)" id="1716986383528-1">
+        <createTable tableName="avis">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="avis_pkey"/>
+            </column>
+            <column name="message" type="VARCHAR(255)"/>
+            <column name="statut" type="VARCHAR(255)"/>
+            <column name="utilisateur_id" type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-2">
+        <createTable tableName="role">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="role_pkey"/>
+            </column>
+            <column name="libelle" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-3">
+        <createTable tableName="snd_alert">
+            <column autoIncrement="true" name="alert_id" startWith="4" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_alert_pkey"/>
+            </column>
+            <column name="alert_code" type="VARCHAR(255)"/>
+            <column name="alert_message" type="TEXT"/>
+            <column name="alert_object" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-4">
+        <createTable tableName="snd_authority">
+            <column autoIncrement="true" name="authority_id" startWith="2" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_authority_pkey"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)"/>
+            <column name="created_date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="authority_description" type="VARCHAR(255)"/>
+            <column name="authority_name" type="VARCHAR(50)"/>
+            <column name="authority_realm" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-5">
+        <createTable tableName="snd_circuit">
+            <column autoIncrement="true" name="circuit_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_circuit_pkey"/>
+            </column>
+            <column name="circuitbalayage_code" type="VARCHAR(255)"/>
+            <column name="circuit_name" type="VARCHAR(255)"/>
+            <column name="geometry_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-6">
+        <createTable tableName="snd_circuitbalayage">
+            <column autoIncrement="true" name="circuitbalayage_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_circuitbalayage_pkey"/>
+            </column>
+            <column name="circuitbalayage_code" type="VARCHAR(255)"/>
+            <column name="circuitbalayage_length" type="VARCHAR(255)"/>
+            <column name="circuitbalayage_name" type="VARCHAR(255)"/>
+            <column name="circuitbalayage_shift" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-7">
+        <createTable tableName="snd_circuitcollect">
+            <column autoIncrement="true" name="circuitcollect_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_circuitcollect_pkey"/>
+            </column>
+            <column name="circuitcollect_cat" type="VARCHAR(255)"/>
+            <column name="circuitcollect_code" type="VARCHAR(255)"/>
+            <column name="circuitcollect_frequence" type="VARCHAR(255)"/>
+            <column name="circuitcollect_lati_pointa" type="VARCHAR(255)"/>
+            <column name="circuitcollect_lati_pointd" type="VARCHAR(255)"/>
+            <column name="circuitcollect_length" type="VARCHAR(255)"/>
+            <column name="circuitcollect_long_pointa" type="VARCHAR(255)"/>
+            <column name="circuitcollect_long_pointd" type="VARCHAR(255)"/>
+            <column name="circuitcollect_name" type="VARCHAR(255)"/>
+            <column name="circuitcollect_rotattion" type="VARCHAR(255)"/>
+            <column name="circuitcollect_sectection" type="VARCHAR(255)"/>
+            <column name="circuitcollect_section" type="VARCHAR(255)"/>
+            <column name="circuitcollect_type" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-8">
+        <createTable tableName="snd_commune">
+            <column autoIncrement="true" name="commune_id" startWith="2" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_commune_pkey"/>
+            </column>
+            <column name="commune_area" type="VARCHAR(255)"/>
+            <column name="commune_code" type="VARCHAR(255)"/>
+            <column name="commune_length" type="VARCHAR(255)"/>
+            <column name="commune_name" type="VARCHAR(255)"/>
+            <column name="man_resident" type="VARCHAR(255)"/>
+            <column name="total_resident" type="VARCHAR(255)"/>
+            <column name="woman_resident" type="VARCHAR(255)"/>
+            <column name="department_id" type="BIGINT"/>
+            <column name="geometry_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-9">
+        <createTable tableName="snd_coordinate">
+            <column autoIncrement="true" name="coordinate_id" startWith="11" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_coordinate_pkey"/>
+            </column>
+            <column name="altitude" type="VARCHAR(255)"/>
+            <column name="latitude" type="VARCHAR(255)"/>
+            <column name="longitude" type="VARCHAR(255)"/>
+            <column name="geometry_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-10">
+        <createTable tableName="snd_departement">
+            <column autoIncrement="true" name="department_id" startWith="4" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_departement_pkey"/>
+            </column>
+            <column name="department_code" type="VARCHAR(255)"/>
+            <column name="department_name" type="VARCHAR(255)"/>
+            <column name="geometry_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-11">
+        <createTable tableName="snd_depotoir">
+            <column autoIncrement="true" name="depotoir_id" startWith="6" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_depotoir_pkey"/>
+            </column>
+            <column name="depotoir_address" type="VARCHAR(255)"/>
+            <column name="quartier_id" type="BIGINT"/>
+            <column name="type_depotoir_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-12">
+        <createTable tableName="snd_geometry">
+            <column autoIncrement="true" name="geometry_id" startWith="9" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_geometry_pkey"/>
+            </column>
+            <column name="geometry_ring" type="VARCHAR(255)"/>
+            <column name="geometry_type" type="VARCHAR(255)"/>
+            <column name="spatial_reference" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-13">
+        <createTable tableName="snd_moblierurbain">
+            <column autoIncrement="true" name="moblier_urbain_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_moblierurbain_pkey"/>
+            </column>
+            <column name="moblier_urbain_code" type="VARCHAR(255)"/>
+            <column name="moblier_urbain_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-14">
+        <createTable tableName="snd_quartier">
+            <column autoIncrement="true" name="quartier_id" startWith="4" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_quartier_pkey"/>
+            </column>
+            <column name="quartier_area" type="VARCHAR(255)"/>
+            <column name="quartier_cav" type="VARCHAR(255)"/>
+            <column name="quartier_ccrca" type="VARCHAR(255)"/>
+            <column name="quartier_code" type="VARCHAR(255)"/>
+            <column name="quartier_code_cav" type="VARCHAR(255)"/>
+            <column name="quartier_code_ccrca" type="VARCHAR(255)"/>
+            <column name="quartier_code_entity" type="VARCHAR(255)"/>
+            <column name="quartier_code_szr" type="VARCHAR(255)"/>
+            <column name="quartier_length" type="VARCHAR(255)"/>
+            <column name="quartier_name" type="VARCHAR(255)"/>
+            <column name="quartier_numerozr" type="VARCHAR(255)"/>
+            <column name="quartier_poucentage" type="VARCHAR(255)"/>
+            <column name="quartier_zone_coron" type="VARCHAR(255)"/>
+            <column name="geometry_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="commune_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-15">
+        <createTable tableName="snd_region">
+            <column autoIncrement="true" name="region_id" startWith="2" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_region_pkey"/>
+            </column>
+            <column name="region_code" type="VARCHAR(255)"/>
+            <column name="region_name" type="VARCHAR(255)"/>
+            <column name="geometry_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-16">
+        <createTable tableName="snd_typedepotoir">
+            <column autoIncrement="true" name="type_depotoir_id" startWith="3" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_typedepotoir_pkey"/>
+            </column>
+            <column name="type_depotoir_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-17">
+        <createTable tableName="snd_user">
+            <column autoIncrement="true" name="user_id" startWith="5" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_user_pkey"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)"/>
+            <column name="created_date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="activated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_address" type="VARCHAR(255)"/>
+            <column name="user_code" type="VARCHAR(255)"/>
+            <column name="user_email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_firstname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_lastname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_phone" type="VARCHAR(255)"/>
+            <column name="authority_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-18">
+        <createTable tableName="utilisateur">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="utilisateur_pkey"/>
+            </column>
+            <column name="actif" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="mot_de_passe" type="VARCHAR(255)"/>
+            <column name="nom" type="VARCHAR(255)"/>
+            <column name="role_id" type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-19">
+        <createTable tableName="validation">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="validation_pkey"/>
+            </column>
+            <column name="activation" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="creation" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="expiration" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="utilisateur_id" type="INTEGER"/>
+            <column name="user_user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-20">
+        <createTable tableName="authority_permission">
+            <column name="authority_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-21">
+        <addUniqueConstraint columnNames="geometry_id" constraintName="uk_lstolumf9ahwgxysqpms95vpp" tableName="snd_circuit"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-22">
+        <addUniqueConstraint columnNames="geometry_id" constraintName="uk_o23t9febtd2vxfhkbixdv05nf" tableName="snd_commune"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-23">
+        <addUniqueConstraint columnNames="geometry_id" constraintName="uk_qb3pxb9fwjecs0t2shwih83le" tableName="snd_departement"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-24">
+        <addUniqueConstraint columnNames="geometry_id" constraintName="uk_k6gx1mdynqmq48s9t2ldqivxo" tableName="snd_quartier"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-25">
+        <addUniqueConstraint columnNames="geometry_id" constraintName="uk_6qbii8phvcg57rpsqkbn36ca2" tableName="snd_region"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-26">
+        <addUniqueConstraint columnNames="user_email" constraintName="uk_774vg6vulexwg71wdqxyt6715" tableName="snd_user"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-27">
+        <addUniqueConstraint columnNames="role_id" constraintName="uk_g7tx9d1p09c00xnl7u2g1p6yp" tableName="utilisateur"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-28">
+        <addUniqueConstraint columnNames="user_user_id" constraintName="uk_2vy4see5e0heivhuqr51ikkay" tableName="validation"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-29">
+        <addUniqueConstraint columnNames="utilisateur_id" constraintName="uk_lbpw0tm5eu215mqoagm7wte1c" tableName="validation"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-30">
+        <createTable tableName="snd_history">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="snd_history_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-31">
+        <addForeignKeyConstraint baseColumnNames="commune_id" baseTableName="snd_quartier" constraintName="fk4ibu7ymqk5e4ou2k6mv5bblw2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="commune_id" referencedTableName="snd_commune" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-32">
+        <addForeignKeyConstraint baseColumnNames="region_id" baseTableName="snd_departement" constraintName="fk5h07p90gq3up6yhfbw4tmk65g" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="region_id" referencedTableName="snd_region" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-33">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_commune" constraintName="fk5unxfjbncij7cswr3x3oblmy7" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-34">
+        <addForeignKeyConstraint baseColumnNames="quartier_id" baseTableName="snd_depotoir" constraintName="fk9fhrmlirnvnf7w9mfejmdbnx9" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quartier_id" referencedTableName="snd_quartier" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-35">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="utilisateur" constraintName="fkaqe8xtajee4k0wlqrvh2pso4l" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-36">
+        <addForeignKeyConstraint baseColumnNames="utilisateur_id" baseTableName="avis" constraintName="fkblk72jlw8skbs4g9u1xibrpxh" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="utilisateur" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-37">
+        <addForeignKeyConstraint baseColumnNames="department_id" baseTableName="snd_commune" constraintName="fkdjw6aa1sh4ibrju7ikl3815y3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="department_id" referencedTableName="snd_departement" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-38">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_departement" constraintName="fkewva10mt6vq3bhcwgbu9djpvu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-39">
+        <addForeignKeyConstraint baseColumnNames="utilisateur_id" baseTableName="validation" constraintName="fkg0vmxkmj7wfai4s41fytetn9n" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="utilisateur" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-40">
+        <addForeignKeyConstraint baseColumnNames="authority_id" baseTableName="snd_user" constraintName="fkh8x1ek2vh0kb855sqtjbm39yo" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="authority_id" referencedTableName="snd_authority" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-41">
+        <addForeignKeyConstraint baseColumnNames="authority_id" baseTableName="authority_permission" constraintName="fkhc2l9lo0qmhnx9qibvd12yqkw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="authority_id" referencedTableName="snd_authority" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-42">
+        <addForeignKeyConstraint baseColumnNames="user_user_id" baseTableName="validation" constraintName="fkia1o92kfu7s39knbl7d8nlwea" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="user_id" referencedTableName="snd_user" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-43">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_quartier" constraintName="fkk4pyx5vrsemswqtuk83wl564p" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-44">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_circuit" constraintName="fkko3ntg9bd8lphupprmsfvxfk0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-45">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_coordinate" constraintName="fknc9dt4ya9ub72wco5goqq450j" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-46">
+        <addForeignKeyConstraint baseColumnNames="type_depotoir_id" baseTableName="snd_depotoir" constraintName="fkoaloa2f25imhurjla26kke6nx" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="type_depotoir_id" referencedTableName="snd_typedepotoir" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1716986383528-47">
+        <addForeignKeyConstraint baseColumnNames="geometry_id" baseTableName="snd_region" constraintName="fkqy3tcvmx04uyomnbji7kn5doq" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometry_id" referencedTableName="snd_geometry" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

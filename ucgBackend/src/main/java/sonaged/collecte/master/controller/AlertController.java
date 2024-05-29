@@ -57,8 +57,8 @@ public class AlertController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/create/alert")
-    public ResponseEntity<AlertDto> createOneAlert(@RequestBody AlertDto alertDto){
-        AlertDto alert = alertService.createOneAlert(alertDto);
+    public ResponseEntity<Alert> createOneAlert(@RequestBody Alert alert){
+        AlertDto alert = alertService.createOneAlert(alert);
         return ResponseEntity.ok()
                 .body(alert);
     }

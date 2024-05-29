@@ -8,8 +8,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.AuthentificationDTO;
-import sonaged.collecte.master.model.User;
+import sonaged.collecte.master.dto.Authentification;
+import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Utilisateur;
 import sonaged.collecte.master.securite.JwtService;
 import sonaged.collecte.master.service.AuthService;
@@ -26,7 +26,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping(path = "inscription")
-    public void inscription(@RequestBody User user) {
+    public void inscription(@RequestBody UserEntity user) {
         log.info("Inscription");
         this.authService.inscription(user);
     }
@@ -37,14 +37,14 @@ public class AuthController {
     }
 
     @PostMapping(path = "connexion")
-    public Map<String, String> connexion(@RequestBody AuthentificationDTO authentificationDTO) {
-        return authService.connexion (authentificationDTO);
+    public Map<String, String> connexion(@RequestBody Authentification authentification) {
+        return authService.connexion (authentification);
     }
 
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/api/user")
-    public List<User> getUsers(){
+    @GetMapping(path = "/users")
+    public List<UserEntity> getUsers(){
         return authService.getAllUser();
     }
 }

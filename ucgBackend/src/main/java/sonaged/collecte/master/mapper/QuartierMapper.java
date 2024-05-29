@@ -4,18 +4,18 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.QuartierDto;
-import sonaged.collecte.master.model.Quartier;
+import sonaged.collecte.master.dto.Quartier;
+import sonaged.collecte.master.model.QuartierEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface QuartierMapper {
     QuartierMapper QMP = Mappers.getMapper(QuartierMapper.class);
 
-    QuartierDto modelToDto(Quartier quartier);
+    Quartier asDto(QuartierEntity quartier);
 
-    Quartier dtoToModel (QuartierDto quartierDto);
+    QuartierEntity asModel(Quartier quartier);
 
-    List<QuartierDto> listModelToDto(List<Quartier> quartiers);
+    List<Quartier> listModelToDto(List<QuartierEntity> quartiers);
 }

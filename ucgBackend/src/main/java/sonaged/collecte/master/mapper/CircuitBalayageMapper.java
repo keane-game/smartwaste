@@ -3,19 +3,19 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.CircuitBalayageDto;
-import sonaged.collecte.master.model.CircuitBalayage;
+import sonaged.collecte.master.dto.CircuitBalayage;
+import sonaged.collecte.master.model.CircuitBalayageEntity;
 
 import java.util.List;
 
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface CircuitBalayageMapper {
     CircuitBalayageMapper CBMP = Mappers.getMapper(CircuitBalayageMapper.class);
 
-    CircuitBalayageDto modelToDto(CircuitBalayage circuitBalayage);
+    CircuitBalayageEntity asModel(CircuitBalayage circuitBalayage);
 
-    CircuitBalayage dtoToModel (CircuitBalayageDto circuitBalayageDto);
+    CircuitBalayage asDto(CircuitBalayageEntity circuitBalayage);
 
-    List<CircuitBalayageDto> listModelToDto(List<CircuitBalayage> circuitBalayages);
+    List<CircuitBalayage> asListDto(List<CircuitBalayageEntity> circuitBalayages);
 }

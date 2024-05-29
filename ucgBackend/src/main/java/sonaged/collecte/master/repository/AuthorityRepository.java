@@ -2,9 +2,9 @@ package sonaged.collecte.master.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import sonaged.collecte.master.model.Authority;
+import sonaged.collecte.master.model.AuthorityEntity;
 
 
 @Repository
-public interface AuthorityRepository  extends JpaRepository<Authority, Long> {
+public interface AuthorityRepository  extends JpaRepository<AuthorityEntity, Long> {
 }

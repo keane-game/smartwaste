@@ -4,19 +4,19 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.CircuitCollectDto;
-import sonaged.collecte.master.model.CircuitCollect;
+import sonaged.collecte.master.dto.CircuitCollect;
+import sonaged.collecte.master.model.CircuitCollectEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface CircuitCollectMapper {
 
     CircuitCollectMapper CCMP = Mappers.getMapper(CircuitCollectMapper.class);
 
-    CircuitCollectDto modelToDto(CircuitCollect circuitCollect);
+    CircuitCollect asDto(CircuitCollectEntity circuitCollect);
 
-    CircuitCollect dtoToModel (CircuitCollectDto circuitCollectDto);
+    CircuitCollectEntity asModel(CircuitCollect circuitCollect);
 
-    List<CircuitCollectDto> listModelToDto(List<CircuitCollect> circuitCollects);
+    List<CircuitCollect> asListDto(List<CircuitCollectEntity> circuitCollects);
 }

@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.CommuneDto;
+import sonaged.collecte.master.dto.Commune;
 
 import java.util.List;
 
 public interface CommuneService {
-    CommuneDto getOneCommune(Long communeId);
+    Commune getOneCommune(Long communeId);
 
-    List<CommuneDto> getAllCommune();
+    List<Commune> getAllCommune();
 
-    CommuneDto createOneCommune(CommuneDto communeDto);
+    Commune createOneCommune(Commune communeDto);
 
-    CommuneDto updateOneCommune(Long communeId, CommuneDto communeDto);
+    Commune updateOneCommune(Long communeId, Commune commune);
     void deleteOneCommune(Long communeId);
 }

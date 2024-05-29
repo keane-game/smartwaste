@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.RegionDto;
+import sonaged.collecte.master.dto.Region;
 
 import java.util.List;
 
 public interface RegionService {
 
-    RegionDto getOneRegion(Long regionId);
+    Region getOneRegion(Long regionId);
 
-    List<RegionDto> getAllRegion();
+    List<Region> getAllRegion();
 
-    RegionDto createOneRegion(RegionDto regionDto);
+    Region createOneRegion(Region region);
 
-    RegionDto updateOneRegion(Long regionId, RegionDto regionDto);
+    Region updateOneRegion(Long regionId, Region region);
     void deleteOneRegion(Long regionId);
 }

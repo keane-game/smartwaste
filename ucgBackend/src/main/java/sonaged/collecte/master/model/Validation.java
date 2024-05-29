@@ -30,6 +30,6 @@ public class Validation {
     private Instant activation;
     private String code;
     @OneToOne(cascade = CascadeType.ALL)
-    private User user;
+    private UserEntity user;
 
 }

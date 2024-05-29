@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.HistoryDto;
+import sonaged.collecte.master.dto.History;
 
 import java.util.List;
 
 public interface HistoryService {
-    HistoryDto getOneHistory(Long historyId);
+    History getOneHistory(Long historyId);
 
-    List<HistoryDto> getAllHistory();
+    List<History> getAllHistory();
 
-    HistoryDto createOneHistory(HistoryDto historyDto);
+    History createOneHistory(History history);
 
-    HistoryDto updateOneHistory(Long HistoryId, HistoryDto historyDto);
+    History updateOneHistory(Long HistoryId, History history);
     void deleteOneHistory(Long historyId);
 }

@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.CoordinateDto;
+import sonaged.collecte.master.dto.Coordinate;
 
 import java.util.List;
 
 public interface CoordinateService {
-    CoordinateDto getOneCoordinate(Long coordinateId);
+    Coordinate getOneCoordinate(Long coordinateId);
 
-    List<CoordinateDto> getAllCoordinate();
+    List<Coordinate> getAllCoordinate();
 
-    CoordinateDto createOneCoordinate(CoordinateDto coordinateDto);
+    Coordinate createOneCoordinate(Coordinate coordinate);
 
-    CoordinateDto updateOneCoordinate(Long CoordinateId, CoordinateDto coordinateDto);
+    Coordinate updateOneCoordinate(Long CoordinateId, Coordinate coordinateDto);
 
     void deleteOneCoordinate(Long coordinateId);
 }

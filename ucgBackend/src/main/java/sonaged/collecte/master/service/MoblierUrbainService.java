@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.MoblierUrbainDto;
+import sonaged.collecte.master.dto.MoblierUrbain;
 
 import java.util.List;
 
 public interface MoblierUrbainService {
-    MoblierUrbainDto getOneMoblierUrbain(Long moblierUrbainId);
+    MoblierUrbain getOneMoblierUrbain(Long moblierUrbainId);
 
-    List<MoblierUrbainDto> getAllMoblierUrbain();
+    List<MoblierUrbain> getAllMoblierUrbain();
 
-    MoblierUrbainDto createOneMoblierUrbain(MoblierUrbainDto moblierUrbainDto);
+    MoblierUrbain createOneMoblierUrbain(MoblierUrbain moblierUrbain);
 
-    MoblierUrbainDto updateOneMoblierUrbain(Long MoblierUrbainId, MoblierUrbainDto moblierUrbainDto);
+    MoblierUrbain updateOneMoblierUrbain(Long MoblierUrbainId, MoblierUrbain moblierUrbain);
     void deleteOneMoblierUrbain(Long moblierUrbainId);
 }

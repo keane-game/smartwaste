@@ -6,17 +6,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.constant.SecurityConstants;
-import sonaged.collecte.master.model.User;
-import sonaged.collecte.master.model.Utilisateur;
+import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.service.UserService;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.time.LocalTime.now;
 
@@ -27,8 +27,8 @@ public class JwtService {
     private UserService utilisateurService;
     
     public Map<String, String> generate(String username) {
-        User utilisateur = this.utilisateurService.loadUserByUsername(username);
-        return this.generateJwt(utilisateur);
+        UserEntity user = this.utilisateurService.loadUserByUsername(username);
+        return this.generateJwt(user);
     }
 
     public String extractUsername(String token) {
@@ -65,13 +65,14 @@ public class JwtService {
                 .getPayload();
     }
 
-    private Map<String, String> generateJwt(User user) {
+    private Map<String, String> generateJwt(UserEntity user) {
         final long currentTime = System.currentTimeMillis();
         final long expirationTime = currentTime + SecurityConstants.EXPIRATION_TIME;
-
+        final List<String> roles = user.getAuthorities().stream ().map (GrantedAuthority::getAuthority).collect(Collectors.toList ());
         final Map<String, Object> claims = Map.of(
-                "nom", user.getUserFirstname (),
-                "role", user.getAuthorities(),
+                "firstname", user.getUserFirstname (),
+                "lastname", user.getUserLastname (),
+                "role", roles.get (0),
                 Claims.ISSUED_AT, currentTime,
 
                 Claims.EXPIRATION, new Date(System.currentTimeMillis()+ SecurityConstants.EXPIRATION_TIME),
@@ -83,7 +84,6 @@ public class JwtService {
                 .and()
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
-
 
 
         return Map.of("bearer", bearer);

@@ -3,18 +3,18 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.HistoryDto;
-import sonaged.collecte.master.model.History;
+import sonaged.collecte.master.dto.History;
+import sonaged.collecte.master.model.HistoryEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface HistoryMapper {
     HistoryMapper HMP = Mappers.getMapper(HistoryMapper.class);
 
-    HistoryDto modelToDto(History history);
+    History asDto(HistoryEntity history);
 
-    History dtoToModel (HistoryDto historyDto);
+    History asModel(History history);
 
-    List<HistoryDto> listModelToDto(List<History> histories);
+    List<History> asListDto(List<HistoryEntity> histories);
 }

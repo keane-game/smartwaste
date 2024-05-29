@@ -1,16 +1,16 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.dto.DepartmentDto;
+import sonaged.collecte.master.dto.Department;
 
 import java.util.List;
 
 public interface DepartmentService {
-    DepartmentDto getOneDepartment(Long departmentId);
+    Department getOneDepartment(Long departmentId);
 
-    List<DepartmentDto> getAllDepartment();
+    List<Department> getAllDepartment();
 
-    DepartmentDto createOneDepartment(DepartmentDto departmentDto);
+    Department createOneDepartment(Department departmentDto);
 
-    DepartmentDto updateOneDepartment(Long departmentId, DepartmentDto departmentDto);
+    Department updateOneDepartment(Long departmentId, Department departmentDto);
     void deleteOneDepartment(Long departmentId);
 }

@@ -1,17 +1,17 @@
 package sonaged.collecte.master.service;
 
-import sonaged.collecte.master.model.Authority;
+import sonaged.collecte.master.model.AuthorityEntity;
 
 import java.util.List;
 
 public interface AuthorityService {
 
-    Authority getOneAuthority(Long authorityId);
+    AuthorityEntity getOneAuthority(Long authorityId);
 
-    List<Authority> getAllAuthority();
+    List<AuthorityEntity> getAllAuthority();
 
-    Authority createOneAuthority(Authority authority);
+    AuthorityEntity createOneAuthority(AuthorityEntity authority);
 
-    Authority updateOneAuthority (Long authorityId, Authority authority);
+    AuthorityEntity updateOneAuthority (Long authorityId, AuthorityEntity authority);
     void deleteOneAuthority(Long authorityId);
 }

@@ -3,20 +3,20 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.CoordinateDto;
-import sonaged.collecte.master.model.Coordinate;
+import sonaged.collecte.master.dto.Coordinate;
+import sonaged.collecte.master.model.CoordinateEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface CoordinateMapper {
 
-    CoordinateMapper COORDINATE_MAPPER = Mappers.getMapper(CoordinateMapper.class);
+    CoordinateMapper CODMP = Mappers.getMapper(CoordinateMapper.class);
 
-    CoordinateDto modelToDto(Coordinate coordinate);
+    Coordinate asDto(CoordinateEntity coordinate);
 
-    Coordinate dtoToModel (CoordinateDto coordinateDto);
+    CoordinateEntity asModel(Coordinate coordinateDto);
 
-    List<CoordinateDto> listModelToDto(List<Coordinate> coordinates);
+    List<Coordinate> listModelToDto(List<CoordinateEntity> coordinates);
 
 }

@@ -4,23 +4,22 @@ package sonaged.collecte.master.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import sonaged.collecte.master.dto.UserDto;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.dto.UserResponse;
-import sonaged.collecte.master.model.User;
+import sonaged.collecte.master.model.UserEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface UserMapper {
 
     UserMapper UMP = Mappers.getMapper(UserMapper.class);
 
-    UserResponse
-    modelToDto(User user);
+    User asDto(User user);
 
-    User dtoToModel (UserDto userDto);
+    UserEntity asModel(User user);
 
-    User dtoToModelRes (UserResponse userDto);
+    User asDto(UserResponse user);
 
     //List<UserDto> listModelToDto(List<User> users);
 
