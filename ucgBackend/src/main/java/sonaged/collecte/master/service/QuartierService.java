@@ -5,13 +5,14 @@ import sonaged.collecte.master.dto.Quartier;
 import java.util.List;
 
 public interface QuartierService{
-    Quartier getOneQuartier(Long quartierId);
+    Quartier readQuartier(Long quartierId);
 
-    List<Quartier> getAllQuartier();
+    List<Quartier> readAllQuartier();
 
-    Quartier createOneQuartier(Quartier quartier);
+    Quartier createQuartier(Quartier quartier);
 
-    Quartier updateOneQuartier(Long QuartierId, Quartier quartier);
-    void deleteOneQuartier(Long quartierId);
+    Quartier updateQuartier(Long QuartierId, Quartier quartier);
+
+    void deleteQuartier(Long quartierId);
 
 }

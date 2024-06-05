@@ -6,16 +6,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.CoordinateDto;
+import sonaged.collecte.master.dto.Coordinate;
 import sonaged.collecte.master.service.CoordinateService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/coordinates")
 public class CoordinateController {
     private final CoordinateService coordinateService;
 
@@ -26,12 +25,9 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/coordinate/{coordinateId}")
-    public ResponseEntity<CoordinateDto> getOneCoordinate(@PathVariable("coordinateId") Long coordinateId){
-        CoordinateDto coordinateDto = coordinateService.getOneCoordinate(coordinateId);
-        return ResponseEntity
-                .ok()
-                .body(coordinateDto);
+    @GetMapping("/{coordinateId}")
+    public Coordinate readCoordinate(@PathVariable("coordinateId") Long coordinateId){
+       return coordinateService.readCoordinate(coordinateId);
     }
 
 
@@ -42,11 +38,9 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/coordinates/all")
-    public ResponseEntity<List<CoordinateDto>> getAllCoordinate(){
-        return ResponseEntity
-                .ok()
-                .body(coordinateService.getAllCoordinate());
+    @GetMapping
+    public List<Coordinate> readAllCoordinate(){
+        return coordinateService.readAllCoordinate();
     }
 
     @Operation(summary = "Create one Coordinate")
@@ -56,11 +50,10 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/coordinate")
-    public ResponseEntity<CoordinateDto> createOneCoordinate(@RequestBody CoordinateDto coordinateDto){
-        CoordinateDto coordinate = coordinateService.createOneCoordinate(coordinateDto);
-        return ResponseEntity.ok()
-                .body(coordinate);
+    @PostMapping
+    public Coordinate createCoordinate(@RequestBody Coordinate coordinateDto){
+        return coordinateService.createCoordinate(coordinateDto);
+
     }
 
     @Operation(summary = "update One Coordinate by Id")
@@ -70,11 +63,10 @@ public class CoordinateController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/coordinate/{coordinateId}")
-    public ResponseEntity<CoordinateDto>  updateOneCoordinate(@PathVariable("coordinateId") Long coordinateId, @RequestBody() CoordinateDto coordinateDto) {
-        CoordinateDto coordinate = coordinateService.updateOneCoordinate(coordinateId, coordinateDto);
-        return ResponseEntity.ok()
-                .body(coordinate);
+    @PutMapping("/{coordinateId}")
+    public Coordinate  updateCoordinate(@PathVariable("coordinateId") Long coordinateId, @RequestBody() Coordinate coordinateDto) {
+        return coordinateService.updateCoordinate(coordinateId, coordinateDto);
+
     }
 
     @Operation(summary = "Delete One Coordinate by Id")
@@ -85,9 +77,8 @@ public class CoordinateController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/delete/coordinate/{coordinateId}")
-    public ResponseEntity<String> deleteOneCoordinate(@PathVariable("coordinateId") Long coordinateId) {
-        coordinateService.deleteOneCoordinate(coordinateId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    public String deleteCoordinate(@PathVariable("coordinateId") Long coordinateId) {
+        coordinateService.deleteCoordinate(coordinateId);
+        return "Successfully delete";
     }
 }

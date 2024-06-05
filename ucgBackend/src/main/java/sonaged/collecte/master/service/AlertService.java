@@ -5,13 +5,13 @@ import sonaged.collecte.master.dto.Alert;
 import java.util.List;
 
 public interface AlertService {
-    Alert getOneAlert(Long alertId);
+    Alert readAlert(Long alertId);
 
-    List<Alert> getAllAlert();
+    List<Alert> readAllAlert();
 
-    Alert createOneAlert(Alert alert);
+    Alert createAlert(Alert alert);
 
-    Alert updateOneAlert(Long AlertId, Alert alert);
+    Alert updateAlert(Long AlertId, Alert alert);
 
-    void deleteOneAlert(Long alertId);
+    void deleteAlert(Long alertId);
 }

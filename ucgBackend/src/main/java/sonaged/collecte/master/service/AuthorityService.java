@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface AuthorityService {
 
-    AuthorityEntity getOneAuthority(Long authorityId);
+    AuthorityEntity readAuthority(Long authorityId);
 
-    List<AuthorityEntity> getAllAuthority();
+    List<AuthorityEntity> readAllAuthority();
 
-    AuthorityEntity createOneAuthority(AuthorityEntity authority);
+    AuthorityEntity createAuthority(AuthorityEntity authority);
 
-    AuthorityEntity updateOneAuthority (Long authorityId, AuthorityEntity authority);
-    void deleteOneAuthority(Long authorityId);
+    AuthorityEntity updateAuthority (Long authorityId, AuthorityEntity authority);
+    void deleteAuthority(Long authorityId);
 }

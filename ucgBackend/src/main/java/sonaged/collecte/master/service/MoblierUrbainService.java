@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.MoblierUrbain;
 import java.util.List;
 
 public interface MoblierUrbainService {
-    MoblierUrbain getOneMoblierUrbain(Long moblierUrbainId);
+    MoblierUrbain readMoblierUrbain(Long moblierUrbainId);
 
-    List<MoblierUrbain> getAllMoblierUrbain();
+    List<MoblierUrbain> readAllMoblierUrbain();
 
-    MoblierUrbain createOneMoblierUrbain(MoblierUrbain moblierUrbain);
+    MoblierUrbain createMoblierUrbain(MoblierUrbain moblierUrbain);
 
-    MoblierUrbain updateOneMoblierUrbain(Long MoblierUrbainId, MoblierUrbain moblierUrbain);
-    void deleteOneMoblierUrbain(Long moblierUrbainId);
+    MoblierUrbain updateMoblierUrbain(Long MoblierUrbainId, MoblierUrbain moblierUrbain);
+
+    void deleteMoblierUrbain(Long moblierUrbainId);
 }

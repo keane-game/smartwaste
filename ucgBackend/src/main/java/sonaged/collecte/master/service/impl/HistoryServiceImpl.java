@@ -3,7 +3,7 @@ package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.dto.HistoryDto;
+import sonaged.collecte.master.dto.History;
 import sonaged.collecte.master.service.HistoryService;
 
 import java.util.List;
@@ -12,47 +12,33 @@ import java.util.List;
 @Service
 public class HistoryServiceImpl implements HistoryService {
 
-    /**
-     * @param historyId 
-     * @return
-     */
+
     @Override
-    public HistoryDto getOneHistory(Long historyId) {
+    public History readHistory(Long historyId) {
         return null;
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<HistoryDto> getAllHistory() {
+    public List<History> readAllHistory() {
         return null;
     }
 
-    /**
-     * @param historyDto 
-     * @return
-     */
+
     @Override
-    public HistoryDto createOneHistory(HistoryDto historyDto) {
+    public History createHistory(History historyDto) {
         return null;
     }
 
-    /**
-     * @param HistoryId 
-     * @param historyDto
-     * @return
-     */
+
     @Override
-    public HistoryDto updateOneHistory(Long HistoryId, HistoryDto historyDto) {
+    public History updateHistory(Long HistoryId, History historyDto) {
         return null;
     }
 
-    /**
-     * @param historyId 
-     */
+
     @Override
-    public void deleteOneHistory(Long historyId) {
+    public void deleteHistory(Long historyId) {
 
     }
 }

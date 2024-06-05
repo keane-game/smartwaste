@@ -6,12 +6,13 @@ import java.util.List;
 
 public interface CircuitService {
 
-    Circuit getOneCircuit(Long circuitId);
+    Circuit readCircuit(Long circuitId);
 
-    List<Circuit> getAllCircuit();
+    List<Circuit> readAllCircuit();
 
-    Circuit createOneCircuit(Circuit circuit);
+    Circuit createCircuit(Circuit circuit);
 
-    Circuit updateOneCircuit(Long circuitId, Circuit circuitDto);
-    void deleteOneCircuit(Long circuitId);
+    Circuit updateCircuit(Long circuitId, Circuit circuitDto);
+
+    void deleteCircuit(Long circuitId);
 }

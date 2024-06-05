@@ -6,10 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.RegionDto;
+import sonaged.collecte.master.dto.Region;
 import sonaged.collecte.master.service.RegionService;
 
 import java.util.List;
@@ -17,11 +15,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("api")
+@RequestMapping("/v1/regions")
 public class RegionController {
 
 
     private final RegionService regionService;
+
     @Operation(summary = "Get One region by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get One region"),
@@ -29,12 +28,9 @@ public class RegionController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/region/{regionId}")
-    public ResponseEntity<RegionDto> getOneRegion(@PathVariable("regionId") Long regionid){
-        RegionDto regionDto = regionService.getOneRegion(regionid);
-        return ResponseEntity
-                .ok()
-                .body(regionDto);
+    @GetMapping("/{regionId}")
+    public Region readRegion(@PathVariable("regionId") Long regionId){
+        return regionService.readRegion(regionId);
     }
 
     @Operation(summary = "Get All region")
@@ -44,11 +40,9 @@ public class RegionController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/regions/all")
-    public ResponseEntity<List<RegionDto>> getAllRegion(){
-        return ResponseEntity
-                .ok()
-                .body(regionService.getAllRegion());
+    @GetMapping
+    public List<Region> readAllRegion(){
+        return regionService.readAllRegion();
     }
 
     @Operation(summary = "Create one region")
@@ -58,10 +52,9 @@ public class RegionController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/region")
-    public ResponseEntity<RegionDto> createOneRegion(@RequestBody RegionDto regionDto){
-        RegionDto region = regionService.createOneRegion(regionDto);
-        return ResponseEntity.ok()
-                .body(region);
+    @PostMapping
+    public Region createRegion(@RequestBody Region regionDto){
+        return regionService.createRegion (regionDto);
+
     }
 }

@@ -5,9 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.UserDto;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.dto.UserResponse;
 import sonaged.collecte.master.service.UserService;
 
@@ -16,9 +15,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/user")
+@RequestMapping("/v1/users")
 public class UserController {
-
 
     private final UserService userService;
 
@@ -30,8 +28,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}")
-    public UserResponse getOneUser(@PathVariable("userId") Long userId){
-        return userService.getOneUser(userId);
+    public User readUser(@PathVariable("userId") Long userId){
+        return userService.readUser (userId);
     }
 
     @Operation(summary = "Get All User")
@@ -42,8 +40,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<UserResponse> getAllUser(){
-        return userService.getAllUser();
+    public List<User> readAllUser(){
+        return userService.readAllUser ();
     }
 
     @Operation(summary = "Create one User")
@@ -54,8 +52,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public UserResponse createOneUser(@RequestBody UserDto userDto){
-        return userService.createOneUser(userDto);
+    public User createUser(@RequestBody User user){
+        return userService.createUser (user);
     }
 
     @Operation(summary = "update One User by Id")
@@ -66,8 +64,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{userId}")
-    public UserResponse updateOneUser(@PathVariable("userId") Long userId, @RequestBody() UserResponse userResponse) {
-        return userService.updateOneUser(userId, userResponse);
+    public User updateUser(@PathVariable("userId") Long userId, @RequestBody() User user) {
+        return userService.updateUser (userId, user);
     }
 
     @Operation(summary = "Delete One User by Id")
@@ -78,8 +76,8 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{userId}")
-    public String deleteOneUser(@PathVariable("userId") Long userId) {
-        userService.deleteOneUser(userId);
+    public String deleteUser(@PathVariable("userId") Long userId) {
+        userService.deleteUser (userId);
         return "Successfully delete";
     }
 

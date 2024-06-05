@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.dto.TypeDepotoirDto;
+import sonaged.collecte.master.dto.TypeDepotoir;
 import sonaged.collecte.master.mapper.TypeDepotoirMapper;
-import sonaged.collecte.master.model.TypeDepotoir;
 import sonaged.collecte.master.repository.TypeDepotoirRepository;
 import sonaged.collecte.master.service.TypeDepotoirService;
 
@@ -19,68 +18,53 @@ import java.util.Objects;
 public class TypeDepotoirServiceImpl implements TypeDepotoirService {
 
     private final TypeDepotoirRepository typeDepotoirRepository;
-    /**
-     * @param typeDepotoirId
-     * @return
-     */
+
+
     @Override
-    public TypeDepotoirDto getOneTypeDepotoir(Long typeDepotoirId) {
-        TypeDepotoir typeDepotoir  = typeDepotoirRepository.findById(typeDepotoirId)
+    public TypeDepotoir readTypeDepotoir(Long typeDepotoirId) {
+        var typeDepotoir  = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "TypeDepotoir with id [%s] not found ".formatted(typeDepotoirId)
                 ));
 
-        return TypeDepotoirMapper.TDMP.modelToDto(typeDepotoir);
+        return TypeDepotoirMapper.TDMP.asDto(typeDepotoir);
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<TypeDepotoirDto> getAllTypeDepotoir() {
-        List<TypeDepotoir> typeDepotoirList = typeDepotoirRepository.findAll();
-        return TypeDepotoirMapper.TDMP.listModelToDto(typeDepotoirList);
+    public List<TypeDepotoir> readAllTypeDepotoir() {
+        var typeDepotoirList = typeDepotoirRepository.findAll();
+        return TypeDepotoirMapper.TDMP.asListDto(typeDepotoirList);
     }
 
-    /**
-     * @param typeDepotoirDto
-     * @return
-     */
+
     @Override
-    public TypeDepotoirDto createOneTypeDepotoir(TypeDepotoirDto typeDepotoirDto) {
-        TypeDepotoir typeDepotoir = TypeDepotoir.builder()
-                .typeDepotoirName(typeDepotoirDto.getTypeDepotoirName())
-                .build();
-        return TypeDepotoirMapper.TDMP.modelToDto(typeDepotoirRepository.save(typeDepotoir));
+    public TypeDepotoir createTypeDepotoir(TypeDepotoir typeDepotoir) {
+        var savedTypeDepotoir = typeDepotoirRepository.save(TypeDepotoirMapper.TDMP.asModel(typeDepotoir));
+        return TypeDepotoirMapper.TDMP.asDto (savedTypeDepotoir);
     }
 
-    /**
-     * @param typeDepotoirId
-     * @param typeDepotoirDto
-     * @return
-     */
+
     @Override
-    public TypeDepotoirDto updateOneTypeDepotoir(Long typeDepotoirId, TypeDepotoirDto typeDepotoirDto) {
-        TypeDepotoir existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
+    public TypeDepotoir updateTypeDepotoir(Long typeDepotoirId, TypeDepotoir typeDepotoirDto) {
+        var existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)
                 ));
-        if (!Objects.equals(existedtypeDepotoir.getTypeDepotoirId(), typeDepotoirDto.getTypeDepotoirId())) {
+        if (!Objects.equals(existedtypeDepotoir.getTypeDepotoirId(), typeDepotoirDto.getId())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }
-        existedtypeDepotoir.setTypeDepotoirName(typeDepotoirDto.getTypeDepotoirName());
+        existedtypeDepotoir.setName(typeDepotoirDto.getName());
         return TypeDepotoirMapper
-                .TDMP.modelToDto(
+                .TDMP.asDto(
                     typeDepotoirRepository.save(existedtypeDepotoir));
     }
 
-    /**
-     * @param typeDepotoirId
-     */
+
     @Override
-    public void deleteOneTypeDepotoir(Long typeDepotoirId) {
-        TypeDepotoir existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
+    public void deleteTypeDepotoir(Long typeDepotoirId) {
+        var existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)
                 ));

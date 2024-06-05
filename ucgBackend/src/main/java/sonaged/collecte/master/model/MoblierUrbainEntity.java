@@ -27,12 +27,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_MOBLIERURBAIN")
+@Table(name = "MOBLIERURBAIN")
 public class MoblierUrbainEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "moblierUrbainId")
+    @Column(name = "MoblierUrbainId")
     Long moblierUrbainId;
 
     @Column(name = "Name")

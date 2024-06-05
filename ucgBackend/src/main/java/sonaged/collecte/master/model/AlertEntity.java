@@ -28,7 +28,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_ALERT")
+@Table(name = "ALERT")
 public class AlertEntity extends AbstractAuditingEntity<Long> {
 
 

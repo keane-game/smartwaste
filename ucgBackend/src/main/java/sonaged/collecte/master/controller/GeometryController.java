@@ -5,16 +5,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.GeometryDto;
+import sonaged.collecte.master.dto.Geometry;
 import sonaged.collecte.master.service.GeometryService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/geometries")
 public class GeometryController {
     private final GeometryService geometryService;
 
@@ -25,12 +24,10 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/geometry/{geometryId}")
-    public ResponseEntity<GeometryDto> getOneGeometry(@PathVariable("geometryId") Long geometryId){
-        GeometryDto geometryDto = geometryService.getOneGeometry(geometryId);
-        return ResponseEntity
-                .ok()
-                .body(geometryDto);
+    @GetMapping("/{geometryId}")
+    public Geometry readGeometry(@PathVariable("geometryId") Long geometryId){
+        return geometryService.readGeometry(geometryId);
+
     }
 
     @Operation(summary = "Get All Geometries")
@@ -40,11 +37,9 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/geometry/all")
-    public ResponseEntity<List<GeometryDto>> getAllGeometry(){
-        return ResponseEntity
-                .ok()
-                .body(geometryService.getAllGeometry());
+    @GetMapping
+    public List<Geometry> readAllGeometry(){
+        return geometryService.readAllGeometry();
     }
 
     @Operation(summary = "Create one Geometry")
@@ -54,11 +49,10 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/geometry")
-    public ResponseEntity<GeometryDto> createOneGeometry(@RequestBody GeometryDto geometrydto){
-        GeometryDto geometry = geometryService.createOneGeometry(geometrydto);
-        return ResponseEntity.ok()
-                .body(geometry);
+    @PostMapping
+    public Geometry createGeometry(@RequestBody Geometry geometry){
+        return geometryService.createGeometry(geometry);
+
     }
 
     @Operation(summary = "update One Geometry by Id")
@@ -68,11 +62,10 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/geometry/{geometryId}")
-    public ResponseEntity<GeometryDto>  updateOneGeometry(@PathVariable("geometryId") Long geometryId, @RequestBody() GeometryDto geometryDto) {
-        GeometryDto geometry = geometryService.updateOneGeometry(geometryId, geometryDto);
-        return ResponseEntity.ok()
-                .body(geometry);
+    @PutMapping("/{geometryId}")
+    public Geometry  updateGeometry(@PathVariable("geometryId") Long geometryId, @RequestBody() Geometry geometry) {
+        return geometryService.updateGeometry(geometryId, geometry);
+
     }
 
     @Operation(summary = "Delete One Geometry by Id")
@@ -82,10 +75,9 @@ public class GeometryController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/geometry/{geometryId}")
-    public ResponseEntity<String> deleteOneGeometry(@PathVariable("geometryId") Long geometryId) {
-        geometryService.deleteOneGeometry(geometryId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{geometryId}")
+    public String deleteGeometry(@PathVariable("geometryId") Long geometryId) {
+        geometryService.deleteGeometry (geometryId);
+        return "Successfully delete";
     }
 }

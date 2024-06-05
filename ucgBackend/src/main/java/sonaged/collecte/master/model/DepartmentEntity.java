@@ -35,12 +35,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_DEPARTEMENT")
+@Table(name = "DEPARTEMENT")
 public class DepartmentEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "departmentId")
+    @Column(name = "DepartmentId")
      Long departmentId;
 
     @Column(name = "Name")
@@ -66,7 +66,7 @@ public class DepartmentEntity extends AbstractAuditingEntity<Long> {
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "regionId")
     @JsonIgnore
-    Region region;
+    RegionEntity region;
 
     @Override
     public final boolean equals(Object o) {

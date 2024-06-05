@@ -34,18 +34,18 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_GEOMETRY")
+@Table(name = "GEOMETRY")
 public class GeometryEntity extends AbstractAuditingEntity<Long>  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "geometryId")
+    @Column(name = "GeometryId")
     Long geometryId;
 
     @Column(name = "Type")
     String type;
 
-    @Column(name = "spatialReference")
+    @Column(name = "SpatialReference")
     String spatialReference;
 
     @Column(name = "Ring")

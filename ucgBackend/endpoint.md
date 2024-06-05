@@ -1,109 +1,109 @@
  # [API EndPoint]
 
-List of all endpoints from ths api
+List of all endpoints from ths /v1
 
 * ## `USER` 
-   * `[GET]` - api/user/all
-   * `[GET]` - api/user/id
-   * `[POST]` - api/create/user/
-   * `[PUT]` - api/update/user/
-   * `[DELETE]` - api/delete/user/
+   * `[GET]` - /v1/users
+   * `[GET]` - /v1/user/id
+   * `[POST]` - /v1/user/
+   * `[PUT]` - /v1/user/
+   * `[DELETE]` - /v1/user/
   
 * ## `ALERT`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `CIRCUIT`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `AUTHORITY`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `CIRCUIT COLLECT`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/users/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `CIRCUIT BALAYAGE`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `COMMUNE`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `QUARTIER`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `DEPARTMENT`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
 
 * ## `REGION`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `GEOMETRY`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
 
 * ## `MOBILIE URBAIN`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `[DEPOT]`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `TYPE DEPOT`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
   
 * ## `HISTORY`
-    * `[GET]` - api/user/all
-    * `[GET]` - api/user/id
-    * `[POST]` - api/create/user/
-    * `[PUT]` - api/update/user/
-    * `[DELETE]` - api/delete/user/
+    * `[GET]` - /v1/users
+    * `[GET]` - /v1/user/id
+    * `[POST]` - /v1/user/
+    * `[PUT]` - /v1/user/
+    * `[DELETE]` - /v1/user/
 

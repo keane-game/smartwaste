@@ -15,13 +15,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Depotoir {
 
-    private  Long depotoirId;
+    Long id;
 
-    private String depotoirAddress;
+    String address;
 
-    private Geometry geometry;
+    Geometry geometry;
 
-    private TypeDepotoir typeDepotoir;
+    TypeDepotoir typeDepotoir;
 
-    private Quartier quartier;
+    Quartier quartier;
 }

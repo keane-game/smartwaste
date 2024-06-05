@@ -6,6 +6,8 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -49,5 +51,7 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
     @Column(name = "lastModifiedDate")
     private LocalDateTime lastModifiedDate;
 
+    @Column( columnDefinition="boolean default false")
+    boolean archived = false;
 
 }

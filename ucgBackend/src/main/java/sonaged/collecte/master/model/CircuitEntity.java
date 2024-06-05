@@ -31,24 +31,24 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_CIRCUIT")
+@Table(name = "CIRCUIT")
 public class CircuitEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "circuitId")
+    @Column(name = "CircuitId")
     Long circuitId;
 
     @Column(name = "Name")
     String name;
 
-    @Column(name = "circuitbalayageCode")
-    String circuitCode;
+    @Column(name = "Code")
+    String code;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "geometryId", nullable = false)
     @EqualsAndHashCode.Include
-    Geometry geometry;
+    GeometryEntity geometry;
 
     @Override
     public final boolean equals(Object o) {

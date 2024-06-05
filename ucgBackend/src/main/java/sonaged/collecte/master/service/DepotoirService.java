@@ -5,14 +5,14 @@ import sonaged.collecte.master.dto.Depotoir;
 import java.util.List;
 
 public interface DepotoirService {
-    Depotoir getOneDepotoir(Long depotoirId);
+    Depotoir readDepotoir(Long depotoirId);
 
-    List<Depotoir> getAllDepotoir();
+    List<Depotoir> readAllDepotoir();
 
-    Depotoir createOneDepotoir(Depotoir depotoir);
+    Depotoir createDepotoir(Depotoir depotoir);
 
-    Depotoir updateOneDepotoir(Long depotoirId, Depotoir depotoir);
+    Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir);
 
 
-    void deleteOneDepotoir(Long depotoirId);
+    void deleteDepotoir(Long depotoirId);
 }

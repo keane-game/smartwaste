@@ -3,19 +3,17 @@ package sonaged.collecte.master.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.TypeDepotoirDto;
+import sonaged.collecte.master.dto.TypeDepotoir;
 import sonaged.collecte.master.service.TypeDepotoirService;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/typedepotoir")
+@RequestMapping("/v1/typedepotoirs")
 public class TypeDepotoirController {
 
     private final TypeDepotoirService typeDepotoirService;
@@ -28,8 +26,8 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{typeDepotoirId}")
-    public TypeDepotoirDto getOneTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId){
-        return typeDepotoirService.getOneTypeDepotoir(typeDepotoirId);
+    public TypeDepotoir getOneTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId){
+        return typeDepotoirService.readTypeDepotoir (typeDepotoirId);
     }
 
     @Operation(summary = "Get All TypeDepotoir")
@@ -40,8 +38,8 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<TypeDepotoirDto> getAllTypeDepotoir(){
-        return typeDepotoirService.getAllTypeDepotoir();
+    public List<TypeDepotoir> readAllTypeDepotoir(){
+        return typeDepotoirService.readAllTypeDepotoir ();
     }
 
     @Operation(summary = "Create one TypeDepotoir")
@@ -52,8 +50,8 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public TypeDepotoirDto createOneTypeDepotoir(@RequestBody TypeDepotoirDto typeDepotoirDto){
-        return typeDepotoirService.createOneTypeDepotoir(typeDepotoirDto);
+    public TypeDepotoir createTypeDepotoir(@RequestBody TypeDepotoir typeDepotoir){
+        return typeDepotoirService.createTypeDepotoir (typeDepotoir);
     }
 
     @Operation(summary = "update One TypeDepotoir by Id")
@@ -64,8 +62,8 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{typeDepotoirId}")
-    public TypeDepotoirDto  updateOneTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId, @RequestBody() TypeDepotoirDto typeDepotoirDto) {
-        return typeDepotoirService.updateOneTypeDepotoir(typeDepotoirId, typeDepotoirDto);
+    public TypeDepotoir  updateTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId, @RequestBody() TypeDepotoir typeDepotoir) {
+        return typeDepotoirService.updateTypeDepotoir (typeDepotoirId, typeDepotoir);
     }
 
     @Operation(summary = "Delete One TypeDepotoir by Id")
@@ -76,8 +74,8 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{typeDepotoirId}")
-    public String deleteOneTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId) {
-        typeDepotoirService.deleteOneTypeDepotoir(typeDepotoirId);
+    public String deleteTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId) {
+        typeDepotoirService.deleteTypeDepotoir (typeDepotoirId);
         return "Successfully delete";
     }
 

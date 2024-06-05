@@ -7,16 +7,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.MoblierUrbainDto;
+import sonaged.collecte.master.dto.MoblierUrbain;
 import sonaged.collecte.master.service.MoblierUrbainService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/moblier-urbains")
 public class MoblierUrbainController {
+
     private final MoblierUrbainService moblierUrbainService;
+
     @Operation(summary = "Get One MoblierUrbain by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get One MoblierUrbain"),
@@ -24,12 +26,12 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/moblier-urbain/{moblierUrbainId}")
-    public ResponseEntity<MoblierUrbainDto> getOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainid){
-        MoblierUrbainDto moblierUrbainDto = moblierUrbainService.getOneMoblierUrbain(moblierUrbainid);
+    @GetMapping("/{moblierUrbainId}")
+    public ResponseEntity<MoblierUrbain> readMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainid){
+        MoblierUrbain moblierUrbain = moblierUrbainService.readMoblierUrbain (moblierUrbainid);
         return ResponseEntity
                 .ok()
-                .body(moblierUrbainDto);
+                .body(moblierUrbain);
     }
 
     @Operation(summary = "Get All MoblierUrbain")
@@ -39,11 +41,9 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/moblier-urbain/all")
-    public ResponseEntity<List<MoblierUrbainDto>> getAllMoblierUrbain(){
-        return ResponseEntity
-                .ok()
-                .body(moblierUrbainService.getAllMoblierUrbain());
+    @GetMapping
+    public List<MoblierUrbain> readAllMoblierUrbain(){
+        return moblierUrbainService.readAllMoblierUrbain();
     }
 
     @Operation(summary = "Create one MoblierUrbain")
@@ -53,11 +53,10 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/moblier-urbain")
-    public ResponseEntity<MoblierUrbainDto> createOneMoblierUrbain(@RequestBody MoblierUrbainDto moblierUrbainDto){
-        MoblierUrbainDto moblierUrbain = moblierUrbainService.createOneMoblierUrbain(moblierUrbainDto);
-        return ResponseEntity.ok()
-                .body(moblierUrbain);
+    @PostMapping
+    public MoblierUrbain createMoblierUrbain(@RequestBody MoblierUrbain moblierUrbain){
+        return moblierUrbainService.createMoblierUrbain (moblierUrbain);
+
     }
 
     @Operation(summary = "update One MoblierUrbain by Id")
@@ -67,11 +66,10 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/moblier-urbain/{moblierUrbainId}")
-    public ResponseEntity<MoblierUrbainDto>  updateOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId, @RequestBody() MoblierUrbainDto moblierUrbainDto) {
-        MoblierUrbainDto moblierUrbain = moblierUrbainService.updateOneMoblierUrbain(moblierUrbainId, moblierUrbainDto);
-        return ResponseEntity.ok()
-                .body(moblierUrbain);
+    @PutMapping("/{moblierUrbainId}")
+    public MoblierUrbain  updateMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId, @RequestBody() MoblierUrbain moblierUrbain) {
+        return moblierUrbainService.updateMoblierUrbain (moblierUrbainId, moblierUrbain);
+
     }
 
     @Operation(summary = "Delete One MoblierUrbain by Id")
@@ -81,10 +79,9 @@ public class MoblierUrbainController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/moblier-urbain/{moblierUrbainId}")
-    public ResponseEntity<String> deleteOneMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId) {
-        moblierUrbainService.deleteOneMoblierUrbain(moblierUrbainId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{moblierUrbainId}")
+    public String deleteMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId) {
+        moblierUrbainService.deleteMoblierUrbain (moblierUrbainId);
+        return "Successfully delete";
     }
 }

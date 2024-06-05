@@ -35,40 +35,40 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_COMMUNE")
+@Table(name = "COMMUNE")
 public class CommuneEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "communeId")
+    @Column(name = "CommuneId")
      Long communeId;
 
     @Column(name = "Name")
     String name;
 
-    @Column(name = "communeCode")
+    @Column(name = "Code")
     String code;
 
     @Column(name = "totalResident")
-    String residentTotal;
+    String total;
 
-    @Column(name = "womanResident")
-    String womanResident;
+    @Column(name = "WomanResident")
+    String women;
 
-    @Column(name = "manResident")
-    String manResident;
+    @Column(name = "ManResident")
+    String men;
 
-    @Column(name = "communeLength")
+    @Column(name = "Length")
     String length;
 
-    @Column(name = "communeArea")
+    @Column(name = "Area")
     String area;
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
     @JsonIgnore
     @ToString.Exclude
-    Geometry geometry;
+    GeometryEntity geometry;
 
     @OneToMany(
             cascade = CascadeType.ALL,
@@ -76,12 +76,12 @@ public class CommuneEntity extends AbstractAuditingEntity<Long> {
             mappedBy = "commune")
     @JsonIgnore
     @ToString.Exclude
-    List<Quartier> quartiers;
+    List<QuartierEntity> quartiers;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "departmentId")
     @JsonIgnore
-    Department department;
+    DepartmentEntity department;
 
     @Override
     public final boolean equals(Object o) {

@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.dto.UserResponse;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.model.Authority;
+import sonaged.collecte.master.model.AuthorityEntity;
+import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.repository.AuthorityRepository;
 import sonaged.collecte.master.repository.UserRepository;
-import sonaged.collecte.master.dto.UserDto;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.mapper.UserMapper;
-import sonaged.collecte.master.model.User;
 import sonaged.collecte.master.service.UserService;
 
 import java.time.Instant;
@@ -26,65 +26,42 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserServiceImpl  implements UserService {
-    private final AuthorityRepository authorityRepository;
 
+    private final AuthorityRepository authorityRepository;
     private final UserRepository userRepository;
 
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
-    /**
-     * @param userId 
-     * @return UserDto
-     * @throws ResourceNotFoundException
-     */
+
     @Override
-    public UserResponse getOneUser(Long userId) {
-        User user  = userRepository.findById(userId)
+    public User readUser(Long userId) {
+        var user  = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(userId)
                 ));
-        return UserMapper.UMP.modelToDto(user);
+        return UserMapper.UMP.asDto(user);
     }
 
-    /**
-     * @return  List<UserDto>
-     *
-     */
+
     @Override
-    public List<UserResponse> getAllUser() {
-        List<User> userList = userRepository.findAll();
-        return UserMapper.UMP.listModelToDto(userList);
+    public List<User> readAllUser() {
+        var userList = userRepository.findAll();
+        return UserMapper.UMP.asListDto(userList);
     }
 
-    /**
-     * @param userDto 
-     * @return UserDto
-     */
+
     @Override
-    public UserResponse createOneUser(UserDto userDto) {
-        User user = User.builder()
-                .userFirstname (userDto.getUserFirstname ())
-                .userLastname (userDto.getUserLastname ())
-                .userAddress(userDto.getUserAddress())
-                .userPhone(userDto.getUserPhone())
-                .userCode(userDto.getUserCode())
-                .password(bCryptPasswordEncoder.encode("Sonaged@123"))
-                .userEmail(userDto.getUserEmail())
-                .authority(userDto.getAuthority())
-                .build();
-        User userSave = userRepository.save(user);
-        return UserMapper.UMP.modelToDto(userSave);
+    public User createUser(User user) {
+        user.setUserPassword(bCryptPasswordEncoder.encode("Sonaged@123"));
+        var userSave = userRepository.save(UserMapper.UMP.asModel(user));
+        return UserMapper.UMP.asDto(userSave);
     }
 
-    /**
-     * @param userId 
-     * @param userResponse
-     * @return
-     */
+
     @Override
-    public UserResponse updateOneUser(Long userId, UserResponse userResponse) {
-        User existedUser = userRepository.findById(userId)
+    public User updateUser(Long userId, User userResponse) {
+        var existedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                 "User with id [%s] not found to update ".formatted(userId)
         ));
@@ -110,19 +87,17 @@ public class UserServiceImpl  implements UserService {
             existedUser.setUserPhone(userResponse.getUserPhone());
         }
         if (userResponse.getAuthority() != null){
-            Authority authority = authorityRepository.findById (userResponse.getAuthority().getAuthorityId ()).get();
+            AuthorityEntity authority = authorityRepository.findById (userResponse.getAuthority().getAuthorityId ()).get();
             existedUser.setAuthority(authority);
         }
-        User updatedUser = userRepository.save(existedUser);
-        return UserMapper.UMP.modelToDto(updatedUser);
+        var updatedUser = userRepository.save(existedUser);
+        return UserMapper.UMP.asDto(updatedUser);
     }
 
-    /**
-     * @param userId 
-     */
+
     @Override
-    public void deleteOneUser(Long userId) {
-        User user  = userRepository.findById(userId)
+    public void deleteUser(Long userId) {
+        var user  = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found to delete".formatted(userId)
                 ));
@@ -132,7 +107,7 @@ public class UserServiceImpl  implements UserService {
 
 
     @Override
-    public User  loadUserByUsername(String username) throws ResourceNotFoundException {
+    public UserEntity loadUserByUsername(String username) throws ResourceNotFoundException {
         return this.userRepository
                 .findByUserEmail (username)
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));

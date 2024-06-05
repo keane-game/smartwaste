@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.CommuneMapper;
 import sonaged.collecte.master.mapper.RegionMapper;
+import sonaged.collecte.master.model.QuartierEntity;
 import sonaged.collecte.master.repository.CommuneRepository;
 import sonaged.collecte.master.repository.QuartierRepository;
-import sonaged.collecte.master.dto.QuartierDto;
+import sonaged.collecte.master.dto.Quartier;
 import sonaged.collecte.master.mapper.QuartierMapper;
-import sonaged.collecte.master.model.Quartier;
 import sonaged.collecte.master.service.QuartierService;
 
 import java.util.List;
@@ -23,114 +23,101 @@ public class QuartierServiceImpl implements QuartierService {
     private final CommuneRepository communeRepository;
 
     private final QuartierRepository quartierRepository;
-    /**
-     * @param quartierId
-     * @return
-     */
+
+
     @Override
-    public QuartierDto getOneQuartier(Long quartierId) {
-        Quartier quartier = quartierRepository.findById(quartierId)
+    public Quartier readQuartier(Long quartierId) {
+        var quartier = quartierRepository.findById(quartierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found ".formatted(quartierId)
                 ));
-        return QuartierMapper.QMP.modelToDto(quartier);
+        return QuartierMapper.QMP.asDto(quartier);
     }
 
-    /**
-     * @return
-     */
+
     @Override
-    public List<QuartierDto> getAllQuartier() {
-        List <Quartier> quartierList = quartierRepository.findAll();
+    public List<Quartier> readAllQuartier() {
+        var quartierList = quartierRepository.findAll();
         return QuartierMapper.QMP.listModelToDto(quartierList);
     }
 
-    /**
-     * @param quartierDto
-     * @return
-     */
-    @Override
-    public QuartierDto createOneQuartier(QuartierDto quartierDto) {
 
-        var communeId = quartierDto.getCommune().getCommuneId ();
+    @Override
+    public Quartier createQuartier(Quartier quartier) {
+
+        var communeId = quartier.getCommune().getId ();
         if(communeId != null) {
             var commune = communeRepository.findById (communeId).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            quartierDto.setCommune (CommuneMapper.COMP.modelToDto (commune));
+            quartier.setCommune (CommuneMapper.COMP.asDto(commune));
         }
-        var quartierSave = quartierRepository.save(QuartierMapper.QMP.dtoToModel (quartierDto));
-        return QuartierMapper.QMP.modelToDto(quartierSave);
+        var quartierSave = quartierRepository.save(QuartierMapper.QMP.asModel(quartier));
+        return QuartierMapper.QMP.asDto(quartierSave);
     }
 
-    /**
-     * @param quartierId
-     * @param quartierDto
-     * @return
-     */
+
     @Override
-    public QuartierDto updateOneQuartier(Long quartierId, QuartierDto quartierDto) {
-        Quartier existedQuartier = quartierRepository.findById(quartierId)
+    public Quartier updateQuartier(Long quartierId, Quartier quartier) {
+        var existedQuartier = quartierRepository.findById(quartierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found to update ".formatted(quartierId)
                 ));
-        if (!Objects.equals(existedQuartier.getQuartierId(), quartierDto.getQuartierId())) {
+        if (!Objects.equals(existedQuartier.getQuartierId(), quartier.getId())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }
-        if(quartierDto.getQuartierName() != null){
-            existedQuartier.setQuartierName(quartierDto.getQuartierName());
+        if(quartier.getName() != null){
+            existedQuartier.setName(quartier.getName());
         }
-        if(quartierDto.getQuartierArea() != null){
-            existedQuartier.setQuartierArea(quartierDto.getQuartierArea());
+        if(quartier.getArea() != null){
+            existedQuartier.setArea(quartier.getArea());
         }
-        if(quartierDto.getQuartierCav() != null){
-            existedQuartier.setQuartierCav(quartierDto.getQuartierCav());
+        if(quartier.getCav() != null){
+            existedQuartier.setCav(quartier.getCav());
         }
-        if(quartierDto.getQuartierCcrca() != null){
-            existedQuartier.setQuartierCcrca(quartierDto.getQuartierCcrca());
+        if(quartier.getCCrca() != null){
+            existedQuartier.setCCrca(quartier.getCCrca());
         }
-        if(quartierDto.getQuartierLength() != null){
-            existedQuartier.setQuartierLength(quartierDto.getQuartierLength());
+        if(quartier.getLength() != null){
+            existedQuartier.setLength(quartier.getLength());
         }
-        if(quartierDto.getQuartierNumerozr() != null){
-            existedQuartier.setQuartierNumerozr(quartierDto.getQuartierNumerozr());
+        if(quartier.getNumerozr() != null){
+            existedQuartier.setNumerozr(quartier.getNumerozr());
         }
-        if(quartierDto.getQuartierPoucentage() != null){
-            existedQuartier.setQuartierPoucentage(quartierDto.getQuartierPoucentage());
+        if(quartier.getPoucentage() != null){
+            existedQuartier.setPoucentage(quartier.getPoucentage());
         }
-        if(quartierDto.getQuartierCodeCav() != null){
-            existedQuartier.setQuartierCodeCav(quartierDto.getQuartierCodeCav());
+        if(quartier.getCodeCav() != null){
+            existedQuartier.setCodeCav(quartier.getCodeCav());
         }
-        if(quartierDto.getQuartierCodeCcrca() != null){
-            existedQuartier.setQuartierCodeCcrca(quartierDto.getQuartierCodeCcrca());
+        if(quartier.getCodeCcrca() != null){
+            existedQuartier.setCodeCcrca(quartier.getCodeCcrca());
         }
-        if(quartierDto.getQuartierCodeEntity() != null){
-            existedQuartier.setQuartierCodeEntity(quartierDto.getQuartierCodeEntity());
+        if(quartier.getCodeEntity() != null){
+            existedQuartier.setCodeEntity(quartier.getCodeEntity());
         }
-        if(quartierDto.getQuartierCodeSzr() != null){
-            existedQuartier.setQuartierCodeSzr(quartierDto.getQuartierCodeSzr());
+        if(quartier.getCodeSzr() != null){
+            existedQuartier.setCodeSzr(quartier.getCodeSzr());
         }
-        if(quartierDto.getQuartierZoneCoron() != null){
-            existedQuartier.setQuartierZoneCoron(quartierDto.getQuartierZoneCoron());
+        if(quartier.getZoneCoron() != null){
+            existedQuartier.setZoneCoron(quartier.getZoneCoron());
         }
-        if(quartierDto.getQuartierCode() != null){
-            existedQuartier.setQuartierCode(quartierDto.getQuartierCode());
+        if(quartier.getCode() != null){
+            existedQuartier.setCode(quartier.getCode());
         }
-        if(quartierDto.getQuartierArea() != null){
-            existedQuartier.setQuartierArea(quartierDto.getQuartierArea());
+        if(quartier.getArea() != null){
+            existedQuartier.setArea(quartier.getArea());
         }
 
-        Quartier quartierUpdate = quartierRepository.save(existedQuartier);
-        return QuartierMapper.QMP.modelToDto(quartierUpdate);
+        var quartierUpdate = quartierRepository.save(existedQuartier);
+        return QuartierMapper.QMP.asDto(quartierUpdate);
     }
 
-    /**
-     * @param quartierId
-     */
+
     @Override
-    public void deleteOneQuartier(Long quartierId) {
-        Quartier quartier = quartierRepository.findById(quartierId)
+    public void deleteQuartier(Long quartierId) {
+        var quartier = quartierRepository.findById(quartierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found ".formatted(quartierId)
                 ));

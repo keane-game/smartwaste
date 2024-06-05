@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.repository.CircuitCollectRepository;
-import sonaged.collecte.master.dto.CircuitCollectDto;
+import sonaged.collecte.master.dto.CircuitCollect;
 import sonaged.collecte.master.mapper.CircuitCollectMapper;
-import sonaged.collecte.master.model.CircuitCollect;
 import sonaged.collecte.master.service.CircuitCollectService;
 
 import java.util.List;
@@ -18,112 +17,85 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     private final CircuitCollectRepository circuitCollectRepository;
 
-    /**
-     * @param circuitCollectId 
-     * @return
-     */
+
     @Override
-    public CircuitCollectDto getOneCircuitCollect(Long circuitCollectId) {
-        CircuitCollect circuitCollect = circuitCollectRepository.findById(circuitCollectId)
+    public CircuitCollect readCircuitCollect(Long circuitCollectId) {
+        var circuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitCollectId)
                 ));
-        return CircuitCollectMapper.CCMP.modelToDto(circuitCollect);
+        return CircuitCollectMapper.CCMP.asDto(circuitCollect);
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<CircuitCollectDto> getAllCircuitCollect() {
-        List<CircuitCollect> circuitCollectList = circuitCollectRepository.findAll();
-        return CircuitCollectMapper.CCMP.listModelToDto(circuitCollectList);
+    public List<CircuitCollect> readAllCircuitCollect() {
+        var circuitCollectList = circuitCollectRepository.findAll();
+        return CircuitCollectMapper.CCMP.asListDto (circuitCollectList);
     }
 
-    /**
-     * @param circuitCollectDto 
-     * @return
-     */
+
     @Override
-    public CircuitCollectDto createOneCircuitCollect(CircuitCollectDto circuitCollectDto) {
-        CircuitCollect circuitCollect = CircuitCollect.builder()
-                .circuitcollectName(circuitCollectDto.getCircuitcollectName())
-                .circuitcollectCat(circuitCollectDto.getCircuitcollectCat())
-                .circuitcollectCode(circuitCollectDto.getCircuitcollectCode())
-                .circuitcollectLatiPointA(circuitCollectDto.getCircuitcollectLatiPointA())
-                .circuitcollectLatiPointD(circuitCollectDto.getCircuitcollectLatiPointD())
-                .circuitcollectLongPointA(circuitCollectDto.getCircuitcollectLongPointA())
-                .circuitcollectLongPointD(circuitCollectDto.getCircuitcollectLongPointD())
-                .circuitcollectLength(circuitCollectDto.getCircuitcollectLength())
-                .circuitcollectFrequence(circuitCollectDto.getCircuitcollectFrequence())
-                .circuitcollectSection(circuitCollectDto.getCircuitcollectSection())
-                .circuitcollectSectection(circuitCollectDto.getCircuitcollectSectection())
-                .circuitcollectRotation(circuitCollectDto.getCircuitcollectRotation())
-                .circuitcollectType(circuitCollectDto.getCircuitcollectType())
-                .build();
-        return CircuitCollectMapper.CCMP.modelToDto(circuitCollectRepository.save(circuitCollect));
+    public CircuitCollect createCircuitCollect(CircuitCollect circuitCollect) {
+        var savedCircuitCollect = circuitCollectRepository.save (CircuitCollectMapper.CCMP.asModel (circuitCollect ));
+        return CircuitCollectMapper.CCMP.asDto (savedCircuitCollect);
     }
 
-    /**
-     * @param circuitCollectId
-     * @param circuitCollectDto
-     * @return
-     */
-    @Override
-    public CircuitCollectDto updateOneCircuitCollect(Long circuitCollectId, CircuitCollectDto circuitCollectDto) {
 
-        CircuitCollect existedCircuitCollect = circuitCollectRepository.findById(circuitCollectId)
+    @Override
+    public CircuitCollect updateCircuitCollect(Long circuitCollectId, CircuitCollect circuitCollectDto) {
+
+        var existedCircuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found to update ".formatted(circuitCollectId)
                 ));
-        if(circuitCollectDto.getCircuitcollectName() != null) {
-            existedCircuitCollect.setCircuitcollectName(circuitCollectDto.getCircuitcollectName());
+
+        if(circuitCollectDto.getName() != null) {
+            existedCircuitCollect.setName(circuitCollectDto.getName());
         }
-        if(circuitCollectDto.getCircuitcollectCat() != null) {
-            existedCircuitCollect.setCircuitcollectCat(circuitCollectDto.getCircuitcollectCat());
+        if(circuitCollectDto.getCat() != null) {
+            existedCircuitCollect.setCat(circuitCollectDto.getCat());
         }
-        if(circuitCollectDto.getCircuitcollectCode() != null) {
-            existedCircuitCollect.setCircuitcollectCode(circuitCollectDto.getCircuitcollectCode());
+        if(circuitCollectDto.getCode() != null) {
+            existedCircuitCollect.setCode(circuitCollectDto.getCode());
         }
-        if(circuitCollectDto.getCircuitcollectLatiPointA() != null) {
-            existedCircuitCollect.setCircuitcollectLatiPointA(circuitCollectDto.getCircuitcollectLatiPointA());
+        if(circuitCollectDto.getLatiPointA() != null) {
+            existedCircuitCollect.setLatiPointA(circuitCollectDto.getLatiPointA());
         }
-        if(circuitCollectDto.getCircuitcollectLatiPointD() != null) {
-            existedCircuitCollect.setCircuitcollectLatiPointD(circuitCollectDto.getCircuitcollectLatiPointD());
+        if(circuitCollectDto.getLatiPointD() != null) {
+            existedCircuitCollect.setLatiPointD(circuitCollectDto.getLatiPointD());
         }
-        if(circuitCollectDto.getCircuitcollectLongPointA() != null) {
-            existedCircuitCollect.setCircuitcollectLongPointA(circuitCollectDto.getCircuitcollectLongPointA());
+        if(circuitCollectDto.getLongPointA() != null) {
+            existedCircuitCollect.setLongPointA(circuitCollectDto.getLongPointA());
         }
-        if(circuitCollectDto.getCircuitcollectLongPointD() != null) {
-            existedCircuitCollect.setCircuitcollectLongPointD(circuitCollectDto.getCircuitcollectLongPointD());
+        if(circuitCollectDto.getLongPointD() != null) {
+            existedCircuitCollect.setLongPointD(circuitCollectDto.getLongPointD());
         }
-        if(circuitCollectDto.getCircuitcollectLength() != null) {
-            existedCircuitCollect.setCircuitcollectLength(circuitCollectDto.getCircuitcollectLength());
+        if(circuitCollectDto.getLength() != null) {
+            existedCircuitCollect.setLength(circuitCollectDto.getLength());
         }
-        if(circuitCollectDto.getCircuitcollectFrequence() != null) {
-            existedCircuitCollect.setCircuitcollectFrequence(circuitCollectDto.getCircuitcollectFrequence());
+        if(circuitCollectDto.getFrequency() != null) {
+            existedCircuitCollect.setFrequence(circuitCollectDto.getFrequency());
         }
-        if(circuitCollectDto.getCircuitcollectSection() != null) {
-            existedCircuitCollect.setCircuitcollectSection(circuitCollectDto.getCircuitcollectSection());
+        if(circuitCollectDto.getSection() != null) {
+            existedCircuitCollect.setSection(circuitCollectDto.getSection());
         }
-        if(circuitCollectDto.getCircuitcollectSectection() != null) {
-            existedCircuitCollect.setCircuitcollectSectection(circuitCollectDto.getCircuitcollectSectection());
+        if(circuitCollectDto.getSectection() != null) {
+            existedCircuitCollect.setSectection(circuitCollectDto.getSectection());
         }
-        if(circuitCollectDto.getCircuitcollectRotation() != null) {
-            existedCircuitCollect.setCircuitcollectRotation(circuitCollectDto.getCircuitcollectRotation());
+        if(circuitCollectDto.getRotation() != null) {
+            existedCircuitCollect.setRotation(circuitCollectDto.getRotation());
         }
-        if(circuitCollectDto.getCircuitcollectType() != null) {
-            existedCircuitCollect.setCircuitcollectType(circuitCollectDto.getCircuitcollectType());
+        if(circuitCollectDto.getType() != null) {
+            existedCircuitCollect.setType(circuitCollectDto.getType());
         }
-        return CircuitCollectMapper.CCMP.modelToDto(existedCircuitCollect);
+        return CircuitCollectMapper.CCMP.asDto (circuitCollectRepository.save (existedCircuitCollect));
     }
 
-    /**
-     * @param circuitCollectId 
-     */
+
     @Override
-    public void deleteOneCircuitCollect(Long circuitCollectId) {
-        CircuitCollect circuitCollect = circuitCollectRepository.findById(circuitCollectId)
+    public void deleteCircuitCollect(Long circuitCollectId) {
+        var circuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitCollectId)
                 ));

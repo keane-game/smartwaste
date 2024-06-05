@@ -5,13 +5,13 @@ import sonaged.collecte.master.dto.Coordinate;
 import java.util.List;
 
 public interface CoordinateService {
-    Coordinate getOneCoordinate(Long coordinateId);
+    Coordinate readCoordinate(Long coordinateId);
 
-    List<Coordinate> getAllCoordinate();
+    List<Coordinate> readAllCoordinate();
 
-    Coordinate createOneCoordinate(Coordinate coordinate);
+    Coordinate createCoordinate(Coordinate coordinate);
 
-    Coordinate updateOneCoordinate(Long CoordinateId, Coordinate coordinateDto);
+    Coordinate updateCoordinate(Long CoordinateId, Coordinate coordinate);
 
-    void deleteOneCoordinate(Long coordinateId);
+    void deleteCoordinate(Long coordinateId);
 }

@@ -19,11 +19,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Region implements Serializable {
 
-    Long regionId;
+    Long id;
 
-    String regionName;
+    String name;
 
-    String regionCode;
+    String code;
 
     Geometry geometry;
 

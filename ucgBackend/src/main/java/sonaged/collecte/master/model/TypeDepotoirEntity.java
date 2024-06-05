@@ -32,12 +32,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_TYPEDEPOTOIR")
+@Table(name = "TYPEDEPOTOIR")
 public class TypeDepotoirEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "typeDepotoirId")
+    @Column(name = "TypeDepotoirId")
     Long typeDepotoirId;
 
     @Column(name = "Name")

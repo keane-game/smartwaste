@@ -7,14 +7,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.CircuitDto;
+import sonaged.collecte.master.dto.Circuit;
 import sonaged.collecte.master.service.CircuitService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/circuits")
 public class CircuitController {
 
     private final CircuitService circuitService;
@@ -26,12 +26,10 @@ public class CircuitController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit/{circuitId}")
-    public ResponseEntity<CircuitDto> getOneCircuit(@PathVariable("circuitId") Long circuitId){
-        CircuitDto circuitDto = circuitService.getOneCircuit(circuitId);
-        return ResponseEntity
-                .ok()
-                .body(circuitDto);
+    @GetMapping("/{circuitId}")
+    public Circuit readCircuit(@PathVariable("circuitId") Long circuitId){
+        return circuitService.readCircuit (circuitId);
+
     }
 
     @Operation(summary = "Get All Circuit")
@@ -41,11 +39,9 @@ public class CircuitController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuits/all")
-    public ResponseEntity<List<CircuitDto>> getAllCircuit(){
-        return ResponseEntity
-                .ok()
-                .body(circuitService.getAllCircuit());
+    @GetMapping
+    public List<Circuit> readAllCircuit(){
+        return circuitService.readAllCircuit ();
     }
 
     @Operation(summary = "Create one Circuit")
@@ -55,11 +51,10 @@ public class CircuitController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/circuit")
-    public ResponseEntity<CircuitDto> createOneCircuit(@RequestBody CircuitDto circuitdto){
-        CircuitDto circuit = circuitService.createOneCircuit(circuitdto);
-        return ResponseEntity.ok()
-                .body(circuit);
+    @PostMapping
+    public Circuit createCircuit(@RequestBody Circuit circuit){
+        return circuitService.createCircuit (circuit);
+
     }
 
     @Operation(summary = "update One Circuit by Id")
@@ -69,11 +64,10 @@ public class CircuitController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/circuit/{circuitId}")
-    public ResponseEntity<CircuitDto>  updateOneCircuit(@PathVariable("circuitId") Long circuitId, @RequestBody() CircuitDto circuitDto) {
-        CircuitDto circuit = circuitService.updateOneCircuit(circuitId, circuitDto);
-        return ResponseEntity.ok()
-                .body(circuit);
+    @PutMapping("/{circuitId}")
+    public Circuit  updateCircuit(@PathVariable("circuitId") Long circuitId, @RequestBody() Circuit circuit) {
+        return circuitService.updateCircuit (circuitId, circuit);
+
     }
 
     @Operation(summary = "Delete One Circuit by Id")
@@ -83,11 +77,10 @@ public class CircuitController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/circuit/{circuitId}")
-    public ResponseEntity<String> deleteOneCircuit(@PathVariable("circuitId") Long circuitId) {
-        circuitService.deleteOneCircuit(circuitId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{circuitId}")
+    public String deleteOneCircuit(@PathVariable("circuitId") Long circuitId) {
+        circuitService.deleteCircuit (circuitId);
+        return "Successfully delete";
     }
 
 }

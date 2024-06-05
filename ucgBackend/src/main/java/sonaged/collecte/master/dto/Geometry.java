@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Geometry implements Serializable {
+
     Long id;
 
     String type;

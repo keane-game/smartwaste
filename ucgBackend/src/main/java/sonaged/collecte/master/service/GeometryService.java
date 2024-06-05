@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.Geometry;
 import java.util.List;
 
 public interface GeometryService {
-    Geometry getOneGeometry(Long geometryId);
+    Geometry readGeometry(Long geometryId);
 
-    List<Geometry> getAllGeometry();
+    List<Geometry> readAllGeometry();
 
-    Geometry createOneGeometry(Geometry geometry);
+    Geometry createGeometry(Geometry geometry);
 
-    Geometry updateOneGeometry(Long geometryId, Geometry geometry);
-    void deleteOneGeometry(Long geometryId);
+    Geometry updateGeometry(Long geometryId, Geometry geometry);
+
+    void deleteGeometry(Long geometryId);
 }

@@ -5,16 +5,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.QuartierDto;
+import sonaged.collecte.master.dto.Quartier;
 import sonaged.collecte.master.service.QuartierService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/quartier")
+@RequestMapping("/v1/quartiers")
 public class QuartierController {
 
 
@@ -27,8 +26,8 @@ public class QuartierController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{quartierId}")
-    public QuartierDto getOneQuartier(@PathVariable("quartierId") Long quartierId){
-        return quartierService.getOneQuartier(quartierId);
+    public Quartier readQuartier(@PathVariable("quartierId") Long quartierId){
+        return quartierService.readQuartier(quartierId);
     }
 
     @Operation(summary = "Get All Quartier")
@@ -39,8 +38,8 @@ public class QuartierController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<QuartierDto> getAllQuartier(){
-        return quartierService.getAllQuartier();
+    public List<Quartier> readAllQuartier(){
+        return quartierService.readAllQuartier ();
     }
 
     @Operation(summary = "Create one Quartier")
@@ -51,8 +50,8 @@ public class QuartierController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public QuartierDto createOneQuartier(@RequestBody QuartierDto quartierDto){
-        return quartierService.createOneQuartier(quartierDto);
+    public Quartier createQuartier(@RequestBody Quartier quartier){
+        return quartierService.createQuartier (quartier);
     }
 
     @Operation(summary = "update One Quartier by Id")
@@ -63,8 +62,8 @@ public class QuartierController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{quartierId}")
-    public QuartierDto updateOneQuartier(@PathVariable("quartierId") Long quartierId, @RequestBody() QuartierDto quartierDto) {
-        return quartierService.updateOneQuartier(quartierId, quartierDto);
+    public Quartier updateQuartier(@PathVariable("quartierId") Long quartierId, @RequestBody() Quartier quartier) {
+        return quartierService.updateQuartier (quartierId, quartier);
     }
 
     @Operation(summary = "Delete One Quartier by Id")
@@ -75,8 +74,8 @@ public class QuartierController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{quartierId}")
-    public String deleteOneQuartier(@PathVariable("quartierId") Long quartierId) {
-        quartierService.deleteOneQuartier(quartierId);
+    public String deleteQuartier(@PathVariable("quartierId") Long quartierId) {
+        quartierService.deleteQuartier (quartierId);
         return "Successfully delete";
     }
 }

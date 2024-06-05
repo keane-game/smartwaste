@@ -17,6 +17,6 @@ public interface CoordinateMapper {
 
     CoordinateEntity asModel(Coordinate coordinateDto);
 
-    List<Coordinate> listModelToDto(List<CoordinateEntity> coordinates);
+    List<Coordinate> asListDto(List<CoordinateEntity> coordinates);
 
 }

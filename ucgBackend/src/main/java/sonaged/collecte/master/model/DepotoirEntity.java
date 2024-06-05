@@ -33,16 +33,16 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_DEPOTOIR")
+@Table(name = "DEPOTOIR")
 public class DepotoirEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "depotoirId")
+    @Column(name = "DepotoirId")
     Long depotoirId;
 
-    @Column(name = "depotoirAddress")
-    String depotoirAddress;
+    @Column(name = "Address")
+    String address;
 
 //    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
 //    @JoinColumn(name = "geometryId", nullable = false)
@@ -52,13 +52,13 @@ public class DepotoirEntity {
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "typeDepotoirId")
     @JsonIgnore
-    TypeDepotoir typeDepotoir;
+    TypeDepotoirEntity typeDepotoir;
 
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "quartierId")
     @JsonIgnore
-    Quartier quartier;
+    QuartierEntity quartier;
 
     @Override
     public final boolean equals(Object o) {

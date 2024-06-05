@@ -5,19 +5,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.CommuneDto;
+import sonaged.collecte.master.dto.Commune;
 import sonaged.collecte.master.service.CommuneService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/commune")
+@RequestMapping("/v1/communes")
 public class CommuneController {
 
     private final CommuneService communeService;
+
     @Operation(summary = "Get One Commune by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get One Commune"),
@@ -26,8 +26,8 @@ public class CommuneController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{communeId}")
-    public CommuneDto getOneCommune(@PathVariable("communeId") Long communeid){
-        return communeService.getOneCommune(communeid);
+    public Commune readCommune(@PathVariable("communeId") Long communeId){
+        return communeService.readCommune(communeId);
     }
 
     @Operation(summary = "Get All Commune")
@@ -38,8 +38,8 @@ public class CommuneController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<CommuneDto> getAllCommune(){
-        return communeService.getAllCommune();
+    public List<Commune> getAllCommune(){
+        return communeService.readAllCommune();
     }
 
     @Operation(summary = "Create one Commune")
@@ -50,8 +50,8 @@ public class CommuneController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public CommuneDto createOneCommune(@RequestBody CommuneDto communeDto){
-        return communeService.createOneCommune(communeDto);
+    public Commune createCommune(@RequestBody Commune communeDto){
+        return communeService.createCommune(communeDto);
     }
 
     @Operation(summary = "update One Commune by Id")
@@ -62,8 +62,8 @@ public class CommuneController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{communeId}")
-    public CommuneDto updateOneCommune(@PathVariable("communeId") Long communeId, @RequestBody() CommuneDto communeDto) {
-        return communeService.updateOneCommune(communeId, communeDto);
+    public Commune updateOneCommune(@PathVariable("communeId") Long communeId, @RequestBody() Commune commune) {
+        return communeService.updateCommune(communeId, commune);
     }
 
     @Operation(summary = "Delete One Commune by Id")
@@ -74,8 +74,8 @@ public class CommuneController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{communeId}")
-    public String deleteOneCommune(@PathVariable("communeId") Long communeId) {
-        communeService.deleteOneCommune(communeId);
+    public String deleteCommune(@PathVariable("communeId") Long communeId) {
+        communeService.deleteCommune (communeId);
         return "Successfully delete";
     }
 }

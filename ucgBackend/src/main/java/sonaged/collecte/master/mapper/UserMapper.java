@@ -15,13 +15,11 @@ public interface UserMapper {
 
     UserMapper UMP = Mappers.getMapper(UserMapper.class);
 
-    User asDto(User user);
+    User asDto(UserEntity user);
 
     UserEntity asModel(User user);
 
     User asDto(UserResponse user);
 
-    //List<UserDto> listModelToDto(List<User> users);
-
-    List<UserResponse> listModelToDto(List<User> users);
+    List<User> asListDto(List<UserEntity> users);
 }

@@ -23,11 +23,11 @@ public class Commune {
 
     String code;
 
-    String residentTotal;
+    String total;
 
-    String womanResident;
+    String women;
 
-    String manResident;
+    String men;
 
     String length;
 

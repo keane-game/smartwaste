@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.CircuitBalayage;
 import java.util.List;
 
 public interface CircuitBalayageService {
-    CircuitBalayage getOneCircuitBalayage(Long circuitBalayageId);
+    CircuitBalayage readCircuitBalayage(Long circuitBalayageId);
 
-    List<CircuitBalayage> getAllCircuitBalayage();
+    List<CircuitBalayage> readAllCircuitBalayage();
 
-    CircuitBalayage createOneCircuitBalayage(CircuitBalayage circuitBalayageDto);
+    CircuitBalayage createCircuitBalayage(CircuitBalayage circuitBalayageDto);
 
-    CircuitBalayage updateOneCircuitBalayage(Long circuitBalayageId, CircuitBalayage circuitBalayage);
-    void deleteOneCircuitBalayage(Long circuitBalayageId);
+    CircuitBalayage updateCircuitBalayage(Long circuitBalayageId, CircuitBalayage circuitBalayage);
+
+    void deleteCircuitBalayage(Long circuitBalayageId);
 }

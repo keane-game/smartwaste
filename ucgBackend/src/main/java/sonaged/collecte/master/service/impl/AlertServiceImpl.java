@@ -19,7 +19,7 @@ public class AlertServiceImpl implements AlertService {
     private final AlertRepository alertRepository;
 
     @Override
-    public Alert getOneAlert(Long alertId) {
+    public Alert readAlert(Long alertId) {
         var alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Alert with id [%s] not found ".formatted(alertId)
@@ -29,21 +29,21 @@ public class AlertServiceImpl implements AlertService {
 
 
     @Override
-    public List<Alert> getAllAlert() {
-        List<AlertEntity> alertList = alertRepository.findAll();
+    public List<Alert> readAllAlert() {
+        var alertList = alertRepository.findAll();
         return AlertMapper.AMP.asListDto(alertList);
     }
 
 
     @Override
-    public Alert createOneAlert(Alert alert) {
+    public Alert createAlert(Alert alert) {
         var savedAlert = alertRepository.save(AlertMapper.AMP.asModel(alert));
         return AlertMapper.AMP.asDto (savedAlert);
     }
 
 
     @Override
-    public Alert updateOneAlert(Long alertId, Alert alert) {
+    public Alert updateAlert(Long alertId, Alert alert) {
         var existedAlert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Alert with id [%s] not found ".formatted(alertId)
@@ -57,11 +57,9 @@ public class AlertServiceImpl implements AlertService {
         return AlertMapper.AMP.asDto(existedAlert);
     }
 
-    /**
-     * @param alertId 
-     */
+
     @Override
-    public void deleteOneAlert(Long alertId) {
+    public void deleteAlert(Long alertId) {
         var alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Alert with id [%s] not found ".formatted(alertId)

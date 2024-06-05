@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.History;
 import java.util.List;
 
 public interface HistoryService {
-    History getOneHistory(Long historyId);
+    History readHistory(Long historyId);
 
-    List<History> getAllHistory();
+    List<History> readAllHistory();
 
-    History createOneHistory(History history);
+    History createHistory(History history);
 
-    History updateOneHistory(Long HistoryId, History history);
-    void deleteOneHistory(Long historyId);
+    History updateHistory(Long HistoryId, History history);
+
+    void deleteHistory(Long historyId);
 }

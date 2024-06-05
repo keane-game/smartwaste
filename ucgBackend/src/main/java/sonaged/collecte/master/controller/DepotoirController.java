@@ -5,16 +5,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.DepotoirDto;
+import sonaged.collecte.master.dto.Depotoir;
 import sonaged.collecte.master.service.DepotoirService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/depotoir")
+@RequestMapping("/v1/depotoirs")
 public class DepotoirController {
     private final DepotoirService depotoirService;
 
@@ -26,8 +25,8 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{depotoirId}")
-    public DepotoirDto getOneDepotoir(@PathVariable("depotoirId") Long depotoirId){
-        return depotoirService.getOneDepotoir(depotoirId);
+    public Depotoir readDepotoir(@PathVariable("depotoirId") Long depotoirId){
+        return depotoirService.readDepotoir(depotoirId);
     }
 
     @Operation(summary = "Get All Depotoir")
@@ -38,8 +37,8 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<DepotoirDto> getAllDepotoir(){
-        return depotoirService.getAllDepotoir();
+    public List<Depotoir> readAllDepotoir(){
+        return depotoirService.readAllDepotoir();
     }
 
     @Operation(summary = "Create one Depotoir")
@@ -50,8 +49,8 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public DepotoirDto createOneDepotoir(@RequestBody DepotoirDto depotoirDto){
-        return depotoirService.createOneDepotoir(depotoirDto);
+    public Depotoir createOneDepotoir(@RequestBody Depotoir depotoir){
+        return depotoirService.createDepotoir(depotoir);
     }
 
     @Operation(summary = "update One Depotoir by Id")
@@ -62,8 +61,8 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{depotoirId}")
-    public DepotoirDto  updateOneDepotoir(@PathVariable("depotoirId") Long depotoirId, @RequestBody() DepotoirDto depotoirDto) {
-        return depotoirService.updateOneDepotoir(depotoirId, depotoirDto);
+    public Depotoir  updateDepotoir(@PathVariable("depotoirId") Long depotoirId, @RequestBody() Depotoir depotoir) {
+        return depotoirService.updateDepotoir(depotoirId, depotoir);
     }
 
     @Operation(summary = "Delete One Depotoir by Id")
@@ -74,8 +73,8 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{depotoirId}")
-    public String deleteOneDepotoir(@PathVariable("depotoirId") Long depotoirId) {
-        depotoirService.deleteOneDepotoir(depotoirId);
+    public String deleteDepotoir(@PathVariable("depotoirId") Long depotoirId) {
+        depotoirService.deleteDepotoir (depotoirId);
         return "Successfully delete";
     }
 

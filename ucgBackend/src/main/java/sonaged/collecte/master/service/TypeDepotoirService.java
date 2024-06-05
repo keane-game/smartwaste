@@ -5,13 +5,14 @@ import sonaged.collecte.master.dto.TypeDepotoir;
 import java.util.List;
 
 public interface TypeDepotoirService {
-    TypeDepotoir getOneTypeDepotoir(Long typeDepotoirId);
 
-    List<TypeDepotoir> getAllTypeDepotoir();
+    TypeDepotoir readTypeDepotoir(Long typeDepotoirId);
 
-    TypeDepotoir createOneTypeDepotoir(TypeDepotoir typeDepotoir);
+    List<TypeDepotoir> readAllTypeDepotoir();
 
-    TypeDepotoir updateOneTypeDepotoir(Long typeDepotoirId, TypeDepotoir typeDepotoir);
+    TypeDepotoir createTypeDepotoir(TypeDepotoir typeDepotoir);
 
-    void deleteOneTypeDepotoir(Long typeDepotoirId);
+    TypeDepotoir updateTypeDepotoir(Long typeDepotoirId, TypeDepotoir typeDepotoir);
+
+    void deleteTypeDepotoir(Long typeDepotoirId);
 }

@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.dto.DepotoirDto;
+import sonaged.collecte.master.dto.Depotoir;
 import sonaged.collecte.master.mapper.CommuneMapper;
 import sonaged.collecte.master.mapper.DepotoirMapper;
-import sonaged.collecte.master.model.Depotoir;
 import sonaged.collecte.master.repository.DepotoirRepository;
 import sonaged.collecte.master.repository.QuartierRepository;
 import sonaged.collecte.master.repository.TypeDepotoirRepository;
@@ -24,36 +23,28 @@ public class DepotoirServiceImpl implements DepotoirService {
     private final TypeDepotoirRepository typeDepotoirRepository;
 
     private final DepotoirRepository depotoirRepository;
-    /**
-     * @param depotoirId
-     * @return
-     */
+
     @Override
-    public DepotoirDto getOneDepotoir(Long depotoirId) {
-        Depotoir depotoir  = depotoirRepository.findById(depotoirId)
+    public Depotoir readDepotoir(Long depotoirId) {
+        var depotoir  = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Depotoir with id [%s] not found ".formatted(depotoirId)
                 ));
-        return DepotoirMapper.DETMP.modelToDto(depotoir);
+        return DepotoirMapper.DETMP.asDto(depotoir);
     }
 
-    /**
-     * @return
-     */
+
     @Override
-    public List<DepotoirDto> getAllDepotoir() {
-        List<Depotoir> depotoirList = depotoirRepository.findAll();
-        return DepotoirMapper.DETMP.listModelToDto(depotoirList);
+    public List<Depotoir> readAllDepotoir() {
+        var depotoirList = depotoirRepository.findAll();
+        return DepotoirMapper.DETMP.asListDto(depotoirList);
     }
 
-    /**
-     * @param depotoirDto
-     * @return
-     */
+
     @Override
-    public DepotoirDto createOneDepotoir(DepotoirDto depotoirDto) {
-        var t_depotId = depotoirDto.getTypeDepotoir ().getTypeDepotoirId ();
-        var quartierId = depotoirDto.getQuartier ().getQuartierId ();
+    public Depotoir createDepotoir(Depotoir depotoir) {
+        var t_depotId = depotoir.getTypeDepotoir().getId();
+        var quartierId = depotoir.getQuartier().getId();
         if(t_depotId != null && quartierId != null) {
             var typeDepotoir = typeDepotoirRepository.findById (t_depotId).orElseThrow (
                     () -> new ResourceNotFoundException ("")
@@ -61,38 +52,32 @@ public class DepotoirServiceImpl implements DepotoirService {
             var quartier = quartierRepository.findById (quartierId).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            depotoirDto.setTypeDepotoir (typeDepotoir);
-            depotoirDto.setQuartier (quartier);
+           // depotoir.setTypeDepotoir (typeDepotoir);
+           // depotoir.setQuartier (quartier);
         }
-        var depotoir = depotoirRepository.save(DepotoirMapper.DETMP.dtoToModel (depotoirDto));
-        return DepotoirMapper.DETMP.modelToDto (depotoirRepository.save(depotoir));
+        var savedDepotoir = depotoirRepository.save(DepotoirMapper.DETMP.asModel(depotoir));
+        return DepotoirMapper.DETMP.asDto(depotoirRepository.save(savedDepotoir));
     }
 
-    /**
-     * @param depotoirId
-     * @param depotoirDto
-     * @return
-     */
+
     @Override
-    public DepotoirDto updateOneDepotoir(Long depotoirId, DepotoirDto depotoirDto) {
-        Depotoir existedDepotoir = depotoirRepository.findById(depotoirId)
+    public Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir) {
+        var existedDepotoir = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        " de depotoir with id [%s] not found to update ".formatted(depotoirId)
+                        "Depotoir with id [%s] not found to update ".formatted(depotoirId)
                 ));
 
-        existedDepotoir.setDepotoirAddress(depotoirDto.getDepotoirAddress());
-        Depotoir updateDepotoir = depotoirRepository.save(existedDepotoir);
-        return DepotoirMapper.DETMP.modelToDto(updateDepotoir);
+        existedDepotoir.setAddress(depotoir.getAddress());
+        var updateDepotoir = depotoirRepository.save(existedDepotoir);
+        return DepotoirMapper.DETMP.asDto(updateDepotoir);
     }
 
-    /**
-     * @param depotoirId
-     */
+
     @Override
-    public void deleteOneDepotoir(Long depotoirId) {
-        Depotoir existeddepotoir = depotoirRepository.findById(depotoirId)
+    public void deleteDepotoir(Long depotoirId) {
+        var existeddepotoir = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        " de depotoir with id [%s] not found to update ".formatted(depotoirId)
+                        "Depotoir with id [%s] not found to update ".formatted(depotoirId)
                 ));
         depotoirRepository.delete(existeddepotoir);
     }

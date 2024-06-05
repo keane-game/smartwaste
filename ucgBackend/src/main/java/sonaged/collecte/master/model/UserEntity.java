@@ -38,39 +38,37 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name="SND_USER")
+@Table(name = "USERS")
 public class UserEntity extends  AbstractAuditingEntity<Long> implements UserDetails {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "UserId", unique = true ,nullable = false)
     Long userId;
 
-    @Column(nullable = false)
-    @Min(2)
+    @Column(name = "UserLastname", nullable = false)
     String userLastname;
 
-    @Column(nullable = false)
-    @Min(2)
+    @Column(name = "UserFirstname", nullable = false)
     String userFirstname;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "UserEmail", nullable = false, unique = true)
     @Email
     String userEmail;
 
-    @Column(nullable = false)
-    @Min(2)
+    @Column(name = "UserPassword", nullable = false)
     String password;
 
-    @Column
+    @Column(name = "UserCode")
     String userCode;
 
-    @Column
+    @Column(name = "UserAddress")
     String userAddress;
 
-    @Column
+    @Column(name = "UserPhone")
     String userPhone;
 
+    @Column( columnDefinition="boolean default false")
     boolean activated = false;
 
     @JsonIgnore

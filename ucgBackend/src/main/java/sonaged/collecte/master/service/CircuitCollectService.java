@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.CircuitCollect;
 import java.util.List;
 
 public interface CircuitCollectService {
-    CircuitCollect getOneCircuitCollect(Long circuitCollectId);
+    CircuitCollect readCircuitCollect(Long circuitCollectId);
 
-    List<CircuitCollect> getAllCircuitCollect();
+    List<CircuitCollect> readAllCircuitCollect();
 
-    CircuitCollect createOneCircuitCollect(CircuitCollect circuitCollect);
+    CircuitCollect createCircuitCollect(CircuitCollect circuitCollect);
 
-    CircuitCollect updateOneCircuitCollect(Long circuitCollectId, CircuitCollect circuitCollectDto);
-    void deleteOneCircuitCollect(Long circuitCollectId);
+    CircuitCollect updateCircuitCollect(Long circuitCollectId, CircuitCollect circuitCollectDto);
+
+    void deleteCircuitCollect(Long circuitCollectId);
 }

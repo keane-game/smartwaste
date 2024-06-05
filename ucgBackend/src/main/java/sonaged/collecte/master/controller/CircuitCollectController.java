@@ -7,13 +7,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.CircuitCollectDto;
+import sonaged.collecte.master.dto.CircuitCollect;
 import sonaged.collecte.master.service.CircuitCollectService;
 
 import java.util.List;
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/circuit-collects")
 public class CircuitCollectController {
 
     private final CircuitCollectService circuitCollectService;
@@ -25,12 +25,9 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-collect/{circuitCollectId}")
-    public ResponseEntity<CircuitCollectDto> getOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId){
-        CircuitCollectDto circuitCollectDto = circuitCollectService.getOneCircuitCollect(circuitCollectId);
-        return ResponseEntity
-                .ok()
-                .body(circuitCollectDto);
+    @GetMapping("/{circuitCollectId}")
+    public CircuitCollect readCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId){
+        return circuitCollectService.readCircuitCollect(circuitCollectId);
     }
 
     @Operation(summary = "Get All CircuitCollect")
@@ -40,11 +37,9 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-collect/all")
-    public ResponseEntity<List<CircuitCollectDto>> getAllCircuitCollect(){
-        return ResponseEntity
-                .ok()
-                .body(circuitCollectService.getAllCircuitCollect());
+    @GetMapping
+    public List<CircuitCollect> readAllCircuitCollect(){
+        return circuitCollectService.readAllCircuitCollect();
     }
 
     @Operation(summary = "Create one CircuitCollect")
@@ -54,11 +49,10 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/circuit-collect")
-    public ResponseEntity<CircuitCollectDto> createOneCircuitCollect(@RequestBody CircuitCollectDto circuitCollectdto){
-        CircuitCollectDto circuitCollect = circuitCollectService.createOneCircuitCollect(circuitCollectdto);
-        return ResponseEntity.ok()
-                .body(circuitCollect);
+    @PostMapping
+    public CircuitCollect createCircuitCollect(@RequestBody CircuitCollect circuitCollect){
+        return circuitCollectService.createCircuitCollect(circuitCollect);
+
     }
 
     @Operation(summary = "update One CircuitCollect by Id")
@@ -68,11 +62,10 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/circuit-collect/{circuitCollectId}")
-    public ResponseEntity<CircuitCollectDto>  updateOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId, @RequestBody() CircuitCollectDto circuitCollectDto) {
-        CircuitCollectDto circuitCollect = circuitCollectService.updateOneCircuitCollect(circuitCollectId, circuitCollectDto);
-        return ResponseEntity.ok()
-                .body(circuitCollect);
+    @PutMapping("/{circuitCollectId}")
+    public CircuitCollect  updateCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId, @RequestBody() CircuitCollect circuitCollectDto) {
+        return circuitCollectService.updateCircuitCollect(circuitCollectId, circuitCollectDto);
+
     }
 
     @Operation(summary = "Delete One CircuitCollect by Id")
@@ -82,11 +75,10 @@ public class CircuitCollectController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/circuit-collect/{circuitCollectId}")
-    public ResponseEntity<String> deleteOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId) {
-        circuitCollectService.deleteOneCircuitCollect(circuitCollectId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{circuitCollectId}")
+    public String deleteOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId) {
+        circuitCollectService.deleteCircuitCollect (circuitCollectId);
+        return "Successfully delete";
     }
 
 }

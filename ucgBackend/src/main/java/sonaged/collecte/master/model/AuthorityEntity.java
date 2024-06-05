@@ -40,7 +40,7 @@ import java.util.Objects;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "SND_AUTHORITY")
+@Table(name = "AUTHORITY")
 public class AuthorityEntity extends AbstractAuditingEntity<Long> {
 
     @Id
@@ -50,7 +50,7 @@ public class AuthorityEntity extends AbstractAuditingEntity<Long> {
 
     @NotNull
     @Size(max = 50)
-    @Column(length = 50, name = "authorityName")
+    @Column(length = 50, name = "Name")
     String name;
 
     @Column(name = "Description")
@@ -62,7 +62,7 @@ public class AuthorityEntity extends AbstractAuditingEntity<Long> {
             fetch = FetchType.LAZY,
             mappedBy = "authority")
     @ToString.Exclude
-    List<User> users;
+    List<UserEntity> users;
 
     @ElementCollection(targetClass = Permission.class, fetch = FetchType.LAZY)
     @JoinTable(name = "authorityPermission", joinColumns = @JoinColumn(name = "authorityId"))

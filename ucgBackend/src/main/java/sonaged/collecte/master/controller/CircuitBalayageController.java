@@ -7,14 +7,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.CircuitBalayageDto;
+import sonaged.collecte.master.dto.CircuitBalayage;
 import sonaged.collecte.master.service.CircuitBalayageService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/v1/circuit-balayages")
 public class CircuitBalayageController {
     private final CircuitBalayageService circuitBalayageService;
 
@@ -26,11 +26,9 @@ public class CircuitBalayageController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/circuit-balayage/{circuitBalayageId}")
-    public ResponseEntity<CircuitBalayageDto> getOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId){
-        CircuitBalayageDto circuitBalayageDto = circuitBalayageService.getOneCircuitBalayage(circuitBalayageId);
-        return ResponseEntity
-                .ok()
-                .body(circuitBalayageDto);
+    public CircuitBalayage readCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId){
+        return  circuitBalayageService.readCircuitBalayage(circuitBalayageId);
+
     }
 
     @Operation(summary = "Get All CircuitBalayage")
@@ -40,11 +38,9 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-balayage/all")
-    public ResponseEntity<List<CircuitBalayageDto>> getAllCircuitBalayage(){
-        return ResponseEntity
-                .ok()
-                .body(circuitBalayageService.getAllCircuitBalayage());
+    @GetMapping
+    public List<CircuitBalayage> readAllCircuitBalayage(){
+        return circuitBalayageService.readAllCircuitBalayage();
     }
 
     @Operation(summary = "Create one CircuitBalayage")
@@ -54,11 +50,10 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/circuit-balayage")
-    public ResponseEntity<CircuitBalayageDto> createOneCircuitBalayage(@RequestBody CircuitBalayageDto circuitBalayagedto){
-        CircuitBalayageDto circuitBalayage = circuitBalayageService.createOneCircuitBalayage(circuitBalayagedto);
-        return ResponseEntity.ok()
-                .body(circuitBalayage);
+    @PostMapping
+    public CircuitBalayage createCircuitBalayage(@RequestBody CircuitBalayage circuitBalayage){
+        return circuitBalayageService.createCircuitBalayage(circuitBalayage);
+
     }
 
     @Operation(summary = "update One CircuitBalayage by Id")
@@ -68,11 +63,10 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/circuit-balayage/{circuitBalayageId}")
-    public ResponseEntity<CircuitBalayageDto>  updateOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId, @RequestBody() CircuitBalayageDto circuitBalayageDto) {
-        CircuitBalayageDto circuitBalayage = circuitBalayageService.updateOneCircuitBalayage(circuitBalayageId, circuitBalayageDto);
-        return ResponseEntity.ok()
-                .body(circuitBalayage);
+    @PutMapping("/{circuitBalayageId}")
+    public CircuitBalayage  updateCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId, @RequestBody() CircuitBalayage circuitBalayageDto) {
+        return circuitBalayageService.updateCircuitBalayage(circuitBalayageId, circuitBalayageDto);
+
     }
 
     @Operation(summary = "Delete One CircuitBalayage by Id")
@@ -82,10 +76,9 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/circuit-balayage/{circuitBalayageId}")
-    public ResponseEntity<String> deleteOneCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId) {
-        circuitBalayageService.deleteOneCircuitBalayage(circuitBalayageId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{circuitBalayageId}")
+    public String deleteCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId) {
+        circuitBalayageService.deleteCircuitBalayage (circuitBalayageId);
+        return "Successfully delete";
     }
 }

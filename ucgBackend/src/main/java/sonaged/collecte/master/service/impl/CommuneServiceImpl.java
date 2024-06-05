@@ -5,16 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.DepartmentMapper;
-import sonaged.collecte.master.mapper.RegionMapper;
 import sonaged.collecte.master.repository.CommuneRepository;
-import sonaged.collecte.master.dto.CommuneDto;
+import sonaged.collecte.master.dto.Commune;
 import sonaged.collecte.master.mapper.CommuneMapper;
-import sonaged.collecte.master.model.Commune;
 import sonaged.collecte.master.repository.DepartmentRepository;
 import sonaged.collecte.master.service.CommuneService;
 
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -23,90 +20,74 @@ public class CommuneServiceImpl implements CommuneService {
     private final DepartmentRepository departmentRepository;
 
     private final CommuneRepository communeRepository;
-    /**
-     * @param communeId 
-     * @return
-     */
+
+
     @Override
-    public CommuneDto getOneCommune(Long communeId) {
-       Commune commune = communeRepository.findById(communeId)
+    public Commune readCommune(Long communeId) {
+       var commune = communeRepository.findById(communeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(communeId)
                 ));
-        return CommuneMapper.COMP.modelToDto(commune);
+        return CommuneMapper.COMP.asDto(commune);
     }
 
-    /**
-     * @return 
-     */
     @Override
-    public List<CommuneDto> getAllCommune() {
-        List <Commune> communeList = communeRepository.findAll();
-        return CommuneMapper.COMP.listModelToDto(communeList);
+    public List<Commune> readAllCommune() {
+       var communeList = communeRepository.findAll();
+        return CommuneMapper.COMP.asListDto(communeList);
     }
 
-    /**
-     * @param communeDto 
-     * @return
-     */
     @Override
-    public CommuneDto createOneCommune(CommuneDto communeDto) {
+    public Commune createCommune(Commune commune) {
 
-        if(communeDto.getDepartment ().getDepartmentId () != null) {
-            var department = departmentRepository.findById (communeDto.getDepartment ().getDepartmentId () ).orElseThrow (
+        if(commune.getDepartment ().getId () != null) {
+            var department = departmentRepository.findById (commune.getDepartment ().getId()).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            communeDto.setDepartment ( DepartmentMapper.DMP.modelToDto(department));
+            commune.setDepartment (DepartmentMapper.DMP.asDto(department));
         }
-        var communeSave = communeRepository.save(CommuneMapper.COMP.dtoToModel (communeDto));
-        return CommuneMapper.COMP.modelToDto(communeSave);
+        var communeSave = communeRepository.save(CommuneMapper.COMP.asModel(commune));
+        return CommuneMapper.COMP.asDto(communeSave);
     }
 
-    /**
-     * @param communeId 
-     * @param communeDto
-     * @return
-     */
+
     @Override
-    public CommuneDto updateOneCommune(Long communeId, CommuneDto communeDto) {
-        Commune existedCommune = communeRepository.findById(communeId)
+    public Commune updateCommune(Long communeId, Commune commune) {
+        var existedCommune = communeRepository.findById(communeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Commune  with id [%s] not found to update".formatted(communeId)
                 ));
 
 
-        if (communeDto.getCommuneName() != null){
-           existedCommune.setCommuneName(communeDto.getCommuneName() );
+        if (commune.getName() != null){
+           existedCommune.setName(commune.getName() );
         }
-        if (communeDto.getCommuneCode() != null){
-            existedCommune.setCommuneCode(communeDto.getCommuneCode());
+        if (commune.getCode() != null){
+            existedCommune.setCode(commune.getCode());
         }
-        if (communeDto.getCommuneArea() != null){
-            existedCommune.setCommuneArea(communeDto.getCommuneArea());
+        if (commune.getArea() != null){
+            existedCommune.setArea(commune.getArea());
         }
-        if (communeDto.getCommuneLength() != null){
-            existedCommune.setCommuneLength(communeDto.getCommuneLength());
+        if (commune.getLength() != null){
+            existedCommune.setLength(commune.getLength());
         }
-        if (communeDto.getManResident() != null){
-            existedCommune.setManResident(communeDto.getManResident());
+        if (commune.getMen() != null){
+            existedCommune.setMen(commune.getMen());
         }
-        if (communeDto.getWomanResident() != null){
-            existedCommune.setWomanResident(communeDto.getWomanResident());
+        if (commune.getWomen() != null){
+            existedCommune.setWomen(commune.getWomen());
         }
-        if (communeDto.getResidentTotal() != null){
-            existedCommune.setResidentTotal(communeDto.getResidentTotal());
+        if (commune.getTotal() != null){
+            existedCommune.setTotal(commune.getTotal());
         }
 
-        Commune communeUpdate = communeRepository.save(existedCommune);
-        return CommuneMapper.COMP.modelToDto(communeUpdate);
+        return CommuneMapper.COMP.asDto(communeRepository.save(existedCommune));
     }
 
-    /**
-     * @param communeId 
-     */
+
     @Override
-    public void deleteOneCommune(Long communeId) {
-        Commune commune = communeRepository.findById(communeId)
+    public void deleteCommune(Long communeId) {
+        var commune = communeRepository.findById(communeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(communeId)
                 ));

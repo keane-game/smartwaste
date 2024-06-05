@@ -5,33 +5,32 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.AlertDto;
+import sonaged.collecte.master.dto.Alert;
 import sonaged.collecte.master.service.AlertService;
 
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
-@RequestMapping("api")
+@RequiredArgsConstructor
+@RequestMapping("/v1/alerts")
 public class AlertController {
     private final AlertService alertService;
 
-    @Operation(summary = "Get One Alert by Id")
+    @Operation(summary = "Get  Alert by Id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get One Alert"),
+            @ApiResponse(responseCode = "200", description = "Get  Alert"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/alert/{alertId}")
-    public ResponseEntity<AlertDto> getOneAlert(@PathVariable("alertId") Long alertId){
-        AlertDto alertDto = alertService.getOneAlert(alertId);
-        return ResponseEntity
-                .ok()
-                .body(alertDto);
+    @GetMapping("/{alertId}")
+    public Alert readAlert(@PathVariable("alertId") Long alertId){
+     return alertService.readAlert(alertId);
+
     }
 
 
@@ -42,11 +41,11 @@ public class AlertController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/alerts/all")
-    public ResponseEntity<List<AlertDto>> getAllAlert(){
+    @GetMapping
+    public ResponseEntity<List<Alert>> readAllAlert(){
         return ResponseEntity
                 .ok()
-                .body(alertService.getAllAlert());
+                .body(alertService.readAllAlert());
     }
 
     @Operation(summary = "Create one Alert")
@@ -55,39 +54,36 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/create/alert")
-    public ResponseEntity<Alert> createOneAlert(@RequestBody Alert alert){
-        AlertDto alert = alertService.createOneAlert(alert);
-        return ResponseEntity.ok()
-                .body(alert);
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
+    public Alert createAlert(@RequestBody Alert alert){
+        return alertService.createAlert(alert);
     }
 
-    @Operation(summary = "update One Alert by Id")
+    @Operation(summary = "update  Alert by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Update one alert"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/update/alert/{alertId}")
-    public ResponseEntity<AlertDto>  updateOneAlert(@PathVariable("alertId") Long alertId, @RequestBody() AlertDto alertDto) {
-        AlertDto alert = alertService.updateOneAlert(alertId, alertDto);
-        return ResponseEntity.ok()
-                .body(alert);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/{alertId}")
+    public Alert updateAlert(@PathVariable("alertId") Long alertId, @RequestBody() Alert alert) {
+        alert.setAlertId (alertId);
+        return alertService.updateAlert(alertId, alert);
+
     }
 
-    @Operation(summary = "Delete One Alert by Id")
+    @Operation(summary = "Delete  Alert by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete one alert"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/delete/alert/{alertId}")
-    public ResponseEntity<String> deleteOneAlert(@PathVariable("alertId") Long alertId) {
-        alertService.deleteOneAlert(alertId);
-        return ResponseEntity.ok()
-                .body("Successfully delete");
+    @DeleteMapping("/{alertId}")
+    public String deleteAlert(@PathVariable("alertId") Long alertId) {
+        alertService.deleteAlert(alertId);
+        return "Successfully delete";
     }
 }

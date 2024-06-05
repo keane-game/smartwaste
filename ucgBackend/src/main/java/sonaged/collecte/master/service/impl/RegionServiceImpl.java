@@ -7,9 +7,8 @@ import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.GeometryMapper;
 import sonaged.collecte.master.repository.GeometryRepository;
 import sonaged.collecte.master.repository.RegionRepository;
-import sonaged.collecte.master.dto.RegionDto;
+import sonaged.collecte.master.dto.Region;
 import sonaged.collecte.master.mapper.RegionMapper;
-import sonaged.collecte.master.model.Region;
 import sonaged.collecte.master.service.RegionService;
 
 import java.util.List;
@@ -21,54 +20,41 @@ public class RegionServiceImpl implements RegionService {
 
     private final RegionRepository regionRepository;
     private final GeometryRepository geometryRepository;
-    /**
-     * @param regionId 
-     * @return
-     */
+
+
     @Override
-    public RegionDto getOneRegion(Long regionId) {
-        Region region  = regionRepository.findById(regionId)
+    public Region readRegion(Long regionId) {
+        var region  = regionRepository.findById(regionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(regionId)
                 ));
-        return RegionMapper.RMP.modelToDto(region);
+        return RegionMapper.RMP.asDto(region);
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<RegionDto> getAllRegion() {
-        List<Region> regionList = regionRepository.findAll();
-        return RegionMapper.RMP.listModelToDto(regionList);
+    public List<Region> readAllRegion() {
+        var regionList = regionRepository.findAll();
+        return RegionMapper.RMP.asListDto(regionList);
     }
 
-    /**
-     * @param regionDto 
-     * @return
-     */
-    @Override
-    public RegionDto createOneRegion(RegionDto regionDto) {
 
-        Region region = regionRepository.save(RegionMapper.RMP.dtoToModel(regionDto));
-        return RegionMapper.RMP.modelToDto(region);
+    @Override
+    public Region createRegion(Region region) {
+
+        var savedRegion = regionRepository.save(RegionMapper.RMP.asModel(region));
+        return RegionMapper.RMP.asDto(savedRegion);
     }
 
-    /**
-     * @param regionId 
-     * @param regionDto
-     * @return
-     */
+
     @Override
-    public RegionDto updateOneRegion(Long regionId, RegionDto regionDto) {
+    public Region updateRegion(Long regionId, Region region) {
         return null;
     }
 
-    /**
-     * @param regionId 
-     */
+
     @Override
-    public void deleteOneRegion(Long regionId) {
+    public void deleteRegion(Long regionId) {
 
     }
 }

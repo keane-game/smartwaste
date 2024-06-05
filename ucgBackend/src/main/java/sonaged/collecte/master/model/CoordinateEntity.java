@@ -23,21 +23,21 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_COORDINATE")
+@Table(name = "COORDINATE")
 public class CoordinateEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coordinateId")
+    @Column(name = "CoordinateId")
     Long coordinateId;
 
-    @Column(name = "latitude")
+    @Column(name = "Latitude")
     String latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "Longitude")
     String longitude;
 
-    @Column(name = "altitude")
+    @Column(name = "Altitude")
     String altitude;
 
 }

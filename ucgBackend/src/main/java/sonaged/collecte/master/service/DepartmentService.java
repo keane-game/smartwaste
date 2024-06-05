@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.Department;
 import java.util.List;
 
 public interface DepartmentService {
-    Department getOneDepartment(Long departmentId);
+    Department readDepartment(Long departmentId);
 
-    List<Department> getAllDepartment();
+    List<Department> readAllDepartment();
 
-    Department createOneDepartment(Department departmentDto);
+    Department createDepartment(Department departmentDto);
 
-    Department updateOneDepartment(Long departmentId, Department departmentDto);
-    void deleteOneDepartment(Long departmentId);
+    Department updateDepartment(Long departmentId, Department departmentDto);
+
+    void deleteDepartment(Long departmentId);
 }

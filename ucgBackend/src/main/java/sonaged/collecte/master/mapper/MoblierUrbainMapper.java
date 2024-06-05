@@ -17,5 +17,5 @@ public interface MoblierUrbainMapper {
 
     MoblierUrbainEntity asModel(MoblierUrbain moblierUrbain);
 
-    List<MoblierUrbain> asListDto(List<MoblierUrbain> moblierUrbains);
+    List<MoblierUrbain> asListDto(List<MoblierUrbainEntity> moblierUrbains);
 }

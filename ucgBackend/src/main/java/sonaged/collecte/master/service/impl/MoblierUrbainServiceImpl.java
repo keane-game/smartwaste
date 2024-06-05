@@ -3,9 +3,8 @@ package sonaged.collecte.master.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.dto.MoblierUrbainDto;
+import sonaged.collecte.master.dto.MoblierUrbain;
 import sonaged.collecte.master.mapper.MoblierUrbainMapper;
-import sonaged.collecte.master.model.MoblierUrbain;
 import sonaged.collecte.master.repository.MoblierUrbainRepository;
 import sonaged.collecte.master.service.MoblierUrbainService;
 
@@ -16,69 +15,53 @@ import java.util.List;
 public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
     private final MoblierUrbainRepository moblierUrbainRepository;
-    /**
-     * @param moblierUrbainId
-     * @return
-     */
+
+
     @Override
-    public MoblierUrbainDto getOneMoblierUrbain(Long moblierUrbainId) {
-        MoblierUrbain moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
+    public MoblierUrbain readMoblierUrbain(Long moblierUrbainId) {
+        var moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found ".formatted(moblierUrbainId)
                 ));
-        return MoblierUrbainMapper.MUMP.modelToDto(moblierUrbain);
+        return MoblierUrbainMapper.MUMP.asDto(moblierUrbain);
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<MoblierUrbainDto> getAllMoblierUrbain() {
-        List<MoblierUrbain> moblierUrbainList = moblierUrbainRepository.findAll();
-        return MoblierUrbainMapper.MUMP.listModelToDto(moblierUrbainList);
+    public List<MoblierUrbain> readAllMoblierUrbain() {
+        var moblierUrbainList = moblierUrbainRepository.findAll();
+        return MoblierUrbainMapper.MUMP.asListDto(moblierUrbainList);
     }
 
-    /**
-     * @param moblierUrbainDto
-     * @return
-     */
+
     @Override
-    public MoblierUrbainDto createOneMoblierUrbain(MoblierUrbainDto moblierUrbainDto) {
-        MoblierUrbain moblierUrbain = MoblierUrbain.builder()
-                .moblierUrbainCode(moblierUrbainDto.getMoblierUrbainCode())
-                .moblierUrbainName(moblierUrbainDto.getMoblierUrbainName())
-                .build();
-        return MoblierUrbainMapper.MUMP.modelToDto(moblierUrbainRepository.save(moblierUrbain));
+    public MoblierUrbain createMoblierUrbain(MoblierUrbain moblierUrbain) {
+        var savedMoblierUrbain = moblierUrbainRepository.save(MoblierUrbainMapper.MUMP.asModel(moblierUrbain ));
+        return MoblierUrbainMapper.MUMP.asDto(moblierUrbainRepository.save(savedMoblierUrbain));
 
     }
 
-    /**
-     * @param moblierUrbainId
-     * @param moblierUrbainDto
-     * @return
-     */
+
     @Override
-    public MoblierUrbainDto updateOneMoblierUrbain(Long moblierUrbainId, MoblierUrbainDto moblierUrbainDto) {
-        MoblierUrbain existedMoblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
+    public MoblierUrbain updateMoblierUrbain(Long moblierUrbainId, MoblierUrbain moblierUrbain) {
+        var existedMoblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found to update ".formatted(moblierUrbainId)
                 ));
-        if(moblierUrbainDto.getMoblierUrbainCode() != null) {
-            existedMoblierUrbain.setMoblierUrbainCode(moblierUrbainDto.getMoblierUrbainCode());
+        if(moblierUrbain.getCode() != null) {
+            existedMoblierUrbain.setCode(moblierUrbain.getCode());
         }
-        if(moblierUrbainDto.getMoblierUrbainName() != null) {
-            existedMoblierUrbain.setMoblierUrbainName(moblierUrbainDto.getMoblierUrbainName());
+        if(moblierUrbain.getName() != null) {
+            existedMoblierUrbain.setName(moblierUrbain.getName());
         }
-        return MoblierUrbainMapper.MUMP.modelToDto(moblierUrbainRepository.save(existedMoblierUrbain));
+        return MoblierUrbainMapper.MUMP.asDto(moblierUrbainRepository.save(existedMoblierUrbain));
 
     }
 
-    /**
-     * @param moblierUrbainId
-     */
+
     @Override
-    public void deleteOneMoblierUrbain(Long moblierUrbainId) {
-        MoblierUrbain moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
+    public void deleteMoblierUrbain(Long moblierUrbainId) {
+        var moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found ".formatted(moblierUrbainId)
                 ));

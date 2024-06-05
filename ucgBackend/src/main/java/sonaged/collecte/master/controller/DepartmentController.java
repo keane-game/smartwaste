@@ -5,16 +5,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sonaged.collecte.master.dto.DepartmentDto;
+import sonaged.collecte.master.dto.Department;
 import sonaged.collecte.master.service.DepartmentService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/department")
+@RequestMapping("/v1/departments")
 public class DepartmentController {
     private final DepartmentService departmentService;
 
@@ -26,8 +25,8 @@ public class DepartmentController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{departmentId}")
-    public DepartmentDto getOneDepartment(@PathVariable("departmentId") Long departmentid){
-        return departmentService.getOneDepartment(departmentid);
+    public Department readDepartment(@PathVariable("departmentId") Long departmentid){
+        return departmentService.readDepartment(departmentid);
     }
 
     @Operation(summary = "Get All Department")
@@ -38,8 +37,8 @@ public class DepartmentController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<DepartmentDto> getAllDepartment(){
-        return departmentService.getAllDepartment();
+    public List<Department> readAllDepartment(){
+        return departmentService.readAllDepartment();
     }
 
     @Operation(summary = "Create one Department")
@@ -50,8 +49,8 @@ public class DepartmentController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public DepartmentDto createOneDepartment(@RequestBody DepartmentDto departmentDto){
-        return departmentService.createOneDepartment(departmentDto);
+    public Department createDepartment(@RequestBody Department department){
+        return departmentService.createDepartment (department);
     }
 
     @Operation(summary = "update One Department by Id")
@@ -62,8 +61,8 @@ public class DepartmentController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{departmentId}")
-    public DepartmentDto updateOneDepartment(@PathVariable("departmentId") Long departmentId, @RequestBody() DepartmentDto departmentDto) {
-        return departmentService.updateOneDepartment(departmentId, departmentDto);
+    public Department updateOneDepartment(@PathVariable("departmentId") Long departmentId, @RequestBody() Department department) {
+        return departmentService.updateDepartment (departmentId, department);
     }
 
     @Operation(summary = "Delete One Department by Id")
@@ -74,8 +73,8 @@ public class DepartmentController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{departmentId}")
-    public String deleteOneDepartment(@PathVariable("departmentId") Long departmentId) {
-        departmentService.deleteOneDepartment(departmentId);
+    public String deleteDepartment(@PathVariable("departmentId") Long departmentId) {
+        departmentService.deleteDepartment (departmentId);
         return "Successfully delete";
     }
 }

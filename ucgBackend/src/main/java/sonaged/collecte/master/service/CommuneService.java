@@ -5,12 +5,13 @@ import sonaged.collecte.master.dto.Commune;
 import java.util.List;
 
 public interface CommuneService {
-    Commune getOneCommune(Long communeId);
+    Commune readCommune(Long communeId);
 
-    List<Commune> getAllCommune();
+    List<Commune> readAllCommune();
 
-    Commune createOneCommune(Commune communeDto);
+    Commune createCommune(Commune commune);
 
-    Commune updateOneCommune(Long communeId, Commune commune);
-    void deleteOneCommune(Long communeId);
+    Commune updateCommune(Long communeId, Commune commune);
+
+    void deleteCommune(Long communeId);
 }

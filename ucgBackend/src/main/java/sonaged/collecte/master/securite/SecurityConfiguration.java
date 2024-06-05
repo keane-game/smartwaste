@@ -27,11 +27,9 @@ import static org.springframework.http.HttpMethod.POST;
 @EnableWebSecurity
 public class SecurityConfiguration{
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
     public SecurityConfiguration(BCryptPasswordEncoder bCryptPasswordEncoder, JwtFilter jwtFilter, UserDetailsService userDetailsService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
     }
 

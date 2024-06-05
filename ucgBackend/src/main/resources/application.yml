@@ -10,30 +10,38 @@ management:
  
 server:
   port: 8089
+
 spring:
   datasource:
+    url: jdbc:postgresql://localhost:5432/sonaged
     driver-class-name: org.postgresql.Driver
     password: keane
-    url: jdbc:postgresql://localhost:5432/sonaged
     username: postgres
+    initialization-mode: always
+    schema: classpath:schema.sql
 
   liquibase:
-    change-log: classpath:master.xml
-    enabled: true
+    change-log: classpath:config/liquibase/master.xml
+    enabled: false
+    default-schema: sonaged
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         jdbc:
           lob:
             non_contextual_creation: true
     show-sql: true
+  batch:
+    initialize-schema: always
   mail:
     default-encoding: UTF-8
     host: smtp.gmail.com

@@ -34,12 +34,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_QUARTIER")
+@Table(name = "QUARTIER")
 public class QuartierEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "quartierId")
+    @Column(name = "QuartierId")
     Long quartierId;
 
     @Column(name = "Name")
@@ -55,7 +55,7 @@ public class QuartierEntity {
     String codeCav;
 
     @Column(name = "Ccrca")
-    String ccrca;
+    String cCrca;
 
     @Column(name = "CodeCcrca")
     String codeCcrca;
@@ -71,7 +71,7 @@ public class QuartierEntity {
     String CodeSzr;
 
     @Column(name = "ZoneCoron")
-    String coneCoron;
+    String zoneCoron;
 
     @Column(name = "Poucentage")
     String poucentage;

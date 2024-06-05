@@ -1,12 +1,7 @@
 package sonaged.collecte.master.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 import lombok.EqualsAndHashCode;
 import lombok.AllArgsConstructor;
@@ -20,7 +15,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
-
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @NoArgsConstructor
@@ -28,12 +23,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_CIRCUITCOLLECT")
+@Table(name = "CIRCUITCOLLECT")
 public class CircuitCollectEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "circuitcollectId")
+    @Column(name = "CircuitcollectId")
     Long circuitcollectId;
 
     @Column(name = "Name")

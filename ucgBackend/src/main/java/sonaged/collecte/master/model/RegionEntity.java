@@ -31,11 +31,11 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@Table(name = "SND_REGION")
+@Table(name = "REGION")
 public class RegionEntity extends AbstractAuditingEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "regionId")
+    @Column(name = "RegionId")
     Long regionId;
 
     @Column(name = "Name")

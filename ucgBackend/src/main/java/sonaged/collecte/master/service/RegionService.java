@@ -6,12 +6,13 @@ import java.util.List;
 
 public interface RegionService {
 
-    Region getOneRegion(Long regionId);
+    Region readRegion(Long regionId);
 
-    List<Region> getAllRegion();
+    List<Region> readAllRegion();
 
-    Region createOneRegion(Region region);
+    Region createRegion(Region region);
 
-    Region updateOneRegion(Long regionId, Region region);
-    void deleteOneRegion(Long regionId);
+    Region updateRegion(Long regionId, Region region);
+
+    void deleteRegion(Long regionId);
 }

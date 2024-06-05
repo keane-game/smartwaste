@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.repository.CircuitRepository;
-import sonaged.collecte.master.dto.CircuitDto;
+import sonaged.collecte.master.dto.Circuit;
 import sonaged.collecte.master.mapper.CircuitMapper;
-import sonaged.collecte.master.model.Circuit;
 import sonaged.collecte.master.service.CircuitService;
 
 import java.util.List;
@@ -17,69 +16,53 @@ public class CircuitServiceImpl implements CircuitService {
 
     private final CircuitRepository circuitRepository;
 
-    /**
-     * @param circuitId 
-     * @return
-     */
+
     @Override
-    public CircuitDto getOneCircuit(Long circuitId) {
-        Circuit circuit = circuitRepository.findById(circuitId)
+    public Circuit readCircuit(Long circuitId) {
+        var circuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(circuitId)
                 ));
-        return CircuitMapper.CIMP.modelToDto(circuit);
+        return CircuitMapper.CIMP.asDto (circuit);
     }
 
-    /**
-     * @return 
-     */
+
     @Override
-    public List<CircuitDto> getAllCircuit() {
-        List<Circuit> circuitList = circuitRepository.findAll();
-        return CircuitMapper.CIMP.listModelToDto(circuitList);
+    public List<Circuit> readAllCircuit() {
+        var circuitList = circuitRepository.findAll();
+        return CircuitMapper.CIMP.asListDto (circuitList);
     }
 
-    /**
-     * @param circuitDto 
-     * @return
-     */
+
     @Override
-    public CircuitDto createOneCircuit(CircuitDto circuitDto) {
-        Circuit circuit = Circuit.builder()
-                .circuitCode(circuitDto.getCircuitCode())
-                .circuitName(circuitDto.getCircuitName())
-                .build();
-        Circuit savedCircuit = circuitRepository.save(circuit);
-        return CircuitMapper.CIMP.modelToDto(savedCircuit);
+    public Circuit createCircuit(Circuit circuit) {
+        var savedCircuit = circuitRepository.save(CircuitMapper.CIMP.asModel(circuit));
+        return CircuitMapper.CIMP.asDto(savedCircuit);
     }
 
-    /**
-     * @param circuitId
-     * @param circuitDto
-     * @return
-     */
+
     @Override
-    public CircuitDto updateOneCircuit(Long circuitId, CircuitDto circuitDto) {
-        Circuit existedCircuit = circuitRepository.findById(circuitId)
+    public Circuit updateCircuit(Long circuitId, Circuit circuit) {
+        var existedCircuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Circuit with id [%s] not found to update ".formatted(circuitId)
                 ));
-        if (circuitDto.getCircuitCode() != null){
-            existedCircuit.setCircuitCode(circuitDto.getCircuitCode());
+        if (circuit.getCode() != null){
+            existedCircuit.setCode(circuit.getCode());
         }
-        if (circuitDto.getCircuitName() != null){
-            existedCircuit.setCircuitName(circuitDto.getCircuitName());
+        if (circuit.getName() != null){
+            existedCircuit.setName(circuit.getName());
         }
-        Circuit updatedCircuit =  circuitRepository.save(existedCircuit);
-        return CircuitMapper.CIMP.modelToDto(updatedCircuit);
+
+        return CircuitMapper.CIMP.asDto(circuitRepository.save(existedCircuit));
     }
 
     /**
      * @param circuitId 
      */
     @Override
-    public void deleteOneCircuit(Long circuitId) {
-        Circuit circuit = circuitRepository.findById(circuitId)
+    public void deleteCircuit(Long circuitId) {
+        var circuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found to delete".formatted(circuitId)
                 ));

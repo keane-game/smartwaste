@@ -19,11 +19,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Department {
 
-    Long departmentId;
+    Long id;
 
-    String departmentName;
+    String name;
 
-    String departmentCode;
+    String code;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     List<Commune> communes;
