@@ -6,4 +6,6 @@ import sonaged.collecte.master.model.TypeDepotoirEntity;
 
 @Repository
 public interface TypeDepotoirRepository extends JpaRepository<TypeDepotoirEntity, Long> {
+
+    TypeDepotoirEntity findByName(String name);
 }

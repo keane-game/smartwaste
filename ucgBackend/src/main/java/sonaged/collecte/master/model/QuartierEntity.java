@@ -35,7 +35,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "QUARTIER")
-public class QuartierEntity {
+public class QuartierEntity extends AbstractAuditingEntity<Long>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,7 +68,7 @@ public class QuartierEntity {
     String numerozr;
 
     @Column(name = "CodeSzr")
-    String CodeSzr;
+    String codeSzr;
 
     @Column(name = "ZoneCoron")
     String zoneCoron;

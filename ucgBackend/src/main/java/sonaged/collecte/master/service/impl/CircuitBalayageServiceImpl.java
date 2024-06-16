@@ -16,7 +16,6 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
     private final CircuitBalayageRepository circuitBalayageRepository;
 
-
     @Override
     public CircuitBalayage readCircuitBalayage(Long circuitBalayageId) {
         var circuitBalayage = circuitBalayageRepository.findById(circuitBalayageId)

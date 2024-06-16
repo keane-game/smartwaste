@@ -1,5 +1,5 @@
 
-INSERT INTO `departements` (`id`, `nom`, `region_id`) VALUES
+INSERT INTO `department` (`departmentid`, `name`, `regionid`) VALUES
 (1, 'Dakar', 1),
 (2, 'Guédiawaye', 1),
 (3, 'Pikine', 1),

@@ -34,7 +34,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "DEPOTOIR")
-public class DepotoirEntity {
+public class DepotoirEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,21 +44,28 @@ public class DepotoirEntity {
     @Column(name = "Address")
     String address;
 
-//    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-//    @JoinColumn(name = "geometryId", nullable = false)
-//    @JsonIgnore
-//    Geometry geometry;
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @JoinColumn(name = "geometryId", nullable = false)
+    @JsonIgnore
+    @ToString.Exclude
+    GeometryEntity geometry;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "typeDepotoirId")
     @JsonIgnore
     TypeDepotoirEntity typeDepotoir;
 
-
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "quartierId")
     @JsonIgnore
     QuartierEntity quartier;
+
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "communeId")
+    @JsonIgnore
+    CommuneEntity commune;
+
+
 
     @Override
     public final boolean equals(Object o) {

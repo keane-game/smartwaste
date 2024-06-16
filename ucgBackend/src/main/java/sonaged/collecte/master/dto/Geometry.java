@@ -18,7 +18,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Geometry implements Serializable {
 
-    Long id;
+    Long geometryId;
 
     String type;
 

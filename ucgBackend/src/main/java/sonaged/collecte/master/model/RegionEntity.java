@@ -45,7 +45,7 @@ public class RegionEntity extends AbstractAuditingEntity<Long> {
     String code;
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    @JoinColumn(name = "geometryId", nullable = false)
+    @JoinColumn(name = "geometryId", nullable = true)
     @JsonIgnore
     @ToString.Exclude
     GeometryEntity geometry;

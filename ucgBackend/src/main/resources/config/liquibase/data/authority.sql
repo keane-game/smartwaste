@@ -1,6 +1,6 @@
 
-DELETE FROM snd_authority;
-INSERT INTO snd_authority(authorityid,  createddate, lastmodifieddate, name,createdby, lastmodifiedby,description)
+DELETE FROM authority;
+INSERT INTO authority(authorityid,  createddate, lastmodifieddate, name, createdby, lastmodifiedby,description)
 VALUES
 (1,  CURRENT_TIMESTAMP(2), CURRENT_TIMESTAMP(2), 'SUPER_ADMIN', 'system', 'system','Super administration'),
 (2,  CURRENT_TIMESTAMP(2), CURRENT_TIMESTAMP(2), 'ADMIN', 'system','system', 'administration'),
@@ -16,6 +16,5 @@ VALUES
 (2, 'USER_VIEW'),
 (2, 'ACCESS_ADMIN'),
 (2, 'MANAGE_ROLE'),
-(2, 'CREATE_USER')
+(2, 'CREATE_USER'),
 (3, 'USER_VIEW');
-

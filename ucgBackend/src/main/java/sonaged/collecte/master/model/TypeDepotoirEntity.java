@@ -33,7 +33,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "TYPEDEPOTOIR")
-public class TypeDepotoirEntity {
+public class TypeDepotoirEntity  extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

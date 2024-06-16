@@ -17,7 +17,6 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     private final CircuitCollectRepository circuitCollectRepository;
 
-
     @Override
     public CircuitCollect readCircuitCollect(Long circuitCollectId) {
         var circuitCollect = circuitCollectRepository.findById(circuitCollectId)

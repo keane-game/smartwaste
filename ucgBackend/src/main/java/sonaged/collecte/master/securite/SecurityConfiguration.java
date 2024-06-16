@@ -62,6 +62,7 @@ public class SecurityConfiguration{
                                                 .requestMatchers("/swagger-ui/**", "/sonaged-docs/**", "/error", "/").permitAll()
                                                 .requestMatchers("/api/").permitAll()
                                                 .requestMatchers("/api/**").permitAll()
+                                                .requestMatchers("/v1/**").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->

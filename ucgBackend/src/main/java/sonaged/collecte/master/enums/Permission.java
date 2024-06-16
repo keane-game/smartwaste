@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public enum Permission {
 
 
+   USER_VIEW ("USER_VIEW"),
+    ACCESS_ADMIN ("ACCESS_ADMIN"),
+    MANAGE_ROLE ("MANAGE_ROLE"),
+    CREATE_USER ( "CREATE_USER"),
     ACCESS_MY_USER ("ACCESS_MY_USER"),
     ACCESS_ALL_USERS ("ACCESS_ALL_USERS"),
     ACCESS_CONTROLS ("ACCESS_CONTROLS"),

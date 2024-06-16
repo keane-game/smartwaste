@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "HISTORY")
-public class HistoryEntity {
+public class HistoryEntity extends AbstractAuditingEntity<Long> {
 
     @Id
     private  Long id;

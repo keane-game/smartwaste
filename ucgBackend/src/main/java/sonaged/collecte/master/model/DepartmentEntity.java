@@ -46,11 +46,17 @@ public class DepartmentEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "Name")
     String name;
 
+    @Column(name = "Area")
+    double area;
+
+    @Column(name = "Effectif")
+    Integer effectif;
+
     @Column(name = "Code")
     String code;
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    @JoinColumn(name = "geometryId", nullable = false)
+    @JoinColumn(name = "geometryId", nullable = true)
     @JsonIgnore
     @ToString.Exclude
     GeometryEntity geometry;

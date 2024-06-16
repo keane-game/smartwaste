@@ -49,6 +49,9 @@ public class CommuneEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "Code")
     String code;
 
+    @Column(name = "ST")
+    String st;
+
     @Column(name = "totalResident")
     String total;
 
@@ -77,6 +80,14 @@ public class CommuneEntity extends AbstractAuditingEntity<Long> {
     @JsonIgnore
     @ToString.Exclude
     List<QuartierEntity> quartiers;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "commune")
+    @JsonIgnore
+    @ToString.Exclude
+    List<DepotoirEntity> depotoirs;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "departmentId")

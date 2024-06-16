@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GeometryServiceImpl implements GeometryService {
 
     private final GeometryRepository geometryRepository;
-    private final CoordinateRepository coordinateRepositoty;
+    private final CoordinateRepository coordinateRepository;
 
 
     @Override
