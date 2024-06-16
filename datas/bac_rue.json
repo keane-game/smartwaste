@@ -1,0 +1,384 @@
+{
+  
+    "geometryType": "esriGeometryPoint",
+    "spatialReference": {
+        "wkid": 32628,
+        "latestWkid": 32628
+    },
+    "features": [
+        {
+            "attributes": {
+                "FID": 0,
+                "OBJECTID_1": 2,
+                "OBJECTID": 66,
+                "R_gion": "Dakar",
+                "Commune": "Dalifort",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "En face maternité de dalifort forail",
+                "X": 239673,
+                "Y": 1631032
+            },
+            "geometry": {
+                "x": 239672.93730000034,
+                "y": 1631032.4351000004
+            }
+        },
+        {
+            "attributes": {
+                "FID": 1,
+                "OBJECTID_1": 4,
+                "OBJECTID": 68,
+                "R_gion": "Dakar",
+                "Commune": "Diamaguene",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale",
+                "X": 245814,
+                "Y": 1631677
+            },
+            "geometry": {
+                "x": 245813.97449999955,
+                "y": 1631677.4944000002
+            }
+        },
+        {
+            "attributes": {
+                "FID": 2,
+                "OBJECTID_1": 5,
+                "OBJECTID": 69,
+                "R_gion": "Dakar",
+                "Commune": "Diamaguene",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale",
+                "X": 245365,
+                "Y": 1631636
+            },
+            "geometry": {
+                "x": 245364.64309999999,
+                "y": 1631635.5114999991
+            }
+        },
+        {
+            "attributes": {
+                "FID": 3,
+                "OBJECTID_1": 8,
+                "OBJECTID": 197,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rail",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route vers deggo guinaw rail",
+                "X": 243233,
+                "Y": 1631504
+            },
+            "geometry": {
+                "x": 243232.86880000029,
+                "y": 1631504.1807000004
+            }
+        },
+        {
+            "attributes": {
+                "FID": 4,
+                "OBJECTID_1": 9,
+                "OBJECTID": 198,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rail",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Guinaw rail",
+                "X": 243960,
+                "Y": 1632214
+            },
+            "geometry": {
+                "x": 243959.8320000004,
+                "y": 1632214.1176999994
+            }
+        },
+        {
+            "attributes": {
+                "FID": 5,
+                "OBJECTID_1": 10,
+                "OBJECTID": 199,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rails",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route vers deggo guinaw rails",
+                "X": 243223,
+                "Y": 1631502
+            },
+            "geometry": {
+                "x": 243222.68859999999,
+                "y": 1631502.1521000005
+            }
+        },
+        {
+            "attributes": {
+                "FID": 6,
+                "OBJECTID_1": 14,
+                "OBJECTID": 244,
+                "R_gion": "Dakar",
+                "Commune": "Keur Mbaye fall",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Arrêt djuma dji",
+                "X": 250841,
+                "Y": 1631160
+            },
+            "geometry": {
+                "x": 250841.06769999955,
+                "y": 1631160.1346000005
+            }
+        },
+        {
+            "attributes": {
+                "FID": 7,
+                "OBJECTID_1": 15,
+                "OBJECTID": 247,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale A1 en face cite mbao",
+                "X": 249334,
+                "Y": 1631786
+            },
+            "geometry": {
+                "x": 249334.39879999962,
+                "y": 1631785.7113000005
+            }
+        },
+        {
+            "attributes": {
+                "FID": 8,
+                "OBJECTID_1": 16,
+                "OBJECTID": 248,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Djuma keur Mbaye fall",
+                "X": 250467,
+                "Y": 1631515
+            },
+            "geometry": {
+                "x": 250467.17109999992,
+                "y": 1631514.6918000001
+            }
+        },
+        {
+            "attributes": {
+                "FID": 9,
+                "OBJECTID_1": 18,
+                "OBJECTID": 250,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Zac mbao",
+                "X": 252555,
+                "Y": 1630876
+            },
+            "geometry": {
+                "x": 252555.39489999972,
+                "y": 1630876.1073000003
+            }
+        },
+        {
+            "attributes": {
+                "FID": 10,
+                "OBJECTID_1": 19,
+                "OBJECTID": 251,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Jardin keur Mbaye fall",
+                "X": 250365,
+                "Y": 1631537
+            },
+            "geometry": {
+                "x": 250365.01329999976,
+                "y": 1631537.1967999991
+            }
+        },
+        {
+            "attributes": {
+                "FID": 11,
+                "OBJECTID_1": 20,
+                "OBJECTID": 252,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale croisement keur massar",
+                "X": 249376,
+                "Y": 1631806
+            },
+            "geometry": {
+                "x": 249375.90270000044,
+                "y": 1631806.4132000003
+            }
+        },
+        {
+            "attributes": {
+                "FID": 12,
+                "OBJECTID_1": 21,
+                "OBJECTID": 253,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale",
+                "X": 248810,
+                "Y": 1631901
+            },
+            "geometry": {
+                "x": 248809.82660000026,
+                "y": 1631901.0662999991
+            }
+        },
+        {
+            "attributes": {
+                "FID": 13,
+                "OBJECTID_1": 22,
+                "OBJECTID": 254,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale",
+                "X": 247881,
+                "Y": 1631936
+            },
+            "geometry": {
+                "x": 247880.61070000008,
+                "y": 1631935.5743000004
+            }
+        },
+        {
+            "attributes": {
+                "FID": 14,
+                "OBJECTID_1": 23,
+                "OBJECTID": 255,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Dernier rond point sicap mbao",
+                "X": 246701,
+                "Y": 1631850
+            },
+            "geometry": {
+                "x": 246701.46710000001,
+                "y": 1631849.9144000001
+            }
+        },
+        {
+            "attributes": {
+                "FID": 15,
+                "OBJECTID_1": 24,
+                "OBJECTID": 256,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Marché keur Mbaye fall",
+                "X": 250764,
+                "Y": 1631237
+            },
+            "geometry": {
+                "x": 250763.59499999974,
+                "y": 1631236.7561000008
+            }
+        },
+        {
+            "attributes": {
+                "FID": 16,
+                "OBJECTID_1": 27,
+                "OBJECTID": 259,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Zac Mbao",
+                "X": 252003,
+                "Y": 1629878
+            },
+            "geometry": {
+                "x": 252003.46239999961,
+                "y": 1629877.9298
+            }
+        },
+        {
+            "attributes": {
+                "FID": 17,
+                "OBJECTID_1": 34,
+                "OBJECTID": 531,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rail",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route djidah thiaroye kaw",
+                "X": 243924,
+                "Y": 1632322
+            },
+            "geometry": {
+                "x": 243923.93890000042,
+                "y": 1632322.1180000007
+            }
+        },
+        {
+            "attributes": {
+                "FID": 18,
+                "OBJECTID_1": 35,
+                "OBJECTID": 532,
+                "R_gion": "Dakar",
+                "Commune": "Thiaroye",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale",
+                "X": 244374,
+                "Y": 1631610
+            },
+            "geometry": {
+                "x": 244374.23000000045,
+                "y": 1631609.5916000009
+            }
+        },
+        {
+            "attributes": {
+                "FID": 19,
+                "OBJECTID_1": 36,
+                "OBJECTID": 533,
+                "R_gion": "Dakar",
+                "Commune": "Thiaroye",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Poste thiaroye",
+                "X": 243814,
+                "Y": 1631502
+            },
+            "geometry": {
+                "x": 243814.10219999962,
+                "y": 1631502.2547999993
+            }
+        },
+        {
+            "attributes": {
+                "FID": 20,
+                "OBJECTID_1": 37,
+                "OBJECTID": 534,
+                "R_gion": "Dakar",
+                "Commune": "Thiaroye",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Route nationale RN1",
+                "X": 243321,
+                "Y": 1631392
+            },
+            "geometry": {
+                "x": 243321.05999999959,
+                "y": 1631391.8501999993
+            }
+        },
+        {
+            "attributes": {
+                "FID": 21,
+                "OBJECTID_1": 38,
+                "OBJECTID": 535,
+                "R_gion": "Dakar",
+                "Commune": "Thiaroye sur mer",
+                "Type_de_Mo": "Bac de rue",
+                "Adresse_de": "Thiaroye sur mer rue 602",
+                "X": 243551,
+                "Y": 1631446
+            },
+            "geometry": {
+                "x": 243551.21250000037,
+                "y": 1631446.0234999992
+            }
+        }
+    ]
+}
