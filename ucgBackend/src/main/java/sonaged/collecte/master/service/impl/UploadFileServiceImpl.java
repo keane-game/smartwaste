@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import sonaged.collecte.master.enums.CircuitShift;
 import sonaged.collecte.master.model.*;
 import sonaged.collecte.master.repository.*;
 import sonaged.collecte.master.service.UploadFileService;
@@ -51,7 +52,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             var jsonArray = new JSONArray(jsonContent);
 
             var regionOpt = regionRepository.findById(1L);
-            if (regionOpt.isPresent ()) {
+            if (regionOpt.isEmpty ()) {
                 return "Department not found";
             }
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -146,10 +147,11 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Override
     public String uploadDataQuartier(MultipartFile file) {
+
         if (file.isEmpty()) {
             return "File is empty";
         }
-
+        log.info("test {}", "tert");
         try {
             var jsonContent = readContent(file.getInputStream());
             var jsonArray = new JSONArray(jsonContent);
@@ -162,10 +164,10 @@ public class UploadFileServiceImpl implements UploadFileService {
                     for (int j = 0; j < featuresArray.length(); j++) {
                         var geometry = parseGeometries(jsonArray.getJSONObject(0));
                         var jsonObjectFeatures = featuresArray.getJSONObject(j);
-                        //log.info("featuresArray {}", jsonObjectFeatures);
+                        log.info("test {}", "tert");
 
                         if (jsonObjectFeatures.has("attributes") && jsonObjectFeatures.has("geometry")) {
-
+                            log.info("test1 {}", "tert");
                             var quartier = parseQuartier(jsonObjectFeatures.getJSONObject("attributes"));
                             var coordList = parseCoordinates(jsonObjectFeatures.getJSONObject("geometry"));
 
@@ -174,7 +176,7 @@ public class UploadFileServiceImpl implements UploadFileService {
                             geometry.setCoordinates (coordList);
 
                             // Ensure the coordinate entities are saved
-                            // coordinateRepository.saveAll(coordList);
+                             //coordinateRepository.saveAll(coordList);
 
                             // Set the geometry to commune
                             quartier.setGeometry(geometry);
@@ -200,8 +202,116 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     @Override
-    public String uploadDataCircuit(MultipartFile file) {
-        return "";
+    public String uploadDataCircuitCollect(MultipartFile file) {
+        if (file.isEmpty()) {
+            return "File is empty";
+        }
+
+        try {
+            var jsonContent = readContent(file.getInputStream());
+            var jsonArray = new JSONArray(jsonContent);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                var jsonObject = jsonArray.getJSONObject(i);
+                if (jsonObject.has("features") && jsonObject.get("features") instanceof JSONArray) {
+                    var featuresArray = jsonObject.getJSONArray("features");
+
+                    for (int j = 0; j < featuresArray.length(); j++) {
+                        var geometry = parseGeometries(jsonArray.getJSONObject(0));
+                        var jsonObjectFeatures = featuresArray.getJSONObject(j);
+                        //log.info("featuresArray {}", jsonObjectFeatures);
+
+                        if (jsonObjectFeatures.has("attributes") && jsonObjectFeatures.has("geometry")) {
+                            var nameCommune = jsonObjectFeatures.getJSONObject("attributes").getString ("Sectection");
+                            var communeOpt = findCommuneByName (nameCommune);
+
+                            var circuitCollect = parseCircuitCollect (jsonObjectFeatures.getJSONObject("attributes"),  communeOpt);
+                            var coordList = parseCoordinates(jsonObjectFeatures.getJSONObject("geometry"));
+
+                            assert geometry != null;
+                            geometry.setGeometryId (null);
+                            geometry.setCoordinates (coordList);
+
+                            // Ensure the coordinate entities are saved
+                            // coordinateRepository.saveAll(coordList);
+
+                            // Set the geometry to commune
+                            circuitCollect.setGeometry(geometry);
+
+                            // Save the commune
+                            circuitCollectRepository.saveAndFlush(circuitCollect);
+
+                            log.info("commune {}", circuitCollect);
+                        }
+                    }
+                }
+            }
+
+            return "File uploaded and processed successfully";
+
+        } catch (IOException e) {
+            log.error("Failed to read file", e);
+            return "Failed to read file";
+        } catch (Exception e) {
+            log.error("Error processing JSON file", e);
+            return "Error processing JSON file";
+        }
+    }
+
+    @Override
+    public String uploadDataCircuitBalayage(MultipartFile file) {
+        if (file.isEmpty()) {
+            return "File is empty";
+        }
+        try {
+            var jsonContent = readContent(file.getInputStream());
+            var jsonArray = new JSONArray(jsonContent);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                var jsonObject = jsonArray.getJSONObject(i);
+                if (jsonObject.has("features") && jsonObject.get("features") instanceof JSONArray) {
+                    var featuresArray = jsonObject.getJSONArray("features");
+
+                    for (int j = 0; j < featuresArray.length(); j++) {
+                        var geometry = parseGeometries(jsonArray.getJSONObject(0));
+                        var jsonObjectFeatures = featuresArray.getJSONObject(j);
+                        //log.info("featuresArray {}", jsonObjectFeatures);
+
+                        if (jsonObjectFeatures.has("attributes") && jsonObjectFeatures.has("geometry")) {
+                            var nameCommune = jsonObjectFeatures.getJSONObject("attributes").getString ("commune");
+                            var communeOpt = findCommuneByName (nameCommune);
+
+                            var circuitBalayage = parseCircuitBalayage (jsonObjectFeatures.getJSONObject("attributes"),  communeOpt);
+                            var coordList = parseCoordinates(jsonObjectFeatures.getJSONObject("geometry"));
+
+                            assert geometry != null;
+                            geometry.setGeometryId (null);
+                            geometry.setCoordinates (coordList);
+
+                            // Ensure the coordinate entities are saved
+                            // coordinateRepository.saveAll(coordList);
+
+                            // Set the geometry to commune
+                            circuitBalayage.setGeometry(geometry);
+
+                            // Save the commune
+                            circuitBalayageRepository.saveAndFlush(circuitBalayage);
+
+                            log.info("commune {}", circuitBalayage);
+                        }
+                    }
+                }
+            }
+
+            return "File uploaded and processed successfully";
+
+        } catch (IOException e) {
+            log.error("Failed to read file", e);
+            return "Failed to read file";
+        } catch (Exception e) {
+            log.error("Error processing JSON file", e);
+            return "Error processing JSON file";
+        }
     }
 
     @Override
@@ -225,8 +335,12 @@ public class UploadFileServiceImpl implements UploadFileService {
                         //log.info("featuresArray {}", jsonObjectFeatures);
 
                         if (jsonObjectFeatures.has("attributes") && jsonObjectFeatures.has("geometry")) {
-
-                            var quartier = parseDepotoir(jsonObjectFeatures.getJSONObject("attributes"));
+                            var nameCommune = jsonObjectFeatures.getJSONObject("attributes").getString ("Commune");
+                            var communeOpt = findCommuneByName (nameCommune);
+                            if (communeOpt == null){
+                                continue;
+                            }
+                            var depotoir = parseDepotoir(jsonObjectFeatures.getJSONObject("attributes"),  communeOpt);
                             var coordList = parseCoordinates(jsonObjectFeatures.getJSONObject("geometry"));
 
                             assert geometry != null;
@@ -237,12 +351,12 @@ public class UploadFileServiceImpl implements UploadFileService {
                             // coordinateRepository.saveAll(coordList);
 
                             // Set the geometry to commune
-                            quartier.setGeometry(geometry);
+                            depotoir.setGeometry(geometry);
 
                             // Save the commune
-                            quartierRepository.saveAndFlush(quartier);
+                            depotoirRepository.saveAndFlush(depotoir);
 
-                            log.info("commune {}", quartier);
+                            log.info("commune {}", depotoir);
                         }
                     }
                 }
@@ -340,27 +454,47 @@ public class UploadFileServiceImpl implements UploadFileService {
         quartier.setCreatedDate (LocalDateTime.now ());
         quartier.setLastModifiedDate (LocalDateTime.now ());
         quartier.setArchived (false);
-        quartier.setCommune (findCommuneByName(attributesObject.getString ("CCRCA").toLowerCase ()));
+        quartier.setCommune (findCommuneByName(attributesObject.getString ("CCRCA")));
         return quartier;
     }
 
+    private CircuitBalayageEntity parseCircuitBalayage(JSONObject attributesObject, CommuneEntity commune) {
+        var circuitBalayage = new CircuitBalayageEntity();
+        circuitBalayage.setCode((attributesObject.getString ("code")));
+        circuitBalayage.setName(attributesObject.getString("nomcircuit"));
+        circuitBalayage.setShift(CircuitShift.valueOf (attributesObject.getString ("shift")));
+        circuitBalayage.setLength(String.valueOf (attributesObject.getDouble ("longueur")));
+        circuitBalayage.setCommune (commune);
+        circuitBalayage.setCreatedBy ( "system");
+        circuitBalayage.setLastModifiedBy ("system");
+        circuitBalayage.setCreatedDate (LocalDateTime.now ());
+        circuitBalayage.setLastModifiedDate (LocalDateTime.now ());
+        circuitBalayage.setArchived (false);
+        return circuitBalayage;
+    }
 
-    private CommuneEntity parseCircuit(JSONObject attributesObject, DepartmentEntity department) {
-        var commune = new CommuneEntity();
-        commune.setCode(String.valueOf (attributesObject.getInt ("commune_id")));
-        commune.setName(attributesObject.getString("Commune"));
-        commune.setTotal(String.valueOf (attributesObject.getInt ("TOTAL")));
-        commune.setWomen(String.valueOf (attributesObject.getInt ("Feminin")));
-        commune.setMen(String.valueOf (attributesObject.getInt ("Masculin")));
-        commune.setLength(String.valueOf (attributesObject.getDouble ("Shape_Leng")));
-        commune.setArea(String.valueOf (attributesObject.getDouble ("Shape_Area")));
-        commune.setCreatedBy ( "system");
-        commune.setLastModifiedBy ("system");
-        commune.setCreatedDate (LocalDateTime.now ());
-        commune.setLastModifiedDate (LocalDateTime.now ());
-        commune.setArchived (false);
-        commune.setDepartment(department);
-        return commune;
+    private CircuitCollectEntity parseCircuitCollect(JSONObject attributesObject, CommuneEntity commune) {
+        var circuitCollect = new CircuitCollectEntity();
+        circuitCollect.setCode(String.valueOf (attributesObject.getString ("Code")));
+        circuitCollect.setName(attributesObject.getString("nom"));
+        circuitCollect.setLength(String.valueOf (attributesObject.getDouble ("Shape_Leng")));
+        circuitCollect.setFrequence (attributesObject.getString ("Frequence"));
+        circuitCollect.setLatiPointA (String.valueOf (attributesObject.getDouble ("LatipointA")));
+        circuitCollect.setLatiPointD (String.valueOf (attributesObject.getDouble ("LatipointD")));
+        circuitCollect.setLongPointA (String.valueOf (attributesObject.getDouble ("LongpointA")));
+        circuitCollect.setLongPointD (String.valueOf (attributesObject.getDouble ("LongpointD")));
+        circuitCollect.setType(String.valueOf (attributesObject.getInt ("type_id")));
+        circuitCollect.setCat(String.valueOf (attributesObject.getInt ("cat_id")));
+        circuitCollect.setRotation (attributesObject.getString ("Rotation"));
+        circuitCollect.setSection (String.valueOf (attributesObject.getInt ("Section_id")));
+        circuitCollect.setSectection (String.valueOf (attributesObject.getString ("Sectection")));
+        circuitCollect.setCreatedBy ( "system");
+        circuitCollect.setLastModifiedBy ("system");
+        circuitCollect.setCreatedDate (LocalDateTime.now ());
+        circuitCollect.setLastModifiedDate (LocalDateTime.now ());
+        circuitCollect.setArchived (false);
+        circuitCollect.setCommune (commune);
+        return circuitCollect;
     }
 
     private DepotoirEntity parseDepotoir(JSONObject attributesObject, CommuneEntity commune) {
@@ -377,7 +511,7 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     private TypeDepotoirEntity findTypeDepotoirByName(String name){
-        var typeDepotoir = typeDepotoirRepository.findByName (name);
+        var typeDepotoir = typeDepotoirRepository.findByNameIgnoreCase (name);
         if (typeDepotoir == null){
             typeDepotoir = new TypeDepotoirEntity();
             typeDepotoir.setName (name);
@@ -391,11 +525,20 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     private CommuneEntity findCommuneByName(String name){
-        var commune = communeRepository.findByName (name);
+        var commune = communeRepository.findByNameIgnoreCase (name);
         if (commune == null){
+            var communes =  communeRepository.findByNameContainingIgnoreCase (name);
+            if (communes.isEmpty()) {
+                return null;
+            } else if (communes.size() > 1) {
+                log.warn("Multiple communes found with name containing: {}", name);
+                commune = communes.getFirst ();
+            }
+            log.info ("query {}", commune);
         }
         return commune;
     }
+
     private List<CoordinateEntity> parseCoordinate(JSONObject geometryObject) {
         List<CoordinateEntity> coordList = new ArrayList<>();
 
@@ -431,25 +574,36 @@ public class UploadFileServiceImpl implements UploadFileService {
         return coordList;
     }
 
+
     private List<CoordinateEntity> parseCoordinates(JSONObject geometryObject) {
         List<CoordinateEntity> coordList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
         if (geometryObject.has("rings")) {
-            JSONArray ringsArray = geometryObject.getJSONArray("rings");
-            for (int n = 0; n < ringsArray.length(); n++) {
-                JSONArray ring = ringsArray.getJSONArray(n);
-                for (int k = 0; k < ring.length(); k++) {
-                    JSONArray coordinateArray = ring.getJSONArray(k);
-                    coordList.add(createCoordinateEntity(coordinateArray.getDouble(0), coordinateArray.getDouble(1), now));
-                }
-            }
+            coordList.addAll(parseRingOrPathCoordinates(geometryObject.getJSONArray("rings"), now));
+        } else if (geometryObject.has("paths")) {
+            coordList.addAll(parseRingOrPathCoordinates(geometryObject.getJSONArray("paths"), now));
         } else if (geometryObject.has("x") && geometryObject.has("y")) {
             coordList.add(createCoordinateEntity(geometryObject.getDouble("x"), geometryObject.getDouble("y"), now));
         }
 
         return coordList;
     }
+
+    private List<CoordinateEntity> parseRingOrPathCoordinates(JSONArray array, LocalDateTime now) {
+        List<CoordinateEntity> coordList = new ArrayList<>();
+
+        for (int n = 0; n < array.length(); n++) {
+            JSONArray ringOrPath = array.getJSONArray(n);
+            for (int k = 0; k < ringOrPath.length(); k++) {
+                JSONArray coordinateArray = ringOrPath.getJSONArray(k);
+                coordList.add(createCoordinateEntity(coordinateArray.getDouble(0), coordinateArray.getDouble(1), now));
+            }
+        }
+
+        return coordList;
+    }
+
     private CoordinateEntity createCoordinateEntity(double latitude, double longitude, LocalDateTime now) {
         CoordinateEntity coordinate = new CoordinateEntity();
         coordinate.setLatitude(String.valueOf(latitude));

@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import sonaged.collecte.master.model.CommuneEntity;
+import sonaged.collecte.master.model.GeometryEntity;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Quartier implements Serializable {
 
-    Long id;
+    Long quartierId;
 
     String name;
 
@@ -48,10 +50,9 @@ public class Quartier implements Serializable {
 
     String Area;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<Depotoir> depotoirs;
-
-    Commune commune;
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
+    CommuneEntity commune;
 
     Geometry geometry;
+
 }

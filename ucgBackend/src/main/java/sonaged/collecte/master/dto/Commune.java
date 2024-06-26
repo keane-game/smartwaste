@@ -7,6 +7,9 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import sonaged.collecte.master.model.DepartmentEntity;
+import sonaged.collecte.master.model.DepotoirEntity;
+import sonaged.collecte.master.model.GeometryEntity;
 
 import java.util.List;
 
@@ -17,7 +20,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Commune {
 
-    Long id;
+    Long communeId;
 
     String name;
 
@@ -33,10 +36,14 @@ public class Commune {
 
     String area;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<Quartier> quartiers;
+   /* @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    List<Quartier> quartiers;*/
 
-    Department department;
+    List<DepotoirEntity> depotoirs;
+
+    DepartmentEntity department;
 
     Geometry geometry;
+
+
 }

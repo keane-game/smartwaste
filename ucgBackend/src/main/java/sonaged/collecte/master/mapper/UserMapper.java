@@ -5,7 +5,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 import sonaged.collecte.master.dto.User;
-import sonaged.collecte.master.dto.UserResponse;
 import sonaged.collecte.master.model.UserEntity;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public interface UserMapper {
 
     UserEntity asModel(User user);
 
-    User asDto(UserResponse user);
+    User asDto(User user);
 
     List<User> asListDto(List<UserEntity> users);
 }

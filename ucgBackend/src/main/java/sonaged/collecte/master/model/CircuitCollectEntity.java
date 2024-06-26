@@ -1,6 +1,7 @@
 package sonaged.collecte.master.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.EqualsAndHashCode;
@@ -69,6 +70,17 @@ public class CircuitCollectEntity extends AbstractAuditingEntity<Long> {
 
     @Column(name = "Sectection")
     String sectection;
+
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @JoinColumn(name = "geometryId", nullable = true)
+    @JsonIgnore
+    @ToString.Exclude
+    GeometryEntity geometry;
+
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "communeId")
+    @JsonIgnore
+    CommuneEntity commune;
 
     @Override
     public final boolean equals(Object o) {

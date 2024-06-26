@@ -1,6 +1,8 @@
 package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.model.AlertEntity;
@@ -32,6 +34,10 @@ public class AlertServiceImpl implements AlertService {
     public List<Alert> readAllAlert() {
         var alertList = alertRepository.findAll();
         return AlertMapper.AMP.asListDto(alertList);
+    }
+
+    public Page<Alert> readAllAlert(Pageable pageable){
+        return alertRepository.findAll (pageable).map (AlertMapper.AMP::asDto);
     }
 
 

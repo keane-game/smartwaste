@@ -2,6 +2,8 @@ package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.DepartmentMapper;
@@ -37,14 +39,18 @@ public class CommuneServiceImpl implements CommuneService {
         return CommuneMapper.COMP.asListDto(communeList);
     }
 
+    public Page<Commune> readAllCommune(Pageable pageable){
+        return communeRepository.findAll(pageable).map(CommuneMapper.COMP::asDto);
+    }
+
     @Override
     public Commune createCommune(Commune commune) {
 
-        if(commune.getDepartment ().getId () != null) {
-            var department = departmentRepository.findById (commune.getDepartment ().getId()).orElseThrow (
+        if(commune.getDepartment ().getDepartmentId () != null) {
+            var department = departmentRepository.findById (commune.getDepartment ().getDepartmentId ()).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            commune.setDepartment (DepartmentMapper.DMP.asDto(department));
+            commune.setDepartment (department);
         }
         var communeSave = communeRepository.save(CommuneMapper.COMP.asModel(commune));
         return CommuneMapper.COMP.asDto(communeSave);

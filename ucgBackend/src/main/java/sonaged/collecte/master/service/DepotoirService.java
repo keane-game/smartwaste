@@ -1,5 +1,7 @@
 package sonaged.collecte.master.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import sonaged.collecte.master.dto.Depotoir;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public interface DepotoirService {
 
     Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir);
 
-
     void deleteDepotoir(Long depotoirId);
+
+    Page<Depotoir> readAllDepotoir(Pageable pageable);
 }

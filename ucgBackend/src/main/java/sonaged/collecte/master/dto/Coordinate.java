@@ -1,5 +1,6 @@
 package sonaged.collecte.master.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Coordinate implements Serializable {
 
-    Long id;
+    Long coordinateId;
 
     String latitude;
 
@@ -25,5 +26,4 @@ public class Coordinate implements Serializable {
 
     String altitude;
 
-    Geometry geometry;
 }

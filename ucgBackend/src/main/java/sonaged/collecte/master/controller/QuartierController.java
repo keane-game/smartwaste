@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sonaged.collecte.master.dto.Quartier;
@@ -30,16 +33,33 @@ public class QuartierController {
         return quartierService.readQuartier(quartierId);
     }
 
-    @Operation(summary = "Get All Quartier")
+    @Operation(summary = "Read quartier by pagination with size", description = "Read quartiers")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get All Quartiers"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("s")
+    public List<Quartier> readAllQuartier(){
+        return quartierService.readAllQuartier ();
+    }
+
+    @Operation(summary = "Read quartier by pagination with size", description = "Read quartiers")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<Quartier> readAllQuartier(){
-        return quartierService.readAllQuartier ();
+    public Page<Quartier> readAllQuartiers(@RequestParam("page") int page, @RequestParam("size") int size){
+        Pageable pageable = PageRequest.of (page, size);
+        return quartierService.readAllQuartier (pageable);
     }
 
     @Operation(summary = "Create one Quartier")

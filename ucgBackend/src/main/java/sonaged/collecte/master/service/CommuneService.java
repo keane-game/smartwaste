@@ -1,5 +1,7 @@
 package sonaged.collecte.master.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import sonaged.collecte.master.dto.Commune;
 
 import java.util.List;
@@ -14,4 +16,6 @@ public interface CommuneService {
     Commune updateCommune(Long communeId, Commune commune);
 
     void deleteCommune(Long communeId);
+
+    Page<Commune> readAllCommune(Pageable pageable);
 }

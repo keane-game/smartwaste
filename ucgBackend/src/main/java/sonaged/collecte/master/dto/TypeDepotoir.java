@@ -19,10 +19,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TypeDepotoir implements Serializable {
 
-    Long id;
+    Long typeDepotoirId;
 
     String name;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<Depotoir> depotoirs;
 }

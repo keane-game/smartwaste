@@ -26,6 +26,27 @@ public class DashboardController {
     public String uploadDataDepartment(@RequestParam("file") MultipartFile file) {
        return uploadFileService.uploadDataDepartment (file);
     }
+
+    @PostMapping(value = "/quartier" , consumes = "multipart/form-data")
+    public String uploadDataQuartier(@RequestParam("file") MultipartFile file) {
+       System.out.println ( file.getName ());
+        return uploadFileService.uploadDataQuartier (file);
+    }
+
+    @PostMapping(value = "/circuitcollect" , consumes = "multipart/form-data")
+    public String uploadDataCircuitCollect(@RequestParam("file") MultipartFile file) {
+        return uploadFileService.uploadDataCircuitCollect (file);
+    }
+
+    @PostMapping(value = "/circuitbalayage" , consumes = "multipart/form-data")
+    public String uploadDataCircuitBalayage(@RequestParam("file") MultipartFile file) {
+        return uploadFileService.uploadDataCircuitBalayage (file);
+    }
+
+    @PostMapping(value = "/depotoir" , consumes = "multipart/form-data")
+    public String uploadDataDepotoir(@RequestParam("file") MultipartFile file) {
+        return uploadFileService.uploadDataDepotoir (file);
+    }
 }
 
 

@@ -2,6 +2,8 @@ package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.RegionMapper;
@@ -13,12 +15,12 @@ import sonaged.collecte.master.service.DepartmentService;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
 public class DepartmentServiceImpl implements DepartmentService {
-
     private final RegionRepository regionRepository;
     private final DepartmentRepository departmentRepository;
 
@@ -40,12 +42,17 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    public Page<Department> readAllDepartment(Pageable pageable) {
+        return departmentRepository.findAll (pageable).map (DepartmentMapper.DMP::asDto);
+    }
+
+    @Override
     public Department createDepartment(Department department) {
-        if(department.getRegion ().getId () != null) {
-            var region = regionRepository.findById (department.getRegion ( ).getId ( )).orElseThrow (
+        if(department.getRegion ().getRegionId () != null) {
+            var region = regionRepository.findById (department.getRegion ( ).getRegionId ( )).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            department.setRegion (RegionMapper.RMP.asDto(region));
+            department.setRegion (region);
         }
 
         var departmentSave = departmentRepository.save(DepartmentMapper.DMP.asModel(department));
@@ -76,6 +83,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 ));
         departmentRepository.delete(department);
     }
+
 
     /**
      public Department updateDepartment(Long departmentId, Department department) {

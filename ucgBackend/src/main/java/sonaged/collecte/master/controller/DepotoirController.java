@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sonaged.collecte.master.dto.Depotoir;
@@ -17,11 +20,13 @@ import java.util.List;
 public class DepotoirController {
     private final DepotoirService depotoirService;
 
-    @Operation(summary = "Get One Depotoir by Id")
+    @Operation(summary = "Read Depotoir by pagination with size", description = "Read Depotoir")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get One Depotoir"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{depotoirId}")
@@ -29,16 +34,33 @@ public class DepotoirController {
         return depotoirService.readDepotoir(depotoirId);
     }
 
-    @Operation(summary = "Get All Depotoir")
+    @Operation(summary = "Read Depotoir by pagination with size", description = "Read Depotoir")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get All Depotoirs"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("s")
+    public List<Depotoir> readAllDepotoir(){
+        return depotoirService.readAllDepotoir();
+    }
+
+    @Operation(summary = "Read Depotoir by pagination with size", description = "Read Depotoir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<Depotoir> readAllDepotoir(){
-        return depotoirService.readAllDepotoir();
+    public Page<Depotoir> readAllDepotoir(@RequestParam("page") int page, @RequestParam("size") int size){
+        Pageable pageable = PageRequest.of (page, size);
+        return depotoirService.readAllDepotoir(pageable);
     }
 
     @Operation(summary = "Create one Depotoir")

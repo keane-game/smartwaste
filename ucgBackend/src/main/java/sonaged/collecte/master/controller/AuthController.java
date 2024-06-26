@@ -3,15 +3,9 @@ package sonaged.collecte.master.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import sonaged.collecte.master.dto.Authentification;
 import sonaged.collecte.master.model.UserEntity;
-import sonaged.collecte.master.model.Utilisateur;
-import sonaged.collecte.master.securite.JwtService;
 import sonaged.collecte.master.service.AuthService;
 
 import java.util.List;

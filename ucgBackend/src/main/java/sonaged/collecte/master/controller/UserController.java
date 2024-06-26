@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sonaged.collecte.master.dto.User;
-import sonaged.collecte.master.dto.UserResponse;
 import sonaged.collecte.master.service.UserService;
 
 import java.util.List;
@@ -27,9 +29,9 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{userId}")
-    public User readUser(@PathVariable("userId") Long userId){
-        return userService.readUser (userId);
+    @GetMapping("/{id}")
+    public User readUser(@PathVariable("id") Long id){
+        return userService.readUser (id);
     }
 
     @Operation(summary = "Get All User")
@@ -39,11 +41,26 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping("s")
     public List<User> readAllUser(){
         return userService.readAllUser ();
     }
 
+
+    @Operation(summary = "Read user by pagination with size", description = "Read users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "404", description = "Resource access does not exist"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public Page<User> readAllUser(@RequestParam("page") int page, @RequestParam("size") int size) {
+        Pageable pageable = PageRequest.of (page, size);
+        return userService.readAllUser (pageable);
+    }
     @Operation(summary = "Create one User")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Create one user"),
@@ -63,9 +80,9 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/{userId}")
-    public User updateUser(@PathVariable("userId") Long userId, @RequestBody() User user) {
-        return userService.updateUser (userId, user);
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable("id") Long id, @RequestBody() User user) {
+        return userService.updateUser (id, user);
     }
 
     @Operation(summary = "Delete One User by Id")
@@ -75,9 +92,9 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable("userId") Long userId) {
-        userService.deleteUser (userId);
+    @DeleteMapping("/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser (id);
         return "Successfully delete";
     }
 

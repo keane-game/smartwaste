@@ -1,0 +1,466 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="keane (generated)" id="1718590340169-1">
+        <createTable tableName="alert">
+            <column autoIncrement="true" name="alertid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="alert_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="message" type="TEXT"/>
+            <column name="object" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-2">
+        <createTable tableName="authority">
+            <column autoIncrement="true" name="authorityid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="authority_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-3">
+        <createTable tableName="avis">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="avis_pkey"/>
+            </column>
+            <column name="message" type="VARCHAR(255)"/>
+            <column name="statut" type="VARCHAR(255)"/>
+            <column name="utilisateur_id" type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-4">
+        <createTable tableName="circuit">
+            <column autoIncrement="true" name="circuitid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="circuit_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-5">
+        <createTable tableName="circuitbalayage">
+            <column autoIncrement="true" name="circuitbalayageid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="circuitbalayage_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="length" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="shift" type="VARCHAR(255)"/>
+            <column name="communeid" type="BIGINT"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-6">
+        <createTable tableName="circuitcollect">
+            <column autoIncrement="true" name="circuitcollectid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="circuitcollect_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="cat" type="VARCHAR(255)"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="frequence" type="VARCHAR(255)"/>
+            <column name="latipointa" type="VARCHAR(255)"/>
+            <column name="latipointd" type="VARCHAR(255)"/>
+            <column name="length" type="VARCHAR(255)"/>
+            <column name="longpointa" type="VARCHAR(255)"/>
+            <column name="longpointd" type="VARCHAR(255)"/>
+            <column name="rotattion" type="VARCHAR(255)"/>
+            <column name="sectection" type="VARCHAR(255)"/>
+            <column name="section" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="communeid" type="BIGINT"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-7">
+        <createTable tableName="commune">
+            <column autoIncrement="true" name="communeid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="commune_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="area" type="VARCHAR(255)"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="length" type="VARCHAR(255)"/>
+            <column name="manresident" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="st" type="VARCHAR(255)"/>
+            <column name="totalresident" type="VARCHAR(255)"/>
+            <column name="womanresident" type="VARCHAR(255)"/>
+            <column name="departmentid" type="BIGINT"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-8">
+        <createTable tableName="coordinate">
+            <column autoIncrement="true" name="coordinateid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="coordinate_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="altitude" type="VARCHAR(255)"/>
+            <column name="latitude" type="VARCHAR(255)"/>
+            <column name="longitude" type="VARCHAR(255)"/>
+            <column name="geometryid" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-9">
+        <createTable tableName="departement">
+            <column autoIncrement="true" name="departmentid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="departement_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="area" type="FLOAT8"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="effectif" type="INTEGER"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="geometryid" type="BIGINT"/>
+            <column name="regionid" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-10">
+        <createTable tableName="depotoir">
+            <column autoIncrement="true" name="depotoirid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="depotoir_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="communeid" type="BIGINT"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quartierid" type="BIGINT"/>
+            <column name="typedepotoirid" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-11">
+        <createTable tableName="geometry">
+            <column autoIncrement="true" name="geometryid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="geometry_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="ring" type="VARCHAR(255)"/>
+            <column name="spatialreference" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-12">
+        <createTable tableName="history">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="history_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-13">
+        <createTable tableName="moblierurbain">
+            <column autoIncrement="true" name="moblierurbainid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="moblierurbain_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-14">
+        <createTable tableName="quartier">
+            <column autoIncrement="true" name="quartierid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="quartier_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="area" type="VARCHAR(255)"/>
+            <column name="ccrca" type="VARCHAR(255)"/>
+            <column name="cav" type="VARCHAR(255)"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="codecav" type="VARCHAR(255)"/>
+            <column name="codeccrca" type="VARCHAR(255)"/>
+            <column name="codeentity" type="VARCHAR(255)"/>
+            <column name="codeszr" type="VARCHAR(255)"/>
+            <column name="length" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="numerozr" type="VARCHAR(255)"/>
+            <column name="poucentage" type="VARCHAR(255)"/>
+            <column name="zonecoron" type="VARCHAR(255)"/>
+            <column name="communeid" type="BIGINT"/>
+            <column name="geometryid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-15">
+        <createTable tableName="region">
+            <column autoIncrement="true" name="regionid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="geometryid" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-16">
+        <createTable tableName="role">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="role_pkey"/>
+            </column>
+            <column name="libelle" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-17">
+        <createTable tableName="typedepotoir">
+            <column autoIncrement="true" name="typedepotoirid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="typedepotoir_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-18">
+        <createTable tableName="users">
+            <column autoIncrement="true" name="userid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="activated" type="BOOLEAN"/>
+            <column name="userpassword" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="useraddress" type="VARCHAR(255)"/>
+            <column name="usercode" type="VARCHAR(255)"/>
+            <column name="useremail" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userfirstname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userlastname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userphone" type="VARCHAR(255)"/>
+            <column name="authorityid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-19">
+        <createTable tableName="utilisateur">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="utilisateur_pkey"/>
+            </column>
+            <column name="actif" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="mot_de_passe" type="VARCHAR(255)"/>
+            <column name="nom" type="VARCHAR(255)"/>
+            <column name="role_id" type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-20">
+        <createTable tableName="validation">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="validation_pkey"/>
+            </column>
+            <column name="activation" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="creation" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="expiration" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="user_userid" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-21">
+        <createTable tableName="authoritypermission">
+            <column name="authorityid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-22">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_26dr1itr8qnidsjq3mu88cex" tableName="circuit"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-23">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_rr7l2oe727qmp8crj7d37utq" tableName="circuitbalayage"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-24">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_ndpaumx0h1dakob1xrc6bqnu0" tableName="circuitcollect"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-25">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_7quhbghumq89go6d1wcxuxwo1" tableName="commune"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-26">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_q2bcuh5hljlc9hc3959onldef" tableName="departement"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-27">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_t6clqb59pmw3hidxjrymrtovy" tableName="depotoir"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-28">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_cqfwp584h3pq384i2h8vcd91" tableName="quartier"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-29">
+        <addUniqueConstraint columnNames="geometryid" constraintName="uk_5fhf2dv56hh71fkj2a0rh3qor" tableName="region"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-30">
+        <addUniqueConstraint columnNames="useremail" constraintName="uk_f0bp9a2krv87hk8dx1rixfrp7" tableName="users"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-31">
+        <addUniqueConstraint columnNames="role_id" constraintName="uk_g7tx9d1p09c00xnl7u2g1p6yp" tableName="utilisateur"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-32">
+        <addUniqueConstraint columnNames="user_userid" constraintName="uk_7ehgxlckh0yloii8m0l971nn3" tableName="validation"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-33">
+        <addForeignKeyConstraint baseColumnNames="authorityid" baseTableName="authoritypermission" constraintName="fk1lc9x8f4oydr0swoju93x1l5k" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="authorityid" referencedTableName="authority" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-34">
+        <addForeignKeyConstraint baseColumnNames="communeid" baseTableName="depotoir" constraintName="fk1p22roxvyyt5v9btc47sy2x3r" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="communeid" referencedTableName="commune" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-35">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="quartier" constraintName="fk3exp6tgedn9hqsf8w0u0oyvfn" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-36">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="departement" constraintName="fk4dqvm6gelkey8j1p81xaktt95" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-37">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="utilisateur" constraintName="fkaqe8xtajee4k0wlqrvh2pso4l" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-38">
+        <addForeignKeyConstraint baseColumnNames="utilisateur_id" baseTableName="avis" constraintName="fkblk72jlw8skbs4g9u1xibrpxh" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="utilisateur" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-39">
+        <addForeignKeyConstraint baseColumnNames="typedepotoirid" baseTableName="depotoir" constraintName="fkbpei6dpwnpimktrb81np6c0yc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="typedepotoirid" referencedTableName="typedepotoir" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-40">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="circuit" constraintName="fkf7f3h9tkywnal60q6mbg81te6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-41">
+        <addForeignKeyConstraint baseColumnNames="quartierid" baseTableName="depotoir" constraintName="fkgf8eko8nxre5h8f690ohu6lnv" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quartierid" referencedTableName="quartier" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-42">
+        <addForeignKeyConstraint baseColumnNames="authorityid" baseTableName="users" constraintName="fkgqsw6ash82b1ck033vw4i74cy" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="authorityid" referencedTableName="authority" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-43">
+        <addForeignKeyConstraint baseColumnNames="user_userid" baseTableName="validation" constraintName="fkhu1tjniw44o1x9yeehgvjqael" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="userid" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-44">
+        <addForeignKeyConstraint baseColumnNames="departmentid" baseTableName="commune" constraintName="fkjg8ghcnax3fd6lsf4douwf5ui" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="departmentid" referencedTableName="departement" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-45">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="depotoir" constraintName="fkkdnqabjhab44iybx1b6pdrgeq" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-46">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="circuitcollect" constraintName="fkkwsxxb9b5g5es0f5c18ckjrk6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-47">
+        <addForeignKeyConstraint baseColumnNames="communeid" baseTableName="circuitbalayage" constraintName="fkl6ntq5rhdy27xcxom21apo2xr" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="communeid" referencedTableName="commune" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-48">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="commune" constraintName="fkl8rg0oeq9meqoujaf87mygo00" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-49">
+        <addForeignKeyConstraint baseColumnNames="communeid" baseTableName="quartier" constraintName="fklw76gly0fwwnol4xqmy7n6ffj" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="communeid" referencedTableName="commune" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-50">
+        <addForeignKeyConstraint baseColumnNames="communeid" baseTableName="circuitcollect" constraintName="fkm4uyx8tga5cwoxd1urvdu6w6h" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="communeid" referencedTableName="commune" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-51">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="region" constraintName="fkoldsx9dw3wknym9be76af3ox0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-52">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="circuitbalayage" constraintName="fkr2du2tnoen3yy0ftv0xsri8ss" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-53">
+        <addForeignKeyConstraint baseColumnNames="geometryid" baseTableName="coordinate" constraintName="fkrrw0uvbm7ir8xl9dw4pwm8r22" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geometryid" referencedTableName="geometry" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-54">
+        <addForeignKeyConstraint baseColumnNames="regionid" baseTableName="departement" constraintName="fkt8vknek6pw1ep2icreme0rnrf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="regionid" referencedTableName="region" validate="true"/>
+    </changeSet>
+    <changeSet author="keane (generated)" id="1718590340169-55">
+        <sqlFile path="../data/authority.sql" relativeToChangelogFile="true" />
+        <sqlFile path="../data/user.sql" relativeToChangelogFile="true" />
+        <!-- <loadData tableName="users" file="../data/user.csv" relativeToChangelogFile="true" />-->
+        <sqlFile path="../data/region.sql" relativeToChangelogFile="true" />
+
+    </changeSet>
+</databaseChangeLog>

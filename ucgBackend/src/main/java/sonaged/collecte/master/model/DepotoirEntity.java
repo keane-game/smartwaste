@@ -50,15 +50,15 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     @ToString.Exclude
     GeometryEntity geometry;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
     @JoinColumn(name = "typeDepotoirId")
     @JsonIgnore
     TypeDepotoirEntity typeDepotoir;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+   /* @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "quartierId")
     @JsonIgnore
-    QuartierEntity quartier;
+    QuartierEntity quartier;*/
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "communeId")

@@ -2,6 +2,8 @@ package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.mapper.CommuneMapper;
@@ -41,16 +43,20 @@ public class QuartierServiceImpl implements QuartierService {
         return QuartierMapper.QMP.listModelToDto(quartierList);
     }
 
+    @Override
+    public Page<Quartier> readAllQuartier(Pageable pageable) {
+        return quartierRepository.findAll (pageable).map (QuartierMapper.QMP::asDto);
+    }
 
     @Override
     public Quartier createQuartier(Quartier quartier) {
 
-        var communeId = quartier.getCommune().getId ();
+        var communeId = quartier.getCommune().getCommuneId ();
         if(communeId != null) {
             var commune = communeRepository.findById (communeId).orElseThrow (
                     () -> new ResourceNotFoundException ("")
             );
-            quartier.setCommune (CommuneMapper.COMP.asDto(commune));
+           quartier.setCommune (commune);
         }
         var quartierSave = quartierRepository.save(QuartierMapper.QMP.asModel(quartier));
         return QuartierMapper.QMP.asDto(quartierSave);
@@ -63,7 +69,7 @@ public class QuartierServiceImpl implements QuartierService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found to update ".formatted(quartierId)
                 ));
-        if (!Objects.equals(existedQuartier.getQuartierId(), quartier.getId())) {
+        if (!Objects.equals(existedQuartier.getQuartierId(), quartier.getQuartierId ())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }
@@ -123,4 +129,6 @@ public class QuartierServiceImpl implements QuartierService {
                 ));
         quartierRepository.delete(quartier);
     }
+
+
 }

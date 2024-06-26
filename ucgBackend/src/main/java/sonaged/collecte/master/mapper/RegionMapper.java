@@ -8,7 +8,7 @@ import sonaged.collecte.master.model.RegionEntity;
 
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "string")
 public interface RegionMapper {
 
     RegionMapper RMP = Mappers.getMapper(RegionMapper.class);

@@ -1,5 +1,7 @@
 package sonaged.collecte.master.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.model.UserEntity;
@@ -18,5 +20,7 @@ public interface UserService extends UserDetailsService {
     void deleteUser(Long userId);
 
     UserEntity loadUserByUsername(String username);
+
+    Page<User> readAllUser(Pageable pageable);
 
 }

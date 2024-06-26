@@ -87,6 +87,22 @@ public class CommuneEntity extends AbstractAuditingEntity<Long> {
             mappedBy = "commune")
     @JsonIgnore
     @ToString.Exclude
+    List<CircuitBalayageEntity> circuitBalayage;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "commune")
+    @JsonIgnore
+    @ToString.Exclude
+    List<CircuitCollectEntity> circuitCollect;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "commune")
+    @JsonIgnore
+    @ToString.Exclude
     List<DepotoirEntity> depotoirs;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })

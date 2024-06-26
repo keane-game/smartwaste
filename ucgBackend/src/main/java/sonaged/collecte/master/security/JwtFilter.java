@@ -1,4 +1,4 @@
-package sonaged.collecte.master.securite;
+package sonaged.collecte.master.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

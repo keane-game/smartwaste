@@ -8,7 +8,7 @@ VALUES (1, 672, 78.89, 0, 1);
 
 --- Department geometry ---
 INSERT INTO geometry(geometryid,type, spatialReference)
-VALUES (2, 'esriGeometryPoint','wkid: 32628;latestWkid: 32628')
+VALUES (2, 'esriGeometryPoint','{"wkid": 32628;"latestWkid": 32628}')
 
 INSERT INTO coodinate(coordinateid, latitude, longitude, altitude, geometryid)
 VALUE (2, 672, 78.89, 0, 1);

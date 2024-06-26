@@ -1,6 +1,8 @@
 package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.repository.CircuitCollectRepository;
@@ -26,13 +28,16 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
         return CircuitCollectMapper.CCMP.asDto(circuitCollect);
     }
 
-
     @Override
     public List<CircuitCollect> readAllCircuitCollect() {
         var circuitCollectList = circuitCollectRepository.findAll();
         return CircuitCollectMapper.CCMP.asListDto (circuitCollectList);
     }
 
+    @Override
+    public Page<CircuitCollect> readAllCircuitCollect(Pageable pageable){
+        return circuitCollectRepository.findAll (pageable).map(CircuitCollectMapper.CCMP::asDto);
+    }
 
     @Override
     public CircuitCollect createCircuitCollect(CircuitCollect circuitCollect) {

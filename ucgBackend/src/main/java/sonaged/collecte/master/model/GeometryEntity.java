@@ -56,8 +56,7 @@ public class GeometryEntity extends AbstractAuditingEntity<Long>  {
             fetch = FetchType.LAZY)
     @JoinColumn(name = "geometryId")
     @ToString.Exclude
+    @JsonIgnore
     List<CoordinateEntity> coordinates;
-
-
 
 }

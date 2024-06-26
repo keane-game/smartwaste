@@ -1,4 +1,4 @@
-package sonaged.collecte.master.securite;
+package sonaged.collecte.master.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

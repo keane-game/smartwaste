@@ -3,6 +3,8 @@ package sonaged.collecte.master.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,6 @@ public class UserServiceImpl  implements UserService {
     private final AuthorityRepository authorityRepository;
     private final UserRepository userRepository;
 
-
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -43,13 +44,17 @@ public class UserServiceImpl  implements UserService {
         return UserMapper.UMP.asDto(user);
     }
 
-
     @Override
     public List<User> readAllUser() {
         var userList = userRepository.findAll();
         return UserMapper.UMP.asListDto(userList);
     }
 
+    @Override
+    public Page<User> readAllUser(Pageable pageable) {
+        return userRepository.findAll (pageable).map (UserMapper.UMP::asDto);
+
+    }
 
     @Override
     public User createUser(User user) {
@@ -58,42 +63,40 @@ public class UserServiceImpl  implements UserService {
         return UserMapper.UMP.asDto(userSave);
     }
 
-
     @Override
-    public User updateUser(Long userId, User userResponse) {
+    public User updateUser(Long userId, User user) {
         var existedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                 "User with id [%s] not found to update ".formatted(userId)
         ));
-        if (!Objects.equals(existedUser.getUserId(), userResponse.getUserId())) {
-            throw new ResourceNotFoundException(
-                    "Corrupted body request or route");
+
+        if (user.getUserEmail() != null){
+            existedUser.setUserEmail(user.getUserEmail());
         }
-        if (userResponse.getUserEmail() != null){
-            existedUser.setUserEmail(userResponse.getUserEmail());
-        }
-        if (userResponse.getUserFirstname () != null){
-            existedUser.setUserFirstname (userResponse.getUserFirstname ());
+        if (user.getUserFirstname () != null){
+            existedUser.setUserFirstname (user.getUserFirstname ());
         }
 
-        if (userResponse.getUserLastname () != null){
-            existedUser.setUserLastname (userResponse.getUserLastname ());
+        if (user.getUserLastname () != null){
+            existedUser.setUserLastname (user.getUserLastname ());
         }
 
-        if (userResponse.getUserCode() != null){
-            existedUser.setUserCode(userResponse.getUserCode());
+        if (user.getUserCode() != null){
+            existedUser.setUserCode(user.getUserCode());
         }
-        if (userResponse.getUserPhone() != null){
-            existedUser.setUserPhone(userResponse.getUserPhone());
+        if (user.getUserPhone() != null){
+            existedUser.setUserPhone(user.getUserPhone());
         }
-        if (userResponse.getAuthority() != null){
-            AuthorityEntity authority = authorityRepository.findById (userResponse.getAuthority().getAuthorityId ()).get();
+        if (user.getUserAddress () != null){
+            existedUser.setUserAddress (user.getUserAddress ());
+        }
+        if (user.getAuthority() != null){
+            AuthorityEntity authority = authorityRepository.findById (user.getAuthority().getAuthorityId ()).get();
             existedUser.setAuthority(authority);
         }
         var updatedUser = userRepository.save(existedUser);
         return UserMapper.UMP.asDto(updatedUser);
     }
-
 
     @Override
     public void deleteUser(Long userId) {
@@ -104,18 +107,12 @@ public class UserServiceImpl  implements UserService {
         userRepository.delete(user);
     }
 
-
-
     @Override
     public UserEntity loadUserByUsername(String username) throws ResourceNotFoundException {
         return this.userRepository
                 .findByUserEmail (username)
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
     }
-
-
-
-
 
    /* public void inscription(Utilisateur utilisateur) {
 

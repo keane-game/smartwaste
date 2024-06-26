@@ -1,6 +1,8 @@
 package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.dto.Coordinate;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
@@ -32,6 +34,11 @@ public class CoordinateServiceImpl implements CoordinateService {
     public List<Coordinate> readAllCoordinate() {
         var coordinateList = coordinateRepository.findAll();
         return CoordinateMapper.CODMP.asListDto(coordinateList);
+    }
+
+    @Override
+    public Page<Coordinate> readAllCoordinate(Pageable pageable){
+        return coordinateRepository.findAll (pageable).map(CoordinateMapper.CODMP::asDto);
     }
 
 

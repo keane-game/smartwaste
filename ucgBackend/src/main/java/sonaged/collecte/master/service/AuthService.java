@@ -11,7 +11,7 @@ import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.UserRepository;
-import sonaged.collecte.master.securite.JwtService;
+import sonaged.collecte.master.security.JwtService;
 
 import java.time.Instant;
 import java.util.List;
@@ -43,7 +43,7 @@ public class AuthService   {
             throw  new ResourceNotFoundException ("Votre email est déjà utilisé");
         }
         String mdpCrypte = this.passwordEncoder.encode("Sonaged@123");
-        user.setPassword(mdpCrypte);
+        user.setUserPassword (mdpCrypte);
 
         user.setAuthority (user.getAuthority());
 

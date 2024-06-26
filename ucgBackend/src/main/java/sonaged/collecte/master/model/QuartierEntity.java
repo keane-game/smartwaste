@@ -82,13 +82,13 @@ public class QuartierEntity extends AbstractAuditingEntity<Long>{
     @Column(name = "Area")
     String Area;
 
-    @JsonIgnore
+  /*  @JsonIgnore
     @OneToMany(
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "quartier")
     @ToString.Exclude
-    List<DepotoirEntity> depotoirs;
+    List<DepotoirEntity> depotoirs;*/
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "communeId")

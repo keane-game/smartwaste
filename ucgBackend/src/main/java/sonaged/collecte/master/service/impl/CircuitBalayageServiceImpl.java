@@ -1,7 +1,10 @@
 package sonaged.collecte.master.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.enums.CircuitShift;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.repository.CircuitBalayageRepository;
 import sonaged.collecte.master.dto.CircuitBalayage;
@@ -32,6 +35,9 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
         return CircuitBalayageMapper.CBMP.asListDto(circuitBalayageList);
     }
 
+    public Page<CircuitBalayage> readAllCircuitBalayage(Pageable pageable){
+        return circuitBalayageRepository.findAll (pageable).map(CircuitBalayageMapper.CBMP::asDto);
+    }
 
     @Override
     public CircuitBalayage createCircuitBalayage(CircuitBalayage circuitBalayage) {
@@ -53,7 +59,7 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
             existedCircuitBalayage.setName(circuitBalayage.getName());
         }
         if(circuitBalayage.getShift() != null ){
-            existedCircuitBalayage.setShift(circuitBalayage.getShift());
+            existedCircuitBalayage.setShift(CircuitShift.valueOf (circuitBalayage.getShift()));
         }
         if(circuitBalayage.getLength() != null ){
             existedCircuitBalayage.setLength(circuitBalayage.getLength());

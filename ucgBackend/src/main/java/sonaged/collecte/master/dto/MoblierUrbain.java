@@ -18,7 +18,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MoblierUrbain implements Serializable {
 
-    Long id;
+    Long moblierUrbainId;
 
     String name;
 

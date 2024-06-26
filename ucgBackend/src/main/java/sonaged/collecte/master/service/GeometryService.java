@@ -14,4 +14,5 @@ public interface GeometryService {
     Geometry updateGeometry(Long geometryId, Geometry geometry);
 
     void deleteGeometry(Long geometryId);
+
 }

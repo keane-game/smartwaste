@@ -51,7 +51,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)
                 ));
-        if (!Objects.equals(existedtypeDepotoir.getTypeDepotoirId(), typeDepotoirDto.getId())) {
+        if (!Objects.equals(existedtypeDepotoir.getTypeDepotoirId(), typeDepotoirDto.getTypeDepotoirId ())) {
             throw new ResourceNotFoundException(
                     "Corrupted body request or route");
         }

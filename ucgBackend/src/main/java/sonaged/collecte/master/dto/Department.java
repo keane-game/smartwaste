@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import sonaged.collecte.master.model.CommuneEntity;
+import sonaged.collecte.master.model.RegionEntity;
 
 import java.util.List;
 
@@ -19,16 +21,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Department {
 
-    Long id;
+    Long departmentId;
 
     String name;
 
     String code;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<Commune> communes;
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
+    List<CommuneEntity> communes;
 
-    Region region;
+    RegionEntity region;
 
     Geometry geometry;
+
+
 }

@@ -1,12 +1,15 @@
 package sonaged.collecte.master.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import sonaged.collecte.master.model.CommuneEntity;
+import sonaged.collecte.master.model.GeometryEntity;
 
 import java.io.Serializable;
 
@@ -18,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CircuitCollect implements Serializable {
 
-    Long id;
+    Long circuitcollectId;
 
     String name;
 
@@ -45,4 +48,9 @@ public class CircuitCollect implements Serializable {
     String Section;
 
     String Sectection;
+
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
+    CommuneEntity commune;
+
+    Geometry geometry;
 }

@@ -1,11 +1,7 @@
 package sonaged.collecte.master.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 import lombok.EqualsAndHashCode;
 import lombok.AllArgsConstructor;
@@ -16,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.proxy.HibernateProxy;
+import sonaged.collecte.master.enums.CircuitShift;
 
 import java.util.Objects;
 
@@ -42,10 +39,22 @@ public class CircuitBalayageEntity extends AbstractAuditingEntity<Long> {
     String code;
 
     @Column(name = "Shift")
-    String shift;
+    @Enumerated(EnumType.STRING)
+    CircuitShift shift;
 
     @Column(name = "Length")
     String length;
+
+    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @JoinColumn(name = "geometryId", nullable = true)
+    @JsonIgnore
+    @ToString.Exclude
+    GeometryEntity geometry;
+
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "communeId")
+    @JsonIgnore
+    CommuneEntity commune;
 
     @Override
     public final boolean equals(Object o) {

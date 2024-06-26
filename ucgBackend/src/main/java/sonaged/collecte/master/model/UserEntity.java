@@ -56,8 +56,9 @@ public class UserEntity extends  AbstractAuditingEntity<Long> implements UserDet
     @Email
     String userEmail;
 
+
     @Column(name = "UserPassword", nullable = false)
-    String password;
+    String userPassword;
 
     @Column(name = "UserCode")
     String userCode;
@@ -112,7 +113,7 @@ public class UserEntity extends  AbstractAuditingEntity<Long> implements UserDet
 
     @Override
     public String getPassword() {
-        return this.password;
+        return this.userPassword;
     }
 
     @Override
