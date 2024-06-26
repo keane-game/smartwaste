@@ -15,7 +15,7 @@
             <div class="col-md sm-pb-3">
               <div class="form-floating">
                 <input type="text" class="form-control" id="quartierName"
-                formControlName="quartierName"
+                formControlName="name"
                 placeholder="Nom quartier " required >
                 <label for="quartierName">Nom</label>
               </div>
@@ -23,7 +23,7 @@
             <div class="col-md sm-pb-3">
               <div class="form-floating">
                 <input type="text" class="form-control" id="quartierCode"
-                formControlName="quartierCode"
+                formControlName="code"
                  placeholder="Code quartier" required>
                 <label for="quartierCode">Code</label>
               </div>
@@ -56,6 +56,8 @@
                 
               </ng-multiselect-dropdown>
               </div>
+            
+
             </div>
           </div>
           <br>
@@ -64,7 +66,7 @@
               <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
                 Annuler
               </button>
-              <button type="submit" mat-flat-button class="btn-enregister">
+              <button type="submit" mat-flat-button mat-dialog-close class="btn-enregister">
                 Enregistrer
               </button>
             </span>

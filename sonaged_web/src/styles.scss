@@ -43,27 +43,26 @@ $ucg_front-theme: mat.define-light-theme((
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
-:root {
-  --white: #fff;
-  --gray: #f5f5f5;
-  --black1: #222;
-  --black2: #999;
-  --white1: #f6f9ff;
-  --green: #045211;
-  --green1:rgb(248, 255, 250);
-  scroll-behavior: smooth;
-  scrollbar-width: 5px !important;
-  scrollbar-color: red;
-  --font-poppine: "Poppins", sans-serif;
 
-  --secondary: #423f3f;
-  --green: #5D8B47;
-  --light_green: #CAD8C8;
-  --light_green1: #F0FCEF;
-  --black: #000000;
-  --blue_black : #011229;
+/* You can add global styles to this file, and also import other style files */
 
+@import './assets/scss/variables.scss';
+
+@font-face {
+    font-family: 'Helvetica';
+    src: url('assets/fonts/Helvetica.ttf') format('truetype');
 }
+
+@font-face {
+    font-family: 'Helvetica';
+    src: url('assets/fonts/Montserrat-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Helvetica';
+    src: url('assets/fonts/Montserrat-Regular.ttf') format('truetype');
+}
+
 
 body {
   font-family: var(--font-poppine);

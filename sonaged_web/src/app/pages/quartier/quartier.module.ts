@@ -1,26 +1,21 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 
 import { QuartierRoutingModule } from './quartier-routing.module';
-import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MaterialsModule } from '../../materials/material.module';
-import { QuartierComponent } from './quartier.component';
+import { QuartierComponent } from './main-content/quartier.component';
 import { CreateQuartierComponent } from './create-quartier/create-quartier.component';
+import { SharedModule } from '../../shared/shared.module';
+import { DeleteQuartierComponent } from './delete-quartier/delete-quartier.component';
 
 
 @NgModule({
   declarations: [
     QuartierComponent,
+    DeleteQuartierComponent,
     CreateQuartierComponent
   ],
   imports: [
-    CommonModule,
     QuartierRoutingModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MaterialsModule,
-  ]
+    SharedModule,
+  ],
 })
 export class QuartierModule { }

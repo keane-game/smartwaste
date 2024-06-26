@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CommuneComponent } from './commune.component';
+import { CommuneComponent } from './main-content/commune.component';
 import { CreateCommuneComponent } from './create-commune/create-commune.component';
 
 const routes: Routes = [

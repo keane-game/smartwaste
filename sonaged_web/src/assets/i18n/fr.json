@@ -1,0 +1,132 @@
+{
+    "PROJECT" : "Projet",
+    "DEPARTMENT" : "Departement",
+    "USER" : "Utilisateur",
+    "NAVBAR": {
+      "TITLE": "Internationalization"
+    },
+    "SIDEBARD":{
+        "MENU": "MENU",
+        "DASHBOARD": "Dashboard",
+        "USER": "Gestion des utilisateurs",
+        "DEPARTMENT": "Gestion des departements",
+        "PROJECT": "Gestion des projets",
+        "MY_PROJECT": "Mes projets",
+        "KPI": "Gestion des kpis",
+        "FINAL": "Gestion des kpis finaux",
+        "PRODUCTIVITY": "Productivité",
+        "LOGOUT": "Se Deconnecter",
+        "TRACKING": "Suivi des actions"
+    },
+  "TABLE": {
+    "ACTION":"Actions",
+    "BACK_TO_LIST": "Retour"
+  },
+  "SEARCH": {
+    "INPUT": "Recherche",
+    "FILTER" : "Filtrer",
+    "USER": {
+      "ADD" : "Ajouter Utilisateur"
+    },
+    "PROJECT" : {
+      "ADD" : "Créer projet"
+    },
+    "DEPARTMENT" : {
+      "ADD" : "Ajouter Département"
+    },
+    "KPI" : {
+      "ADD" : "Ajouter un kpi",
+      "AFFECT" : "Affecter"
+    }
+  },
+  "PAGINATION":{
+    "RESULT": "résultats"
+  },
+  "MODAL" : {
+    "CANCEL" : "Annuler",
+    "SAVE" : "Enregistrer",
+    "SUBMIT": "Soumettre",
+    "OK" : "Oui",
+    "NONE" : "Non",
+    "PROJECT" : {
+      "ADD" : "Nouvel projet",
+      "EDIT" : "Modifier projet",
+      "DELETE" : "Supprimer projet"
+    },
+    "KPI" : {
+      "ADD" : "Nouvel kpi",
+      "EDIT" : "Modifier projet",
+      "DELETE" : "Supprimer projet",
+      "DELETE-MESSAGE" : "Voulez-vous vraiment suprimer ?"
+    },
+    "EMPTY" : {
+      "KPI" : "Pas encore de kpis"
+    },
+    "DEPARTMENT":{
+      "ADD" : "Nouveau département",
+      "EDIT" : "Modifier département",
+      "DELETE" : "Supprimer département"
+    }
+  },
+   "USER": {
+    "FIRSTNAME": "Prénom",
+    "LASTNAME": "Nom"
+  },
+  "PROJECT":{
+    "NAME": "Nom projet",
+    "ENTITY":"Entité",
+    "CONTACT":"Contact",
+    "RESSOURCES":"Ressources",
+    "DGL_TOTAL": "Dlg Total",
+    "PM_CONTACT": " PM or Contacte",
+    "LEAD_DEV": "Lead Dev",
+    "PROXY_PO" : "Proxy PO",
+    "AGILE" : "Agile",
+    "SPRINT_DURATION": "Sprint Duration",
+    "DEPARTEMENT": "Departement",
+    "TEAM_MEMBER": "Team Member",
+    "PROJECT_MANAGER": "Project Manager"
+  },
+  "DEPARTMENT":{
+    "NAME" : "Nom Département",
+    "HEAD_OF_DEPARTMENT": "Chef de département",
+    "PROJECT_NUMBER": "Nombre de projets"
+  },
+  "KPI": {
+    "NAME": "Nom du KPI",
+    "DESCRIPTION": "Description",
+    "PERFORMANCE": "Performance"
+  },
+  "NOTEKPIS": {
+    "DESCRIPTION": "Description du projet",
+    "DEPARTMENT_NAME": "Departement",
+    "SPRINT": "Spring",
+    "RESOURCES": " Resources",
+    "PROGRESS": "Progression",
+    "PROJECT_MEMBER": "Membres du projet",
+    "KPI": "KPI",
+    "NOTE": "Note",
+    "COMMENT": "Commentaire"
+  },
+  "KPI":{
+    "NAME" : "Nom KPI",
+    "DESCRIPTION" : "Description",
+    "PERFORMANCE" : "Seuil de Performance"
+  },
+  "ERROR": {
+    "GO_HOME": "Retour à la page d'accueil",
+    "PAGE_NOT_FOUND": "Pages introuvable",
+    "PAGE_NOT_FOUND_MSG": "Désolé la page que vous recherchez est introuvable.",
+    "INTERNAL_ERROR": "Une erreur est survenue...",
+    "INTERNAL_ERROR_MSG": "Nous suivons ces erreurs automatiquement, mais si le problème persiste, n'hésitez pas à nous contacter. En attendant, essayez de rafraîchir.",
+    "INTERNAL_DUPLICATED_MSG": "Un compte existe déjà avec cette adresse email",
+    "ACCESS_DENIED": "Accès non autorisé",
+    "ACCESS_DENIED_MSG": "Une authorisation est requise pour accéder à cette ressource.",
+    "ACCESS_FORBIDDEN": "Action non autorisée",
+    "ACTIVITY_ALREADY_INVOICED": "Cette consommation est déjà facturée, vous ne pouvez plus l'annuler. Veuillez passer par une demande de remboursement.",
+    "ACTIVITY_CARPOOL_INPROGESS": "Impossible d'annuler une activité de covoiturage en cours",
+    "GENERIC": "Une erreur est survenue, veuillez réessayer ultérieurement.",
+    "CLIENT_SIDE": "Erreur côté client",
+    "SERVER_SIDE": "Erreur côté server"
+  }
+}

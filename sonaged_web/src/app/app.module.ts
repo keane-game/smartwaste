@@ -14,15 +14,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-import { AppComponent } from './app.component';
-import { LayoutComponent } from './shares/layout/layout.component';
-import { SidebarComponent } from './shares/sidebar/sidebar.component';
-import { FooterComponent } from './shares/footer/footer.component';
-import { HeaderComponent } from './shares/header/header.component';
 
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
-import { DragDropDirective } from './directives/drag-drop.directive';
-import { FileUploadComponent } from './shares/file-upload/file-upload.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 
@@ -32,13 +25,6 @@ export function tokenGetter() {
 
 @NgModule({
   declarations: [
-    AppComponent,
-    LayoutComponent,
-    SidebarComponent,
-    FooterComponent,
-    HeaderComponent,
-    FileUploadComponent,
-    DragDropDirective,
   ],
   imports: [
     BrowserModule,
@@ -63,9 +49,10 @@ export function tokenGetter() {
     MaterialsModule,
 
 
-  ],schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  ],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
   providers: [AppRoutingModule],
-  bootstrap: [AppComponent],
+  bootstrap: [],
 })
 
 export class AppModule { }

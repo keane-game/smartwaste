@@ -1,26 +1,21 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { CommuneRoutingModule } from './commune-routing.module';
-import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MaterialsModule } from '../../materials/material.module';
 import { CreateCommuneComponent } from './create-commune/create-commune.component';
-import { CommuneComponent } from './commune.component';
+import { CommuneComponent } from './main-content/commune.component';
+import { SharedModule } from '../../shared/shared.module';
+import { DeleteCommuneComponent } from './delete-commune/delete-commune.component';
 
 
 @NgModule({
   declarations: [
     CommuneComponent,
-    CreateCommuneComponent
+    CreateCommuneComponent,
+    DeleteCommuneComponent
   ],
   imports: [
-    CommonModule,
+    SharedModule,
     CommuneRoutingModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MaterialsModule,
   ]
 })
 export class CommuneModule { }

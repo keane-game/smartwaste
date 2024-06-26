@@ -50,7 +50,7 @@ import { NgChartsModule } from 'ng2-charts';
 // import { MatTooltipModule } from '@angular/material/tooltip';
 // import { MatTreeModule } from '@angular/material/tree';
 
-const MAT_MATERIAL = [
+export const MAT_MATERIAL = [
         MatButtonModule,
         MatCardModule,
         MatDialogModule,

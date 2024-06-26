@@ -2,13 +2,38 @@ import { Routes } from '@angular/router';
 
 import { HomeComponent } from './pages/general/home/home.component';
 import { NotFoundComponent } from './pages/general/not-found/not-found.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, },
+
+  { 
+    path:'', component: LayoutComponent, 
+    children: [
+      {
+        path: '',component:DashboardComponent,
+      },
+      {
+        path: 'dashboard',component:DashboardComponent,
+      },
+      {
+        path: '',
+        loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule)
+      },
+      {
+        path: 'password',
+        loadChildren: () => import('./core/password/password.module').then(m => m.PasswordModule)
+      },
+
+    ]
+  },
+
+
+ { path: 'home', component: HomeComponent, },
 
   {
     path: 'login',
-    loadChildren: () => import('./pages/general/login/login.module')
+    loadChildren: () => import('./core/login/login.module')
       .then(mod => mod.LoginModule)
   },
   {
@@ -26,6 +51,7 @@ export const routes: Routes = [
     path: 'about',
     loadChildren: () => import('./pages/general/about/about.routes').then(routes => routes.routes)
   },
-
+ 
   { path: '**', component: NotFoundComponent }
+
 ];

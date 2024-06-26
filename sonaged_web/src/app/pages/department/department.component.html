@@ -34,7 +34,7 @@
             <th style="border-top-left-radius: 1.25rem" mat-header-cell
              *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Nom 
                <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon> </th>
-            <td mat-cell *matCellDef="let element"> {{element.departmentName }} </td>
+            <td mat-cell *matCellDef="let element"> {{element.name }} </td>
           </ng-container>
     
           <ng-container matColumnDef="departmentCode">
@@ -42,12 +42,12 @@
             <th mat-header-cell
              *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Code 
                <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon> </th>
-            <td mat-cell *matCellDef="let element"> {{element.departmentCode }} </td>
+            <td mat-cell *matCellDef="let element"> {{element.code }} </td>
           </ng-container>
     
           <ng-container matColumnDef="region">
             <th mat-header-cell *matHeaderCellDef> Rgion </th>
-            <td mat-cell *matCellDef="let element"> {{element.region.regionName}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.region.name}} </td>
           </ng-container>
     
           <ng-container matColumnDef="commune">

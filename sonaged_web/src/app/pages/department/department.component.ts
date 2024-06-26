@@ -11,7 +11,7 @@ import { headerTitleService } from '../../services/headerTitle.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { first } from 'rxjs';
 
-import { DeleteComponent } from '../../shares/delete/delete.component';
+import { DeleteComponent } from '../../shared/delete/delete.component';
 import { CreateDepartmentComponent } from './create-department/create-department.component';
 
 @Component({
@@ -52,7 +52,7 @@ export class DepartmentComponent {
     ) { }
 
     ngOnInit() {
-      this.sharedService.url = '/department';
+      this.sharedService.url = '/departments';
       this.sharedService.getAll().subscribe((resp) => {
         this.departs = resp;
         this.totalDeparts = resp.length;

@@ -1,0 +1,86 @@
+/* ------------------------------ RESET ---------------------------- */
+
+html,
+body,
+div,
+span,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+// p,
+blockquote,
+pre,
+// a,
+abbr,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+dl,
+dt,
+dd,
+ol,
+ul,
+// li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+header,
+footer,
+main,
+nav,
+aside,
+article,
+section,
+figure,
+figcaption {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  line-height: 1.5em;
+}
+
+.main-content{
+  background: white !important;
+  padding: 1.5rem 0.75rem;
+  border-radius: 0.5rem;
+}

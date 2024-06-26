@@ -6,8 +6,8 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { SharedService } from '../../services/shared.service';
-import { DeleteComponent } from '../../shares/delete/delete.component';
-import { CreateDepotoirComponent } from '../depotoir/create/create-depotoir.component';
+import { DeleteComponent } from '../../shared/delete/delete.component';
+import { CreateDepotoirComponent } from '../depotoir/create-depotoir/create-depotoir.component';
 import { headerTitleService } from '../../services/headerTitle.service';
 import { first } from 'rxjs';
 

@@ -1,0 +1,77 @@
+.search-container{
+    display: flex; 
+    margin: 0px;
+    padding: 0px; 
+    margin-bottom: 20px;
+}
+.search-section {
+    background-color: transparent;
+    border: 1px solid rgba(128, 128, 128, 0.21);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 3px 12px 3px 0px;
+    display: flex;
+    flex-grow: 20;
+    .input-search {
+      border: none;
+      background-color: transparent;
+      margin-left: 0;
+      outline: none;
+      width: 100%;
+    }
+}
+  
+ 
+.filter-section {
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid rgba(128, 128, 128, 0.21);
+    border-radius: 8px;
+    width: 7rem;
+    transition: 0.5ms ease;
+    margin: 3px 0px 3px 0px;
+    flex-grow: 1;
+    .input-filter {
+      background-color: transparent;
+      border: none;
+      margin-left: 10px;
+      font-size: 18px;
+      outline: none;
+    }
+}
+.btn-section{
+    margin: 0px 0px 0px 10px;
+    flex-grow: 1;
+    display: flex;
+    
+}
+.add-btn {
+  flex: 1;
+  padding: 20px;
+  height: 100%;
+  background-color: #0075ff !important;
+  color: white !important;
+  border-radius: 0.65rem;
+  width: 100%;
+}
+
+// CSS for the search and filter
+
+
+  .add-user-btn {
+    width: 20%;
+    background-color: #0075ff !important;
+    color: white !important;
+    border-radius: 0.65rem;
+  }
+  
+  .mat-form-field {
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+mat-form-field,
+button {
+height: 3rem !important;
+}

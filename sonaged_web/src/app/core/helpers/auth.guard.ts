@@ -22,7 +22,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return this.canActivate(route, state);
   }
 
-  checkLogin(url: string): boolean {
+  checkLogin(url: string): any {
     if (this.authService.isLoggedIn()) {
       return true;
     }

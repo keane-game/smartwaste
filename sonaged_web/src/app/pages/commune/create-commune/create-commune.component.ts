@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
-import { SuccessComponent } from '../../../shares/success/success.component';
+import { SuccessComponent } from '../../../shared/success/success.component';
 import { first } from 'rxjs';
 
 @Component({

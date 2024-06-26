@@ -9,6 +9,6 @@ export class CustomMenuItem {
     Label: string;
     Icon?: string;
     RouterLink: string;
-    Childs: CustomMenuItem[];
+    Childs?: any;
     IsChildVisible: boolean;
 }

@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ListUserComponent } from './users/list/list-user.component';
 
 const routes: Routes = [
 
     {
-        path: 'users', component: ListUserComponent,
-        loadChildren: () => import('./users/user.module').then(m => m.UserModule)
+        path: 'users',
+        loadChildren: () => import('./users/users.module').then(m => m.UserModule)
     },
     {
         path: 'profil',
@@ -35,12 +34,10 @@ const routes: Routes = [
     { path: 'notifications', loadChildren: () => import('./notification/notifcation.module').then(m => m.NotifcationModule) },
 
 
-   
-
 ]
 
 @NgModule({
     imports: [RouterModule.forChild(routes)],
-exports: [RouterModule]
+    exports: [RouterModule]
 })
 export class PagesRoutingModule { }

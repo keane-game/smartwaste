@@ -1,26 +1,20 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
 import { DepotoirRoutingModule } from './depotoir-routing.module';
-import { DepotoirComponent } from './depotoir.component';
-import { CreateDepotoirComponent } from './create/create-depotoir.component';
-import { MaterialsModule } from '../../materials/material.module';
-import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { DepotoirComponent } from './main-content/depotoir.component';
+import { CreateDepotoirComponent } from './create-depotoir/create-depotoir.component';
+import { DeleteDepotoirComponent } from './delete-depotoir/delete-depotoir.component';
+import { SharedModule } from '../../shared/shared.module';
 
 
 @NgModule({
   declarations: [
     DepotoirComponent,
     CreateDepotoirComponent,
+    DeleteDepotoirComponent
   ],
   imports: [
-    CommonModule,
+    SharedModule,
     DepotoirRoutingModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MaterialsModule,
   ]
 })
 export class DepotoirModule { }

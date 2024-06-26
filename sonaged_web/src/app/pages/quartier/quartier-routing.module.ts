@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { QuartierComponent } from './quartier.component';
+import { QuartierComponent } from './main-content/quartier.component';
 
 const routes: Routes = [
     { path: '', component: QuartierComponent },

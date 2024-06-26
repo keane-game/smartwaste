@@ -1,7 +1,7 @@
 
 
 import { Injectable, Type } from '@angular/core';
-import { FileUploadComponent } from '../shares/file-upload/file-upload.component';
+import { FileUploadComponent } from '../shared/components/file-upload/file-upload.component';
 import { Subject } from 'rxjs';
 
 
