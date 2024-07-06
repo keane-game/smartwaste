@@ -22,11 +22,11 @@ spring:
 
   liquibase:
     change-log: classpath:config/liquibase/master.xml
-    enabled: true
+    enabled: false
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -43,16 +43,20 @@ spring:
     initialize-schema: always
   mail:
     default-encoding: UTF-8
-    host: smtp.gmail.com
-    password: '********************'
-    port: 587
+    host: localhost
+    username: #abdouaziz.kane@unchk.edu.sn #abdouazizk50@gmail.com
+    password:  #CKcRZdjhv@89109hmVZdpz2A #hmjF6E9hmVZdpz2@CKc
+    port: 25
     properties:
       mail:
         smtp:
-          auth: true
+          auth: false
           starttls:
-            enable: true
-    username: nadhem.belhadj.abdallah@gmail.com
+            enable: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   main:
     allow-circular-references: true
 springdoc:
