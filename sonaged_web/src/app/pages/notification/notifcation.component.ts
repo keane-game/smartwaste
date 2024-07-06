@@ -6,7 +6,6 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { SharedService } from '../../services/shared.service';
-import { DeleteComponent } from '../../shared/delete/delete.component';
 import { CreateDepotoirComponent } from '../depotoir/create-depotoir/create-depotoir.component';
 import { headerTitleService } from '../../services/headerTitle.service';
 import { first } from 'rxjs';
@@ -39,7 +38,6 @@ throw new Error('Method not implemented.');
 
   @Input() notifsChangeEvent = new EventEmitter<number>();
 
-  deleteDialogRef!: MatDialogRef<DeleteComponent>;
   createDepotoirDialogRef!: MatDialogRef<CreateDepotoirComponent>;
   constructor(
     private sharedService: SharedService,
@@ -118,17 +116,6 @@ throw new Error('Method not implemented.');
     this.dataSource.data = this.notifs.slice(startIndex, endIndex);
   }
 
-  CloseSuccessModal() {
-    this.deleteDialogRef.close();
-  }
-
-  OpenSuccessModal() {
-    this.deleteDialogRef = this.matDialog.open(DeleteComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-  }
-
 
 
   onDeleteUser(id: number): void{
@@ -138,12 +125,7 @@ throw new Error('Method not implemented.');
       .pipe(first())
       .subscribe({
         next: () => {
-        this.reload("/departments")
-        this.OpenSuccessModal()
-        setTimeout(()=>  {
-          //window.location.reload()
-          this.CloseSuccessModal()
-        }, 1500 );
+       
         },
         error:  error => { this.error = error}
       })

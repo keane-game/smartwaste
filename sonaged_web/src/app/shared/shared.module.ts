@@ -3,18 +3,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { HeaderComponent } from './components/header/header.component';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { MAT_MATERIAL } from '../materials/material.module';
+import { MAT_MATERIAL } from './materials/material.module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CoreModule } from 'keycloak-angular';
 import { PaginationCustumerComponent } from './components/pagination-custumer/pagination-custumer.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { ErrorComponent } from './components/error/error.component';
-import { CustomPaginatorComponent } from './components/custom-paginator/custom-paginator.component';
+
 import { BubblePaginationDirective } from '../directives/BubblePaginationDirective';
 import { ModalService } from '../services/modal.service';
+import { DeleteComponent } from './components/delete/delete.component';
 
 
 const COMPONENTS : any[]= [
@@ -22,8 +23,8 @@ const COMPONENTS : any[]= [
     SidebarComponent,
     LayoutComponent,
     ErrorComponent,
-    CustomPaginatorComponent,
     PaginationCustumerComponent,
+    DeleteComponent
 ];
 
 const BASE_MODULES = [

@@ -4,7 +4,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
-import { SuccessComponent } from "../../../shared/success/success.component";
 import { succesAlert, errorAlert } from "../../../services/AlertService";
 
 
@@ -24,8 +23,7 @@ export class CreateUserComponent implements OnInit {
   userForm!: FormGroup;
   currentUser: any;
   id: any;
-
-  successDialogRef!: MatDialogRef<SuccessComponent>;
+  
   constructor(
     private createUserModal: MatDialogRef<CreateUserComponent>,
     private el: ElementRef,

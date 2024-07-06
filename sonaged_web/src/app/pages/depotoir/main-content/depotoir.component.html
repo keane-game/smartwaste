@@ -127,10 +127,13 @@
     Auncune donnée n'est disponible sur ce tableau
   </div>
 
-  <mat-paginator
-    [hidePageSize]="true"
-    [pageSizeOptions]="[20, 40, 60]"
-    style="border: none; display: none"
-  ></mat-paginator>
+ 
+  <app-pagination-custumer 
+    [length]="totalDepotoirs"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="pageSizeOptions"
+    [totalPages]="totalPages"
+    (pageChange)="onPaginatedChange($event)">
+  </app-pagination-custumer>
 
 </div>

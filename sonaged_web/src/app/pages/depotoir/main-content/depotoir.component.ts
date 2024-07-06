@@ -2,18 +2,14 @@ import { Component, EventEmitter, Input, ViewChild } from '@angular/core';
 import { headerTitleService } from '../../../services/headerTitle.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { first } from 'rxjs';
 import { SharedService } from '../../../services/shared.service';
-import { DeleteComponent } from '../../../shared/delete/delete.component';
 import { CreateDepotoirComponent } from '../create-depotoir/create-depotoir.component';
 import { ModalService } from '../../../services/modal.service';
-import { DeleteDepotoirComponent } from '../delete-depotoir/delete-depotoir.component';
-
+import { DeleteComponent } from '../../../shared/components/delete/delete.component'; 
 @Component({
   selector: 'app-depotoir',
   templateUrl: './depotoir.component.html',
@@ -32,6 +28,7 @@ export class DepotoirComponent {
   depotoirs: any;
   totalPages: number = 1;
   totalDepotoirs: number = 0;
+  pageSizeOptions: number[] = [5, 10, 20];
   itemsPerPage: number = 10;
   currentPage: number = 0;
   error = '';
@@ -84,7 +81,7 @@ export class DepotoirComponent {
   }
 
   openDeleteDepotoirModal(id:any) {
-    this.modalService.openModal(DeleteDepotoirComponent, { id: id});
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url });
   }
 
   async closeDialog() {

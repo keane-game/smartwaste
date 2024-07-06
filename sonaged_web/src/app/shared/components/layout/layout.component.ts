@@ -1,5 +1,4 @@
 import { Component, ElementRef, Renderer2 ,AfterContentChecked, ChangeDetectorRef } from '@angular/core';
-import * as Leaflet from 'leaflet';
 
 declare var $: any;
 
@@ -11,11 +10,7 @@ declare var $: any;
 export class LayoutComponent implements AfterContentChecked {
 isClicked = false;
 
-options: Leaflet.MapOptions = {
-  layers: getLayers(),
-  zoom: 20,
-  center: new Leaflet.LatLng(14.693425, -17.447938, 20)
-};
+
   constructor(
     private elRef: ElementRef,
     private renderer: Renderer2,
@@ -54,11 +49,3 @@ options: Leaflet.MapOptions = {
   }
 
 }
-
-export const getLayers = (): Leaflet.Layer[] => {
-  return [
-    new Leaflet.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    } as Leaflet.TileLayerOptions),
-  ] as Leaflet.Layer[];
-};

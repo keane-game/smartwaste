@@ -12,7 +12,6 @@ import { SharedService } from '../../../services/shared.service';
 export class DeleteUserComponent {
 
   id:any;
-  kpiService: any;
   error: any;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data:any,
@@ -22,7 +21,8 @@ export class DeleteUserComponent {
     //console.log(data)
    }
 
-   onSubmit() {
+   
+  onSubmit() {
     this.sharedService.url = '/quartiers';
     //console.log(this.data.id)
     this.sharedService.delete(this.id)

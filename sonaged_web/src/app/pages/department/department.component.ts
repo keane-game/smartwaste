@@ -11,7 +11,6 @@ import { headerTitleService } from '../../services/headerTitle.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { first } from 'rxjs';
 
-import { DeleteComponent } from '../../shared/delete/delete.component';
 import { CreateDepartmentComponent } from './create-department/create-department.component';
 
 @Component({
@@ -38,8 +37,6 @@ export class DepartmentComponent {
   iSnextPage = false;
 
   @Input() userChangeEvent = new EventEmitter<number>();
-
-  deleteDialogRef!: MatDialogRef<DeleteComponent>;
   createDepartDialogRef!: MatDialogRef<CreateDepartmentComponent>;
   constructor(
     private sharedService: SharedService,
@@ -167,17 +164,6 @@ export class DepartmentComponent {
     this.dataSource.data = this.departs.slice(startIndex, endIndex);
   }
 
-  CloseSuccessModal() {
-    this.deleteDialogRef.close();
-  }
-
-  OpenSuccessModal() {
-    this.deleteDialogRef = this.matDialog.open(DeleteComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-  }
-
 
   onDeleteUser(id: number): void{
     console.log(id);
@@ -187,12 +173,7 @@ export class DepartmentComponent {
       .pipe(first())
       .subscribe({
         next: () => {
-        this.reload("/departments")
-        this.OpenSuccessModal()
-        setTimeout(()=>  {
-          //window.location.reload()
-          this.CloseSuccessModal()
-        }, 1500 );
+       
         },
         error:  error => { this.error = error}
       })

@@ -63,7 +63,7 @@
       <th style="border-top-right-radius: 1.25rem" mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
         <i class="bi bi-pencil-square " (click)="openUpdateUserModal(element.userId)"></i>&nbsp;
-        <i class="bi bi-trash-fill" (click)="openDeleteQuartierModal(element.userId)"></i>
+        <i class="bi bi-trash-fill" (click)="openDeleteUserModal(element.userId)"></i>
 
       </td>
     </ng-container>
@@ -75,4 +75,13 @@
     Auncune donnée n'est disponible sur ce tableau
   </div>
 
+
+
+  <app-pagination-custumer 
+    [length]="totalUsers"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="pageSizeOptions"
+    [totalPages]="totalPages"
+    (pageChange)="onPaginatedChange($event)">
+  </app-pagination-custumer>
 </div>

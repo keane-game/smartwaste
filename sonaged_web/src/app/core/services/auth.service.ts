@@ -4,6 +4,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
 
 @Injectable({ providedIn: 'root' })
@@ -15,8 +17,10 @@ export class AuthService {
 
   errorData: {} | undefined;
   redirectUrl: string | undefined;
+  
+  baseUrl = environment.authUrl;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private translate: TranslateService,private router: Router) {
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser') || '{}'));
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -30,8 +34,14 @@ export class AuthService {
     return currentUser.token;
   }
 
+
+  register(data: User): Observable<User>{
+    return this.http.post<User>(`${this.baseUrl}/register`, data)
+     .pipe( catchError(this.handleError.bind(this)));
+  }
+
   login(data: any): Observable<any> {
-    return this.http.post<any>(environment.apiUrl +'/connexion', data)
+    return this.http.post<any>(`${this.baseUrl}/connexion`, data)
     .pipe(map(user => {
 
       // store user details and jwt token in local storage to keep user logged in between page refreshes
@@ -50,7 +60,11 @@ export class AuthService {
     // remove user from local storage and set current user to null
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null as any);
+
+    this.router.navigate(['/login']);
   }
+
+
   isLoggedIn(): boolean {
     if (localStorage.getItem('currentUser')) {
       return true;
@@ -58,24 +72,28 @@ export class AuthService {
     return false;
   }
 
-  private handleError(error: HttpErrorResponse): any {
+
+  isAuthenticated(): boolean {
+    // Replace this logic with actual authentication check
+    const token = localStorage.getItem('token');
+    return !!token;
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage =  this.translate.instant('ERROR.INTERNAL_ERROR');
     if (error.error instanceof ErrorEvent) {
-
-      // A client-side or network error occurred. Handle it accordingly.
-      console.error('An error occurred:', error.error.message);
+      // A client-side or network error occurred.
+      this.translate.get('ERROR.CLIENT_SIDE').subscribe((translation: string) => {
+        errorMessage = `${translation}: ${error.error.message}`;
+      });
     } else {
-
       // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong.
-      console.error(`Backend returned code ${error.status}, ` + `body was: ${error.error}`);
+      this.translate.get('ERROR.SERVER_SIDE').subscribe((translation: string) => {
+        errorMessage = `${translation}: ${error.status}, ${error.message}`;
+      });
     }
-
-    // return an observable with a user-facing error message
-    this.errorData = {
-      errorTitle: 'Oops! Request for document failed',
-      errorDesc: 'Something bad happened. Please try again later.'
-    };
-    return throwError(this.errorData);
+    console.error(errorMessage);
+    return throwError(() => new Error(this.translate.instant('ERROR.GENERIC')));
   }
 }
 

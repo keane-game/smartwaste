@@ -3,7 +3,6 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
-import { SuccessComponent } from '../../../shared/success/success.component';
 import { first } from 'rxjs';
 
 @Component({
@@ -27,7 +26,6 @@ export class CreateDepotoirComponent {
   currentDepotoir: any;
   id: any;
 
-  successDialogRef!: MatDialogRef<SuccessComponent>;
   constructor(
     private createDepotoirModal: MatDialogRef<CreateDepotoirComponent>,
     private el: ElementRef,
@@ -79,26 +77,6 @@ export class CreateDepotoirComponent {
 
   }
 
-  closeCreateDepartModal() {
-    this.createDepotoirModal.close(false)
-    this.openSuccessModal()
-  }
-  
-  closeSuccessModal() {
-    this.successDialogRef.close();
-  }
-
-  openSuccessModal() {
-    this.successDialogRef = this.matDialog.open(SuccessComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-    let message = "Dépotoir créée avec succés";
-    if(this.id != undefined)
-      message = "Dépotoir modifiée avec succés";
-
-    this.successDialogRef.componentInstance.message = message;
-  }
 
     // Event drop down to select role
     onDropDownCloseQuartier() {
@@ -177,12 +155,7 @@ export class CreateDepotoirComponent {
      .pipe(first())
      .subscribe({
        next: () => {
-         this.reload("/depotoirs")
-         this.closeCreateDepartModal()
-         setTimeout(() => {
-           this.closeSuccessModal()
-         }, 1500);
-
+      
        },
        error: error => {
          console.log(error)
@@ -197,12 +170,7 @@ export class CreateDepotoirComponent {
      .pipe(first())
      .subscribe({
        next: () => {
-         this.reload("/depotoirs")
-         this.closeCreateDepartModal()
-         setTimeout(() => {
-           this.closeSuccessModal()
-         }, 1500);
-
+       
        },
        error: error => {
          console.log(error)

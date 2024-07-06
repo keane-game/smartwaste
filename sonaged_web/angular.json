@@ -32,10 +32,10 @@
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
-              }
+              },
+              { "glob": "**/*", "input": "node_modules/leaflet/dist/images/", "output": "assets/" }
             ],
             "styles": [
-              "./node_modules/leaflet/dist/leaflet.css",
               "src/assets/vendor/bootstrap/css/bootstrap.min.css",
               "src/assets/vendor/bootstrap-icons/bootstrap-icons.css",
               "src/assets/vendor/boxicons/css/boxicons.min.css",
@@ -43,7 +43,8 @@
               "src/assets/vendor/quill/quill.bubble.css",
               "src/assets/vendor/remixicon/remixicon.css",
               "src/assets/vendor/simple-datatables/style.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": [
               "src/assets/vendor/apexcharts/apexcharts.min.js",

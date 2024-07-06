@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
-import { SuccessComponent } from '../../../shared/success/success.component';
 import { first } from 'rxjs';
 import { ComponentService } from '../../../services/component.service';
 import { Geometry } from '../../../models/geometry.model';
@@ -27,7 +26,6 @@ export class CreateDepartmentComponent {
   currentDepart: any;
   receivedData: any
 
-  successDialogRef!: MatDialogRef<SuccessComponent>;
 
   constructor(
     private createDepartModal: MatDialogRef<CreateDepartmentComponent>,
@@ -85,26 +83,8 @@ export class CreateDepartmentComponent {
   }
 
 
-  closeCreateDepartModal() {
-    this.createDepartModal.close(false)
-    this.openSuccessModal()
-  }
-  
-  closeSuccessModal() {
-    this.successDialogRef.close();
-  }
 
-  openSuccessModal() {
-    this.successDialogRef = this.matDialog.open(SuccessComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-    let message = "Département créé avec succés";
-    if(this.id != undefined)
-      message = "Département modifié avec succés";
 
-    this.successDialogRef.componentInstance.message = message;
-  }
     // Event drop down to select role
     onDropDownCloseRegion() {
       let myTag = this.el.nativeElement.querySelector("label.label-role");
@@ -156,12 +136,7 @@ export class CreateDepartmentComponent {
       .pipe(first())
       .subscribe({
         next: () => {
-          this.reload("/departemsnts")
-          this.closeCreateDepartModal()
-          setTimeout(() => {
-            this.closeSuccessModal()
-          }, 1500);
-
+        
         },
         error: error => {
           console.log(error)
@@ -176,12 +151,7 @@ export class CreateDepartmentComponent {
       .pipe(first())
       .subscribe({
         next: () => {
-          this.reload("/departements")
-          this.closeCreateDepartModal()
-          setTimeout(() => {
-            this.closeSuccessModal()
-          }, 1500);
-
+       
         },
         error: error => {
           console.log(error)

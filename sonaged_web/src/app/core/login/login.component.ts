@@ -53,7 +53,7 @@ console.log(userData);
           const decodedToken = helper.decodeToken(userData['bearer']);
           const expirationDate = decodedToken.exp;
           const isExpired = decodedToken.sub;
-          //console.log(decodedToken.role[0]);
+          console.log(decodedToken.role[0]);
           
           //  this.router.navigate(['/dashboard']);
           let role = decodedToken.role[0].authority

@@ -298,3 +298,30 @@ o #695d46 #ff5e0e #008575 #a1e3d5
   Adresse MAC : 96:F8:0D:A8:A1:C2
   IPv4 : 192.168.1.137
   IPv6 : fe80::94f8:dff:fea8:a1c2
+
+
+  931  ng g c core/password --module password
+  932  ng g c entity/profil --module=profil
+  933  ng g m entity/circuit --module app.module --route circuit
+  934  ng g m core/password/rest-password --module app.module --route password
+  935  ng g c entity/profil --module=entities --routing profil
+  936  ng g c entity/profil --module=entities --route profil
+  937  ng g c entity/profil --module entities.module --route profil
+  938  ng g m entity/profil --module entities.module --route profil
+  939  clear
+  940  ng g m entity/department --module entities.module --route department
+  941  ng g c entity/-create-department --module=entities.module --routing=department
+  942  ng g c entity/-create-department --module=department.module 
+  943  ng g c entity/create-department --module=department.module 
+  944  ng g m entity/commune --module entities.module --route commune
+  945  ng g c entity/create-commune --module=commune.module 
+  946  ng g c entity/commune/create-commune --module=commune.module 
+  947  ng g c entity/commune/create-commune --module commune.module 
+  948  ng g m entity/region --module entities.module --route region
+  949  ng g m entity/region/create-region --module entities.module 
+  950  ng g c entity/region/create-region --module entities.module 
+  951  ng g m entity/quartier entity/quartier/create-quartier --module entities.module --route quartier
+  952  ng g m [entity/quartier entity/quartier/create-quartier] --module entities.module --route quartier
+  953  ng g m entity/quartier  --module entities.module --route quartier
+  954  ng g c  entity/quartier/create-quartier
+  955  ng g c entity/commune/create-commune --module commune.module 

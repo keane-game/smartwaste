@@ -1,29 +1,28 @@
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
-}
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {  providersFrom } from './core/helpers/helpers.service';
+import { AuthGuard } from './core/gaurds/auth.gaurd';
+
+
+
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimationsAsync(),
     
     provideHttpClient(
-      withInterceptorsFromDi() // tell httpClient to use interceptors from DI
+      withInterceptorsFromDi(), // tell httpClient to use interceptors from DI
     ),
-    importProvidersFrom(TranslateModule.forRoot({
-      defaultLanguage: 'en',
-      loader: {
-        provide: TranslateLoader,
-        deps: [HttpClient],
-        useFactory: HttpLoaderFactory
-      }
-    }))
+
+    importProvidersFrom(
+      ...providersFrom()
+    ),
+    //...httpInterceptorProviders
+    AuthGuard
   ]
 };

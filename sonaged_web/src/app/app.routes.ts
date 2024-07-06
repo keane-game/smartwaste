@@ -4,11 +4,13 @@ import { HomeComponent } from './pages/general/home/home.component';
 import { NotFoundComponent } from './pages/general/not-found/not-found.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+import { AuthGuard } from './core/gaurds/auth.gaurd';
 
 export const routes: Routes = [
 
   { 
     path:'', component: LayoutComponent, 
+    //canActivate:[AuthGuard] ,
     children: [
       {
         path: '',component:DashboardComponent,
@@ -29,7 +31,7 @@ export const routes: Routes = [
   },
 
 
- { path: 'home', component: HomeComponent, },
+  { path: 'home', component: HomeComponent, },
 
   {
     path: 'login',

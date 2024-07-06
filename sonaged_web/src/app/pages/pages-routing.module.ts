@@ -27,11 +27,19 @@ const routes: Routes = [
         loadChildren: () => import('./depotoir/depotoir.module').then(m => m.DepotoirModule) 
     },
     {
-        path: 'circuits',
-        loadChildren: () => import('./circuit/circuit.module').then(m => m.CircuitModule)
+        path: 'circuit-collects',
+        loadChildren: () => import('./circuit-collect/circuit-collect.module').then(m => m.CircuitCollectModule)
+    },
+    {
+        path: 'circuit-balayages',
+        loadChildren: () => import('./circuit-balayage/circuit-balayage.module').then(m => m.CircuitBalayageModule)
     },
 
     { path: 'notifications', loadChildren: () => import('./notification/notifcation.module').then(m => m.NotifcationModule) },
+
+    { path: 'alerts', loadChildren: () => import('./alert/alert.module').then(m => m.AlertModule) },
+
+    { path: 'maps', loadChildren: () => import('./maps/maps.module').then(m => m.MapsModule) },
 
 
 ]

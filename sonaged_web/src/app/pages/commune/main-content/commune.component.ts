@@ -1,18 +1,15 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, EventEmitter, Input, ViewChild } from '@angular/core';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { first } from 'rxjs';
-import { User } from '../../../models/user.model';
 import { SharedService } from '../../../services/shared.service';
-import { DeleteComponent } from '../../../shared/delete/delete.component';
-import { CreateDepartmentComponent } from '../../department/create-department/create-department.component';
 import { CreateCommuneComponent } from '../create-commune/create-commune.component';
 import { headerTitleService } from '../../../services/headerTitle.service';
+import { ModalService } from '../../../services/modal.service';
+import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
   selector: 'app-commune',
@@ -26,80 +23,66 @@ export class CommuneComponent {
   @ViewChild(MatSort) sort!: MatSort;
 
   displayedColumns: string[] = ['communeName', 'communeCode', 'department', 'totalResident', 'womanResident', 'manResident', 'communeLength', 'communeArea', 'action'];
-  dataSource: any;
-  selection = new SelectionModel<User>(true, []);
+  dataSource = new MatTableDataSource<any>([]);
+  selection = new SelectionModel<any>(true, []);
+
   communes: any;
-  pageNumber: number = 1;
-  totalCommunes!: number;
-  p: number = 1;
-  itemsPerPage: number = 20;
+  totalPages: number = 1;
+  totalCommunes: number = 0;
+  pageSizeOptions: number[] = [5, 10, 20];
+  itemsPerPage: number = 10;
+  currentPage: number = 0;
   error = '';
-  iSnextPage = false;
 
-  @Input() userChangeEvent = new EventEmitter<number>();
+  @Input() communeChangeEvent = new EventEmitter<number>();
 
-  deleteDialogRef!: MatDialogRef<DeleteComponent>;
-  createCommuneDialogRef!: MatDialogRef<CreateCommuneComponent>;
   constructor(
     private sharedService: SharedService,
-    private createCommuneMatDialog: MatDialog,
-    private matDialog: MatDialog,
     private router: Router,
     private _liveAnnouncer: LiveAnnouncer,
-    private headerTitleService: headerTitleService
+    private headerTitleService: headerTitleService,
+    private modalService: ModalService
   ) { }
 
   ngOnInit() {
     this.sharedService.url = '/communes';
-    this.sharedService.getAll().subscribe((resp) => {
-      this.communes = resp;
-      this.totalCommunes = resp.length;
-      this.dataSource = new MatTableDataSource<any>(this.communes.slice(0, this.itemsPerPage));
+    this.loadCommuns(this.currentPage, this.itemsPerPage);
+    this.headerTitleService.setTitle('Gestion Utilisateur');
+  }
+
+  loadCommuns(page: number = 0, size: number = 10): void {
+    this.sharedService.getResources(page, size).subscribe((resp) => {
+      this.dataSource.data = resp.content;
+      this.totalCommunes = resp.totalElements;
       this.dataSource.paginator = this.paginator;
+      this.totalPages = Math.ceil(this.totalCommunes / this.itemsPerPage);
       this.dataSource.sort = this.sort;
-      console.log(this.communes);
-      this.iSnextPage = this.p < this.communes.length / this.itemsPerPage
-    });
-    this.headerTitleService.setTitle('Gestion Commune');
-  }
 
+      console.log( this.currentPage);
+    });
+  }
   
-  OpenCreateCommuneModal() {
-    this.closeDialog();
-    this.createCommuneDialogRef = this.createCommuneMatDialog.open(CreateCommuneComponent, {
-      disableClose: true,
-      panelClass: ['md:w-5/5', 'w-full', 'full-with-dialog'],
-      maxHeight: '100vh',
-      maxWidth: '100%'
-
-    });
+  onPaginatedChange(event: { pageIndex: number, pageSize: number }) {
+    this.currentPage = event.pageIndex;
+    this.itemsPerPage = event.pageSize;
+    this.loadCommuns(this.currentPage, this.itemsPerPage);
+    console.log(event);
   }
 
-    
-  OpenUpdateCommuneModal(id: any) {
-    this.closeDialog();
-    this.createCommuneDialogRef = this.createCommuneMatDialog.open(CreateCommuneComponent, {
-      disableClose: true,
-      panelClass: ['md:w-5/5', 'w-full', 'full-with-dialog'],
-      maxHeight: '100vh',
-      maxWidth: '100%'
-    });
-
-    this.createCommuneDialogRef.componentInstance.id = id;
-    this.createCommuneDialogRef.componentInstance
-    .currentCommune = this.communes.filter((item: any)=>item.communeId == id)[0];
-     //console.log(this.users, id);
-  }
-    
-
-  async closeDialog() {
-    try {
-      this.createCommuneMatDialog.closeAll(); // make sure it only closes if the upper async fn succesfully ran!
-    } catch($e) {
-      
-    }
+  openCreateCommuneModal() {
+    this.modalService.openModal(CreateCommuneComponent, { title: 'Create Commune' });
   }
 
+  openUpdateCommuneModal(id: any) {
+    const currentCommune = this.dataSource.data.find((item: any) => item.communId === id);
+    //console.log(id)
+    this.modalService.openModal(CreateCommuneComponent, { id: id, currentCommun: currentCommune });
+  }
+
+  openDeleteCommuneModal(id:any) {
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url});
+  }
+ 
   applyFilter(event: Event) {
     // console.log((event.target as HTMLInputElement).value)
      const filterValue = (event.target as HTMLInputElement).value;
@@ -119,84 +102,7 @@ export class CommuneComponent {
      }
    }
  
-   // Fonction pour obtenir les numéros de page
-   getPages(currentPage: number): number[] {
- 
-     if(this.communes != undefined){
-       const totalPages = Math.ceil(this.totalCommunes / this.itemsPerPage);
-       if (totalPages <= 3) {
-         return Array(totalPages).fill(0).map((_, i) => i + 1);
-       } else if (currentPage === 1) {
-         return [1, 2, 3];
-       } else if (currentPage === totalPages) {
-         return [currentPage - 2, currentPage - 1, currentPage];
-       } else {
-         return [currentPage - 1, currentPage, currentPage + 1];
-       }
-     }else {
-       return []
-     }
-  
-   }
- 
-   previousPage(): void {
-     if (this.p > 1) {
-       this.p--;
-       this.updateDataSource();
-     }
-   }
- 
-   nextPage(): void {
-     if (this.p < this.communes.length / this.itemsPerPage) {
-       this.p++;
-       this.updateDataSource();
-     }
-   }
- 
-   goToPage(page: number): void {
-     this.p = page;
-     this.updateDataSource();
-   }
- 
-   updateDataSource(): void {
-     const startIndex = (this.p - 1) * this.itemsPerPage;
-     const endIndex = startIndex + this.itemsPerPage;
-     this.dataSource.data = this.communes.slice(startIndex, endIndex);
-   }
- 
-   CloseSuccessModal() {
-     this.deleteDialogRef.close();
-   }
- 
-   OpenSuccessModal() {
-     this.deleteDialogRef = this.matDialog.open(DeleteComponent, {
-       disableClose: false,
-       panelClass: ['success-with-dialog'],
-     });
-   }
- 
- 
-   onDeleteUser(id: number): void{
-     console.log(id);
-     this.sharedService.url = '/delete/commune';
-     if(confirm('Voulez vous vraiment supprimer cet collaborateur')){
-       this.sharedService.delete(+id)
-       .pipe(first())
-       .subscribe({
-         next: () => {
-         this.reload("/departments")
-         this.OpenSuccessModal()
-         setTimeout(()=>  {
-           //window.location.reload()
-           this.CloseSuccessModal()
-         }, 1500 );
-         },
-         error:  error => { this.error = error}
-       })
-         
-     }
-   }
- 
+   
    async reload(url: string): Promise<boolean> {
      await this.router.navigateByUrl('/', { skipLocationChange: true });
      return this.router.navigateByUrl(url);

@@ -21,7 +21,7 @@
           <mat-option value="option3">n</mat-option>
         </mat-select>
       </mat-form-field>
-      <button mat-flat-button class="add-user-btn"  (click)="OpenCreateCommuneModal()"  >Ajouter commune</button>
+      <button mat-flat-button class="add-user-btn"  (click)="openCreateCommuneModal()"  >Ajouter commune</button>
     </div>
         <table mat-table [dataSource]="dataSource" aria-describedby="display departs"
          class="mat-elevation-z0" style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem"
@@ -78,8 +78,8 @@
           <ng-container matColumnDef="action">
             <th style="border-top-right-radius: 1.25rem" mat-header-cell *matHeaderCellDef> Actions </th>
             <td mat-cell *matCellDef="let element">
-              <i class="bi bi-pencil-square " (click)="OpenUpdateCommuneModal(element.communeId)"></i>&nbsp;
-              <i class="bi bi-trash-fill"  (click)="onDeleteUser(element.communeId)"></i>
+              <i class="bi bi-pencil-square " (click)="openUpdateCommuneModal(element.communeId)"></i>&nbsp;
+              <i class="bi bi-trash-fill"  (click)="openDeleteCommuneModal(element.communeId)"></i>
               
             </td>
           </ng-container>
@@ -87,29 +87,15 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-        <div class="text-center my-5 lg-text" *ngIf="dataSource?.length <= 0">
+        <div class="text-center my-5 lg-text" *ngIf="totalCommunes <= 0">
             Auncune donnée n'est disponible sur ce tableau
       </div >
-    
-      <mat-paginator [hidePageSize]="true" [pageSizeOptions]="[20, 40, 60]"
-        style="border: none; display: none;"></mat-paginator>
-        <!-- <div class="custom-pagination">
-          <div class="pagination">
-            <div class="page-item" *ngIf="p > 1">
-              <mat-icon (click)="previousPage()">chevron_left</mat-icon>
-            </div>
-            <ng-container *ngFor="let page of getPages(p)">
-              <div class="page-item" [class.active]="page === p">
-                <div (click)="goToPage(page)">{{ page }}</div>
-              </div>
-            </ng-container>
-            <div class="page-item" *ngIf="iSnextPage">
-              <mat-icon (click)="nextPage()">chevron_right</mat-icon>
-            </div>
-          </div>
-          <div class="tableInfos">{{(this.p - 1) * this.itemsPerPage}} - {{(this.p - 1) * this.itemsPerPage + this.itemsPerPage}} / {{totalUsers}} résultats</div>
-        </div> -->
-   
-
+      <app-pagination-custumer 
+      [length]="totalCommunes"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="pageSizeOptions"
+      [totalPages]="totalPages"
+      (pageChange)="onPaginatedChange($event)">
+    </app-pagination-custumer>
     
   </div>

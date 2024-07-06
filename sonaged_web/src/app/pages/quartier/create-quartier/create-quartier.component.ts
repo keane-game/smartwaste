@@ -3,7 +3,6 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
-import { SuccessComponent } from '../../../shared/success/success.component';
 import { first } from 'rxjs';
 
 import { succesAlert, errorAlert } from '../../../services/AlertService';
@@ -27,7 +26,6 @@ export class CreateQuartierComponent {
   currentQuartier: any;
   id: any;
 
-  successDialogRef!: MatDialogRef<SuccessComponent>;
   constructor(
     private createCommuneModal: MatDialogRef<CreateQuartierComponent>,
     private el: ElementRef,

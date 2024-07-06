@@ -9,11 +9,9 @@ import { first } from 'rxjs';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { headerTitleService } from '../../../services/headerTitle.service';
 import { CreateUserComponent } from '../create-user/create-user.component';
-import { UpdateUserComponent } from '../update-user/update-user.component';
-import { DeleteComponent } from '../../../shared/delete/delete.component';
 import { Router } from '@angular/router';
 import { ModalService } from '../../../services/modal.service';
-import { DeleteUserComponent } from '../delete-user/delete-user.component';
+import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
   selector: 'app-user',
@@ -32,6 +30,7 @@ export class UserComponent  {
   users: any;
   totalPages: number = 1;
   totalUsers: number = 0;
+  pageSizeOptions: number[] = [5, 10, 20];
   itemsPerPage: number = 10;
   currentPage: number = 0;
   error = '';
@@ -84,8 +83,8 @@ export class UserComponent  {
     this.modalService.openModal(CreateUserComponent, { id: id, currentUser: currentUser });
   }
 
-  openDeleteQuartierModal(id:any) {
-    this.modalService.openModal(DeleteUserComponent, { id: id});
+  openDeleteUserModal(id:any) {
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url });
   }
 
 

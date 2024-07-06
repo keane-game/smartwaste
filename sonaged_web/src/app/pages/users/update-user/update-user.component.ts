@@ -4,7 +4,6 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
-import { SuccessComponent } from "../../../shared/success/success.component";
 
 @Component({
   selector: 'app-update-user',
@@ -24,8 +23,7 @@ export class UpdateUserComponent implements OnInit {
   currentUser: any;
 
 
- 
-  successDialogRef!: MatDialogRef<SuccessComponent>;
+
   constructor(
     private updateUserModal: MatDialogRef<UpdateUserComponent>,
     private el: ElementRef,
@@ -66,21 +64,6 @@ export class UpdateUserComponent implements OnInit {
     }
   }
 
-  CloseCreateUserModal() {
-    this.updateUserModal.close(false)
-    this.OpenSuccessModal()
-  }
-  CloseSuccessModal() {
-    this.successDialogRef.close();
-  }
-
-  OpenSuccessModal() {
-    this.successDialogRef = this.matDialog.open(SuccessComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-    this.successDialogRef.componentInstance.message = "Utilisateur modifié avec succès";
-  }
 
 
    // Event drop down to select role
@@ -125,13 +108,7 @@ export class UpdateUserComponent implements OnInit {
     .pipe(first())
     .subscribe({
       next:  () => {
-        this.reload("/users")
-        this.CloseCreateUserModal()
-        setTimeout(()=>  {
-          //window.location.reload()
-          this.CloseSuccessModal()
-        }, 1500 );
-       
+      
         },
         error: error => {
           console.log(error)

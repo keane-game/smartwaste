@@ -9,8 +9,8 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { first } from 'rxjs';
 import { CreateQuartierComponent } from '../create-quartier/create-quartier.component';
-import { DeleteQuartierComponent } from '../delete-quartier/delete-quartier.component';
 import { ModalService } from '../../../services/modal.service';
+import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
   selector: 'app-quartier',
@@ -30,6 +30,7 @@ export class QuartierComponent {
   totalPages: number = 1;
   totalQuartiers: number = 0;
   itemsPerPage: number = 10;
+  pageSizeOptions: number[] = [5, 10, 20];
   currentPage: number = 0;
   error = '';
 
@@ -78,7 +79,7 @@ export class QuartierComponent {
   }
 
   openDeleteQuartierModal(id:any) {
-    this.modalService.openModal(DeleteQuartierComponent, { id: id});
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url });
   }
 
   async closeDialog() {

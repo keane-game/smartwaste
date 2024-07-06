@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
-import { SuccessComponent } from '../../../shared/success/success.component';
 import { first } from 'rxjs';
 
 @Component({
@@ -23,7 +22,6 @@ export class CreateCommuneComponent {
   currentCommune: any;
   id:any;
 
-  successDialogRef!: MatDialogRef<SuccessComponent>;
   constructor(
     private createDepartModal: MatDialogRef<CreateCommuneComponent>,
     private el: ElementRef,
@@ -36,14 +34,14 @@ export class CreateCommuneComponent {
 
   ngOnInit(): void {
       this.communeForm = this.formBuilder.group({
-        communeName: ['', Validators.required],
-        communeCode: ['', Validators.required],
+        name: ['', Validators.required],
+        code: ['', Validators.required],
         department: [null, Validators.required],
-        totalResident:[''],
-        womanResident:[''],
-        manResident:[''],
-        communeLength:[''],
-        communeArea: [''],
+        total:[''],
+        women:[''],
+        man:[''],
+        length:[''],
+        area: [''],
         geometry: [null]
       });
 
@@ -66,27 +64,6 @@ export class CreateCommuneComponent {
 
   }
 
-
-  closeCreateDepartModal() {
-    this.createDepartModal.close(false)
-    this.openSuccessModal()
-  }
-  
-  closeSuccessModal() {
-    this.successDialogRef.close();
-  }
-
-  openSuccessModal() {
-    this.successDialogRef = this.matDialog.open(SuccessComponent, {
-      disableClose: false,
-      panelClass: ['success-with-dialog'],
-    });
-    let message = "Commune créée avec succés";
-    if(this.id != undefined)
-      message = "Commune modifiée avec succés";
-
-    this.successDialogRef.componentInstance.message = message;
-  }
 
   // Event drop down to select Commune
   onDropDownCloseDepart() {
@@ -138,12 +115,7 @@ export class CreateCommuneComponent {
        .pipe(first())
        .subscribe({
          next: () => {
-           this.reload("/communes")
-           this.closeCreateDepartModal()
-           setTimeout(() => {
-             this.closeSuccessModal()
-           }, 1500);
- 
+          
          },
          error: error => {
            console.log(error)
@@ -158,12 +130,7 @@ export class CreateCommuneComponent {
        .pipe(first())
        .subscribe({
          next: () => {
-           this.reload("/communes")
-           this.closeCreateDepartModal()
-           setTimeout(() => {
-             this.closeSuccessModal()
-           }, 1500);
- 
+          
          },
          error: error => {
            console.log(error)
