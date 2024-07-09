@@ -1,16 +1,17 @@
 import { Component, OnInit, ViewChild, Input, EventEmitter } from '@angular/core';
-import { User } from '../../../models/user.model'
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
-import { SharedService } from '../../../services/shared.service';
-import { first } from 'rxjs';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { headerTitleService } from '../../../services/headerTitle.service';
-import { CreateUserComponent } from '../create-user/create-user.component';
 import { Router } from '@angular/router';
+
 import { ModalService } from '../../../services/modal.service';
+import { headerTitleService } from '../../../services/headerTitle.service';
+import { SharedService } from '../../../services/shared.service';
+
+import { User } from '../../../models/user.model'
+import { CreateUserComponent } from '../create-user/create-user.component';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({

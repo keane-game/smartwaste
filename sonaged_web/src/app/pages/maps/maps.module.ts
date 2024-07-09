@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { MapsRoutingModule } from './maps-routing.module';
 import { SharedModule } from '../../shared/shared.module';
 import { MapsComponent } from './main-content/maps.component';
+import { EsriComponent } from './esri/esri.component';
 
 
 @NgModule({
   declarations: [
-    MapsComponent
+    MapsComponent,
+    EsriComponent
   ],
   imports: [
     SharedModule,

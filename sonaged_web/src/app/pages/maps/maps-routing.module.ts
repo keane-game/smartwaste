@@ -1,8 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MapsComponent } from './main-content/maps.component';
+import { EsriComponent } from './esri/esri.component';
 
-const routes: Routes = [{ path: '', component: MapsComponent }];
+const routes: Routes = [
+  { path: '', component: EsriComponent },
+  { path: '', component: MapsComponent }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

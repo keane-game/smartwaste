@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
 import { first } from 'rxjs';
 
-import { succesAlert, errorAlert } from '../../../services/AlertService';
+import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { ModalService } from '../../../services/modal.service';
 
 @Component({

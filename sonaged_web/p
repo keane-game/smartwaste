@@ -1,5 +1,19 @@
 o #695d46 #ff5e0e #008575 #a1e3d5
 
+"country" : "Senegal",
+      "alpha2" : "SN",
+      "alpha3" : "SEN",
+      "numeric" : 686,
+      "latitude" : 14,
+      "longitude" : -14
+
+      {
+        "country": "Senegal",
+        "north": 16.6916,
+        "south": 12.3073,
+        "west": -17.5352,
+        "east": -11.3559
+    },
 <div
     class="form-fields-ctnr w-full self-stretch ml-6 justify-start items-start gap-12 inline-flex">
     <div class="w50 pr-db pt-6 justify-start items-center gap-5">

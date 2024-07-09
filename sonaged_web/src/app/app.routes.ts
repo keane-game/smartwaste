@@ -5,6 +5,7 @@ import { NotFoundComponent } from './pages/general/not-found/not-found.component
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { AuthGuard } from './core/gaurds/auth.gaurd';
+import { EsriComponent } from './pages/maps/esri/esri.component';
 
 export const routes: Routes = [
 
@@ -32,6 +33,7 @@ export const routes: Routes = [
 
 
   { path: 'home', component: HomeComponent, },
+  { path: 'map', component: EsriComponent },
 
   {
     path: 'login',

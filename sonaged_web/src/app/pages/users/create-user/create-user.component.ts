@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
-import { succesAlert, errorAlert } from "../../../services/AlertService";
+import { succesAlert, errorAlert } from "../../../services/alert.service";
 
 
 @Component({
