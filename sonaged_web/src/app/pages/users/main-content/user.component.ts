@@ -13,6 +13,7 @@ import { SharedService } from '../../../services/shared.service';
 import { User } from '../../../models/user.model'
 import { CreateUserComponent } from '../create-user/create-user.component';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-user',
@@ -44,7 +45,7 @@ export class UserComponent  {
     private router: Router,
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService,
-    private modalService: ModalService
+    private modalService: ModalService,
   ) { }
 
 
@@ -61,8 +62,7 @@ export class UserComponent  {
       this.dataSource.paginator = this.paginator;
       this.totalPages = Math.ceil(this.totalUsers / this.itemsPerPage);
       this.dataSource.sort = this.sort;
-
-      console.log( this.currentPage);
+    //  console.log( this.currentPage);
     });
   }
 

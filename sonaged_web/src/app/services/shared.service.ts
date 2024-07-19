@@ -40,17 +40,16 @@ export class SharedService {
     ).subscribe();
   }
 
-  getResources(page: number = 0, size: number = 10, sort: string = 'id,asc'): Observable<any> {
+  getResources(page: number = 0, size: number = 10): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
-      .set('sort', sort);
 
     return this.http
       .get<any>(`${this.baseUrl}${this.url}`, { params, ...this.httpOptions })
       .pipe(
         map(data => data),
-        catchError(this.handleError.bind(this))
+        //catchError(this.handleError.bind(this))
       );
   }
 

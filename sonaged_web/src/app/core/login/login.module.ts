@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from "@angular/material/checkbox";
 
 import { MatCardModule } from '@angular/material/card';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { MatCardModule } from '@angular/material/card';
     LoginRoutingModule,
     FormsModule,
     MatCheckboxModule,
-    MatCardModule
+    MatCardModule,
+    TranslateModule,
   ],
   exports: [
     LoginComponent
@@ -23,6 +25,7 @@ import { MatCardModule } from '@angular/material/card';
     LoginComponent
   ],
   providers: [
+    
   ],
 })
 export class LoginModule { }

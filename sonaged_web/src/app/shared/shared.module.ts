@@ -4,9 +4,7 @@ import { NgModule } from '@angular/core';
 import { HeaderComponent } from './components/header/header.component';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MAT_MATERIAL } from './materials/material.module';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule } from '@ngx-translate/core';
 import { CoreModule } from 'keycloak-angular';
 import { PaginationCustumerComponent } from './components/pagination-custumer/pagination-custumer.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
@@ -35,7 +33,6 @@ const BASE_MODULES = [
     CoreModule,
     ReactiveFormsModule,
     TranslateModule,
-
     BubblePaginationDirective
   ];
 

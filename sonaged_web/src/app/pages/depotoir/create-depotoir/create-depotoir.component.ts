@@ -4,6 +4,7 @@ import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
 import { first } from 'rxjs';
+import { succesAlert, errorAlert } from '../../../services/alert.service';
 
 @Component({
   selector: 'app-create-depotoir',
@@ -154,12 +155,12 @@ export class CreateDepotoirComponent {
   this.sharedService.create(this.depotoirForm.value)
      .pipe(first())
      .subscribe({
-       next: () => {
-      
-       },
-       error: error => {
-         console.log(error)
-       }
+      next:  () => {
+        succesAlert("La creation a bien réussie")
+      },
+      error: (error) => {
+        errorAlert('Erreur' + error.message)
+      }
      })
  }
 
@@ -169,12 +170,12 @@ export class CreateDepotoirComponent {
    this.sharedService.update(this.depotoirForm.value, this.id)
      .pipe(first())
      .subscribe({
-       next: () => {
-       
-       },
-       error: error => {
-         console.log(error)
-       }
+      next:  () => {
+        succesAlert("La creation a bien réussie")
+      },
+      error: (error) => {
+        errorAlert('Erreur' + error.message)
+      }
      })
  }
 

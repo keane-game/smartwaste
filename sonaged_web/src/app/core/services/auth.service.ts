@@ -20,7 +20,10 @@ export class AuthService {
   
   baseUrl = environment.authUrl;
 
-  constructor(private http: HttpClient, private translate: TranslateService,private router: Router) {
+  constructor(
+    private http: HttpClient, 
+    private translate: TranslateService,
+    private router: Router) {
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser') || '{}'));
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -31,7 +34,7 @@ export class AuthService {
 
   getAuthToken(): any {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    return currentUser.token;
+    return currentUser.bearer;
   }
 
 
@@ -41,7 +44,7 @@ export class AuthService {
   }
 
   login(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connexion`, data)
+    return this.http.post<any>(`${this.baseUrl}/authenticate`, data)
     .pipe(map(user => {
 
       // store user details and jwt token in local storage to keep user logged in between page refreshes
@@ -52,7 +55,8 @@ export class AuthService {
       }
 
     }),
-    catchError(this.handleError)
+    //catchError(this.handleErrors)
+    //catchError(error => this.handleError(error))
     );
   }
 
@@ -78,9 +82,8 @@ export class AuthService {
     const token = localStorage.getItem('token');
     return !!token;
   }
-
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage =  this.translate.instant('ERROR.INTERNAL_ERROR');
+    let errorMessage = this.translate.instant('ERROR.INTERNAL_ERROR');
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred.
       this.translate.get('ERROR.CLIENT_SIDE').subscribe((translation: string) => {
@@ -93,7 +96,30 @@ export class AuthService {
       });
     }
     console.error(errorMessage);
-    return throwError(() => new Error(this.translate.instant('ERROR.GENERIC')));
+    return throwError(() => new Error(errorMessage));
   }
+
+
+  private handleErrort(error: HttpErrorResponse): Observable<never> {
+    console.error('errorMessage');
+    let errorMessage =  this.translate.instant('ERROR.INTERNAL_ERROR');
+    console.error(errorMessage);
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred.
+      this.translate.get('ERROR.CLIENT_SIDE').subscribe((translation: string) => {
+        errorMessage = `${translation}: ${error.error.message}`;
+        console.error(errorMessage);
+      });
+    } else {
+      // The backend returned an unsuccessful response code.
+      this.translate.get('ERROR.SERVER_SIDE').subscribe((translation: string) => {
+        errorMessage = `${translation}: ${error.status}, ${error.message}`;
+        console.error(errorMessage);
+      });
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(error.error.message));
+  }
+
 }
 

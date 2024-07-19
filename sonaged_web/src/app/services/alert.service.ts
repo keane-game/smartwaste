@@ -8,7 +8,8 @@ export function succesAlert(message: string){
         showConfirmButton: false,
         timer: 2600,
         customClass: {
-          title: 'custom-swal-title-success'
+          title: 'custom-swal-title-success',
+          icon: 'custom-swal-icon-success'
         }
       });
 }
@@ -21,7 +22,8 @@ export function errorAlert(message: string){
       showConfirmButton: false,
       timer: 3000,
       customClass: {
-        title: 'custom-swal-title-error'
+        title: 'custom-swal-title-error text-sm',
+        icon: 'custom-swal-icon-error'
       }
     });
 }

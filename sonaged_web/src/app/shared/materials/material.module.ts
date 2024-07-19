@@ -71,8 +71,8 @@ export const MAT_MATERIAL = [
     ];
 
  @NgModule({
-        exports: [MAT_MATERIAL],
-        imports: [MAT_MATERIAL]
+        exports:MAT_MATERIAL,
+        imports:MAT_MATERIAL
 })
 
 export class MaterialsModule {

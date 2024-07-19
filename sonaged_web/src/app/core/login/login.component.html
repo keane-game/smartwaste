@@ -22,7 +22,7 @@
               <div class="form-group mb-3">
                 <label class="label" for="name">Adresse mail</label>
                 <input type="text" placeholder="exemple@sonaged.sn" class="form-control" name="username"
-                    [(ngModel)]="form.username" required minlength="6" #username="ngModel" />
+                  [(ngModel)]="form.username" required minlength="6" #username="ngModel" />
                 <span class="alert-u " role="alert" *ngIf="f.submitted && username.valid">
                     E-mail requis!
                 </span>

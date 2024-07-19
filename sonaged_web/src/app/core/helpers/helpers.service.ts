@@ -1,5 +1,4 @@
 import { HttpClient } from "@angular/common/http";
-import { JwtModule } from "@auth0/angular-jwt";
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 

@@ -41,6 +41,11 @@ export const routes: Routes = [
       .then(mod => mod.LoginModule)
   },
   {
+    path: 'logins',
+    loadChildren: () => import('./pages/login/login.module')
+      .then(mod => mod.LoginModule)
+  },
+  {
     path: 'signup',
     loadChildren: () => import('./pages/general/signup/signup.module')
       .then(mod => mod.SignupModule)

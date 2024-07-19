@@ -69,6 +69,7 @@ $ucg_front-theme: mat.define-light-theme((
 body {
   font-family: var(--font-poppine);
   background-color: #f6f9ff;
+  
 }
 
 a ,a:hover {
@@ -131,7 +132,16 @@ mat-drawer-content{
 /*--------------------------------------------------------------
 # Sidebar toggle
 --------------------------------------------------------------*/
-
+#div-boder{
+  border-top: var(--green) solid 2px;
+  height: 2px;
+  width: 100%;
+  z-index: 996;
+  position: fixed;
+  top: 0px;
+  left:0px;
+  bottom: 0;
+}
 .sidebar {
   position: fixed;
   top: 0px;
@@ -146,6 +156,7 @@ mat-drawer-content{
   scrollbar-color: #ccc transparent;
   box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
   background-color: #fff !important;
+  border-top: var(--green) solid 2px;
 }
 
 
@@ -766,4 +777,18 @@ body::-webkit-scrollbar-track {
 #about::-webkit-scrollbar-thumb:active {
   background-color:#a6393d;
   border:1px solid #333333;
+}
+
+
+ .custom-swal-title-success{
+  font-size: 18px;
+  font-weight: 500;
+}
+.custom-swal-title-error{
+  font-size: 18px ;
+  color: red ;
+  font-weight: 500;
+}
+.custom-swal-icon-error, .custom-swal-icon-success {
+  font-size: 12px !important;
 }

@@ -1,6 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { headerTitleService } from '../../services/headerTitle.service';
 import  { Chart } from 'chart.js/auto';
+import { imgDashboardConstant } from '../../shared/constants/images.constant';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -12,15 +14,9 @@ export class DashboardComponent {
 
   canvas: any;
   ctx: any;
+  imgConstants = imgDashboardConstant;
   @ViewChild('mychart') mychart: any;
-  
-  urlProfile : String = "../../assets/images/user.png";
-  iconCommune : String = "../../assets/images/commune.png";
-  iconPeople: String = "../../assets/images/people.png";
-  iconBenne: String = "../../assets/images/bennes.png";
-  iconBacs : String = "../../assets/images/bacs1.png"
-  iconPrn : String = "../../assets/images/prn.png";
-  iconCircuit : String = "../../assets/images/circuit.png"
+
   
   constructor(private headerTitleService: headerTitleService){}
   ngOnInit() {
