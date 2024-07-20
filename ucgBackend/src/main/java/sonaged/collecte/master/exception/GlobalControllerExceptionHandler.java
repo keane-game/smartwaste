@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -89,6 +90,19 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(value = HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ExceptionHandler(RuntimeException.class)
+    public Error globalExceptionHandler(RuntimeException e, WebRequest request) {
+        logger.error("HttpMediaTypeNotSupportedException", e);
+
+        Error error = new Error();
+        error.setCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        error.setMessage("Error : " + e.getMessage());
+
+        return error;
+
+    }
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Error internalError(Exception e) {
@@ -101,6 +115,8 @@ public class GlobalControllerExceptionHandler {
 
         return error;
     }
+
+
 
     private Error decode(final String data) {
 

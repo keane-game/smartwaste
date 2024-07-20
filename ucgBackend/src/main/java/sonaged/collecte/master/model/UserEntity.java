@@ -69,8 +69,8 @@ public class UserEntity extends  AbstractAuditingEntity<Long> implements UserDet
     @Column(name = "UserPhone")
     String userPhone;
 
-    @Column( columnDefinition="boolean default false")
-    boolean activated = false;
+    @Column( columnDefinition="boolean default true")
+    boolean activated = true;
 
     @JsonIgnore
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })

@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -60,6 +61,7 @@ public class SecurityConfiguration{
                                                 .requestMatchers("/swagger-ui/**", "/sonaged-docs/**", "/error", "/").permitAll()
                                                 .requestMatchers(POST,"/auth/").permitAll()
                                                 .requestMatchers(POST,"/auth/**").permitAll()
+                                                .requestMatchers("/data/**").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->

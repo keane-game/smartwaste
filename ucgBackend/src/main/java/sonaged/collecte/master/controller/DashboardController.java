@@ -5,16 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sonaged.collecte.master.dto.DepartmentState;
 import sonaged.collecte.master.service.DashboardService;
 import sonaged.collecte.master.service.UploadFileService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/data")
 @RequiredArgsConstructor
 public class DashboardController {
 
-   // private final DashboardService dashboardService;
+    private final DashboardService dashboardService;
     private final UploadFileService uploadFileService;
 
     @PostMapping(value = "/commune" , consumes = "multipart/form-data")
@@ -46,6 +47,11 @@ public class DashboardController {
     @PostMapping(value = "/depotoir" , consumes = "multipart/form-data")
     public String uploadDataDepotoir(@RequestParam("file") MultipartFile file) {
         return uploadFileService.uploadDataDepotoir (file);
+    }
+
+    @GetMapping(value = "/departmentState" , produces = "application/json")
+    public DepartmentState departmentState() {
+        return dashboardService.departmentState ();
     }
 }
 

@@ -8,7 +8,6 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
 
-@RestControllerAdvice
 public class ControllerExceptionHandler {
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)

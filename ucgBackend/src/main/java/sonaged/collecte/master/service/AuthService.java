@@ -1,5 +1,6 @@
 package sonaged.collecte.master.service;
 import sonaged.collecte.master.dto.Authentification;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.model.UserEntity;
 
@@ -8,7 +9,7 @@ import java.util.Map;
 
 public interface AuthService   {
 
-    void register(UserEntity user);
+    void register(User user);
 
     void activation(String code);
 
@@ -16,6 +17,6 @@ public interface AuthService   {
 
     UserEntity loadUserByUsername(String username) throws ResourceNotFoundException;
 
-    List<UserEntity> getAllUser();
+    //List<User> getAllUser();
 
 }

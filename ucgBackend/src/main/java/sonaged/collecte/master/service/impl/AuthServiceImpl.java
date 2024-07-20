@@ -8,7 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.dto.Authentification;
+import sonaged.collecte.master.dto.User;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.UserMapper;
 import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.UserRepository;
@@ -32,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private JwtService jwtService;
     private UserRepository userRepository;
 
-    public void register(UserEntity user) {
+    public void register(User user) {
 
         if(!user.getUserEmail().contains("@")) {
             throw  new ResourceNotFoundException("Votre email est invalide");
@@ -41,17 +43,18 @@ public class AuthServiceImpl implements AuthService {
             throw  new ResourceNotFoundException("Votre email est invalide");
         }
 
-        Optional<UserEntity> utilisateurOptional = this.userRepository.findByUserEmail(user.getUserEmail());
-        if(utilisateurOptional.isPresent()) {
+        Optional<UserEntity> userOptional = this.userRepository.findByUserEmail(user.getUserEmail());
+        if(userOptional.isPresent()) {
             throw  new ResourceNotFoundException ("Votre email est déjà utilisé");
         }
-        String mdpCrypte = this.passwordEncoder.encode("Sonaged@123");
-        user.setUserPassword (mdpCrypte);
+        String pwdCrypt = this.passwordEncoder.encode("Sonaged@123");
+        user.setUserPassword (pwdCrypt);
 
         user.setAuthority (user.getAuthority());
+        user.setActivated(false);
 
-        user = this.userRepository.save(user);
-        this.validationService.registerUserCode(user);
+        var userEntity = this.userRepository.save(UserMapper.UMP.asModel(user));
+        this.validationService.registerUserCode(userEntity);
     }
 
     public void activation(String code) {
@@ -83,9 +86,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
     }
 
-    public List<UserEntity> getAllUser() {
-        return (List<UserEntity>) userRepository.findAll ();
-    }
 
 
 }

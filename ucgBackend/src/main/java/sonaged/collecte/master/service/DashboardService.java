@@ -1,10 +1,12 @@
 package sonaged.collecte.master.service;
 
+import sonaged.collecte.master.dto.DepartmentState;
+
 public interface DashboardService {
 
-    Long totalCommune();
+    Long totalCommunes();
 
-    Long totalDepotoir();
+    Long totalDepotoirs();
 
     Long totalBennes();
 
@@ -12,7 +14,10 @@ public interface DashboardService {
 
     Long totalBacs();
 
-    Long totalPnr();
-
+    Long totalPRN();
+    Long totalPP();
+    Long totalCP();
     Long totalHabitans();
+
+    DepartmentState departmentState();
 }

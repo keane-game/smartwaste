@@ -34,6 +34,7 @@ public class User  implements Serializable{
     String userAddress;
 
     String userPhone;
+    boolean activated;
 
     AuthorityEntity authority;
 }

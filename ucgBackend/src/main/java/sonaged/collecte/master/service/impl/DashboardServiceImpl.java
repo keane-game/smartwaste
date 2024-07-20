@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.dto.DepartmentState;
 import sonaged.collecte.master.repository.*;
 import sonaged.collecte.master.service.DashboardService;
 
@@ -29,37 +30,77 @@ public class DashboardServiceImpl implements DashboardService {
     final UserRepository userRepository;
 
     @Override
-    public Long totalCommune() {
-        return 0L;
+    public Long totalCommunes() {
+        return communeRepository.count();
     }
 
     @Override
-    public Long totalDepotoir() {
-        return 0L;
+    public Long totalDepotoirs() {
+        return depotoirRepository.count();
     }
 
     @Override
     public Long totalBennes() {
-        return 0L;
+        return moblierUrbainRepository.count();
     }
 
     @Override
     public Long totalCircuits() {
-        return 0L;
+        return circuitCollectRepository.count() + circuitBalayageRepository.count();
     }
 
     @Override
     public Long totalBacs() {
-        return 0L;
+        var bacs =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("Bac");
+        return (long) bacs.size();
     }
 
+    /*
+        PNR: Point de regroupement normalisée
+    */
     @Override
-    public Long totalPnr() {
-        return 0L;
+    public Long totalPRN() {
+        var pnr =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("PRN");
+        return (long) pnr.size();
     }
 
+    /*
+        PP: Point  Propres
+    */
+    @Override
+    public Long totalPP() {
+
+        var pointPropres =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("PP");
+        return (long) pointPropres.size();
+    }
+
+    /*
+     CP: Caisses  Polybennes
+   */
+    @Override
+    public Long totalCP() {
+
+        var caissePolybenne =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("Caisse Polybenne");
+        return (long) caissePolybenne.size();
+    }
     @Override
     public Long totalHabitans() {
-        return 0L;
+        return communeRepository.countTotalHabitants();
+    }
+
+    @Override
+    public DepartmentState departmentState(){
+
+        return DepartmentState.builder()
+                .totalPRN(totalPRN())
+                .totalBacs(totalBacs())
+                .totalPP(totalPP())
+                .totalCP(totalCP())
+                .totalHabitants(totalHabitans())
+                .totalCircuits(totalCircuits())
+                .totalBennes(totalBennes())
+                .totalDepotoirs(totalDepotoirs())
+                .totalCommunes(totalCommunes())
+                .build();
     }
 }
