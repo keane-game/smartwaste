@@ -17,6 +17,7 @@ import sonaged.collecte.master.service.AuthService;
 import sonaged.collecte.master.service.ValidationService;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,15 +51,16 @@ public class AuthServiceImpl implements AuthService {
         user.setAuthority (user.getAuthority());
 
         user = this.userRepository.save(user);
-        this.validationService.enregistrer(user);
+        this.validationService.registerUserCode(user);
     }
 
-    public void activation(Map<String, String> activation) {
-        Validation validation = this.validationService.lireEnFonctionDuCode(activation.get("code"));
+    public void activation(String code) {
+        Validation validation = this.validationService.readByCode(code);
         if(Instant.now().isAfter(validation.getExpiration())){
             throw  new ResourceNotFoundException("Votre code a expiré");
         }
-        UserEntity userActive = this.userRepository.findById(validation.getUser ( ).getUserId ()).orElseThrow(() -> new ResourceNotFoundException("Utilisateur inconnu"));
+        UserEntity userActive = this.userRepository.findById(validation.getUser ( ).getUserId ())
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur inconnu"));
         userActive.setActivated (true);
         this.userRepository.save(userActive);
     }
@@ -80,5 +82,10 @@ public class AuthServiceImpl implements AuthService {
                 .findByUserEmail (username)
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
     }
+
+    public List<UserEntity> getAllUser() {
+        return (List<UserEntity>) userRepository.findAll ();
+    }
+
 
 }

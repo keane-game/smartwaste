@@ -18,7 +18,7 @@ public class AvisControleur {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void creer(@RequestBody Avis avis) {
-        this.avisService.creer(avis);
+    public void create(@RequestBody Avis avis) {
+        this.avisService.create(avis);
     }
 }

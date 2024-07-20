@@ -23,10 +23,10 @@ import static java.time.LocalTime.now;
 @Service
 public class JwtService {
     private final String ENCRIPTION_KEY = "608f36e92dc66d97d5933f0e6371493cb4fc05b1aa8f8de64014732472303a7c";
-    private UserService utilisateurService;
+    private UserService userService;
     
     public Map<String, String> generate(String username) {
-        UserEntity user = this.utilisateurService.loadUserByUsername(username);
+        UserEntity user = this.userService.loadUserByUsername(username);
         return this.generateJwt(user);
     }
 

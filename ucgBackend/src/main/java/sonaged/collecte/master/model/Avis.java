@@ -25,6 +25,6 @@ public class Avis {
     private String message;
     private String statut;
     @ManyToOne
-    private Utilisateur utilisateur;
+    private UserEntity user;
 
 }

@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -26,9 +27,12 @@ import static org.springframework.http.HttpMethod.POST;
 public class SecurityConfiguration{
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDetailsService userDetailsService;
+
+    private final JwtFilter jwtFilter;
     public SecurityConfiguration(BCryptPasswordEncoder bCryptPasswordEncoder, JwtFilter jwtFilter, UserDetailsService userDetailsService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDetailsService = userDetailsService;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -36,8 +40,7 @@ public class SecurityConfiguration{
         return
                 httpSecurity
 
-
-                        .cors(cors -> cors.configurationSource(new CorsConfigurationSource () {
+                        .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
                             @Override
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration cors = new CorsConfiguration();
@@ -54,20 +57,16 @@ public class SecurityConfiguration{
                         .authorizeHttpRequests(
                                 authorize ->
                                         authorize
-                                                .requestMatchers(POST,"/inscription").permitAll()
-                                                .requestMatchers(POST,"/activation").permitAll()
-                                                .requestMatchers(POST,"/connexion").permitAll()
                                                 .requestMatchers("/swagger-ui/**", "/sonaged-docs/**", "/error", "/").permitAll()
-                                                .requestMatchers("/api/").permitAll()
-                                                .requestMatchers("/api/**").permitAll()
-                                                .requestMatchers("/v1/**").permitAll()
+                                                .requestMatchers(POST,"/auth/").permitAll()
+                                                .requestMatchers(POST,"/auth/**").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->
                                 httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                                 )
-                        //.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                         .build();
     }
 

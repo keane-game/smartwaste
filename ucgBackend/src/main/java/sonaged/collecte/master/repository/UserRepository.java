@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.AuthorityEntity;
 import sonaged.collecte.master.model.UserEntity;
-import sonaged.collecte.master.model.Utilisateur;
 
 import java.util.Optional;
 

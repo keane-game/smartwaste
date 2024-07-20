@@ -16,11 +16,11 @@ import java.io.IOException;
 @Service
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final UserService utilisateurService;
+    private final UserService userService;
     private final JwtService jwtService;
 
-    public JwtFilter(UserService utilisateurService, JwtService jwtService) {
-        this.utilisateurService = utilisateurService;
+    public JwtFilter(UserService userService, JwtService jwtService) {
+        this.userService = userService;
         this.jwtService = jwtService;
     }
 
@@ -32,14 +32,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Bearer eyJhbGciOiJIUzI1NiJ9.eyJub20iOiJBY2hpbGxlIE1CT1VHVUVORyIsImVtYWlsIjoiYWNoaWxsZS5tYm91Z3VlbmdAY2hpbGxvLnRlY2gifQ.zDuRKmkonHdUez-CLWKIk5Jdq9vFSUgxtgdU1H2216U
         final String authorization = request.getHeader("Authorization");
-        if(authorization != null && authorization.startsWith("bearer ")){
+        logger.error(request.getHeader("Authorization"));
+        if(authorization != null && authorization.startsWith("Bearer ")){
             token = authorization.substring(7);
             isTokenExpired = jwtService.isTokenExpired(token);
             username = jwtService.extractUsername(token);
         }
 
         if(!isTokenExpired && username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = utilisateurService.loadUserByUsername(username);
+            UserDetails userDetails = userService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
