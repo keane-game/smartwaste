@@ -17,6 +17,7 @@ export class PaginationCustumerComponent implements OnInit {
 
   ngOnInit() {
     this.updatePageData();
+   
   }
 
   calculateTotalPages() {
@@ -32,6 +33,7 @@ export class PaginationCustumerComponent implements OnInit {
       length: this.length,
       totalPages: this.totalPages
     });
+    console.log(  this.totalPages);
   }
   private emitPageChange() {
     this.pageChange.emit({
@@ -78,7 +80,7 @@ export class PaginationCustumerComponent implements OnInit {
 //   }
 
   getNumberPage(totals : number,itemsPerPage :number):number {
-     return Math.round(totals / itemsPerPage);
+     return Math.ceil(totals / itemsPerPage);
     
   }
 

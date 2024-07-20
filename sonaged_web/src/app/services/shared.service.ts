@@ -13,6 +13,7 @@ export class SharedService {
 
   public url = '';
   baseUrl = environment.apiUrl;
+  dataUrl = environment.dataUrl
   private dataSubject = new BehaviorSubject<any[]>([]); // Replace 'any[]' with your actual data type
 
   datas$ = this.dataSubject.asObservable();
@@ -27,6 +28,15 @@ export class SharedService {
   getAll(): Observable<any>{
     return this.http
      .get(`${this.baseUrl}${this.url}`, { headers: { Accept: 'application/json'} })
+       .pipe(
+          map(data => data),
+          catchError(this.handleError.bind(this))
+        );
+  }
+
+  getDepartmentState(): Observable<any>{
+    return this.http
+     .get(`${this.dataUrl}${this.url}`, { headers: { Accept: 'application/json'} })
        .pipe(
           map(data => data),
           catchError(this.handleError.bind(this))

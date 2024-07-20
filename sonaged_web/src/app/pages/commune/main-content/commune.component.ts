@@ -47,7 +47,7 @@ export class CommuneComponent {
   ngOnInit() {
     this.sharedService.url = '/communes';
     this.loadCommuns(this.currentPage, this.itemsPerPage);
-    this.headerTitleService.setTitle('Gestion Utilisateur');
+    this.headerTitleService.setTitle('Gestion Communes');
   }
 
   loadCommuns(page: number = 0, size: number = 10): void {
@@ -58,7 +58,6 @@ export class CommuneComponent {
       this.totalPages = Math.ceil(this.totalCommunes / this.itemsPerPage);
       this.dataSource.sort = this.sort;
 
-      console.log( this.currentPage);
     });
   }
   
@@ -66,7 +65,7 @@ export class CommuneComponent {
     this.currentPage = event.pageIndex;
     this.itemsPerPage = event.pageSize;
     this.loadCommuns(this.currentPage, this.itemsPerPage);
-    console.log(event);
+   // console.log(event);
   }
 
   openCreateCommuneModal() {

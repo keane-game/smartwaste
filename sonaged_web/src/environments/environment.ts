@@ -6,6 +6,7 @@ export const environment = {
     production: false,
     apiUrl: 'http://localhost:8089/v1',
     authUrl: 'http://localhost:8089/auth',
+    dataUrl: 'http://localhost:8089/data',
     version: '1.0.0'
   };
   
