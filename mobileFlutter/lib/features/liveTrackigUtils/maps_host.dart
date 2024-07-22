@@ -132,7 +132,7 @@ class MapsHostState extends State<MapsHost> {
         backgroundColor: Colors.grey[800],
         body: Builder(
             builder: (context) => Padding(
-                  padding: EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   child: Column(
                     children: <Widget>[
                       Container(

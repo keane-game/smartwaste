@@ -32,7 +32,7 @@ class ChooseUser extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      backgroundColor: Color(0xDB5D8B47),
+                      backgroundColor: const Color(0xDB5D8B47),
                       fixedSize: const Size(300, 65),
                     ),
                     child: const Text('Share my realtime location'),
@@ -55,7 +55,7 @@ class ChooseUser extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
-                        backgroundColor: Color(0xDB5D8B47),
+                        backgroundColor: const Color(0xDB5D8B47),
                         fixedSize: const Size(300, 65),
                       ),
                       child: const Text('Get realtime location'),
@@ -63,7 +63,7 @@ class ChooseUser extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ChooseDevice()),
+                              builder: (context) => const ChooseDevice()),
                         );
                       },
                     ))

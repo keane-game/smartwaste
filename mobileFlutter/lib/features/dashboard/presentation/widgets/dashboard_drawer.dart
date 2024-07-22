@@ -22,7 +22,7 @@ class DashboardDrawer extends ConsumerWidget {
             UserAccountsDrawerHeader(
               margin: EdgeInsets.zero,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               ),
               accountName: Text(
                 //'${currentUser?.firstName}',

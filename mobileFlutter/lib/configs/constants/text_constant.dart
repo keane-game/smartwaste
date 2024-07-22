@@ -18,8 +18,7 @@ const String tWelcome = "BIENVENU";
 const String tSlogan =
     "Un environnement sain et propre \n pour une santé durable";
 const String tVersion = "V1.0.0";
-// -- Splash Screen Text
-const String tAppName = ".appable/";
+const String tAppName = "Sonaged";
 const String tAppTagLine = "Learn To Code. \nFree For Everyone";
 
 // -- On Boarding Text

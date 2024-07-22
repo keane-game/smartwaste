@@ -1,13 +1,13 @@
 <div class="custom-pagination">
   <div class="page-size-selector">
-    <label for="page-size">Items per page:</label>
+    <!-- <label for="page-size">Items per page:</label>
     <select id="page-size" (change)="setPageSize($event)">
       <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
-    </select>
+    </select> -->
   </div>
   <div class="pagination">
     <div class="page-item chevron" *ngIf="currentPage > 1">
-      <mat-icon (click)="previousPage()">chevron_left</mat-icon>
+      <mat-icon (onclick)="previousPage()" >chevron_left</mat-icon>
     </div>
     <ng-container *ngFor="let page of getPages(currentPage)">
       <div class="page-item" [class.active]="page === currentPage" (click)="goToPage(page)">

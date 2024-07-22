@@ -6,7 +6,9 @@ import proj4 from 'proj4';
 import 'proj4leaflet';
 import { MapsService } from '../../../services/maps.service';
 
+import { Feature, Polygon } from 'geojson';
 import { departmantjson } from '../../../services/departmentLimit'; // Adjust the path as necessary
+import { headerTitleService } from '../../../services/headerTitle.service';
 
 
 @Component({
@@ -16,15 +18,24 @@ import { departmantjson } from '../../../services/departmentLimit'; // Adjust th
 })
 export class EsriComponent implements OnInit, AfterViewInit {
 
-  @ViewChild('map', { static: false }) mapElementRef: ElementRef = null!;
-  private map: L.Map = null!;
+
+@ViewChild('map', { static: false }) mapElementRef: ElementRef = null!;
+private map: L.Map = null!;
+markers: L.Marker[] = [
+  L.marker([31.9539, 35.9106]), // Amman
+  L.marker([32.5568, 35.8469]) // Irbid
+];
+iconBacs = "../../assets/images/bacs.png"
+mapUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+depotoirs: any[] = [];
+department: any[] = [];
+totalDepotoirs: any;
   private polygon!: L.Polygon;
   private customProjection: string = '+proj=utm +zone=28 +datum=WGS84 +units=m +no_defs';
   private crs: L.CRS;
   senegalCoords: L.LatLngTuple = [14.4974, -14.4524];
   departPikineCoords: L.LatLngTuple = [14.7739, -17.3684];
-  iconBacs = "../../assets/images/bacs.png"
-  mapUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
   customIcon = L.icon({
     iconUrl: this.iconBacs,
@@ -32,142 +43,172 @@ export class EsriComponent implements OnInit, AfterViewInit {
   });
 
 
-  constructor(
-    private mapsService: MapsService,) {
-    // Define your custom projection
-    proj4.defs('EPSG:32628', this.customProjection);
+// Example markers (replace with your trash locations)
+trashLocations = [
+  { lat: 51.5, lng: -0.09 },
+  { lat: 51.51, lng: -0.1 },
+  { lat: 51.49, lng: -0.1 },
+];
 
-    // Create Leaflet CRS using the custom projection
-    this.crs = new L.Proj.CRS('EPSG:32628', this.customProjection);
+departmentGeoJSON: Feature<Polygon> = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: []
+  },
+  properties: {
+    name: 'PIKINE'
   }
+};
 
-  ngOnInit(): void {
+constructor(
+  private mapsService: MapsService,
+  private headerTitleService: headerTitleService
+) {
 
+  // Define your custom projection
+  proj4.defs('EPSG:32628', this.customProjection);
 
-    //  // Example conversion usage
-    //   const x = 246861.98134764843;
-    //   const y = 1630554.6491661742;
-    //   const convertedCoords = this.convertCoordinates(x, y);
-    //   console.log('Converted convertedCoords:', convertedCoords);
+  // Create Leaflet CRS using the custom projection
+  this.crs = new L.Proj.CRS('EPSG:32628', this.customProjection);
+ }
 
-    //   let coordinat= this.coordinates.map(coord => [
-    //     this.convertCoordinates(coord[0], coord[1])
-    //   ]);
-    //   console.log('Converted coordinat:', coordinat);
-    //   const coordinates = this.geoJsonData.coordinates.map((coord:any) => [
-    //     this.convertCoordinates(coord.latitude, coord.longitude)
-    //   ]);
-    //   console.log('Converted coordinates:', coordinates);
+ngOnInit(): void {
+  this.headerTitleService.setTitle('Maps');
+}
+
+getDepotoirs(): any {
+  this.mapsService.url = '/depotoirs';
+  this.mapsService.getAll().subscribe((resp) => {
+    this.depotoirs = resp;
+    //this.transformToGeoJSONs( this.depotoirs);
+  // console.log(resp);
+  this.addMarkers(resp);
+  });
+}
+
+getDepartment(): void {
+  this.mapsService.url = '/departments';
+  this.mapsService.getAll().subscribe((resp: any) => {
+    this.department = resp;
+    this.transformToGeoJSON(this.department);
+   // console.log(resp);
+  });
+}
+states: Feature<Polygon> = {
+  "type": "Feature",
+  "properties": {"party": "Republican"},
+  "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+
+        [
+  [1630554.6491661742, 246861.98134764843],
+ [1630629.2618154027, 246586.1526709944],
+ [1630668.155643193, 246414.7023280915],
+ [1630674.8585060704, 246378.8912284961],
+ [1630724.9088816904, 246111.4892216688],
+ [1630731.154113412, 246077.93150990922],
+ [1630731.303906098, 246077.12662387267],
+ [1630754.6745662317, 245951.54827678297],
+ [1630784.8371265512, 245777.31980333105],
+ [1630797.934082033, 245699.13531494793],
+[1630818.9685058668, 245537.60687255953],
+[1630554.6491661742, 246861.98134764843]
+      ]]
   }
-
-  ngAfterViewInit(): void {
-    this.initMap();
-    //this.getDepartment();
-    this.addPolygon();
-    this. addMarkers();
-
-  }
-
-  getDepotoirs(): any {
-    this.mapsService.url = '/depotoirs';
-    this.mapsService.getAll().subscribe((resp) => {
-      //this.transformToGeoJSONs( this.depotoirs);
-      // console.log(resp);
-    });
-  }
-
-  getDepartment(): void {
-    this.mapsService.url = '/departments';
-    this.mapsService.getAll().subscribe((resp: any) => {
-      console.log(resp);
-    });
-  }
-
-  private initMap(): void {
-    const zoomLevel = 8; // Adjust the zoom level as needed
-
-    // Define the projection for Senegal (EPSG:32628)
-    const utm28n = new L.Proj.CRS('EPSG:32628', '+proj=utm +zone=28 +datum=WGS84 +units=m +no_defs', {
-      origin: [-4000000.0, 4000000.0],
-      resolutions: [
-        8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625
-      ]
-    });
-
-    // Initialize the map with the defined CRS
-    this.map = L.map(this.mapElementRef.nativeElement, {
-      // crs: utm28n,// Initial center of the map (Senegal in EPSG:4326)
-      center: this.departPikineCoords,
-      zoom: 13
-
-    }).setView([...this.departPikineCoords]);
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
+};
 
 
-  }
+transformToGeoJSONs(data: any): void {
+  console.log(data);
+  let dataCoordinates = data.coordinates;
+  const coordinates = dataCoordinates.map((coord: { longitude: string; latitude: string; }) => [
+    parseFloat(coord.longitude),
+    parseFloat(coord.latitude)
+  ]);
+  this.departmentGeoJSON.geometry.coordinates = [coordinates];
+  this.departmentGeoJSON.properties = { name: data.name };
+}
 
-  private addPolygon(): void {
 
-    const coordinates = departmantjson.coordinates.map((coord: any) => [
-      this.convertCoordinates(coord.latitude, coord.longitude)
+transformToGeoJSON(data: any): void {
+  let dataCoordinates = data.coordinates;
+  console.log(dataCoordinates);
+  if ( dataCoordinates!.length > 0) {
+    const coordinates = dataCoordinates.map((coord: { longitude: string; latitude: string; }) => [
+      parseFloat(coord.longitude),
+      parseFloat(coord.latitude)
     ]);
-    console.log('Converted coordinates:', coordinates);
-
-    L.polygon([coordinates], {
-      color: 'red',
-      fillColor: '#f03',
-      fillOpacity: 0.5
-    }).addTo(this.map);
-
+    this.departmentGeoJSON.geometry.coordinates = [...coordinates];
+  } else {
+    console.error('Department data is not an array or is empty');
   }
+}
 
-  private addMarkers(): void {
+ngAfterViewInit(): void {
 
-    this.mapsService.url = '/depotoirs';
-    this.mapsService.getAll().subscribe((resp) => {
+//  this.getDepartment();
+//  this.getDepotoirs();
+  this.initMap();
+}
 
-      resp.forEach((d: any) => {
+private initMap(): void {
+  const zoomLevel = 8; // Adjust the zoom level as needed
 
-        console.log('Converted coordinates:', d);
-        const coordinate = this.convertCoordinates(d.coordinates[0].latitude, d.coordinates[0].longitude);
-        if (coordinate) {
-          L.marker([...coordinate], { icon: this.customIcon })
+  this.map = L.map(this.mapElementRef.nativeElement).setView(this.senegalCoords, zoomLevel);
+
+  L.tileLayer(this.mapUrl, {
+    attribution: '© OpenStreetMap'
+  }).addTo(this.map);
+
+  this.trashLocations.forEach(location => {
+    L.marker([location.lat, location.lng], { icon: this.customIcon })
+      .addTo(this.map)
+      .bindPopup('Trash location')
+      .openPopup();
+  });
+  
+
+ // L.geoJSON(this.states).addTo(this.map);
+
+  this.getDepotoirs();
+  // console.log(this);
+  // console.log(this.departmentGeoJSON);
+}
+
+private addMarker() {
+  // Add your markers to the map
+  this.markers.forEach(marker => marker.addTo(this.map));
+}
+
+private centerMap() {
+  // Create a LatLngBounds object to encompass all the marker locations
+  const bounds = L.latLngBounds(this.markers.map(marker => marker.getLatLng()));
+  
+  // Fit the map view to the bounds
+  this.map.fitBounds(bounds);
+}
+
+
+private addMarkers(data : any): void {
+  if (Array.isArray(data) && data.length > 0) {
+
+    data.forEach((depotoir: { coordinates: { latitude: string; longitude: string; }[]; address: any; }) => {
+      depotoir.coordinates.forEach((coord: { latitude: string; longitude: string; }) => {
+        const lat = parseFloat(coord.latitude);
+        const lng = parseFloat(coord.longitude);
+        console.log(lat, lng);
+      
+        if (!isNaN(lat) && !isNaN(lng)) {
+          L.marker([lat, lng], { icon: this.customIcon })
             .addTo(this.map)
-            .bindPopup(`Address: ${d.address}`);
+            .bindPopup(`Address: ${depotoir.address}`);
         }
       });
     });
-
-
+  } else {
+    console.error('Depotoirs data is not an array or is empty');
   }
-
-
-  private convertToLatLng(x: string, y: string): [number, number] {
-    // Define the projection for EPSG:32628
-
-    proj4.defs('EPSG:32628', '+proj=utm +zone=28 +datum=WGS84 +units=m +no_defs');
-    proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
-
-
-    // Convert coordinates from EPSG:32628 to EPSG:4326
-    const latlng = proj4('EPSG:32628', 'EPSG:4326', [parseFloat(x), parseFloat(y)]);
-    return [latlng[1], latlng[0]]; // Return as [lat, lng]
-  }
-
-  convertCoordinates(x: any, y: any): [number, number] {
-
-    proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
-
-
-    // Convert coordinates from EPSG:32628 to EPSG:4326
-    const latlng = proj4('EPSG:32628', 'EPSG:4326', [parseFloat(x), parseFloat(y)]);
-    return [latlng[1], latlng[0]]; // Return as [lat, lng]
-  }
-
-
 }
-
+}

@@ -22,39 +22,40 @@
         </mat-form-field>
         <button mat-flat-button class="add-user-btn"  (click)="openCreateAlertModal()"  >Ajouter Alert</button>
     </div>
-
+    <div class="text-center my-5 lg-text" *ngIf="!totalAlerts">
+      Auncune donnée n'est disponible sur ce tableau
+   </div >
+   <div *ngIf="totalAlerts">
+    
     <table mat-table [dataSource]="dataSource" aria-describedby="display departs"
     class="mat-elevation-z0" style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem"
     matSort matSortActive="created" 
     matSortDisableClear matSortDirection="asc"
-    (matSortChange)="announceSortChange($event)"
-    >
+    (matSortChange)="announceSortChange($event)">
     <ng-container matColumnDef="picture">
         <th style="border-top-left-radius: 1.25rem" mat-header-cell *matHeaderCellDef>Image </th>
-        <td mat-cell *matCellDef="let element"(mousemove)="onMouseMove($event)"
-        (mouseleave)="onMouseLeave($event)" > 
-          
-        <img class=" rounded zoom-image" 
+
+        <td mat-cell *matCellDef="let element"  (mousemove)="onMouseMove($event, element)"
+        (mouseleave)="onMouseLeave($event, element)" > 
+        <img class=" rounded zoom-image" *ngIf="element.image"
         [ngStyle]="zoomStyle" style="width: 40px;height: 40px;object-fit: cover;" 
         [src]="'data:image/png;base64,'+element.image?.data" 
-        alt="Title" 
-        
-        />
-          
-        </td>
+        alt="Title"/>
+        <span  *ngIf="!element.image">####</span>
+       </td>
     </ng-container>
-
+    
      <ng-container matColumnDef="object">
        <th mat-header-cell
         *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Objet 
           <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon> </th>
-       <td mat-cell *matCellDef="let element"> {{element.object }} </td>
+       <td mat-cell *matCellDef="let element"> {{ element.object }} </td>
      </ng-container>
 
      <ng-container matColumnDef="message">
        <th mat-header-cell
-        *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Description 
-          <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon> </th>
+        *matHeaderCellDef mat-sort-header > Description 
+          </th>
        <td mat-cell *matCellDef="let element"> {{element.message }} </td>
      </ng-container>
 
@@ -65,9 +66,8 @@
 
      <ng-container matColumnDef="adress">
        <th mat-header-cell *matHeaderCellDef> Adresse </th>
-       <td mat-cell *matCellDef="let element"> {{element?.adress}} </td>
+       <td mat-cell *matCellDef="let element"> {{element?.address}} </td>
      </ng-container>
-
 
      <ng-container matColumnDef="action">
        <th style="border-top-right-radius: 1.25rem" mat-header-cell *matHeaderCellDef> Actions </th>
@@ -80,9 +80,6 @@
      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <div class="text-center my-5 lg-text" *ngIf="totalAlerts <= 0">
-       Auncune donnée n'est disponible sur ce tableau
-    </div >
 
     <app-pagination-custumer 
     [length]="totalAlerts"
@@ -91,5 +88,5 @@
     [totalPages]="totalPages"
     (pageChange)="onPaginatedChange($event)">
     </app-pagination-custumer>
-
+  </div>
 </div>

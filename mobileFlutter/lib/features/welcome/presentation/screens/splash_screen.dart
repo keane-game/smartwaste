@@ -15,18 +15,30 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-    Future.delayed(Duration(seconds: 3), () {
-      context.go("/welcome");
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    _controller.forward();
+
+    Future.delayed(Duration(seconds: 5), () {
+      context.go('/welcome');
     });
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.dispose();
@@ -36,32 +48,41 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.white,
         body: Column(
-          children: const [
+          children: [
             Expanded(
               flex: 5,
-              child: Image(
-                image: AssetImage(tSplashImage),
-                height: 120,
-                width: 120,
-              ), //Your widget here,
+              child: AnimatedBuilder(
+                animation: _animation,
+                child: Image(
+                  image: AssetImage(tSplashImage),
+                  height: 120,
+                  width: 120,
+                ),
+                builder: (BuildContext context, Widget? child) {
+                  return Transform.scale(
+                    scale: _animation.value,
+                    child: child,
+                  );
+                },
+              ),
             ),
             Expanded(
               child: Align(
                 alignment: FractionalOffset.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 18.0),
+                  padding: EdgeInsets.only(bottom: 23.0),
                   child: Text(
-                    tVersion,
+                    tAppName,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 24,
                       color: Colors.grey,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
-                  ), //Your widget here,
+                  ),
                 ),
               ),
             ),

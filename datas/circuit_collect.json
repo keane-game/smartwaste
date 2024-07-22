@@ -1,4 +1,4 @@
-{
+[{
   
     "geometryType": "esriGeometryPolyline",
     "spatialReference": {
@@ -6,7 +6,7 @@
         "latestWkid": 32628,
         "vcsWkid": 115700,
         "latestVcsWkid": 115700
-    },
+    }},{
     
      
     "features": [
@@ -18341,4 +18341,4 @@
             }
         }
     ]
-}
+}]

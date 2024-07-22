@@ -1,10 +1,13 @@
-{
+[    
+    {
   
-    "geometryType": "esriGeometryPoint",
-    "spatialReference": {
-        "wkid": 32628,
-        "latestWkid": 32628
+        "geometryType": "esriGeometryPoint",
+        "spatialReference": {
+            "wkid": 32628,
+            "latestWkid": 32628
+        }
     },
+    {
     "features": [
         {
             "attributes": {
@@ -381,4 +384,5 @@
             }
         }
     ]
-}
+    }
+]

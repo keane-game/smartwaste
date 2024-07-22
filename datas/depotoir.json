@@ -5,9 +5,8 @@
             "wkid": 32628,
             "latestWkid": 32628
         }
-        },
-        {
-
+    },
+    {
         "features": [
             {
                 "attributes": {
@@ -216,125 +215,6 @@
             {
                 "attributes": {
                     "FID": 0,
-                    "OBJECTID_1": 47,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PP",
-                    "Adresse_de": "Dalifort",
-                    "X": 240463,
-                    "Y": 1631417
-                },
-                "geometry": {
-                    "x": 240463,
-                    "y": 1631417
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 1,
-                    "OBJECTID_1": 48,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PP",
-                    "Adresse_de": "Dalifort",
-                    "X": 240343,
-                    "Y": 1631290
-                },
-                "geometry": {
-                    "x": 240343,
-                    "y": 1631290
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 2,
-                    "OBJECTID_1": 49,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PRN",
-                    "Adresse_de": "Dalifort",
-                    "X": 240105,
-                    "Y": 1631229
-                },
-                "geometry": {
-                    "x": 240105,
-                    "y": 1631229
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 3,
-                    "OBJECTID_1": 50,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PRN",
-                    "Adresse_de": "Dalifort",
-                    "X": 240146,
-                    "Y": 1630934
-                },
-                "geometry": {
-                    "x": 240146,
-                    "y": 1630934
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 4,
-                    "OBJECTID_1": 51,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PRN",
-                    "Adresse_de": "Dalifort",
-                    "X": 240108,
-                    "Y": 1630770
-                },
-                "geometry": {
-                    "x": 240108,
-                    "y": 1630770
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 5,
-                    "OBJECTID_1": 52,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PRN",
-                    "Adresse_de": "Dalifort",
-                    "X": 239599,
-                    "Y": 1630383
-                },
-                "geometry": {
-                    "x": 239599,
-                    "y": 1630383
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 6,
-                    "OBJECTID_1": 53,
-                    "OBJECTID": 0,
-                    "R_gion": "Dakar",
-                    "Commune": "Dalifort",
-                    "Type_de_Mo": "PP",
-                    "Adresse_de": "Dalifort",
-                    "X": 239583,
-                    "Y": 1630490
-                },
-                "geometry": {
-                    "x": 239583,
-                    "y": 1630490
-                }
-            },
-            {
-                "attributes": {
-                    "FID": 0,
                     "OBJECTID_1": 30,
                     "OBJECTID": 527,
                     "R_gion": "Dakar",
@@ -468,8 +348,8 @@
                     "y": 1631988.9695999995
                 }
             }
-
-
+       
         ]
     }
 ]
+

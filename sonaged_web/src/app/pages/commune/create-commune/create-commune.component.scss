@@ -76,7 +76,7 @@ form.user-form-container .form-select:focus{
     outline: 0 !important;
     outline: none !important;
     box-shadow: none;
-    border-color: rgba(147, 192, 245, 0.9);
+   border-color: #CAD8C8;
 }
 
 form.user-form-container #prenom::after{
@@ -145,7 +145,7 @@ input:-webkit-autofill:focus {
 }
 
 .btn-enregister {
-    background-color: #0075ff !important;
+    background-color: #5D8B47 !important;
     color: #fff;
 }
 
@@ -219,8 +219,8 @@ input:-webkit-autofill:focus {
          left: 0.5%;
        }
        input[type=checkbox]:checked + div::before{
-         border-color: #0075ff !important;
-         background-color: #0075ff;
+         border-color: #5D8B47 !important;
+         background-color: #5D8B47;
          font-weight: bold !important;
        }
        input[type=checkbox]:checked + div{
@@ -253,7 +253,7 @@ input:-webkit-autofill:focus {
     &::before {
         position: absolute;
         top: 10px !important;
-        color: #0075ff;
+        color: #5D8B47;
         height: 50px !important;
       }
  }
@@ -263,14 +263,14 @@ input:-webkit-autofill:focus {
 }
 :host ::ng-deep .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item{
     display: block !important;
-    color: #0075ff !important;
+    color: #5D8B47 !important;
     background-color: #cae0f9 !important;
     border-radius: 5px !important;
     border: none !important;
     font-weight: 500;
 
     a {
-        color: #0075ff !important;
+        color: #5D8B47 !important;
     }
 }
 

@@ -46,7 +46,7 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.lightGrey,
         error: AppColors.error,
-        background: AppColors.black,
+        surface: AppColors.black,
       ),
       // backgroundColor: AppColors.black,
       scaffoldBackgroundColor: AppColors.black,
@@ -81,6 +81,13 @@ class AppTheme {
 
   static ThemeData get greenTheme {
     return ThemeData(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder(),
+          TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
       brightness: Brightness.light,
       primaryColor: AppColors.kPrimaryColor,
       fontFamily: AppTextStyles.fontFamily,

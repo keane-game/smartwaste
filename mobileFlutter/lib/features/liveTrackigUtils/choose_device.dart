@@ -5,6 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:sonaged/features/liveTrackigUtils/maps_receiver.dart';
 
 class ChooseDevice extends StatefulWidget {
+  const ChooseDevice({super.key});
+
   @override
   State createState() => ChooseDeviceState();
 }
@@ -17,7 +19,7 @@ class ChooseDeviceState extends State<ChooseDevice> {
 
   late StreamSubscription subscription;
 
-  Map<String, double> currentLocation = Map();
+  Map<String, double> currentLocation = {};
   late StreamSubscription<Map<String, double>> locationSubcription;
   String? error;
 
@@ -60,14 +62,14 @@ class ChooseDeviceState extends State<ChooseDevice> {
                   );
                 },
                 child: Card(
-                  child: Container(
+                  child: SizedBox(
                     height: 50,
                     width: 240,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
-                        backgroundColor: Color(0xDB5D8B47),
+                        backgroundColor: const Color(0xDB5D8B47),
                         fixedSize: const Size(300, 65),
                       ),
                       onPressed: () {},

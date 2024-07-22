@@ -14,6 +14,19 @@ o #695d46 #ff5e0e #008575 #a1e3d5
         "west": -17.5352,
         "east": -11.3559
     },
+
+    <div class="col-md sm-pb-3">
+      <div class="form-floating custom-select">
+        <select type="text" class="form-control customselect" id="code"
+        formControlName="code"
+         placeholder="Code alert" required>
+         <option value="">Choisir un code</option>
+         <option *ngFor="let code of codes" [value]="code">{{code
+          }}</option>
+          </select>
+        <label for="code">Code</label>
+      </div>
+    </div>
 <div
     class="form-fields-ctnr w-full self-stretch ml-6 justify-start items-start gap-12 inline-flex">
     <div class="w50 pr-db pt-6 justify-start items-center gap-5">

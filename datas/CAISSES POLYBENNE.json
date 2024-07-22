@@ -1,183 +1,13 @@
-[{
+[
+    {
+   
     "geometryType": "esriGeometryPoint",
     "spatialReference": {
         "wkid": 32628,
         "latestWkid": 32628
     }
-    },
-    {
-
+    },{
     "features": [
-        {
-            "attributes": {
-                "FID": 0,
-                "OBJECTID_1": 39,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Bureau Eaux et Forêts",
-                "X": 249457,
-                "Y": 1631794
-            },
-            "geometry": {
-                "x": 249457,
-                "y": 1631794
-            }
-        },
-        {
-            "attributes": {
-                "FID": 1,
-                "OBJECTID_1": 40,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Dakka (Eaux et Forêts)",
-                "X": 248650,
-                "Y": 1632332
-            },
-            "geometry": {
-                "x": 248650,
-                "y": 1632332
-            }
-        },
-        {
-            "attributes": {
-                "FID": 2,
-                "OBJECTID_1": 41,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Arrêt Petit Mbao",
-                "X": 248711,
-                "Y": 1631872
-            },
-            "geometry": {
-                "x": 248711,
-                "y": 1631872
-            }
-        },
-        {
-            "attributes": {
-                "FID": 3,
-                "OBJECTID_1": 42,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Ecole Privée Petit Mbao",
-                "X": 248803,
-                "Y": 1631395
-            },
-            "geometry": {
-                "x": 248803,
-                "y": 1631395
-            }
-        },
-        {
-            "attributes": {
-                "FID": 4,
-                "OBJECTID_1": 43,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Rond Point Croisement Keur Massar",
-                "X": 249714,
-                "Y": 1631723
-            },
-            "geometry": {
-                "x": 249714,
-                "y": 1631723
-            }
-        },
-        {
-            "attributes": {
-                "FID": 5,
-                "OBJECTID_1": 44,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Kambe 1",
-                "X": 250755,
-                "Y": 1631611
-            },
-            "geometry": {
-                "x": 250755,
-                "y": 1631611
-            }
-        },
-        {
-            "attributes": {
-                "FID": 6,
-                "OBJECTID_1": 45,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Kambe 2",
-                "X": 250989,
-                "Y": 1631655
-            },
-            "geometry": {
-                "x": 250989,
-                "y": 1631655
-            }
-        },
-        {
-            "attributes": {
-                "FID": 7,
-                "OBJECTID_1": 46,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Près Garage Keur Massar",
-                "X": 250314,
-                "Y": 1633980
-            },
-            "geometry": {
-                "x": 250314,
-                "y": 1633980
-            }
-        },
-        {
-            "attributes": {
-                "FID": 8,
-                "OBJECTID_1": 0,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Cité Enseignants",
-                "X": 0,
-                "Y": 0
-            },
-            "geometry": {
-                "x": 250979,
-                "y": 1633651
-            }
-        },
-        {
-            "attributes": {
-                "FID": 9,
-                "OBJECTID_1": 0,
-                "OBJECTID": 0,
-                "R_gion": "Dakar",
-                "Commune": "Mbao",
-                "Type_de_Mo": "PP",
-                "Adresse_de": "Cité Darou Salam",
-                "X": 0,
-                "Y": 0
-            },
-            "geometry": {
-                "x": 248380,
-                "y": 1633514
-            }
-        },
         {
             "attributes": {
                 "FID": 0,
@@ -382,7 +212,6 @@
                 "y": 1632673
             }
         }
-
-
     ]
-}]
+}
+]

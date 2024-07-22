@@ -1,23 +1,24 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class GoogleMapScreen extends StatefulWidget {
+  const GoogleMapScreen({super.key});
+
   @override
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
 }
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late StreamSubscription _locationSubscription;
-  Location _locationTracker = Location();
+  final Location _locationTracker = Location();
   late Marker marker;
   late Circle circle;
   GoogleMapController? _controller;
 
-  static final CameraPosition initialLocation = CameraPosition(
+  static const CameraPosition initialLocation = CameraPosition(
     target: LatLng(10.524352, 76.211838),
     zoom: 14.4746,
   );
@@ -57,10 +58,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
 
       updateMarkerAndCircle(location, imageData);
 
-      if (_locationSubscription != null) {
-        _locationSubscription.cancel();
-      }
-
+      _locationSubscription.cancel();
+    
       _locationSubscription =
           _locationTracker.onLocationChanged.listen((newLocalData) {
         if (_controller != null) {
@@ -83,17 +82,15 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
 
   @override
   void dispose() {
-    if (_locationSubscription != null) {
-      _locationSubscription.cancel();
-    }
-    super.dispose();
+    _locationSubscription.cancel();
+      super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Map Screen'),
+        title: const Text('Google Map Screen'),
       ),
       body: GoogleMap(
         mapType: MapType.normal,

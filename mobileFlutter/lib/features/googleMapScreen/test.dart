@@ -14,13 +14,13 @@ class TestScreen extends StatelessWidget {
         brightness: Brightness.dark,
         primaryColor: Colors.green[800],
       ),
-      home: MyHomePage(title: 'Live Tracking'),
+      home: const MyHomePage(title: 'Live Tracking'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required this.title, super.key});
+  const MyHomePage({required this.title, super.key});
   final String title;
 
   @override
@@ -55,10 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: Color(0xDB5D8B47),
+                    backgroundColor: const Color(0xDB5D8B47),
                     fixedSize: const Size(300, 65),
                   ),
-                  child: Text(
+                  child: const Text(
                     "GOOGLE MAP SCREEN",
                     style: TextStyle(fontSize: 20),
                   ),
@@ -66,12 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => GoogleMapScreen()));
+                            builder: (context) => const GoogleMapScreen()));
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
               ),
               SizedBox(
                   width: double.infinity,
@@ -80,10 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      backgroundColor: Color(0xDB5D8B47),
+                      backgroundColor: const Color(0xDB5D8B47),
                       fixedSize: const Size(300, 65),
                     ),
-                    child: Text(
+                    child: const Text(
                       "LIVE TRACKING",
                       style: TextStyle(fontSize: 20),
                     ),

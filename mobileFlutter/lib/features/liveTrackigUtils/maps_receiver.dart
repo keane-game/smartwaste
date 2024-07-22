@@ -99,7 +99,7 @@ class MapsReceiverState extends State<MapsReceiver> {
         appBar: AppBar(title: const Text('Receiver')),
         backgroundColor: Colors.grey[800],
         body: Padding(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           child: Column(
             children: <Widget>[
               Container(

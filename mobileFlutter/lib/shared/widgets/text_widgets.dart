@@ -4,6 +4,6 @@ Widget text16Normal({String text = ""}) {
   return Text(
     text,
     textAlign: TextAlign.start,
-    style: TextStyle(fontWeight: FontWeight.normal),
+    style: const TextStyle(fontWeight: FontWeight.normal),
   );
 }

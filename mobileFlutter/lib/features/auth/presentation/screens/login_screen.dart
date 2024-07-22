@@ -8,14 +8,23 @@ import 'package:sonaged/features/auth/presentation/widgets/login_widget.dart';
 import 'package:sonaged/shared/widgets/responsive.dart';
 import 'package:sonaged/shared/widgets/background.dart';
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   LoginScreen({super.key});
 
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+final emailController = TextEditingController();
+final passwordController = TextEditingController();
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(authStateNotifierProvider);
     ref.listen(
       authStateNotifierProvider.select((value) => value),
@@ -34,6 +43,7 @@ class LoginScreen extends ConsumerWidget {
         child: Responsive(
           mobile: MobileLoginScreen(
             child: LoginForm(
+              formKey: _formKey,
               emailController: emailController,
               passwordController: passwordController,
               state: state,
@@ -52,6 +62,7 @@ class LoginScreen extends ConsumerWidget {
                     SizedBox(
                       width: 450,
                       child: LoginForm(
+                        formKey: _formKey,
                         emailController: emailController,
                         passwordController: passwordController,
                         state: state,
@@ -67,26 +78,23 @@ class LoginScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget loginButton(WidgetRef ref) {
-    return ElevatedButton(
-      onPressed: () {
-        // print("Email: " + emailController.text);
-        // print(passwordController.text);
-        // validate email and password
-        ref.read(authStateNotifierProvider.notifier).loginUser(
-              emailController.text,
-              passwordController.text,
-            );
-      },
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        backgroundColor: const Color(0xDB5D8B47),
-        fixedSize: const Size(300, 65),
-      ),
-      child: const Text(tLoginBtn),
-    );
-  }
+Widget loginButton(WidgetRef ref) {
+  return ElevatedButton(
+    onPressed: () {
+      ref.read(authStateNotifierProvider.notifier).loginUser(
+            emailController.text,
+            passwordController.text,
+          );
+    },
+    style: ElevatedButton.styleFrom(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      backgroundColor: const Color(0xDB5D8B47),
+      fixedSize: const Size(300, 65),
+    ),
+    child: const Text(tLoginBtn),
+  );
 }
 
 class MobileLoginScreen extends StatelessWidget {

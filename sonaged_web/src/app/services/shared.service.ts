@@ -111,5 +111,10 @@ export class SharedService {
     console.error(errorMessage);
     return throwError(() => new Error(this.translate.instant('ERROR.GENERIC')));
   }
+
+  private ipApiUrl = 'https://api.ipify.org?format=json';
+  getIpAddress(): Observable<any> {
+    return this.http.get<any>(this.ipApiUrl);
+  }
   
 }

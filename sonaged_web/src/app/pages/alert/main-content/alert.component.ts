@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -30,6 +30,11 @@ export class AlertComponent {
   itemsPerPage: number = 5;
   currentPage: number = 0;
   zoomStyle = {};
+
+  
+  @Input() alertChangeEvent = new EventEmitter<number>();
+
+
   constructor (
     private sharedService: SharedService,
     private headerTitleServie: headerTitleService,
@@ -51,7 +56,7 @@ export class AlertComponent {
       this.totalPages = Math.ceil(this.totalAlerts / this.itemsPerPage);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-      console.log(resp.content);
+     //console.log(resp.content, this.totalAlerts);
   
     })
   }
@@ -69,6 +74,7 @@ export class AlertComponent {
 
   openUpdateAlertModal(id: any){
     const currentAlert = this.dataSource.data.find((item: any ) => item.alertId === id);
+   // console.log(id, currentAlert);
     this.modalServie.openModal(CreateAlertComponent, {id: id, currentAlert: currentAlert})
   }
 
@@ -86,64 +92,39 @@ export class AlertComponent {
   }
  
 
-  // onMouseMove(event: MouseEvent, zoomStyle: any) {
-  //   const imageContainer = event.currentTarget as HTMLElement;
-  //   const rect = imageContainer.getBoundingClientRect();
-  //   const x = event.clientX - rect.left; // x position within the container
-  //   const y = event.clientY - rect.top;  // y position within the container
+  onMouseMove(event: MouseEvent, element: any): void {
+    if (!element || !element.image) {
+      return; // Exit if the element or image is not defined
+    }
 
-  //   // this.zoomStyle = {
-  //   //   'transform-origin': `${x}px ${y}px`,
-  //   //   'transform': 'scale(1.5)' // Adjust the scale factor as needed
-  //   // };
-  //   zoomStyle['transform-origin'] = `${x}px ${y}px`;
-  //   zoomStyle['transform'] = 'scale(1.5)'; 
-  // }
-
-  // onMouseLeave(zoomStyle: any) {
-  //   // this.zoomStyle = {
-  //   //   'transform-origin': 'center center',
-  //   //   'transform': 'scale(1)'
-  //   // };
-
-  //   zoomStyle['transform-origin'] = 'center center';
-  //   zoomStyle['transform'] = 'scale(1)';
-  // }
-
-  onMouseMove(event: MouseEvent) {
     const imageContainer = event.currentTarget as HTMLElement;
     const image = imageContainer.querySelector('img') as HTMLElement;
     const rect = image.getBoundingClientRect();
     const x = event.clientX / 4; // x position within the container
     const y = event.clientY /3;  // y position within the container
-// Calculate percentage position within the image=
+    // Calculate percentage position within the image=
 
-const bodyRect = document.body.getBoundingClientRect();
-//console.log(bodyRect)
-
-console.log(rect)
-    image.style.position = 'absolute'
-const posX = ((event.clientX - bodyRect.left) / bodyRect.width) * 100;
-const posY = ((event.clientY - bodyRect.top) / bodyRect.height) * 100;
-
-//image.style.transformOrigin = `${posX}% ${posY}%`;
-image.style.top = '40%'
-image.style.left = '40%'
-  image.style.bottom = '0px'
-image.style.right = '0px'
+    const bodyRect = document.body.getBoundingClientRect();
+    image.style.top = '40%'
+    image.style.left = '40%'
+    image.style.bottom = '0px'
+    image.style.right = '0px'
     image.style.position = 'absolute'
     image.style.transformOrigin = `${30}% ${50}%`;
     image.style.transform = 'scale(8)'; // Adjust the scale factor as needed
     //image.style.transform = ' translate(12px, 70%)'
   }
 
-  onMouseLeave(event: MouseEvent) {
+  onMouseLeave(event: MouseEvent, element: any): void {
+    if (!element || !element.image) {
+      return; // Exit if the element or image is not defined
+    }
     const imageContainer = event.currentTarget as HTMLElement;
     const image = imageContainer.querySelector('img') as HTMLElement;
    // image.style.transformOrigin = 'center center';
     image.style.transform = 'scale(1)';
     image.style.top = '0px'
-image.style.left = '0px'
+    image.style.left = '0px'
     image.style.position = 'relative'
   }
 

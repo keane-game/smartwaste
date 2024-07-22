@@ -76,12 +76,10 @@ form.user-form-container .form-select:focus{
     outline: 0 !important;
     outline: none !important;
     box-shadow: none;
-    border-color: rgba(147, 192, 245, 0.9);
+    border-color: #CAD8C8;
 }
 
-form.user-form-container #prenom::after{
-    background-image: none !important;
-}
+
 
 form.user-form-container .form-control::placeholder
 {
@@ -91,7 +89,7 @@ form.user-form-container .form-control::placeholder
 form.user-form-container .form-control:focus::placeholder
 {
     color: #cecccc;
-    font-weight: 500 !important;
+    font-weight: 300 !important;
 }
 
 :host  form.user-form-container label
@@ -105,16 +103,13 @@ form.user-form-container .form-control:focus::placeholder
     }
 
 }
-
-
-
-
 form.user-form-container  .form-control:focus + label,
 form.user-form-container .form-select:focus + label
 {
     top: -5px;
     font-size: 20px;
 }
+
 
 form.user-form-container .form-control,
 form.user-form-container .form-select
@@ -124,8 +119,11 @@ form.user-form-container .form-select
     border-radius: 10px;
 }
 
+
 input:-webkit-autofill,
-input:-webkit-autofill:focus {
+input:-webkit-autofill:focus,
+select:-webkit-autofill:focus
+ {
   transition: background-color 0s 600000s, color 0s 600000s;
 }
 
@@ -145,7 +143,7 @@ input:-webkit-autofill:focus {
 }
 
 .btn-enregister {
-    background-color: #0075ff !important;
+    background-color: #5D8B47 !important;
     color: #fff;
 }
 
@@ -165,120 +163,49 @@ input:-webkit-autofill:focus {
 }
 
 
-/* ng-multiselect css */
 
-:host ::ng-deep .multiselect-dropdown .dropdown-btn {
-    display: inline-block!important;
-    width: 100%!important;
-    padding: 6px 12px!important;
-    margin-bottom: 0!important;
-    font-size: 12px !important;
-    font-weight: 400!important;
-    line-height: 1.1 !important;
-    border: 1px solid rgb(133, 133, 133, 0.2) !important;
-    text-align: left!important;
-    vertical-align: middle!important;
-    cursor: pointer!important;
-    background-image: none!important;
-    border-radius: 10px!important;
-    height: 58px;
-    overflow: hidden;
-
-    .dropdown-multiselect__caret{
-        top: 10px !important;
-    }
-    .dropdown-multiselect__caret::after{
-        content: "" !important;
-    }
-}
-
-:host ::ng-deep .multiselect-dropdown .dropdown-btn:focus{
-    border-color: #000 !important;
-}
-
-:host ::ng-deep .multiselect-dropdown .dropdown-list{
-    margin-top: 0px;
-    border-radius: 18px !important;
-    background-color: #f8f8f8;
-    box-shadow: none !important;
-    border: none;
-    z-index: 99999999999;
-    position: relative;
-    padding-bottom: 6px !important;
-    .item2{
-        font-size: 12px;
-      }
-      .multiselect-item-checkbox{
-       padding: 0px 12px;
- 
-       input[type=checkbox] + div::before{
-         width: 10px !important;
-         height: 10px !important;
-         border-color: #cecccc !important;
-         top: 60% !important;
-         left: 0.5%;
-       }
-       input[type=checkbox]:checked + div::before{
-         border-color: #0075ff !important;
-         background-color: #0075ff;
-         font-weight: bold !important;
-       }
-       input[type=checkbox]:checked + div{
-         font-weight: bold !important;
-       }
-     
-      }
-}
-
-
-:host ::ng-deep .multiselect-dropdown .selected-item-container{
-    margin-top: 25px;
-}
-
-:host ::ng-deep .multiselect-dropdown .dropdown-btn .ng-star-inserted
-{
-    display: none !important;
-}
-
-:host ::ng-deep .multiselect-dropdown .dropdown-btn:focus + .ng-star-inserted{
-    border-color: #000 !important;
-    display: block !important;
-}
-
-:host .form-floating:focus-within .label-role,
-:host .form-floating:focus-within .label-projet {
-    top: -5px;
-    font-size: 20px;
-    transform: scale(.85) translateY(-0.5rem) translateX(0.15rem) !important;
-    &::before {
-        position: absolute;
-        top: 10px !important;
-        color: #0075ff;
-        height: 50px !important;
-      }
+ :host textarea.form-control {
+    height: 100px !important;
  }
 
-:host ::ng-deep .multiselect-dropdown .dropdown-btn .selected-item-container{
-    display: block !important;
-}
-:host ::ng-deep .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item{
-    display: block !important;
-    color: #0075ff !important;
-    background-color: #cae0f9 !important;
-    border-radius: 5px !important;
-    border: none !important;
-    font-weight: 500;
-
-    a {
-        color: #0075ff !important;
-    }
-}
-
+ .custom-file-upload {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .file-label {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: white;
+    border-radius: 10px;
+    width: 100%;
+    height: 60px;
+    line-height: 2;
+    border: 1px solid #cecccc !important;
+  }
+  
+  .file-label:hover {
+    background-color: #5D8B47 !important;
+    color: #fff !important;
+  }
+  
 // after select item 
-.label-role.label_after,
-.label-projet.label_after{
-    top: -12px;
-    font-size: 16px !important;
+:host  form.user-form-container label.label-select.label_after{
+    top: 12px;
+   color: #000 !important;
+    font-weight: 500 !important;
+    font-size: 22px;
+    
 }
 
-
+.form-floating  .form-control:focus + label.label-select
+{
+    top: -5px;
+    font-size: 20px;
+    color: #000 !important;
+}

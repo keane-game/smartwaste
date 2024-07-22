@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sonaged/configs/constants/app_colors.dart';
 import 'package:sonaged/configs/constants/style_constant.dart';
 import 'package:sonaged/configs/constants/text_constant.dart';
 import 'package:sonaged/features/account/presentation/signup_screen.dart';
+import 'package:sonaged/features/auth/presentation/providers/state/auth_state.dart';
 import 'package:sonaged/features/auth/presentation/widgets/or_divider.dart';
 import 'package:sonaged/features/auth/presentation/providers/login_provider.dart';
 import 'package:sonaged/shared/widgets/already_have_an_account_acheck.dart';
@@ -10,21 +12,23 @@ import 'package:sonaged/shared/widgets/already_have_an_account_acheck.dart';
 class LoginForm extends StatelessWidget {
   const LoginForm({
     super.key,
+    required this.formKey,
     required this.emailController,
     required this.passwordController,
     required this.state,
     required this.ref,
   });
 
+  final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-
-  final dynamic state;
-  final dynamic ref;
+  final AuthState state;
+  final WidgetRef ref;
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: formKey,
       child: Column(
         children: [
           TextFormField(
@@ -32,7 +36,14 @@ class LoginForm extends StatelessWidget {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: AppColors.kPrimaryColor,
-            onSaved: (email) {},
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Veuillez entrer votre email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Veuillez entrer un email valide';
+              }
+              return null;
+            },
             decoration: const InputDecoration(
               hintText: tEmail,
               prefixIcon: Padding(
@@ -42,6 +53,8 @@ class LoginForm extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
+              errorStyle: TextStyle(
+                  color: Colors.red), // Style personnalisé pour les erreurs
             ),
           ),
           Padding(
@@ -60,7 +73,17 @@ class LoginForm extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
+                errorStyle: TextStyle(
+                    color: Colors.red), // Style personnalisé pour les erreurs
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Veuillez entrer votre mot de passe';
+                } else if (value.length < 6) {
+                  return 'Le mot de passe doit contenir au moins 6 caractères';
+                }
+                return null;
+              },
             ),
           ),
           SizedBox(
@@ -81,7 +104,7 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: defaultPadding + 5),
           state.maybeMap(
             loading: (_) => const Center(child: CircularProgressIndicator()),
-            orElse: () => loginButton(ref),
+            orElse: () => loginButton(ref, formKey),
           ),
           const SizedBox(height: defaultPadding - 5),
           const OrDivider(),
@@ -103,16 +126,15 @@ class LoginForm extends StatelessWidget {
     );
   }
 
-  Widget loginButton(dynamic ref) {
+  Widget loginButton(dynamic ref, formKey) {
     return ElevatedButton(
       onPressed: () {
-        // print("Email: " + emailController.text);
-        // print(passwordController.text);
-        // validate email and password
-        ref.read(authStateNotifierProvider.notifier).loginUser(
-              emailController.text,
-              passwordController.text,
-            );
+        if (formKey.currentState!.validate()) {
+          ref.read(authStateNotifierProvider.notifier).loginUser(
+                emailController.text,
+                passwordController.text,
+              );
+        }
       },
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(

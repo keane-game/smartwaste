@@ -41,7 +41,7 @@ GoRouter goRouter(GoRouterRef ref) {
     debugLogDiagnostics: true,
     routes: [
       GoRoute(
-        path: '/splash',
+        path: '/',
         name: Routes.splash.name,
         builder: (context, state) => SplashScreen(key: state.pageKey),
       ),
@@ -49,6 +49,18 @@ GoRouter goRouter(GoRouterRef ref) {
         path: '/welcome',
         name: Routes.welcome.name,
         builder: (context, state) => WelcomeScreen(key: state.pageKey),
+      ),
+      GoRoute(
+        path: '/welcome',
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          child: const WelcomeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
       ),
       GoRoute(
         path: '/login',
@@ -66,7 +78,7 @@ GoRouter goRouter(GoRouterRef ref) {
         builder: (context, state) => DashboardScreen(key: state.pageKey),
       ),
       GoRoute(
-        path: '/',
+        path: '/test',
         name: Routes.test.name,
         builder: (context, state) => TestScreen(key: state.pageKey),
       ),

@@ -12,14 +12,14 @@ void main() => mainCommon(AppEnvironment.PROD);
 
 Future<void> mainCommon(AppEnvironment environment) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: const FirebaseOptions(
-    apiKey: 'AIzaSyCubDuko2e-awOHaGbIYUpiAL6smS-93lw',
-    appId: '1:817107836674:android:108bd4886eea4842fcec1b',
-    messagingSenderId: '817107836674',
-    projectId: 'test-256ab',
-  ));
-  runApp(MaterialApp());
+//   await Firebase.initializeApp(
+//       options: const FirebaseOptions(
+//     apiKey: 'AIzaSyCubDuko2e-awOHaGbIYUpiAL6smS-93lw',
+//     appId: '1:817107836674:android:108bd4886eea4842fcec1b',
+//     messagingSenderId: '817107836674',
+//     projectId: 'test-256ab',
+//   ));
+  //runApp(const MaterialApp());
   EnvInfo.initialize(environment);
 
   // Setting Device Orientation
