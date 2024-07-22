@@ -1,13 +1,13 @@
 package sonaged.collecte.master.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -39,8 +39,9 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
     @Column(name = "createdBy", nullable = true, length = 50, updatable = false)
     private String createdBy;
 
-    @CreatedDate
+
     @Column(name = "createdDate", updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdDate;
 
     @LastModifiedBy
@@ -49,6 +50,7 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
 
     @LastModifiedDate
     @Column(name = "lastModifiedDate")
+    @UpdateTimestamp
     private LocalDateTime lastModifiedDate;
 
     @Column( columnDefinition="boolean default false")

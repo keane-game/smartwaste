@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.dto.maps.DepartmentMaps;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sonaged.collecte.master.mapper.CoordinateMapper;
 import sonaged.collecte.master.mapper.RegionMapper;
 import sonaged.collecte.master.repository.DepartmentRepository;
 import sonaged.collecte.master.dto.Department;
@@ -40,6 +42,20 @@ public class DepartmentServiceImpl implements DepartmentService {
         return DepartmentMapper.DMP.asListDto(departmentList);
     }
 
+    @Override
+    public DepartmentMaps getFirstDepartment() {
+        var department = departmentRepository.findFirstByOrderByNameAsc ();
+        if (department == null){
+            return null;
+        }
+        var departmentMaps = new DepartmentMaps (  );
+        departmentMaps.setName (department.getName ());
+        departmentMaps.setCode (department.getCode ());
+        departmentMaps.setTypeGeo (department.getGeometry ().getType ());
+        departmentMaps.setCoordinates (CoordinateMapper.CODMP.asListDto (department.getGeometry().getCoordinates () ));
+
+        return departmentMaps;
+    }
 
     @Override
     public Page<Department> readAllDepartment(Pageable pageable) {

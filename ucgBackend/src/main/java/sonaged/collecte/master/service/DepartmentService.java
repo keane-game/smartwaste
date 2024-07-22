@@ -3,6 +3,7 @@ package sonaged.collecte.master.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import sonaged.collecte.master.dto.Department;
+import sonaged.collecte.master.dto.maps.DepartmentMaps;
 
 import java.util.List;
 
@@ -18,4 +19,8 @@ public interface DepartmentService {
     void deleteDepartment(Long departmentId);
 
     Page<Department> readAllDepartment(Pageable pageable);
+
+
+    DepartmentMaps getFirstDepartment();
+
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.dto.DepotoirMaps;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.dto.Depotoir;
 import sonaged.collecte.master.mapper.CommuneMapper;
@@ -17,6 +18,7 @@ import sonaged.collecte.master.repository.QuartierRepository;
 import sonaged.collecte.master.repository.TypeDepotoirRepository;
 import sonaged.collecte.master.service.DepotoirService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,6 +66,21 @@ public class DepotoirServiceImpl implements DepotoirService {
 
                     return dto;
                 });
+    }
+
+    @Override
+    public List<DepotoirMaps> getDepotoirMap() {
+        var depotoirs = depotoirRepository.findAll ();
+        List<DepotoirMaps> depotoirMaps = new ArrayList<>();
+        depotoirs.forEach (d -> {
+            var depotoirMap = new DepotoirMaps (  );
+            depotoirMap.setAddress (d.getAddress ());
+            depotoirMap.setTypeGeo (d.getGeometry().getType ());
+            depotoirMap.setTypeDepot (d.getTypeDepotoir ().getName ());
+            depotoirMap.setCoordinates (CoordinateMapper.CODMP.asListDto (d.getGeometry().getCoordinates () ));
+            depotoirMaps.add (depotoirMap);
+        });
+        return depotoirMaps;
     }
     @Override
     public Depotoir createDepotoir(Depotoir depotoir) {

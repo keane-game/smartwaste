@@ -6,4 +6,5 @@ import sonaged.collecte.master.model.DepartmentEntity;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<DepartmentEntity, Long> {
+    DepartmentEntity findFirstByOrderByNameAsc();
 }
