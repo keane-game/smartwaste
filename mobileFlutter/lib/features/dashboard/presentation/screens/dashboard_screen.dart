@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sonaged/features/dashboard/presentation/providers/dashboard_state_provider.dart';
 import 'package:sonaged/features/dashboard/presentation/providers/state/dashboard_state.dart';
 import 'package:sonaged/features/dashboard/presentation/widgets/dashboard_drawer.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonaged/features/welcome/presentation/screens/welcome_screen.dart';
 import 'package:sonaged/shared/widgets/app_shadow.dart';
 import 'package:sonaged/shared/widgets/bottom_navbar_items.dart';
 
@@ -18,37 +18,12 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  final scrollController = ScrollController();
-  final TextEditingController searchController = TextEditingController();
+  int _selectedIndex = 0;
   bool isSearchActive = false;
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(scrollControllerListener);
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void scrollControllerListener() {
-    if (scrollController.position.maxScrollExtent == scrollController.offset) {
-      final notifier = ref.read(dashboardNotifierProvider.notifier);
-      if (isSearchActive) {
-        notifier.searchProducts(searchController.text);
-      } else {
-        notifier.fetchProducts();
-      }
-    }
-  }
-
-  void refreshScrollControllerListener() {
-    scrollController.removeListener(scrollControllerListener);
-    scrollController.addListener(scrollControllerListener);
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -69,6 +44,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
     return SafeArea(
       child: Scaffold(
+        body: Center(
+          child: _buildPage(_selectedIndex),
+        ),
         appBar: AppBar(
           title: isSearchActive
               ? TextField(
@@ -89,46 +67,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ),
                   ),
-                  controller: searchController,
-                  onChanged: _onSearchChanged,
                 )
               : const Text('Dashboard'),
-          actions: [
-            IconButton(
-              onPressed: () {
-                searchController.clear();
-                setState(() {
-                  isSearchActive = !isSearchActive;
-                });
-
-                ref.read(dashboardNotifierProvider.notifier).resetState();
-                if (!isSearchActive) {
-                  ref.read(dashboardNotifierProvider.notifier).fetchProducts();
-                }
-                refreshScrollControllerListener();
-              },
-              icon: Icon(
-                isSearchActive ? Icons.clear : Icons.search,
-              ),
-            ),
-          ],
         ),
         drawer: const DashboardDrawer(),
-        body: const Text("test"),
         bottomNavigationBar: Container(
           width: 375,
           height: 58,
           decoration: appBoxShadowWithRaduis(),
-          child: BottomNavigationBar(elevation: 0, items: bottomNavbarItems),
+          child: BottomNavigationBar(
+            items: BottomNavBarItems.items,
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.amber[800],
+            onTap: _onItemTapped,
+          ),
         ),
       ),
     );
   }
+}
 
-  _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      ref.read(dashboardNotifierProvider.notifier).searchProducts(query);
-    });
+Widget _buildPage(int index) {
+  switch (index) {
+    case 0:
+      return WelcomeScreen();
+    case 1:
+    default:
+      return WelcomeScreen();
   }
 }

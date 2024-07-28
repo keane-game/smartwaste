@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sonaged/features/account/presentation/signup_screen.dart';
 import 'package:sonaged/features/auth/presentation/screens/login_screen.dart';
+import 'package:sonaged/features/dashboard/presentation/screens/accueil_screen.dart';
 import 'package:sonaged/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:sonaged/features/googleMapScreen/test.dart';
 import 'package:sonaged/features/welcome/presentation/screens/splash_screen.dart';
@@ -75,7 +76,7 @@ GoRouter goRouter(GoRouterRef ref) {
       GoRoute(
         path: '/dashboard',
         name: Routes.dashboard.name,
-        builder: (context, state) => DashboardScreen(key: state.pageKey),
+        builder: (context, state) => AccueilScreen(key: state.pageKey),
       ),
       GoRoute(
         path: '/test',

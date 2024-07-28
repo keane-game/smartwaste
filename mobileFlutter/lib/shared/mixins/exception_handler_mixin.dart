@@ -27,26 +27,25 @@ mixin ExceptionHandlerMixin on NetworkService {
       String identifier = '';
       int statusCode = 0;
       log(e.runtimeType.toString());
-      switch (e.runtimeType) {
+      switch (e) {
         case SocketException _:
-          e as SocketException;
-          message = 'Unable to connect to the server.';
+          message = 'Impossible de se connecter au serveur.';
           statusCode = 0;
           identifier = 'Socket Exception ${e.message}\n at  $endpoint';
           break;
 
         case DioException _:
-          e as DioException;
           message = e.response?.data?['message'] ?? 'Internal Error occurred';
-          statusCode = 1;
+          statusCode = e.response?.statusCode ?? 500;
           identifier = 'DioException ${e.message} \nat  $endpoint';
           break;
 
         default:
-          message = 'Unknown error occurred';
+          message = 'Une erreur inconnue s\'est produite';
           statusCode = 2;
           identifier = 'Unknown error ${e.toString()}\n at $endpoint';
       }
+
       return Left(
         AppException(
           message: message,

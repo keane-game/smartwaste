@@ -1,93 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sonaged/configs/constants/app_colors.dart';
 import 'package:sonaged/configs/constants/style_constant.dart';
 import 'package:sonaged/configs/constants/text_constant.dart';
 import 'package:sonaged/features/account/presentation/signup_screen.dart';
 import 'package:sonaged/features/auth/presentation/providers/state/auth_state.dart';
+import 'package:sonaged/features/auth/presentation/widgets/login_form_button.dart';
 import 'package:sonaged/features/auth/presentation/widgets/or_divider.dart';
 import 'package:sonaged/features/auth/presentation/providers/login_provider.dart';
 import 'package:sonaged/shared/widgets/already_have_an_account_acheck.dart';
+import 'package:sonaged/shared/widgets/email_text_field.dart';
+import 'package:sonaged/shared/widgets/password_text_field.dart';
 
-class LoginForm extends StatelessWidget {
-  const LoginForm({
-    super.key,
-    required this.formKey,
-    required this.emailController,
-    required this.passwordController,
-    required this.state,
-    required this.ref,
-  });
+class LoginForm extends ConsumerStatefulWidget {
+  const LoginForm({super.key});
 
-  final GlobalKey<FormState> formKey;
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
-  final AuthState state;
-  final WidgetRef ref;
+  @override
+  LoginFormState createState() => LoginFormState();
+}
+
+class LoginFormState extends ConsumerState<LoginForm> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(authStateNotifierProvider);
     return Form(
-      key: formKey,
+      key: _formKey,
       child: Column(
         children: [
-          TextFormField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            cursorColor: AppColors.kPrimaryColor,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Veuillez entrer votre email';
-              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Veuillez entrer un email valide';
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              hintText: tEmail,
-              prefixIcon: Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: Icon(
-                  Icons.person,
-                  color: Colors.grey,
-                ),
-              ),
-              errorStyle: TextStyle(
-                  color: Colors.red), // Style personnalisé pour les erreurs
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
-            child: TextFormField(
-              controller: passwordController,
-              textInputAction: TextInputAction.done,
-              obscureText: true,
-              cursorColor: AppColors.kPrimaryColor,
-              decoration: const InputDecoration(
-                hintText: tPassword,
-                prefixIcon: Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: Icon(
-                    Icons.lock,
-                    color: Colors.grey,
-                  ),
-                ),
-                errorStyle: TextStyle(
-                    color: Colors.red), // Style personnalisé pour les erreurs
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Veuillez entrer votre mot de passe';
-                } else if (value.length < 6) {
-                  return 'Le mot de passe doit contenir au moins 6 caractères';
-                }
-                return null;
-              },
-            ),
-          ),
+          EmailTextField(emailController: emailController),
+          const SizedBox(height: defaultPadding + 5),
+          PasswordTextField(passwordController: passwordController),
+          const SizedBox(height: defaultPadding),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: MediaQuery.of(context).size.width * 0.75,
             child: GestureDetector(
               onTap: () {},
               child: const Text(
@@ -104,7 +52,8 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: defaultPadding + 5),
           state.maybeMap(
             loading: (_) => const Center(child: CircularProgressIndicator()),
-            orElse: () => loginButton(ref, formKey),
+            orElse: () => LoginFormButton(
+                ref, _formKey, emailController.text, passwordController.text),
           ),
           const SizedBox(height: defaultPadding - 5),
           const OrDivider(),
@@ -122,29 +71,6 @@ class LoginForm extends StatelessWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget loginButton(dynamic ref, formKey) {
-    return ElevatedButton(
-      onPressed: () {
-        if (formKey.currentState!.validate()) {
-          ref.read(authStateNotifierProvider.notifier).loginUser(
-                emailController.text,
-                passwordController.text,
-              );
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(tDefaultSize)),
-        backgroundColor: AppColors.kPrimaryColor,
-        fixedSize: const Size(300, 65),
-      ),
-      child: const Text(
-        'SE CONNECTER',
-        style: TextStyle(fontSize: tDefaultSize * 0.5),
       ),
     );
   }

@@ -207,7 +207,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       drawer: const DashboardDrawer(),
       body: state.state == DashboardConcreteState.loading
           ? const Center(child: CircularProgressIndicator())
-          : state.hasData
+          : state.m
               ? Column(
                   children: [
                     Expanded(
@@ -270,5 +270,489 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       ref.read(dashboardNotifierProvider.notifier).searchProducts(query);
     });
+  }
+}
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonaged/configs/constants/app_colors.dart';
+import 'package:sonaged/configs/constants/style_constant.dart';
+import 'package:sonaged/configs/constants/text_constant.dart';
+import 'package:sonaged/features/account/presentation/signup_screen.dart';
+import 'package:sonaged/features/auth/presentation/providers/state/auth_state.dart';
+import 'package:sonaged/features/auth/presentation/widgets/or_divider.dart';
+import 'package:sonaged/features/auth/presentation/providers/login_provider.dart';
+import 'package:sonaged/shared/widgets/already_have_an_account_acheck.dart';
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final state = AuthState;
+  final ref = WidgetRef;
+  final emailError = String;
+  bool passToggle = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            cursorColor: AppColors.kPrimaryColor,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Veuillez entrer votre email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Veuillez entrer un email valide';
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+              hintText: tEmail,
+              border: OutlineInputBorder(
+                borderSide:
+                    BorderSide(width: 1, color: AppColors.kPrimaryLightColor),
+                borderRadius: BorderRadius.all(Radius.circular(tDefaultSize)),
+              ),
+              prefixIcon: Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+            child: TextFormField(
+              controller: passwordController,
+              textInputAction: TextInputAction.done,
+              obscureText: true,
+              cursorColor: AppColors.kPrimaryColor,
+              decoration: InputDecoration(
+                hintText: tPassword,
+                border: const OutlineInputBorder(
+                  borderSide:
+                      BorderSide(width: 1, color: AppColors.kPrimaryLightColor),
+                  borderRadius: BorderRadius.all(Radius.circular(tDefaultSize)),
+                ),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(defaultPadding),
+                  child: Icon(
+                    Icons.lock,
+                    color: Colors.grey,
+                  ),
+                ),
+                suffix: InkWell(
+                  onTap: () {
+                    setState(() {
+                      passToggle = !passToggle;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: Icon(
+                        size: 18,
+                        passToggle ? Icons.visibility : Icons.visibility_off),
+                  ),
+                ), // Style personnalisé pour les erreurs
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Veuillez entrer votre mot de passe';
+                } else if (value.length < 5) {
+                  return 'Le mot de passe doit contenir au moins 5 caractères';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: GestureDetector(
+              onTap: () {},
+              child: const Text(
+                tForgetPassword,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: AppTextStyles.kTextFieldFill,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: defaultPadding + 5),
+          state is Loading
+              ? const CircularProgressIndicator()
+              : loginButton(ref, formKey),
+          const SizedBox(height: defaultPadding - 5),
+          const OrDivider(),
+          const SizedBox(height: defaultPadding - 5),
+          AlreadyHaveAnAccountCheck(
+            press: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SignUpScreen();
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget loginButton(dynamic ref, formKey) {
+    return ElevatedButton(
+      onPressed: () {
+        if (formKey.currentState!.validate()) {
+          ref.read(authStateNotifierProvider.notifier).loginUser(
+                emailController.text,
+                passwordController.text,
+              );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(tDefaultSize)),
+        backgroundColor: AppColors.kPrimaryColor,
+        fixedSize: const Size(300, 65),
+      ),
+      child: const Text(
+        'SE CONNECTER',
+        style: TextStyle(fontSize: tDefaultSize * 0.5),
+      ),
+    );
+  }
+}
+
+ final state = ref.watch(authStateNotifierProvider);
+ 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonaged/configs/constants/app_colors.dart';
+import 'package:sonaged/configs/constants/style_constant.dart';
+import 'package:sonaged/configs/constants/text_constant.dart';
+import 'package:sonaged/features/account/presentation/signup_screen.dart';
+import 'package:sonaged/features/auth/presentation/providers/state/auth_state.dart';
+import 'package:sonaged/features/auth/presentation/widgets/or_divider.dart';
+import 'package:sonaged/features/auth/presentation/providers/login_provider.dart';
+import 'package:sonaged/shared/widgets/already_have_an_account_acheck.dart';
+
+class LoginForm extends ConsumerStatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  LoginFormState createState() => LoginFormState();
+}
+
+class LoginFormState extends ConsumerState<LoginForm> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  final authState = const AuthState.loading();
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            cursorColor: AppColors.kPrimaryColor,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Veuillez entrer votre email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Veuillez entrer un email valide';
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+              hintText: tEmail,
+              prefixIcon: Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.grey,
+                ),
+              ),
+              errorStyle: TextStyle(
+                  color: Colors.red), // Style personnalisé pour les erreurs
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+            child: TextFormField(
+              controller: passwordController,
+              textInputAction: TextInputAction.done,
+              obscureText: true,
+              cursorColor: AppColors.kPrimaryColor,
+              decoration: const InputDecoration(
+                hintText: tPassword,
+                prefixIcon: Padding(
+                  padding: EdgeInsets.all(defaultPadding),
+                  child: Icon(
+                    Icons.lock,
+                    color: Colors.grey,
+                  ),
+                ),
+                errorStyle: TextStyle(
+                    color: Colors.red), // Style personnalisé pour les erreurs
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Veuillez entrer votre mot de passe';
+                } else if (value.length < 5) {
+                  return 'Le mot de passe doit contenir au moins 6 caractères';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: GestureDetector(
+              onTap: () {},
+              child: const Text(
+                tForgetPassword,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: AppTextStyles.kTextFieldFill,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: defaultPadding + 5),
+          authState.maybeMap(
+            loading: (_) => const Center(child: CircularProgressIndicator()),
+            orElse: () => loginButton(ref, _formKey),
+          ),
+          const SizedBox(height: defaultPadding - 5),
+          const OrDivider(),
+          const SizedBox(height: defaultPadding - 5),
+          AlreadyHaveAnAccountCheck(
+            press: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SignUpScreen();
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget loginButton(dynamic ref, formKey) {
+    return ElevatedButton(
+      onPressed: () {
+        if (formKey.currentState!.validate()) {
+          ref.read(authStateNotifierProvider.notifier).loginUser(
+                emailController.text,
+                passwordController.text,
+              );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(tDefaultSize)),
+        backgroundColor: AppColors.kPrimaryColor,
+        fixedSize: const Size(300, 65),
+      ),
+      child: const Text(
+        'SE CONNECTER',
+        style: TextStyle(fontSize: tDefaultSize * 0.5),
+      ),
+    );
+  }
+}
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:sonaged/features/dashboard/presentation/providers/dashboard_state_provider.dart';
+import 'package:sonaged/features/dashboard/presentation/providers/state/dashboard_state.dart';
+import 'package:sonaged/features/dashboard/presentation/widgets/dashboard_drawer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonaged/shared/widgets/app_shadow.dart';
+import 'package:sonaged/shared/widgets/bottom_navbar_items.dart';
+
+class DashboardScreen extends ConsumerStatefulWidget {
+  static const String routeName = 'DashboardScreen';
+
+  const DashboardScreen({super.key});
+
+  @override
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final scrollController = ScrollController();
+  final TextEditingController searchController = TextEditingController();
+  bool isSearchActive = false;
+  Timer? _debounce;
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(scrollControllerListener);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void scrollControllerListener() {
+    if (scrollController.position.maxScrollExtent == scrollController.offset) {
+      final notifier = ref.read(dashboardNotifierProvider.notifier);
+      if (isSearchActive) {
+        notifier.searchProducts(searchController.text);
+      } else {
+        notifier.fetchProducts();
+      }
+    }
+  }
+
+  void refreshScrollControllerListener() {
+    scrollController.removeListener(scrollControllerListener);
+    scrollController.addListener(scrollControllerListener);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(dashboardNotifierProvider);
+
+    ref.listen(
+      dashboardNotifierProvider.select((value) => value),
+      ((DashboardState? previous, DashboardState next) {
+        //show Snackbar on failure
+        if (next.state == DashboardConcreteState.fetchedAllProducts) {
+          if (next.message.isNotEmpty) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(next.message.toString())));
+          }
+        }
+      }),
+    );
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: _buildPage(_selectedIndex),
+        ),
+        appBar: AppBar(
+          title: isSearchActive
+              ? TextField(
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher',
+                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  controller: searchController,
+                  onChanged: _onSearchChanged,
+                )
+              : const Text('Dashboard'),
+          actions: [
+            IconButton(
+              onPressed: () {
+                searchController.clear();
+                setState(() {
+                  isSearchActive = !isSearchActive;
+                });
+
+                ref.read(dashboardNotifierProvider.notifier).resetState();
+                if (!isSearchActive) {
+                  ref.read(dashboardNotifierProvider.notifier).fetchProducts();
+                }
+                refreshScrollControllerListener();
+              },
+              icon: Icon(
+                isSearchActive ? Icons.clear : Icons.search,
+              ),
+            ),
+          ],
+        ),
+        drawer: const DashboardDrawer(),
+        bottomNavigationBar: Container(
+          width: 375,
+          height: 58,
+          decoration: appBoxShadowWithRaduis(),
+          child: BottomNavigationBar(
+            items: bottomNavbarItems,
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.amber[800],
+            onTap: _onItemTapped,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref.read(dashboardNotifierProvider.notifier).searchProducts(query);
+    });
+  }
+
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return DashboardScreen();
+      case 1:
+        return DashboardScreen();
+      case 2:
+        return DashboardScreen();
+      case 3:
+        return DashboardScreen();
+      default:
+        return DashboardScreen();
+    }
   }
 }

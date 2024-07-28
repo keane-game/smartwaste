@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sonaged/shared/data/remote/network_service.dart';
 import 'package:sonaged/shared/domain/models/either.dart';
@@ -17,12 +18,13 @@ class LoginUserRemoteDataSource implements LoginUserDataSource {
   Future<Either<AppException, User>> loginUser({required User user}) async {
     try {
       final eitherType = await networkService.post(
-        '/connexion',
+        '/authenticate',
         data: user.toJson(),
       );
       return eitherType.fold(
-        (exception) {
-          return Left(exception);
+        (e) {
+          print(" e.toString()");
+          return Left(e);
         },
         (response) {
           /// GET RESPONSE TO JSON (TOKEN)
@@ -42,10 +44,18 @@ class LoginUserRemoteDataSource implements LoginUserDataSource {
           return Right(user);
         },
       );
+    } on DioException catch (e) {
+      return Left(
+        AppException(
+          message: e.response?.data['message'],
+          statusCode: e.response?.data['code'],
+          identifier: '${e.toString()}\nLoginUserRemoteDataSource.loginUser',
+        ),
+      );
     } catch (e) {
       return Left(
         AppException(
-          message: 'Unknown error occurred',
+          message: 'Unknown  occurred',
           statusCode: 1,
           identifier: '${e.toString()}\nLoginUserRemoteDataSource.loginUser',
         ),

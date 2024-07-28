@@ -122,6 +122,7 @@ class AppTheme {
         ),
         contentPadding: EdgeInsets.symmetric(
             horizontal: defaultPadding, vertical: defaultPadding),
+        errorStyle: TextStyle(color: Colors.red),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,

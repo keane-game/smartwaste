@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,8 +33,8 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Error invalidInput(MethodArgumentNotValidException e) {
 
-        logger.error(e.getMessage());
 
+        logger.error("MethodArgumentNotValidException {}", e.getMessage());
         Error error = new Error();
         error.setCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
         error.setMessage("unable to process the contained instructions");
@@ -46,8 +47,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public Error notFound(ResourceNotFoundException e) {
 
-        logger.error(e.getMessage());
-
+        logger.error("ResourceNotFoundException {}", e.getMessage());
         Error error = new Error();
         error.setCode(HttpStatus.NOT_FOUND.value());
         error.setMessage(e.getMessage());
@@ -61,7 +61,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(ResourceAlreadyExistException.class)
     public Error conflict(ResourceAlreadyExistException e) {
 
-        logger.error(e.getMessage());
+        logger.error("ResourceAlreadyExistException {}",e.getMessage());
 
         Error error = new Error();
         error.setCode(HttpStatus.CONFLICT.value());
@@ -91,27 +91,42 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(value = HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    @ExceptionHandler(RuntimeException.class)
-    public Error globalExceptionHandler(RuntimeException e, WebRequest request) {
-        logger.error("HttpMediaTypeNotSupportedException", e);
+    @ExceptionHandler(MediaTypeNotSupportedException.class)
+    public Error globalExceptionHandler(MediaTypeNotSupportedException e ) {
+        logger.error("HttpMediaTypeNotSupportedException {}", e.getMessage());
 
         Error error = new Error();
         error.setCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        error.setMessage("Error : " + e.getMessage());
+        error.setMessage("Erreur : " + e.getMessage());
 
         return error;
 
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public Error handleBadCredentialsException(BadCredentialsException e) {
+        // Create a custom error response object if necessary
+        String errorMessage = "Email ou mot de passe incorrect!";
+        logger.error("BadCredentialsException {}", e.getMessage());
+
+        Error error = new Error();
+        error.setCode(HttpStatus.UNAUTHORIZED.value());
+        error.setMessage(errorMessage);
+
+        return error;
+    }
+
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Error internalError(Exception e) {
 
-        logger.error("InternalError", e);
+        logger.error("InternalError {}", e.getMessage());
 
         Error error = new Error();
         error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        error.setMessage("Error : " + e.getMessage());
+        error.setMessage("Erreur : " + e.getMessage());
 
         return error;
     }

@@ -37,3 +37,10 @@ class CacheFailureException extends Equatable implements AppException {
 extension HttpExceptionExtension on AppException {
   Left<AppException, Response> get toLeft => Left<AppException, Response>(this);
 }
+
+class FailureModel {
+  final int? statusCode;
+  final String message;
+
+  FailureModel({this.statusCode, required this.message});
+}
