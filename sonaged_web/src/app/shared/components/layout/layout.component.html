@@ -1,0 +1,14 @@
+<!-- =============== Navigation ================ -->
+<mat-drawer-container class="main-body">
+  <mat-drawer mode="side" opened="true">
+    <app-sidebar></app-sidebar>
+  </mat-drawer>
+  <mat-drawer-container id="main-header" class="main-content ">
+
+    <app-header (childEvent)="handleSidebarToggles($event)" ></app-header>
+
+  </mat-drawer-container>
+  <mat-drawer-container id="main-content" class="main-content">
+    <router-outlet ></router-outlet>
+  </mat-drawer-container>
+</mat-drawer-container>

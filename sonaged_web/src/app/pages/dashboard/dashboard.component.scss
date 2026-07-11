@@ -1,0 +1,341 @@
+section.dashboard{
+  min-width: 700px;
+
+  .card-icon{
+    width: 50px;
+    height: 50px;
+    background-color: #09930441;
+    text-align: center;
+    img{
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+  }
+}
+
+ .card-item{
+  padding: 0 5px;
+}   
+
+
+/* Info Cards */
+.info-card {
+  padding: 8px 0;
+}
+.info-card h6 {
+  font-size: 16px;
+  color: var(--black1);
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+.card-icon {
+  font-size: 30px;
+  line-height: 0;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+.sales-card .card-icon {
+  color: #4154f1;
+  background: #f6f6fe;
+}
+.revenue-card .card-icon {
+  color: #2eca6a;
+  background: #e0f8e9;
+}
+.customers-card .card-icon {
+  color: #ff771d;
+  background: #ffecdf;
+}
+  
+  
+
+
+  .progress{
+    height: 20px;
+  }
+  // header
+
+  
+  // Body
+  .body{
+    display: flex;
+    justify-content: space-between;
+  }
+
+  
+  .left-side{
+    width: 70%;
+    height: 85vh;
+    margin-right: 15px;
+  }
+  
+  .graphes{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .top-projets{
+    padding: 10px;
+    background-color: white;  
+  }
+  
+  .headers, .headers0{
+    list-style: none;
+    display: flex;
+    padding: 5px 5% 5px 3%;
+    margin-bottom: 1px;
+    justify-content: space-between;
+    background-color: #cee2fa;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+  }
+  
+  .corps{
+    list-style: none;
+    display: flex;
+    margin: 0px;
+    padding: 1px 5% 1px 3%;
+    justify-content: space-between;
+    background-color: #fafafa;
+    border-bottom: solid 1.5px #eeeeee;
+  }
+  
+  .corps li{
+    width: 18%;
+    padding: 2px;
+    font-size: 0.9em;
+  }
+  
+  .headers li{
+    width: 18%;
+    font-weight: bold;
+    font-size: 0.95em;
+  }
+  
+  .status{
+    background-color: #fafafa;
+    border-radius: 8px;
+    font-size: 0.9em;
+    display: block;
+    width: 80%;
+    text-align: center;
+    padding: 1px 10px 1px 10px;
+  }
+  
+  .rigth{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .headers0 li{
+   font-weight: bold;
+   font-size: 0.8em;
+  }
+  
+  .corps0{
+    list-style: none;
+    display: flex;
+    margin: 0px;
+    padding: 1% 4% 1% 3%;
+    justify-content: space-between;
+    background-color: #fafafa;
+    border-bottom: solid 1.5px #eeeeee;
+  }
+  .corps0 li{
+    font-size: 0.8em;
+  }
+  
+  .bad{
+    color: red;
+  }
+  .good{
+    color: green;
+  }
+  .avg{
+    color: orange;
+  }
+  
+  .rigth-side{
+    width: 30%;
+    padding: 10px 10px 10px 15px;
+    background-color: white;
+    border-radius: 10px;
+  }
+  
+  .progression ul{
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0px;
+    margin-bottom: 5px;
+    align-items: baseline;
+  }
+  
+  .name{
+    width: 70%;
+    font-size: 0.9em;
+    border-right: 1px solid #eeeeee;
+   }
+  .bar{
+    width: 30%;
+  }
+  
+  .taux{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 40px;
+  }
+  
+  .highcharts-title{
+    color: red;
+    font-size: 0.9em;
+  }
+}
+
+
+/*--------------------------------------------------------------
+# Dashboard
+--------------------------------------------------------------*/
+/* Filter dropdown */
+
+/* Info Cards */
+.dashboard .info-card {
+  padding-bottom: 10px;
+}
+.dashboard .info-card h6 {
+  font-size: 28px;
+  color: #012970;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+.dashboard .card-icon {
+  font-size: 32px;
+  line-height: 0;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+.dashboard .sales-card .card-icon {
+  color: #4154f1;
+  background: #f6f6fe;
+}
+.dashboard .revenue-card .card-icon {
+  color: #2eca6a;
+  background: #e0f8e9;
+}
+.dashboard .customers-card .card-icon {
+  color: #ff771d;
+  background: #ffecdf;
+}
+
+/* Activity */
+.dashboard .activity {
+  font-size: 14px;
+}
+.dashboard .activity .activity-item .activite-label {
+  color: #888;
+  position: relative;
+  flex-shrink: 0;
+  flex-grow: 0;
+  min-width: 64px;
+}
+.dashboard .activity .activity-item .activite-label::before {
+  content: "";
+  position: absolute;
+  right: -11px;
+  width: 4px;
+  top: 0;
+  bottom: 0;
+  background-color: #eceefe;
+}
+.dashboard .activity .activity-item .activity-badge {
+  margin-top: 3px;
+  z-index: 1;
+  font-size: 11px;
+  line-height: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 3px solid #fff;
+  flex-grow: 0;
+}
+.dashboard .activity .activity-item .activity-content {
+  padding-left: 10px;
+  padding-bottom: 20px;
+}
+.dashboard .activity .activity-item:first-child .activite-label::before {
+  top: 5px;
+}
+.dashboard .activity .activity-item:last-child .activity-content {
+  padding-bottom: 0;
+}
+
+/* News & Updates */
+.dashboard .news .post-item + .post-item {
+  margin-top: 15px;
+}
+.dashboard .news img {
+  width: 80px;
+  float: left;
+  border-radius: 5px;
+}
+.dashboard .news h4 {
+  font-size: 15px;
+  margin-left: 95px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.dashboard .news h4 a {
+  color: #012970;
+  transition: 0.3s;
+}
+.dashboard .news h4 a:hover {
+  color: #4154f1;
+}
+.dashboard .news p {
+  font-size: 14px;
+  color: #777777;
+  margin-left: 95px;
+}
+
+/* Recent Sales */
+.dashboard .recent-sales {
+  font-size: 14px;
+}
+.dashboard .recent-sales .table thead {
+  background: #f6f6fe;
+}
+.dashboard .recent-sales .table thead th {
+  border: 0;
+}
+.dashboard .recent-sales .dataTable-top {
+  padding: 0 0 10px 0;
+}
+.dashboard .recent-sales .dataTable-bottom {
+  padding: 10px 0 0 0;
+}
+
+/* Top Selling */
+.dashboard .top-selling {
+  font-size: 14px;
+}
+.dashboard .top-selling .table thead {
+  background: #f6f6fe;
+}
+.dashboard .top-selling .table thead th {
+  border: 0;
+}
+.dashboard .top-selling .table tbody td {
+  vertical-align: middle;
+}
+.dashboard .top-selling img {
+  border-radius: 5px;
+  max-width: 60px;
+}

@@ -1,0 +1,94 @@
+
+<div  class="m-3 bg-white">
+  <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel utilisateur</h3>
+  <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
+    <i class="bi bi-x"></i>
+  </button>
+  <!-- <hr class="mt-0"> -->
+  <!-- <div class="horizontal-line"></div> -->
+  <div mat-dialog-content class="row px-0 p-1 no-gutters">
+    <div class="forms-style">
+
+      <form  [formGroup]="updateUserForm" class="user-form-container" (ngSubmit)="onSubmit()">
+      
+        <div class="row gx-3 form-row">
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="prenom"
+              formControlName="userFirstname"
+              placeholder="Prénom" required >
+              <label for="prenom">Prénom</label>
+            </div>
+          </div>
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="nom"
+              formControlName="userLastname"
+               placeholder="Nom" required>
+              <label for="nom">Nom</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row gx-3  ">
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              <input matInput type="email" class="form-control" id="email" formControlName="userEmail" placeholder="name@example.com">
+              <mat-error *ngIf="updateUserForm.controls['userAddress'].hasError('equired')">
+                First name is <strong>required</strong>
+              </mat-error>
+              <label for="email">Email address</label>
+            </div>
+          </div>
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control" formControlName="userPhone" id="userPhone" placeholder="770006767">
+              <label for="userPhone">Téléphone</label>
+            </div>
+          </div>
+        </div>
+        <div class="row gx-3"> 
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="userAddress"
+                formControlName="userAddress"
+                placeholder="Hamo 6" required
+              >
+              <label for="userAddress">Adresse</label>
+            </div>
+          </div> 
+          <div class="col-md sm-pb-3">
+            <div class="form-floating">
+              
+              <label for="role" class="label-role" >Role</label>
+                <ng-multiselect-dropdown
+                  formControlName="authority"
+                  required="true"
+                  placeholder=""
+                  id="role"
+                  [settings]="roleSettings"
+                  [data]="listRoles"
+                  (onSelect)="onItemSelectRole($event)"
+                  (onDropDownClose)="onDropDownCloseRole()"
+                  (onDeSelect)="onItemDeSelectRole($event)"
+                  >
+                </ng-multiselect-dropdown>
+            </div>
+          </div>
+        </div>
+      
+        <br>
+        <div mat-dialog-actions class="float-end p-0">
+          <span>
+            <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
+              Annuler
+            </button>
+            <button type="submit" mat-flat-button class="btn-enregister">
+              Enregistrer
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

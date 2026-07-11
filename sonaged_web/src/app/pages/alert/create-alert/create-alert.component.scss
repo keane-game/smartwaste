@@ -1,0 +1,211 @@
+
+/** modal container css **/
+
+::ng-deep .full-with-dialog .mdc-dialog__container, ::ng-deep .full-with-dialog .mdc-dialog__surface {
+    border-radius: 20px !important;
+    width: 60vw;
+}
+
+:host .mdc-dialog__container{
+    background: #000;
+}
+
+::ng-deep .mat-mdc-dialog-container .mdc-dialog__content{
+    overflow: hidden !important;
+}
+
+.full-with-dialog{
+    width: 100vw;
+}
+
+/** modal header css **/
+.p-title{
+    display: inline-block;
+    margin-top: -18px !important;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+hr.mt-0 {
+    width: inherit;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.btn-close-dialog{
+    margin-right: -1px !important;
+    background-color: #fff;
+    width: 35px;
+    height: 30px;
+    margin-top: 4px;
+    display: inline;
+    position: relative;
+    border: none;
+
+}
+
+.btn-close-dialog:hover{
+    margin-right: 0px !important;
+    background-color: #ccc;
+    border: none;
+    border-radius: 4px;
+
+}
+
+.horizontal-line {
+    border-top: 1px solid #ccc;
+    margin: 16px 0;
+  }
+
+
+
+
+// form.user-form-container ::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--filled .mat-mdc-form-field-infix {
+//     padding-top:9px;
+
+// }
+
+/** modal form css **/
+
+form.user-form-container div.sm-pb-3{
+    padding-bottom: 16px;
+}
+
+form.user-form-container .form-control:focus,
+form.user-form-container .form-select:focus{
+    outline: 0 !important;
+    outline: none !important;
+    box-shadow: none;
+    border-color: #CAD8C8;
+}
+
+
+
+form.user-form-container .form-control::placeholder
+{
+    display: none;
+}
+
+form.user-form-container .form-control:focus::placeholder
+{
+    color: #cecccc;
+    font-weight: 300 !important;
+}
+
+:host  form.user-form-container label
+{
+    color: #000;
+    font-weight: 500;
+    font-size: 18px;
+    &::after
+    {
+        background-color:transparent ;
+    }
+
+}
+form.user-form-container  .form-control:focus + label,
+form.user-form-container .form-select:focus + label
+{
+    top: -5px;
+    font-size: 20px;
+}
+
+
+form.user-form-container .form-control,
+form.user-form-container .form-select
+{
+    color: #000000f7;
+    font-weight: lighter;
+    border-radius: 10px;
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+select:-webkit-autofill:focus
+ {
+  transition: background-color 0s 600000s, color 0s 600000s;
+}
+
+/** modal action button  css **/
+
+.btn-annuler, .btn-enregister {
+    width: 12rem;
+    font-size: 14px;
+    border-radius: 10px;
+    height: 3rem;
+    border: none;
+}
+
+.btn-annuler {
+    background: #cecccc;
+    color: #000;
+}
+
+.btn-enregister {
+    background-color: #5D8B47 !important;
+    color: #fff;
+}
+
+
+
+
+/** modal media query **/
+@media (min-width: 200px){
+    mat-dialog-container{
+      max-width: 100vw;
+    }
+    
+    form.user-form-container div.sm-pb-3{
+        padding-bottom: 16px;
+
+    }
+}
+
+
+
+ :host textarea.form-control {
+    height: 100px !important;
+ }
+
+ .custom-file-upload {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .file-label {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: white;
+    border-radius: 10px;
+    width: 100%;
+    height: 60px;
+    line-height: 2;
+    border: 1px solid #cecccc !important;
+  }
+  
+  .file-label:hover {
+    background-color: #5D8B47 !important;
+    color: #fff !important;
+  }
+  
+// after select item 
+:host  form.user-form-container label.label-select.label_after{
+    top: 12px;
+   color: #000 !important;
+    font-weight: 500 !important;
+    font-size: 22px;
+    
+}
+
+.form-floating  .form-control:focus + label.label-select
+{
+    top: -5px;
+    font-size: 20px;
+    color: #000 !important;
+}

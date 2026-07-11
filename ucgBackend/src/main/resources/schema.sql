@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS sonaged;
+CREATE DATABASE sonaged;

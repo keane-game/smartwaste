@@ -1,0 +1,87 @@
+<div class="generalcontainer">
+
+    <div class="search-filter">
+      <div class="mat-form-field">
+        <mat-form-field appearance="outline" style="width: 100%;">
+          <mat-label style="display: flex; flex-direction: row; justify-content: center;">
+            <mat-icon style="font-size: larger; margin-right: 0.5rem;">search</mat-icon>
+            Recherche
+          </mat-label>
+          <input matInput (keyup)="($event)" placeholder="" #input>
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" style="width: 12%;" mat-stroked-button class="btn-filter">
+        <mat-label>
+          <mat-icon style="padding-right: 2rem">filter_list</mat-icon>
+          Filter
+        </mat-label>
+        <mat-select>
+          <mat-option value="option1">Das</mat-option>
+          <mat-option value="option2">Role</mat-option>
+          <mat-option value="option3">Email</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button class="add-user-btn" (click)="openCreateCircuitCollecModal()">Ajouter utilisateur</button>
+    </div>
+    <table mat-table [dataSource]="dataSource" aria-describedby="display users" class="mat-elevation-z0"
+      style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem" matSort matSortActive="created"
+      matSortDisableClear matSortDirection="asc" (matSortChange)="announceSortChange($event)">
+      <ng-container matColumnDef="userLastname">
+  
+        <th style="border-top-left-radius: 1.25rem" mat-header-cell *matHeaderCellDef mat-sort-header
+          sortActionDescription="Sort by name"> Nom
+          <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon>
+        </th>
+        <td mat-cell *matCellDef="let element"> {{element.userLastname }} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="userFirstname">
+  
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Prénom
+          <mat-icon type="button" class="swap-sort-header-arrow">swap_vert</mat-icon>
+        </th>
+        <td mat-cell *matCellDef="let element"> {{element.userFirstname }} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="userEmail">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let element"> {{element.userEmail}} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="userAddress">
+        <th mat-header-cell *matHeaderCellDef> Adresse </th>
+        <td mat-cell *matCellDef="let element"> {{element.userAddress}} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="userPhone">
+        <th mat-header-cell *matHeaderCellDef> Téléphone </th>
+        <td mat-cell *matCellDef="let element"> {{element.userPhone}} </td>
+  
+      </ng-container>
+  
+      <ng-container matColumnDef="action">
+        <th style="border-top-right-radius: 1.25rem" mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let element">
+          <i class="bi bi-pencil-square " (click)="openUpdateCircuitCollectModal(element.userId)"></i>&nbsp;
+          <i class="bi bi-trash-fill" (click)="openDeleteCircuitCollecModal(element.userId)"></i>
+  
+        </td>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <div class="text-center my-5 lg-text" *ngIf="totalCicuitCollects <= 0">
+      Auncune donnée n'est disponible sur ce tableau
+    </div>
+  
+  
+  
+    <app-pagination-custumer 
+      [length]="totalCicuitCollects"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="pageSizeOptions"
+      [totalPages]="totalPages"
+      (pageChange)="onPaginatedChange($event)">
+    </app-pagination-custumer>
+  </div>

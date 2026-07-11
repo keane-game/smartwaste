@@ -1,0 +1,475 @@
+[
+    {
+        "geometryType": "esriGeometryPoint",
+        "spatialReference": {
+            "wkid": 32628,
+            "latestWkid": 32628
+        }
+        },
+        {
+
+        "features": [
+            {
+                "attributes": {
+                    "FID": 0,
+                    "OBJECTID_1": 1,
+                    "OBJECTID": 65,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Ecole dalifort",
+                    "X": 239505,
+                    "Y": 1631116
+                },
+                "geometry": {
+                    "x": 239504.80169999972,
+                    "y": 1631115.8399999999
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 1,
+                    "OBJECTID_1": 6,
+                    "OBJECTID": 70,
+                    "R_gion": "Dakar",
+                    "Commune": "Diamagueune",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Route nationale RN1",
+                    "X": 245580,
+                    "Y": 1631606
+                },
+                "geometry": {
+                    "x": 245580.20359999966,
+                    "y": 1631605.9814999998
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 2,
+                    "OBJECTID_1": 11,
+                    "OBJECTID": 200,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Point de Propreté guinaw Rails Sud",
+                    "X": 243149,
+                    "Y": 1632042
+                },
+                "geometry": {
+                    "x": 243149.17769999988,
+                    "y": 1632041.7234000005
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 3,
+                    "OBJECTID_1": 17,
+                    "OBJECTID": 249,
+                    "R_gion": "Dakar",
+                    "Commune": "Mbao",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Fks",
+                    "X": 251473,
+                    "Y": 1630072
+                },
+                "geometry": {
+                    "x": 251473.14290000033,
+                    "y": 1630071.8134000003
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 4,
+                    "OBJECTID_1": 25,
+                    "OBJECTID": 257,
+                    "R_gion": "Dakar",
+                    "Commune": "Mbao",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Senelec Mbao",
+                    "X": 251041,
+                    "Y": 1630910
+                },
+                "geometry": {
+                    "x": 251040.51699999999,
+                    "y": 1630909.5570999999
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 5,
+                    "OBJECTID_1": 29,
+                    "OBJECTID": 526,
+                    "R_gion": "Dakar",
+                    "Commune": "Sicap Mbao",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Point de Propreté fora",
+                    "X": 246246,
+                    "Y": 1631748
+                },
+                "geometry": {
+                    "x": 246246.46160000004,
+                    "y": 1631747.8783
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 6,
+                    "OBJECTID_1": 32,
+                    "OBJECTID": 529,
+                    "R_gion": "Dakar",
+                    "Commune": "Thiaroye",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Point de Propreté Charles",
+                    "X": 243646,
+                    "Y": 1631496
+                },
+                "geometry": {
+                    "x": 243646.42050000001,
+                    "y": 1631495.7487000003
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 7,
+                    "OBJECTID_1": 63,
+                    "OBJECTID": 13,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Marché guinaw rail",
+                    "X": 243319,
+                    "Y": 1632160
+                },
+                "geometry": {
+                    "x": 243319.12409999967,
+                    "y": 1632159.5197999999
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 8,
+                    "OBJECTID_1": 64,
+                    "OBJECTID": 14,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Mur Péage Goree",
+                    "X": 243774,
+                    "Y": 1632003
+                },
+                "geometry": {
+                    "x": 243773.96509999968,
+                    "y": 1632003.3999000005
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 9,
+                    "OBJECTID_1": 65,
+                    "OBJECTID": 15,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Passerelle guinaw rail",
+                    "X": 243592,
+                    "Y": 1632893
+                },
+                "geometry": {
+                    "x": 243592.49820000026,
+                    "y": 1632892.8772999998
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 10,
+                    "OBJECTID_1": 66,
+                    "OBJECTID": 16,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Mur TER guinaw rail",
+                    "X": 243424,
+                    "Y": 1632810
+                },
+                "geometry": {
+                    "x": 243423.61629999988,
+                    "y": 1632809.8833000008
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 11,
+                    "OBJECTID_1": 70,
+                    "OBJECTID": 25,
+                    "R_gion": "Dakar",
+                    "Commune": "Pikine",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Bountou Pikine",
+                    "X": 241373,
+                    "Y": 1631626
+                },
+                "geometry": {
+                    "x": 241372.8077999996,
+                    "y": 1631626.0243999995
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 0,
+                    "OBJECTID_1": 47,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Dalifort",
+                    "X": 240463,
+                    "Y": 1631417
+                },
+                "geometry": {
+                    "x": 240463,
+                    "y": 1631417
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 1,
+                    "OBJECTID_1": 48,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Dalifort",
+                    "X": 240343,
+                    "Y": 1631290
+                },
+                "geometry": {
+                    "x": 240343,
+                    "y": 1631290
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 2,
+                    "OBJECTID_1": 49,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Dalifort",
+                    "X": 240105,
+                    "Y": 1631229
+                },
+                "geometry": {
+                    "x": 240105,
+                    "y": 1631229
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 3,
+                    "OBJECTID_1": 50,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Dalifort",
+                    "X": 240146,
+                    "Y": 1630934
+                },
+                "geometry": {
+                    "x": 240146,
+                    "y": 1630934
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 4,
+                    "OBJECTID_1": 51,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Dalifort",
+                    "X": 240108,
+                    "Y": 1630770
+                },
+                "geometry": {
+                    "x": 240108,
+                    "y": 1630770
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 5,
+                    "OBJECTID_1": 52,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Dalifort",
+                    "X": 239599,
+                    "Y": 1630383
+                },
+                "geometry": {
+                    "x": 239599,
+                    "y": 1630383
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 6,
+                    "OBJECTID_1": 53,
+                    "OBJECTID": 0,
+                    "R_gion": "Dakar",
+                    "Commune": "Dalifort",
+                    "Type_de_Mo": "PP",
+                    "Adresse_de": "Dalifort",
+                    "X": 239583,
+                    "Y": 1630490
+                },
+                "geometry": {
+                    "x": 239583,
+                    "y": 1630490
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 0,
+                    "OBJECTID_1": 30,
+                    "OBJECTID": 527,
+                    "R_gion": "Dakar",
+                    "Commune": "Thiaroye",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "PRN tableau tivaouane",
+                    "X": 244477,
+                    "Y": 1631638
+                },
+                "geometry": {
+                    "x": 244476.81290000025,
+                    "y": 1631637.7333000004
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 1,
+                    "OBJECTID_1": 31,
+                    "OBJECTID": 528,
+                    "R_gion": "Dakar",
+                    "Commune": "Thiaroye",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "PRN Poste Thiaroye",
+                    "X": 244039,
+                    "Y": 1631587
+                },
+                "geometry": {
+                    "x": 244038.64719999954,
+                    "y": 1631586.7455000002
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 2,
+                    "OBJECTID_1": 33,
+                    "OBJECTID": 530,
+                    "R_gion": "Dakar",
+                    "Commune": "Thiaroye",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "PRN Badiene Gokh",
+                    "X": 243287,
+                    "Y": 1631112
+                },
+                "geometry": {
+                    "x": 243286.92590000015,
+                    "y": 1631111.7244000006
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 3,
+                    "OBJECTID_1": 67,
+                    "OBJECTID": 19,
+                    "R_gion": "Dakar",
+                    "Commune": "Pikine",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Poste Thiaroye",
+                    "X": 243247,
+                    "Y": 1631266
+                },
+                "geometry": {
+                    "x": 243247.08270000014,
+                    "y": 1631265.7738000005
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 4,
+                    "OBJECTID_1": 68,
+                    "OBJECTID": 21,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Noguaye  Guéye",
+                    "X": 243511,
+                    "Y": 1632405
+                },
+                "geometry": {
+                    "x": 243510.77720000036,
+                    "y": 1632404.6006000005
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 5,
+                    "OBJECTID_1": 69,
+                    "OBJECTID": 22,
+                    "R_gion": "Dakar",
+                    "Commune": "Guinaw rail",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Marche Thiaroye",
+                    "X": 243704,
+                    "Y": 1632616
+                },
+                "geometry": {
+                    "x": 243704.39130000025,
+                    "y": 1632616.4963000007
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 6,
+                    "OBJECTID_1": 71,
+                    "OBJECTID": 26,
+                    "R_gion": "Dakar",
+                    "Commune": "Pikine",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Arène Nationale",
+                    "X": 241643,
+                    "Y": 1633704
+                },
+                "geometry": {
+                    "x": 241642.65890000015,
+                    "y": 1633704.1557
+                }
+            },
+            {
+                "attributes": {
+                    "FID": 7,
+                    "OBJECTID_1": 72,
+                    "OBJECTID": 27,
+                    "R_gion": "Dakar",
+                    "Commune": "Pikine",
+                    "Type_de_Mo": "PRN",
+                    "Adresse_de": "Brigade des douanes de Pikine",
+                    "X": 241841,
+                    "Y": 1631989
+                },
+                "geometry": {
+                    "x": 241841.26599999983,
+                    "y": 1631988.9695999995
+                }
+            }
+
+
+        ]
+    }
+]

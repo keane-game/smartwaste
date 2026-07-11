@@ -1,0 +1,38 @@
+
+<div class="col-md-12">
+    <div class="col-middle">
+      <div class="text-center text-center" *ngIf="errorCode == 404">
+        <h1 class="error-number">{{ errorCode }}</h1>
+        <h2>{{ 'ERROR_PAGE.PAGE_NOT_FOUND' | translate }}</h2>
+        <p>{{ 'ERROR_PAGE.PAGE_NOT_FOUND_MSG' | translate }}</p>
+        <div class="mid_center">
+          <a [routerLink]="'/'">
+            <h5>{{ 'ERROR_PAGE.GO_HOME' | translate }}</h5>
+          </a>
+        </div>
+      </div>
+  
+      <div class="text-center text-center" *ngIf="errorCode == 403">
+        <h1 class="error-number">{{ errorCode }}</h1>
+        <h2>{{ 'ERROR_PAGE.ACCESS_DENIED' | translate }}</h2>
+        <p>{{ 'ERROR_PAGE.ACCESS_DENIED_MSG' | translate }}</p>
+        <div class="mid_center">
+          <a [routerLink]="'/'">
+            <h5>{{ 'ERROR_PAGE.GO_HOME' | translate }}</h5>
+          </a>
+        </div>
+      </div>
+  
+      <div class="text-center" *ngIf="!errorCode || errorCode == 500">
+        <h1 class="error-number">{{ errorCode }}</h1>
+        <h2>{{ 'ERROR_PAGE.INTERNAL_ERROR' | translate }}</h2>
+        <p>{{ 'ERROR_PAGE.INTERNAL_ERROR_MSG' | translate }}</p>
+        <div class="mid_center">
+          <a [routerLink]="'/'">
+            <h5>{{ 'ERROR_PAGE.GO_HOME' | translate }}</h5>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  

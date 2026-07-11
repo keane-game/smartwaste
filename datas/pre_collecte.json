@@ -1,0 +1,84 @@
+[   {
+    "geometryType": "esriGeometryPoint",
+    "spatialReference": {
+        "wkid": 32628,
+        "latestWkid": 32628
+    }
+    },
+    {
+   
+    "features": [
+        {
+            "attributes": {
+                "FID": 0,
+                "Id": 0,
+                "Nom": "Marche bou Bess",
+                "Commune": "Djidah Thiaroye Kao"
+            },
+            "geometry": {
+                "x": 244554,
+                "y": 1634797
+            }
+        },
+        {
+            "attributes": {
+                "FID": 1,
+                "Id": 0,
+                "Nom": "Pack Keurigne",
+                "Commune": "Pikine Est"
+            },
+            "geometry": {
+                "x": 243336,
+                "y": 1633172
+            }
+        },
+        {
+            "attributes": {
+                "FID": 2,
+                "Id": 0,
+                "Nom": "ICOTAF",
+                "Commune": "Pikine Est"
+            },
+            "geometry": {
+                "x": 243152,
+                "y": 1633327
+            }
+        },
+        {
+            "attributes": {
+                "FID": 3,
+                "Id": 0,
+                "Nom": "MERIDIEN",
+                "Commune": "PIKINE EST"
+            },
+            "geometry": {
+                "x": 242993,
+                "y": 1633417
+            }
+        },
+        {
+            "attributes": {
+                "FID": 4,
+                "Id": 0,
+                "Nom": "CIMETIERE PIKINE",
+                "Commune": "PIKINE EST"
+            },
+            "geometry": {
+                "x": 241573,
+                "y": 1632913
+            }
+        },
+        {
+            "attributes": {
+                "FID": 5,
+                "Id": 0,
+                "Nom": "CASE DES TOUTS PETITS",
+                "Commune": "DIAMAGUEUNE SICAP MBAO"
+            },
+            "geometry": {
+                "x": 246357,
+                "y": 1632586
+            }
+        }
+    ]
+    }]

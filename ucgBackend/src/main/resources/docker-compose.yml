@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  smtp4dev:
+    image: rnwood/smtp4dev
+    ports:
+      # Change the number before : to the port the web interface should be accessible on
+      - 9081:80
+      # Change the number before : to the port the SMTP server should be accessible on
+      - "25:25"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - smtp4dev-data:/smtp4dev
+
+volumes:
+  smtp4dev-data:
+
+
+
+  #db:
+    #container_name: mariadb-11.0.2-jammy
+    #image: mariadb:11.0.2-jammy
+    #restart: always
+      #environment:
+      # MARIADB_ROOT_PASSWORD: example
+      #ports:
+      # - 3308:3306

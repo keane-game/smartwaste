@@ -1,0 +1,102 @@
+{
+  "PROJECT": "Project",
+  "DEPARTMENT": "Department",
+  "USER": "User",
+  "NOTEKPIS": "Notekpis",
+  "NAVBAR": {
+    "TITLE": "Internationalization"
+  },
+  "SIDEBARD": {
+    "MENU": "MENU",
+    "DASHBOARD": "Dashboard",
+    "USER": "User Management",
+    "DEPARTMENT": "Department Management",
+    "PROJECT": "Project Management",
+    "KPI": "KPI Management",
+    "FINAL": "Final KPIs Management",
+    "PRODUCTIVITY": "Productivity",
+    "LOGOUT": "Log Out",
+    "TRACKING": "Action Tracking"
+  },
+  "TABLE": {
+    "ACTION": "Actions"
+  },
+  "SEARCH": {
+    "INPUT": "Search",
+    "FILTER": "Filter",
+    "USER": {
+      "ADD": "Add User"
+    },
+    "PROJECT": {
+      "ADD": "Create Project"
+    },
+    "DEPARTMENT": {
+      "ADD": "Add Department"
+    },
+    "KPI": {
+      "ADD": "Add KPI",
+      "AFFECT": "Assign"
+    }
+  },
+  "PAGINATION": {
+    "RESULT": "results"
+  },
+  "MODAL": {
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "SUBMIT": "Submit",
+    "PROJECT": {
+      "ADD": "New Project",
+      "EDIT": "Edit Project",
+      "DELETE": "Delete Project"
+    },
+    "DEPARTMENT": {
+      "ADD": "New Department",
+      "EDIT": "Edit Department",
+      "DELETE": "Delete Department"
+    }
+  },
+  "PROJECT": {
+    "NAME": "Project Name",
+    "ENTITY": "Entity",
+    "CONTACT": "Contact",
+    "RESSOURCES": "Resources",
+    "DGL_TOTAL": "Dlg Total",
+    "PM_CONTACT": "PM or Contact",
+    "LEAD_DEV": "Lead Dev",
+    "PROXY_PO": "Proxy PO",
+    "AGILE": "Agile",
+    "SPRINT_DURATION": "Sprint Duration",
+    "DEPARTEMENT": "Department",
+    "TEAM_MEMBER": "Team Member",
+    "PROJECT_MANAGER": "Project Manager"
+  },
+  "DEPARTMENT": {
+    "NAME": "Department Name",
+    "HEAD_OF_DEPARTMENT": "Head of Department",
+    "PROJECT_NUMBER": "Number of Projects"
+  },
+  "KPI": {
+    "NAME": "KPI Name",
+    "DESCRIPTION": "Description",
+    "PERFORMANCE": "Performance"
+  },
+  "NOTEKPIS": {
+    "DESCRIPTION": "Project Description",
+    "DEPARTMENT": "Department",
+    "SPRINT": "Sprint",
+    "RESOURCES": "Resources",
+    "PROGRESS": "Progress",
+    "PROJECT_MEMBER": "Project Members",
+    "KPI": "KPI",
+    "NOTE": "Note",
+    "COMMENT": "Comment"
+  },
+
+  "ERROR": {
+    "INTERNAL_ERROR": "An unknown error occurred!",
+    "CLIENT_SIDE": "Client-side error",
+    "SERVER_SIDE": "Server-side error",
+    "GENERIC": "Something bad happened; please try again later."
+  }
+}

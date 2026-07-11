@@ -1,0 +1,101 @@
+application-description: ''
+application-version: ''
+project-version: ''
+
+
+
+server:
+  port: 8089
+
+spring:
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXX
+  activemq:
+    broker-url: tcp://localhost:61616
+    jmx-broker-url: service:jmx:rmi:///jndi/rmi://localhost:61616/jmxrmi
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/sonaged
+    driver-class-name: org.postgresql.Driver
+    password: keane
+    username: postgres
+    initialization-mode: always
+    schema: classpath:schema.sql
+
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+    enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      naming:
+        #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  batch:
+    initialize-schema: always
+
+  mail:
+    default-encoding: UTF-8
+    host: localhost
+    username: #abdouaziz.kane@unchk.edu.sn #abdouazizk50@gmail.com
+    password:  #CKcRZdjhv@89109hmVZdpz2A #hmjF6E9hmVZdpz2@CKc
+    port: 25
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  main:
+    allow-circular-references: true
+
+  application:
+    name: '@project.name@'
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+security:
+  filter:
+    active-cors: true
+    cors:
+      allowed-origins: "http://localhost:4200"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      exposed-headers: "Authorization,Link"
+      allow-credentials: true
+      max-age: 1800
+    actorsIps:
+      - "127.0.0.1"
+      - "192.168.1.4"
+      - "10.0.0.0/8"
+    swaggerIps:
+      - "127.0.0.1"
+      - "192.168.1.4"
+      - "10.0.0.0/8"
+springdoc:
+  api-docs:
+    path: /sonaged-docs
+  enable-data-rest: true
+  use-fqn: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

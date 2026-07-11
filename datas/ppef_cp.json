@@ -1,0 +1,388 @@
+[{
+    "geometryType": "esriGeometryPoint",
+    "spatialReference": {
+        "wkid": 32628,
+        "latestWkid": 32628
+    }
+    },
+    {
+
+    "features": [
+        {
+            "attributes": {
+                "FID": 0,
+                "OBJECTID_1": 39,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Bureau Eaux et Forêts",
+                "X": 249457,
+                "Y": 1631794
+            },
+            "geometry": {
+                "x": 249457,
+                "y": 1631794
+            }
+        },
+        {
+            "attributes": {
+                "FID": 1,
+                "OBJECTID_1": 40,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Dakka (Eaux et Forêts)",
+                "X": 248650,
+                "Y": 1632332
+            },
+            "geometry": {
+                "x": 248650,
+                "y": 1632332
+            }
+        },
+        {
+            "attributes": {
+                "FID": 2,
+                "OBJECTID_1": 41,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Arrêt Petit Mbao",
+                "X": 248711,
+                "Y": 1631872
+            },
+            "geometry": {
+                "x": 248711,
+                "y": 1631872
+            }
+        },
+        {
+            "attributes": {
+                "FID": 3,
+                "OBJECTID_1": 42,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Ecole Privée Petit Mbao",
+                "X": 248803,
+                "Y": 1631395
+            },
+            "geometry": {
+                "x": 248803,
+                "y": 1631395
+            }
+        },
+        {
+            "attributes": {
+                "FID": 4,
+                "OBJECTID_1": 43,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Rond Point Croisement Keur Massar",
+                "X": 249714,
+                "Y": 1631723
+            },
+            "geometry": {
+                "x": 249714,
+                "y": 1631723
+            }
+        },
+        {
+            "attributes": {
+                "FID": 5,
+                "OBJECTID_1": 44,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Kambe 1",
+                "X": 250755,
+                "Y": 1631611
+            },
+            "geometry": {
+                "x": 250755,
+                "y": 1631611
+            }
+        },
+        {
+            "attributes": {
+                "FID": 6,
+                "OBJECTID_1": 45,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Kambe 2",
+                "X": 250989,
+                "Y": 1631655
+            },
+            "geometry": {
+                "x": 250989,
+                "y": 1631655
+            }
+        },
+        {
+            "attributes": {
+                "FID": 7,
+                "OBJECTID_1": 46,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Près Garage Keur Massar",
+                "X": 250314,
+                "Y": 1633980
+            },
+            "geometry": {
+                "x": 250314,
+                "y": 1633980
+            }
+        },
+        {
+            "attributes": {
+                "FID": 8,
+                "OBJECTID_1": 0,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Cité Enseignants",
+                "X": 0,
+                "Y": 0
+            },
+            "geometry": {
+                "x": 250979,
+                "y": 1633651
+            }
+        },
+        {
+            "attributes": {
+                "FID": 9,
+                "OBJECTID_1": 0,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "PP",
+                "Adresse_de": "Cité Darou Salam",
+                "X": 0,
+                "Y": 0
+            },
+            "geometry": {
+                "x": 248380,
+                "y": 1633514
+            }
+        },
+        {
+            "attributes": {
+                "FID": 0,
+                "OBJECTID_1": 13,
+                "OBJECTID": 202,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rail",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Camp thiaroye",
+                "X": 243849,
+                "Y": 1632536
+            },
+            "geometry": {
+                "x": 243848.80530000012,
+                "y": 1632536.2280000001
+            }
+        },
+        {
+            "attributes": {
+                "FID": 1,
+                "OBJECTID_1": 28,
+                "OBJECTID": 525,
+                "R_gion": "Dakar",
+                "Commune": "Sicap Mbao",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Fora",
+                "X": 246482,
+                "Y": 1631837
+            },
+            "geometry": {
+                "x": 246482.28660000023,
+                "y": 1631836.9651999995
+            }
+        },
+        {
+            "attributes": {
+                "FID": 2,
+                "OBJECTID_1": 54,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Keur Mbaye Fall",
+                "X": 249968,
+                "Y": 1631588
+            },
+            "geometry": {
+                "x": 249968,
+                "y": 1631588
+            }
+        },
+        {
+            "attributes": {
+                "FID": 3,
+                "OBJECTID_1": 55,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Mbao",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Marche Zac Mbao (Precollecte)",
+                "X": 252419,
+                "Y": 1631227
+            },
+            "geometry": {
+                "x": 252419,
+                "y": 1631227
+            }
+        },
+        {
+            "attributes": {
+                "FID": 4,
+                "OBJECTID_1": 56,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Diamagueune Sicap Mbao",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "SAM SAM 3",
+                "X": 246032,
+                "Y": 1633254
+            },
+            "geometry": {
+                "x": 246032,
+                "y": 1633254
+            }
+        },
+        {
+            "attributes": {
+                "FID": 5,
+                "OBJECTID_1": 57,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Dalifort",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Tool yi",
+                "X": 239997,
+                "Y": 1630769
+            },
+            "geometry": {
+                "x": 239997,
+                "y": 1630769
+            }
+        },
+        {
+            "attributes": {
+                "FID": 6,
+                "OBJECTID_1": 58,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Guinaw rail",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Iden Thiaroye",
+                "X": 243848,
+                "Y": 1632536
+            },
+            "geometry": {
+                "x": 243848,
+                "y": 1632536
+            }
+        },
+        {
+            "attributes": {
+                "FID": 7,
+                "OBJECTID_1": 61,
+                "OBJECTID": 8,
+                "R_gion": "Dakar",
+                "Commune": "Pikine",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Diamagueune Sam Sam 3",
+                "X": 246088,
+                "Y": 1633122
+            },
+            "geometry": {
+                "x": 246087.58389999997,
+                "y": 1633122.4112999998
+            }
+        },
+        {
+            "attributes": {
+                "FID": 8,
+                "OBJECTID_1": 62,
+                "OBJECTID": 11,
+                "R_gion": "Dakar",
+                "Commune": "Pikine",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "Diamagueune",
+                "X": 245782,
+                "Y": 1631895
+            },
+            "geometry": {
+                "x": 245781.50140000042,
+                "y": 1631894.5790999997
+            }
+        },
+        {
+            "attributes": {
+                "FID": 9,
+                "OBJECTID_1": 0,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Dalifort",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "SERAS",
+                "X": 0,
+                "Y": 0
+            },
+            "geometry": {
+                "x": 240947,
+                "y": 1631104
+            }
+        },
+        {
+            "attributes": {
+                "FID": 10,
+                "OBJECTID_1": 0,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Pikine Est",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "SYNDICATS",
+                "X": 0,
+                "Y": 0
+            },
+            "geometry": {
+                "x": 242503,
+                "y": 1632613
+            }
+        },
+        {
+            "attributes": {
+                "FID": 11,
+                "OBJECTID_1": 0,
+                "OBJECTID": 0,
+                "R_gion": "Dakar",
+                "Commune": "Pikine EST",
+                "Type_de_Mo": "Caisse Polybenne",
+                "Adresse_de": "SYNDICAT",
+                "X": 0,
+                "Y": 0
+            },
+            "geometry": {
+                "x": 242420,
+                "y": 1632673
+            }
+        }
+
+
+    ]
+}]

@@ -1,0 +1,22 @@
+.content{
+}
+
+/* Error */
+.error-page {
+  min-height: 100vh;
+  background-color: #427976;
+ }
+  .error-page h1 {
+    font-size: 9.375rem;
+    line-height: 1; }
+    @media (max-width: 991px) {
+      .error-page h1 {
+        font-size: 8rem; } }
+  .error-page h2 {
+    font-size: 4.375rem;
+    line-height: 1; }
+  @media (min-width: 992px) {
+    .error-page .error-page-divider {
+      border-left: 3px solid rgba(255, 255, 255, 0.2); } }
+
+/*-------------------------------------------------------------------*/

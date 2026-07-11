@@ -1,0 +1,42 @@
+<div class="custom-pagination">
+  <div class="page-size-selector">
+    <!-- <label for="page-size">Items per page:</label>
+    <select id="page-size" (change)="setPageSize($event)">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+    </select> -->
+  </div>
+  <div class="pagination">
+    <div class="page-item chevron" *ngIf="currentPage > 1">
+      <mat-icon (onclick)="previousPage()" >chevron_left</mat-icon>
+    </div>
+    <ng-container *ngFor="let page of getPages(currentPage)">
+      <div class="page-item" [class.active]="page === currentPage" (click)="goToPage(page)">
+        {{ page }}
+      </div>
+    </ng-container>
+    <div class="page-item chevron" *ngIf="currentPage < totalPages " (click)="nextPage()">
+      <mat-icon>chevron_right</mat-icon>
+    </div>
+  </div>
+   
+  <div class="tableInfos"> {{ currentPage }} - {{ getNumberPage(length,pageSize) }} / {{length}} {{ "PAGINATION.RESULT" | translate }} &nbsp;</div>
+</div> 
+
+<!-- <div class="custom-pagination">
+  <div class="pagination">
+    <div class="page-item chevron" *ngIf="currentPage > 0" (click)="previousPage()">
+      <mat-icon>chevron_left</mat-icon>
+    </div>
+    <span>{{ currentPage + 1 }} / {{ totalPages }}</span>
+    <div class="page-item chevron" *ngIf="currentPage < totalPages - 1" (click)="nextPage()">
+      <mat-icon>chevron_right</mat-icon>
+    </div>
+  </div>
+
+  <div class="page-size-selector">
+    <label for="page-size">Items per page:</label>
+    <select id="page-size" (change)="setPageSize($event)">
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+    </select>
+  </div>
+</div> -->

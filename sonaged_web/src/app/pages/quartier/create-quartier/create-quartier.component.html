@@ -1,0 +1,78 @@
+
+<div  class="m-3 bg-white">
+    <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel quartier</h3>
+    <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
+      <i class="bi bi-x"></i>
+    </button>
+    <!-- <hr class="mt-0"> -->
+    <!-- <div class="horizontal-line"></div> -->
+    <div mat-dialog-content class="row px-0 p-1 no-gutters">
+      <div class="forms-style">
+  
+        <form  [formGroup]="quartierForm" class="user-form-container" (ngSubmit)="onSubmit()">
+        
+          <div class="row gx-3 form-row">
+            <div class="col-md sm-pb-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="quartierName"
+                formControlName="name"
+                placeholder="Nom quartier " required >
+                <label for="quartierName">Nom</label>
+              </div>
+            </div>
+            <div class="col-md sm-pb-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="quartierCode"
+                formControlName="code"
+                 placeholder="Code quartier" required>
+                <label for="quartierCode">Code</label>
+              </div>
+            </div>
+          </div>
+          <div class="row gx-3"> 
+            <div class="col-md sm-pb-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="quartierCav"
+                formControlName="quartierCav"
+                 placeholder="Cav quartier" >
+                <label for="quartierCav">quartierCav</label>
+              </div>
+            </div> 
+            <div class="col-md sm-pb-3">
+              <div class="form-floating">
+                
+              <label for="role" class="label-commune " >Nom</label>
+                <ng-multiselect-dropdown
+                formControlName="commune"
+                required="true"
+                placeholder=""
+                id="role"
+                [settings]="communeSettings"
+                [data]="listCommunes"
+                (onSelect)="onItemSelectCommune($event)"
+                (onDropDownClose)="onDropDownCloseCommune()"
+                (onDeSelect)="onItemDeSelectCommune($event)"
+                >
+                
+              </ng-multiselect-dropdown>
+              </div>
+            
+
+            </div>
+          </div>
+          <br>
+          <div mat-dialog-actions class="float-end p-0">
+            <span>
+              <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
+                Annuler
+              </button>
+              <button type="submit" mat-flat-button mat-dialog-close class="btn-enregister">
+                Enregistrer
+              </button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

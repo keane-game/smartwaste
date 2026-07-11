@@ -1,0 +1,38 @@
+// CSS pagination
+.custom-pagination {
+    display: flex;
+    margin-top: 1.5em;
+}
+
+.pagination {
+    display: flex;
+    flex-grow: 2;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-item {
+    display: flex;
+    border-radius: 50%;
+    padding: 0.2em .7em;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.page-item:hover {
+    background-color: #d9d9d9;
+}
+
+.page-item.active {
+    background-color: #5D8B47;
+    color: white;
+}
+.chevron{
+    padding: .3em .3em;
+}
+.tableInfos {
+    display: flex; 
+    align-items: center; 
+    margin-left: auto; 
+    font-weight: 600;
+}
