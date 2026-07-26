@@ -36,39 +36,22 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.form)
       .subscribe(
         userData => {
-
-          const helper = new JwtHelperService();
-
           // tslint:disable-next-line: no-string-literal
-          const decodedToken = helper.decodeToken(userData['token']);
-          const expirationDate = decodedToken.exp;
-          const isExpired = decodedToken.iat;
-
-          switch (decodedToken.roles[0]){
-            case 'ROLE_ADMIN' : {
-              console.log(decodedToken);
-              this.router.navigate(['/admin']);
-              break;
-            }
-            case 'ROLE_CM' : {
-              this.router.navigate(['/cm']);
-              break;
-            }
-            case 'ROLE_APPRENANT' : {
-              this.router.navigate(['/apprenant']);
-              break;
-            }
-            case 'ROLE_FORMATEUR' : {
-              this.router.navigate(['/formateur']);
-              break;
-            }
-
-
+          if (!userData || !userData['token']) {
+            this.isLoggedIn = false;
+            this.isLoginFailed = true;
+            return;
           }
-
+          // Le tableau de bord est le point d'entrée commun après connexion.
+          // (Le JWT SONAGED porte un claim « role » unique et informatif ; l'autorisation
+          // effective est gérée côté backend via les authorities de l'utilisateur.)
+          this.isLoginFailed = false;
+          this.router.navigate(['/dashboard']);
         },
         error => {
-        console.log(error);
+          this.isLoggedIn = false;
+          this.isLoginFailed = true;
+          console.log(error);
         });
   }
 
