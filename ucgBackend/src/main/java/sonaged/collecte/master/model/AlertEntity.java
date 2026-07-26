@@ -15,8 +15,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Basic;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,17 +58,22 @@ public class AlertEntity extends AbstractAuditingEntity<Long> {
     @Column(name="Code")
     AlertCode code;
 
+    // P1-7 / ADR-0012 : point de collecte concerné, référencé par IDENTIFIANT.
+    // Le contexte « Alertes » et le contexte « Point de collecte » sont distincts → pas
+    // d'association objet ni de FK physique. Nullable : les alertes saisies manuellement
+    // ne visent pas forcément un dépotoir. (Le remplissage automatique de ce champ par le
+    // moteur de seuils relève de P0-6, module IoT réservé.)
+    @Column(name = "depotoirId")
+    Long depotoirId;
+
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "coordinateId", nullable = true)
     @JsonIgnore
     @ToString.Exclude
     CoordinateEntity coordinate;
 
-    @Lob
-    @Column(length = 1000000)
-    @Basic(fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private byte[] displayPicture;
+    // P1-3 / ADR-0005 : le BLOB `displayPicture` en table ALERT est supprimé.
+    // L'image d'une alerte est désormais portée par `image` (référence de fichier).
 
     @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY )

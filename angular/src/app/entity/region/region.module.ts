@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { CrudModule } from '../../shares/crud/crud.module';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -11,6 +12,7 @@ import { ListRegionComponent } from './list/list-region.component';
     ListRegionComponent
   ],
   imports: [
+    CrudModule,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,

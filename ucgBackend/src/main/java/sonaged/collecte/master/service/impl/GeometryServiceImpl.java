@@ -37,7 +37,7 @@ public class GeometryServiceImpl implements GeometryService {
 
     @Override
     public List<Geometry> readAllGeometry() {
-        var geometryList = geometryRepository.findAll();
+        var geometryList = geometryRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return GeometryMapper.GMP.asListDto(geometryList);
     }
 
@@ -74,7 +74,7 @@ public class GeometryServiceImpl implements GeometryService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Geometry with id [%s] not found ".formatted(geometryId)
                 ));
-        geometryRepository.delete(geometry);
+        geometry.markForDeletion(java.time.LocalDateTime.now()); geometryRepository.save(geometry); // soft-delete (rétention + purge planifiée)
     }
 /*
     private void addExistedCoordinateToGeometry(GeometryEntity geometryEntity, Geometry geometry){

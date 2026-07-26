@@ -105,7 +105,8 @@ public class CommuneEntity extends AbstractAuditingEntity<Long> {
     @ToString.Exclude
     List<DepotoirEntity> depotoirs;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
+    // P1-2 : @ManyToOne est EAGER par défaut → LAZY explicite (chaîne N+1, R3).
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinColumn(name = "departmentId")
     @JsonIgnore
     DepartmentEntity department;

@@ -33,7 +33,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
 
     @Override
     public List<TypeDepotoir> readAllTypeDepotoir() {
-        var typeDepotoirList = typeDepotoirRepository.findAll();
+        var typeDepotoirList = typeDepotoirRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return TypeDepotoirMapper.TDMP.asListDto(typeDepotoirList);
     }
 
@@ -68,7 +68,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)
                 ));
-         typeDepotoirRepository.delete(existedtypeDepotoir);
+         existedtypeDepotoir.markForDeletion(java.time.LocalDateTime.now()); typeDepotoirRepository.save(existedtypeDepotoir); // soft-delete (rétention + purge planifiée)
 
     }
 }

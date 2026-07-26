@@ -87,17 +87,44 @@ public class DepotoirController {
         return depotoirService.updateDepotoir(depotoirId, depotoir);
     }
 
-    @Operation(summary = "Delete One Depotoir by Id")
+    @Operation(summary = "Soft-delete One Depotoir by Id",
+            description = "Suppression logique : le dépotoir passe en attente de suppression (purge après rétention).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Delete one depotoir"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "200", description = "Soft-delete one depotoir"),
+            @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{depotoirId}")
     public String deleteDepotoir(@PathVariable("depotoirId") Long depotoirId) {
         depotoirService.deleteDepotoir (depotoirId);
-        return "Successfully delete";
+        return "Successfully soft-deleted";
+    }
+
+    @Operation(summary = "List depotoirs pending deletion",
+            description = "Dépotoirs en attente de suppression (avec date de purge prévue).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "500", description = "Server Error")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/deletions")
+    public List<Depotoir> readPendingDeletions() {
+        return depotoirService.readPendingDeletions();
+    }
+
+    @Operation(summary = "Restore a soft-deleted Depotoir",
+            description = "Restaure un dépotoir en attente de suppression (si le délai de rétention n'est pas dépassé).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Restored"),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "409", description = "Not pending deletion / retention delay elapsed"),
+            @ApiResponse(responseCode = "500", description = "Server Error")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/{depotoirId}/restore")
+    public Depotoir restoreDepotoir(@PathVariable("depotoirId") Long depotoirId) {
+        return depotoirService.restoreDepotoir(depotoirId);
     }
 
 }

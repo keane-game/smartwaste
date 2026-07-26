@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListCircuitCollectComponent } from './list/list-circuit-collect.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListCircuitCollectComponent }
-];
-
+/**
+ * Routes de la ressource « circuit-collects » : liste, création et édition sont rendues par les
+ * composants CRUD génériques, configurés par `ENTITY_CONFIGS` (clé « circuit-collects »).
+ */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('circuit-collects'))],
   exports: [RouterModule]
 })
 export class CircuitCollectRoutingModule { }

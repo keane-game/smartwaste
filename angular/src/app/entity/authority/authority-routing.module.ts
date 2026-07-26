@@ -1,13 +1,10 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListAuthorityComponent } from './list/list-authority.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListAuthorityComponent }
-];
-
+/** Routes de la ressource « authorities » (CRUD générique). */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('authorities'))],
   exports: [RouterModule]
 })
 export class AuthorityRoutingModule { }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.TypeDepotoirEntity;
 
 @Repository
-public interface TypeDepotoirRepository extends JpaRepository<TypeDepotoirEntity, Long> {
+public interface TypeDepotoirRepository extends SoftDeleteRepository<TypeDepotoirEntity, Long> {
 
     TypeDepotoirEntity findByNameIgnoreCase(String name);
 }

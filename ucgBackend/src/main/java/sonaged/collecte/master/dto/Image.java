@@ -19,7 +19,10 @@ public class Image {
 
     private Long imageId;
 
-    private byte[] data;
+    // P1-3 / ADR-0005 : référence vers le fichier (plus de BLOB `data`).
+    private String path;
+    private String url;
+    private Long size;
 
     private String name;
     private String type;

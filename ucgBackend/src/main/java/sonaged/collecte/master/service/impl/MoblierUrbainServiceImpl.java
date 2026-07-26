@@ -29,7 +29,7 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
     @Override
     public List<MoblierUrbain> readAllMoblierUrbain() {
-        var moblierUrbainList = moblierUrbainRepository.findAll();
+        var moblierUrbainList = moblierUrbainRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return MoblierUrbainMapper.MUMP.asListDto(moblierUrbainList);
     }
 
@@ -65,6 +65,6 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found ".formatted(moblierUrbainId)
                 ));
-        moblierUrbainRepository.delete(moblierUrbain);
+        moblierUrbain.markForDeletion(java.time.LocalDateTime.now()); moblierUrbainRepository.save(moblierUrbain); // soft-delete (rétention + purge planifiée)
     }
 }

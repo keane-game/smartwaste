@@ -6,7 +6,7 @@ import sonaged.collecte.master.model.CommuneEntity;
 
 import java.util.List;
 
-public interface CommuneRepository extends JpaRepository<CommuneEntity, Long> {
+public interface CommuneRepository extends SoftDeleteRepository<CommuneEntity, Long> {
     CommuneEntity findByNameIgnoreCase(String name);
     List<CommuneEntity> findByNameContainingIgnoreCase(String name);
 

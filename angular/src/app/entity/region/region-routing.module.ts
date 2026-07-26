@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListRegionComponent } from './list/list-region.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListRegionComponent }
-];
-
+/**
+ * Routes de la ressource « regions » : liste, création et édition sont rendues par les
+ * composants CRUD génériques, configurés par `ENTITY_CONFIGS` (clé « regions »).
+ */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('regions'))],
   exports: [RouterModule]
 })
 export class RegionRoutingModule { }

@@ -68,10 +68,13 @@ public class JwtService {
         final long currentTime = System.currentTimeMillis();
         final long expirationTime = currentTime + SecurityConstants.EXPIRATION_TIME;
         final List<String> roles = user.getAuthorities().stream ().map (GrantedAuthority::getAuthority).collect(Collectors.toList ());
+        // Garde contre un utilisateur sans autorité (évite IndexOutOfBoundsException / 500 au login).
+        // Claim "role" purement informatif : l'autorisation s'appuie sur les authorities chargées en base.
+        final String role = roles.isEmpty() ? "" : roles.get(0);
         final Map<String, Object> claims = Map.of(
                 "firstname", user.getUserFirstname (),
                 "lastname", user.getUserLastname (),
-                "role", roles.get (0),
+                "role", role,
                 Claims.ISSUED_AT, currentTime,
 
                 Claims.EXPIRATION, new Date(System.currentTimeMillis()+ SecurityConstants.EXPIRATION_TIME),

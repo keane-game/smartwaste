@@ -29,4 +29,79 @@
     </div>
   </div>
 
+  <!-- ============ Indicateurs avancés (P2-5) — GET /v1/supervision/stats ============ -->
+  <section class="advanced" *ngIf="stats">
+
+    <header class="advanced__head">
+      <h2>Activité des alertes</h2>
+      <label class="window">
+        Fenêtre
+        <select [(ngModel)]="windowDays" (ngModelChange)="loadStats()">
+          <option [ngValue]="7">7 jours</option>
+          <option [ngValue]="30">30 jours</option>
+          <option [ngValue]="90">90 jours</option>
+        </select>
+      </label>
+    </header>
+
+    <div class="kpi-row">
+      <div class="kpi"><strong>{{ stats.totalAlerts | number }}</strong><span>alertes actives</span></div>
+      <div class="kpi"><strong>{{ stats.alertsLast7Days | number }}</strong><span>sur 7 jours</span></div>
+      <div class="kpi"><strong>{{ stats.liveSubscribers | number }}</strong><span>flux temps réel ouverts</span></div>
+    </div>
+
+    <!-- Alertes par jour : les jours sans alerte sont présents à 0 (série pré-remplie côté backend). -->
+    <div class="chart" *ngIf="stats.alertsPerDay?.length">
+      <div class="chart__bar" *ngFor="let d of stats.alertsPerDay"
+           [style.height.%]="barHeight(d.count)"
+           [title]="d.day + ' — ' + d.count + ' alerte(s)'">
+      </div>
+    </div>
+    <p class="chart__caption" *ngIf="stats.alertsPerDay?.length">
+      Alertes par jour sur {{ stats.windowDays }} jours
+    </p>
+
+    <div class="breakdowns">
+      <div class="breakdown">
+        <h3>Alertes par code</h3>
+        <p class="empty" *ngIf="!entries(stats.alertsByCode).length">Aucune alerte.</p>
+        <ul>
+          <li *ngFor="let e of entries(stats.alertsByCode)"><span>{{ e.key }}</span><b>{{ e.value }}</b></li>
+        </ul>
+      </div>
+
+      <div class="breakdown">
+        <h3>Points de collecte par type</h3>
+        <p class="empty" *ngIf="!entries(stats.depotoirsByType).length">Aucun point de collecte.</p>
+        <ul>
+          <li *ngFor="let e of entries(stats.depotoirsByType)"><span>{{ e.key }}</span><b>{{ e.value }}</b></li>
+        </ul>
+      </div>
+
+      <div class="breakdown">
+        <h3>Circuits par commune</h3>
+        <p class="empty" *ngIf="!entries(stats.circuitsByCommune).length">Aucun circuit.</p>
+        <ul>
+          <li *ngFor="let e of entries(stats.circuitsByCommune)">
+            <span>Commune #{{ e.key }}</span><b>{{ e.value }}</b>
+          </li>
+        </ul>
+      </div>
+
+      <div class="breakdown" *ngIf="hasPendingDeletions">
+        <h3>Corbeille (en attente de purge)</h3>
+        <ul>
+          <li *ngFor="let e of entries(stats.pendingDeletions)"><span>{{ e.key }}</span><b>{{ e.value }}</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note">
+      Le <strong>taux de remplissage</strong> n'est pas affiché : il dépend de l'ingestion IoT
+      (ADR-0004), module réservé et non implémenté.
+    </p>
+  </section>
+
+  <p class="error" *ngIf="statsError">{{ statsError }}</p>
+
 </div>

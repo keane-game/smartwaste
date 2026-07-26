@@ -1,0 +1,45 @@
+<div class="entity-form" *ngIf="config">
+
+  <div class="entity-form__header">
+    <h2>{{ isEdit ? 'Modifier' : 'Nouveau' }} — {{ config.label }}</h2>
+    <button type="button" class="btn btn--ghost" (click)="back()">Retour à la liste</button>
+  </div>
+
+  <p class="alert alert--error" *ngIf="error">{{ error }}</p>
+  <p class="state" *ngIf="loading">Chargement…</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!loading" novalidate>
+
+    <div class="field" *ngFor="let field of config.fields">
+      <label [attr.for]="field.name">
+        {{ field.label }}
+        <span class="field__required" *ngIf="field.required" aria-hidden="true">*</span>
+      </label>
+
+      <textarea *ngIf="field.type === 'textarea'"
+                [id]="field.name" class="input" rows="4"
+                [formControlName]="field.name"></textarea>
+
+      <input *ngIf="field.type === 'checkbox'"
+             [id]="field.name" type="checkbox"
+             [formControlName]="field.name" />
+
+      <input *ngIf="field.type !== 'textarea' && field.type !== 'checkbox'"
+             [id]="field.name"
+             class="input"
+             [type]="field.type === 'number' ? 'number' : 'text'"
+             [formControlName]="field.name" />
+
+      <small class="field__hint" *ngIf="field.hint">{{ field.hint }}</small>
+      <small class="field__error" *ngIf="errorFor(field)">{{ errorFor(field) }}</small>
+    </div>
+
+    <div class="entity-form__actions">
+      <button type="submit" class="btn btn--primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : (isEdit ? 'Enregistrer' : 'Créer') }}
+      </button>
+      <button type="button" class="btn btn--ghost" (click)="back()" [disabled]="saving">Annuler</button>
+    </div>
+  </form>
+
+</div>

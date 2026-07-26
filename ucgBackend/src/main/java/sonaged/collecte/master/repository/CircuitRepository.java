@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.CircuitEntity;
 
 @Repository
-public interface CircuitRepository extends JpaRepository<CircuitEntity, Long> {
+public interface CircuitRepository extends SoftDeleteRepository<CircuitEntity, Long> {
 }

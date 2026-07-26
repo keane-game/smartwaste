@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Soft-delete pour TOUTES les entités (héritant d'AbstractAuditingEntity).
+      Ajoute `deletionstatus` (défaut ACTIVE) + `deletionrequestedat` à chaque table.
+      Changesets idempotents (préconditions MARK_RAN). Nommage minuscule aligné sur le baseline.
+    -->
+
+    <changeSet id="1.4.0-alert-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="alert" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="alert">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-authority-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="authority" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="authority">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-circuit-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="circuit" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="circuit">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-circuitbalayage-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="circuitbalayage" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="circuitbalayage">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-circuitcollect-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="circuitcollect" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="circuitcollect">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-commune-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="commune" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="commune">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-coordinate-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="coordinate" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="coordinate">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-departement-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="departement" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="departement">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-depotoir-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="depotoir" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="depotoir">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-geometry-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="geometry" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="geometry">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-history-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="history" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="history">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-moblierurbain-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="moblierurbain" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="moblierurbain">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-quartier-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="quartier" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="quartier">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-region-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="region" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="region">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.4.0-typedepotoir-soft-delete" author="sonaged">
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="typedepotoir" columnName="deletionstatus"/></not></preConditions>
+        <addColumn tableName="typedepotoir">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

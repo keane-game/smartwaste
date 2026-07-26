@@ -69,7 +69,8 @@ public class DepartmentEntity extends AbstractAuditingEntity<Long> {
     @ToString.Exclude
     List<CommuneEntity> communes;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE })
+    // P1-2 : @ManyToOne est EAGER par défaut → LAZY explicite (chaîne N+1, R3).
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinColumn(name = "regionId")
     @JsonIgnore
     RegionEntity region;

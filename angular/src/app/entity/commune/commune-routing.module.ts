@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListCommuneComponent } from './list/list-commune.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListCommuneComponent }
-];
-
+/**
+ * Routes de la ressource « communes » : liste, création et édition sont rendues par les
+ * composants CRUD génériques, configurés par `ENTITY_CONFIGS` (clé « communes »).
+ */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('communes'))],
   exports: [RouterModule]
 })
 export class CommuneRoutingModule { }

@@ -51,10 +51,10 @@ public class CircuitBalayageEntity extends AbstractAuditingEntity<Long> {
     @ToString.Exclude
     GeometryEntity geometry;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "communeId")
-    @JsonIgnore
-    CommuneEntity commune;
+    // P1-7 / ADR-0012 : référence par IDENTIFIANT vers le contexte « Référentiel territorial »
+    // (plus d'association objet ni de FK physique cross-contexte).
+    @Column(name = "communeId")
+    Long communeId;
 
     @Override
     public final boolean equals(Object o) {

@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListDepartmentComponent } from './list/list-department.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListDepartmentComponent }
-];
-
+/**
+ * Routes de la ressource « departments » : liste, création et édition sont rendues par les
+ * composants CRUD génériques, configurés par `ENTITY_CONFIGS` (clé « departments »).
+ */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('departments'))],
   exports: [RouterModule]
 })
 export class DepartmentRoutingModule { }

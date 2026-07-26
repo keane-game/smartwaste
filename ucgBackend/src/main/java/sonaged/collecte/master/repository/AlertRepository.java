@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.AlertEntity;
 
 @Repository
-public interface AlertRepository extends JpaRepository<AlertEntity, Long> {
+public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long> {
 }

@@ -38,7 +38,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Department> readAllDepartment() {
-        var departmentList = departmentRepository.findAll();
+        var departmentList = departmentRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return DepartmentMapper.DMP.asListDto(departmentList);
     }
 
@@ -59,7 +59,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Page<Department> readAllDepartment(Pageable pageable) {
-        return departmentRepository.findAll (pageable).map (DepartmentMapper.DMP::asDto);
+        return departmentRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map (DepartmentMapper.DMP::asDto);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Department with id [%s] not found ".formatted(departmentId)
                 ));
-        departmentRepository.delete(department);
+        department.markForDeletion(java.time.LocalDateTime.now()); departmentRepository.save(department); // soft-delete (rétention + purge planifiée)
     }
 
 

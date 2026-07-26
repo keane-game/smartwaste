@@ -464,7 +464,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         circuitBalayage.setName(attributesObject.getString("nomcircuit"));
         circuitBalayage.setShift(CircuitShift.valueOf (attributesObject.getString ("shift")));
         circuitBalayage.setLength(String.valueOf (attributesObject.getDouble ("longueur")));
-        circuitBalayage.setCommune (commune);
+        circuitBalayage.setCommuneId (commune == null ? null : commune.getCommuneId ()); // ADR-0012 : référence par identifiant
         circuitBalayage.setCreatedBy ( "system");
         circuitBalayage.setLastModifiedBy ("system");
         circuitBalayage.setCreatedDate (LocalDateTime.now ());
@@ -493,7 +493,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         circuitCollect.setCreatedDate (LocalDateTime.now ());
         circuitCollect.setLastModifiedDate (LocalDateTime.now ());
         circuitCollect.setArchived (false);
-        circuitCollect.setCommune (commune);
+        circuitCollect.setCommuneId (commune == null ? null : commune.getCommuneId ()); // ADR-0012 : référence par identifiant
         return circuitCollect;
     }
 
@@ -505,7 +505,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         depotoir.setCreatedDate (LocalDateTime.now ());
         depotoir.setLastModifiedDate (LocalDateTime.now ());
         depotoir.setArchived (false);
-        depotoir.setCommune (commune);
+        depotoir.setCommuneId (commune == null ? null : commune.getCommuneId ()); // ADR-0012 : référence par identifiant
         depotoir.setTypeDepotoir (findTypeDepotoirByName( attributesObject.getString ("Type_de_Mo")));
         return depotoir;
     }

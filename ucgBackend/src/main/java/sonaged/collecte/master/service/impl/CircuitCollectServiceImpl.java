@@ -30,13 +30,13 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     @Override
     public List<CircuitCollect> readAllCircuitCollect() {
-        var circuitCollectList = circuitCollectRepository.findAll();
+        var circuitCollectList = circuitCollectRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return CircuitCollectMapper.CCMP.asListDto (circuitCollectList);
     }
 
     @Override
     public Page<CircuitCollect> readAllCircuitCollect(Pageable pageable){
-        return circuitCollectRepository.findAll (pageable).map(CircuitCollectMapper.CCMP::asDto);
+        return circuitCollectRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CircuitCollectMapper.CCMP::asDto);
     }
 
     @Override
@@ -103,6 +103,6 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitCollectId)
                 ));
-        circuitCollectRepository.delete(circuitCollect);
+        circuitCollect.markForDeletion(java.time.LocalDateTime.now()); circuitCollectRepository.save(circuitCollect); // soft-delete (rétention + purge planifiée)
     }
 }

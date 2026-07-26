@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.HistoryEntity;
 
 @Repository
-public interface HistoryRepository extends JpaRepository<HistoryEntity, Long> {
+public interface HistoryRepository extends SoftDeleteRepository<HistoryEntity, Long> {
 }

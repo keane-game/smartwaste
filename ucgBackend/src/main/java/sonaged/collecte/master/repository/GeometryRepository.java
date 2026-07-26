@@ -8,7 +8,7 @@ import sonaged.collecte.master.model.GeometryEntity;
 import java.util.List;
 
 @Repository
-public interface GeometryRepository extends JpaRepository<GeometryEntity, Long> {
+public interface GeometryRepository extends SoftDeleteRepository<GeometryEntity, Long> {
 
     //List<CoordinateEntity> findByCoordinates(Long geometryId);
 }

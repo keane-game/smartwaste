@@ -35,12 +35,12 @@ public class CommuneServiceImpl implements CommuneService {
 
     @Override
     public List<Commune> readAllCommune() {
-       var communeList = communeRepository.findAll();
+       var communeList = communeRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return CommuneMapper.COMP.asListDto(communeList);
     }
 
     public Page<Commune> readAllCommune(Pageable pageable){
-        return communeRepository.findAll(pageable).map(CommuneMapper.COMP::asDto);
+        return communeRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CommuneMapper.COMP::asDto);
     }
 
     @Override
@@ -97,6 +97,6 @@ public class CommuneServiceImpl implements CommuneService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(communeId)
                 ));
-         communeRepository.delete(commune);
+         commune.markForDeletion(java.time.LocalDateTime.now()); communeRepository.save(commune); // soft-delete (rétention + purge planifiée)
     }
 }

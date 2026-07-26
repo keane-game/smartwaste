@@ -29,7 +29,7 @@ public class CircuitServiceImpl implements CircuitService {
 
     @Override
     public List<Circuit> readAllCircuit() {
-        var circuitList = circuitRepository.findAll();
+        var circuitList = circuitRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return CircuitMapper.CIMP.asListDto (circuitList);
     }
 
@@ -66,6 +66,6 @@ public class CircuitServiceImpl implements CircuitService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found to delete".formatted(circuitId)
                 ));
-        circuitRepository.delete(circuit);
+        circuit.markForDeletion(java.time.LocalDateTime.now()); circuitRepository.save(circuit); // soft-delete (rétention + purge planifiée)
     }
 }

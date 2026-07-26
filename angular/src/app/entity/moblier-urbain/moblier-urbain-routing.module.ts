@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ListMoblierUrbainComponent } from './list/list-moblier-urbain.component';
+import { RouterModule } from '@angular/router';
+import { crudRoutes } from '../../shares/crud/crud.module';
 
-const routes: Routes = [
-  { path: '', component: ListMoblierUrbainComponent }
-];
-
+/**
+ * Routes de la ressource « moblier-urbains » : liste, création et édition sont rendues par les
+ * composants CRUD génériques, configurés par `ENTITY_CONFIGS` (clé « moblier-urbains »).
+ */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(crudRoutes('moblier-urbains'))],
   exports: [RouterModule]
 })
 export class MoblierUrbainRoutingModule { }

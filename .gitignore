@@ -1,0 +1,39 @@
+# Secrets / configuration locale
+.env
+.env.*
+!.env.example
+*.local
+**/application-local.properties
+**/application-local.yml
+
+# Backend (Java / Maven)
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+
+# Frontends (Angular / Node)
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+
+# Mobile (Flutter)
+mobileFlutter/build/
+mobileFlutter/.dart_tool/
+mobileFlutter/.flutter-plugins
+mobileFlutter/.flutter-plugins-dependencies
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Secrets versionnés à retirer du suivi ET à roter (voir docs/IMPLEMENTATION_LOG.md P0-2)
+# mobileFlutter/android/app/google-services.json
+
+# Fichiers de travail de l'agent (locaux, non partagés)
+.claude/*.lock

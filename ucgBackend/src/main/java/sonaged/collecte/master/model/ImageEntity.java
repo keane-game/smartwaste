@@ -28,15 +28,26 @@ public class ImageEntity {
     @Column(name = "ImageId")
     Long imageId;
 
-    @Lob
-    @Column(name = "Data")
-    @Basic(fetch = FetchType.LAZY)
-    @ToString.Exclude
-    byte[] data;
+    // P1-3 / ADR-0005 : les images ne sont plus stockées en BLOB. On ne conserve
+    // en base qu'une référence vers le fichier stocké hors base (disque/objet).
 
+    /** Nom du fichier stocké (clé relative dans le répertoire de stockage). */
+    @Column(name = "Path", length = 1024)
+    String path;
+
+    /** URL publique de diffusion de l'image. */
+    @Column(name = "Url", length = 1024)
+    String url;
+
+    /** Taille du fichier en octets. */
+    @Column(name = "Size")
+    Long size;
+
+    /** Nom d'origine du fichier téléversé. */
     @Column(name = "Name")
     String name;
 
+    /** Type MIME. */
     @Column(name = "Type")
     String type;
 

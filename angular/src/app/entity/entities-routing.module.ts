@@ -72,6 +72,22 @@ const routes: Routes = [
         loadChildren: () => import('./authority/authority.module').then(m => m.AuthorityModule)
     },
 
+    {
+        path: 'import',
+        loadChildren: () => import('./data-import/data-import.module').then(m => m.DataImportModule)
+    },
+
+    // Ressources exposées par le backend mais sans écran jusqu'ici.
+    {
+        path: 'coordinates',
+        loadChildren: () => import('./coordinate/coordinate.module').then(m => m.CoordinateModule)
+    },
+
+    {
+        path: 'geometries',
+        loadChildren: () => import('./geometry/geometry.module').then(m => m.GeometryModule)
+    },
+
 ]
 
 @NgModule({

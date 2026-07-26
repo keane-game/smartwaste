@@ -16,7 +16,14 @@ public interface DepotoirService {
 
     Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir);
 
+    /** Suppression logique (soft-delete) : passe en attente de suppression (purge après rétention). */
     void deleteDepotoir(Long depotoirId);
+
+    /** Restaure un dépotoir en attente de suppression (si le délai de rétention n'est pas dépassé). */
+    Depotoir restoreDepotoir(Long depotoirId);
+
+    /** Liste des dépotoirs en attente de suppression (avec date de purge prévue). */
+    List<Depotoir> readPendingDeletions();
 
     Page<Depotoir> readAllDepotoir(Pageable pageable);
 

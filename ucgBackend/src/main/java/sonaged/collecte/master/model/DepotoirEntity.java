@@ -50,20 +50,27 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     @ToString.Exclude
     GeometryEntity geometry;
 
-    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
+    // P1-2 : TypeDepotoir est un référentiel PARTAGÉ. CascadeType.ALL permettait de
+    // supprimer/écraser une valeur de référence en cascade depuis un Depotoir (R4) →
+    // limité à REFRESH/MERGE. EAGER → LAZY pour couper la chaîne N+1 (R3).
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinColumn(name = "typeDepotoirId")
     @JsonIgnore
     TypeDepotoirEntity typeDepotoir;
 
-   /* @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "quartierId")
-    @JsonIgnore
-    QuartierEntity quartier;*/
+    // P1-6 / ADR-0012 : lien Depotoir → Quartier par IDENTIFIANT. Depotoir (contexte « Point de
+    // collecte ») et Quartier (contexte « Référentiel territorial ») sont des contextes distincts
+    // → pas d'association objet, pas de cascade. FK physique retirée en P1-7 (1.5.0).
+    @Column(name = "quartierId")
+    Long quartierId;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "communeId")
-    @JsonIgnore
-    CommuneEntity commune;
+    // P1-7 / ADR-0012 : `@ManyToOne CommuneEntity` → référence par IDENTIFIANT.
+    // Commune appartient au contexte « Référentiel territorial », Depotoir au contexte
+    // « Point de collecte » : aucune association objet, aucune FK physique, aucune cascade
+    // ne doit traverser cette frontière. L'existence de la commune est vérifiée par
+    // validation APPLICATIVE (ContexteReferentielValidator), plus par contrainte SQL.
+    @Column(name = "communeId")
+    Long communeId;
 
 
 

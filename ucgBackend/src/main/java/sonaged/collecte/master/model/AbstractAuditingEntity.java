@@ -13,6 +13,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import sonaged.collecte.master.enums.DeletionStatus;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -55,5 +56,33 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
 
     @Column( columnDefinition="boolean default false")
     boolean archived = false;
+
+    // ---- Soft-delete (suppression logique) : commun à TOUTES les entités ----
+    // Suppression = passage en PENDING_DELETION + horodatage ; purge définitive après la
+    // période de rétention (30 j par défaut, cf. sonaged.deletion.retention-days) ;
+    // restauration possible tant que le délai court. Voir SoftDeleteService / DeletionPurgeScheduler.
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deletionStatus", length = 30)
+    private DeletionStatus deletionStatus = DeletionStatus.ACTIVE;
+
+    @Column(name = "deletionRequestedAt")
+    private LocalDateTime deletionRequestedAt;
+
+    /** Marque l'entité comme supprimée logiquement (à l'instant donné). */
+    public void markForDeletion(LocalDateTime when) {
+        this.deletionStatus = DeletionStatus.PENDING_DELETION;
+        this.deletionRequestedAt = when;
+    }
+
+    /** Restaure l'entité (annule une suppression logique). */
+    public void restore() {
+        this.deletionStatus = DeletionStatus.ACTIVE;
+        this.deletionRequestedAt = null;
+    }
+
+    public boolean isPendingDeletion() {
+        return this.deletionStatus == DeletionStatus.PENDING_DELETION;
+    }
 
 }

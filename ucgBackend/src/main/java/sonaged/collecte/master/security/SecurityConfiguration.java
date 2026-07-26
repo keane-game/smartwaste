@@ -79,8 +79,9 @@ public class SecurityConfiguration{
 
     @Bean
     public AuthenticationProvider authenticationProvider () {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        // Spring Security 6.5 : le constructeur sans argument et setUserDetailsService(...) sont
+        // dépréciés — le UserDetailsService se fournit désormais par le constructeur.
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
         return daoAuthenticationProvider;
     }

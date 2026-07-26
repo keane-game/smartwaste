@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      P1-7 / ADR-0010 + ADR-0012 — Frontières de contexte.
+
+      Retire les clés étrangères qui TRAVERSENT deux bounded contexts. Les colonnes
+      (`communeid`, `quartierid`) sont CONSERVÉES : elles deviennent de simples références
+      par identifiant. L'intégrité correspondante est reportée dans le code
+      (`CrossContextReferenceValidator`), comme le prescrit l'ADR-0012.
+
+      NE SONT PAS RETIRÉES (relations INTERNES à un contexte, donc légitimes) :
+        - quartier.communeid, commune.departmentid, departement.regionid
+          → hiérarchie du « Référentiel territorial », un seul contexte ;
+        - *.geometryid, coordinate.geometryid
+          → composition (même agrégat, même cycle de vie) ;
+        - depotoir.typedepotoirid
+          → TypeDepotoir est un référentiel du contexte « Points de collecte » lui-même.
+
+      Toutes les préconditions sont en MARK_RAN : une base créée par `ddl-auto=update`
+      peut porter des noms de contraintes différents de ceux du baseline généré.
+    -->
+
+    <changeSet author="claude" id="1.5.0-1-drop-fk-depotoir-commune">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fk1p22roxvyyt5v9btc47sy2x3r"/>
+        </preConditions>
+        <comment>ADR-0012 : Depotoir (Points de collecte) ne contraint plus Commune (Référentiel).</comment>
+        <dropForeignKeyConstraint baseTableName="depotoir" constraintName="fk1p22roxvyyt5v9btc47sy2x3r"/>
+    </changeSet>
+
+    <changeSet author="claude" id="1.5.0-2-drop-fk-depotoir-quartier">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkgf8eko8nxre5h8f690ohu6lnv"/>
+        </preConditions>
+        <comment>ADR-0012 : Depotoir (Points de collecte) ne contraint plus Quartier (Référentiel).</comment>
+        <dropForeignKeyConstraint baseTableName="depotoir" constraintName="fkgf8eko8nxre5h8f690ohu6lnv"/>
+    </changeSet>
+
+    <changeSet author="claude" id="1.5.0-3-drop-fk-circuitbalayage-commune">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkl6ntq5rhdy27xcxom21apo2xr"/>
+        </preConditions>
+        <comment>ADR-0012 : CircuitBalayage (Circuits/tournées) ne contraint plus Commune.</comment>
+        <dropForeignKeyConstraint baseTableName="circuitbalayage" constraintName="fkl6ntq5rhdy27xcxom21apo2xr"/>
+    </changeSet>
+
+    <changeSet author="claude" id="1.5.0-4-drop-fk-circuitcollect-commune">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkm4uyx8tga5cwoxd1urvdu6w6h"/>
+        </preConditions>
+        <comment>ADR-0012 : CircuitCollect (Circuits/tournées) ne contraint plus Commune.</comment>
+        <dropForeignKeyConstraint baseTableName="circuitcollect" constraintName="fkm4uyx8tga5cwoxd1urvdu6w6h"/>
+    </changeSet>
+
+    <!-- Index de substitution : les FK retirées fournissaient un index implicite sur
+         certaines bases. On l'ajoute explicitement pour préserver les lectures par commune. -->
+    <changeSet author="claude" id="1.5.0-5-index-depotoir-communeid">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_depotoir_communeid"/></not>
+        </preConditions>
+        <createIndex indexName="idx_depotoir_communeid" tableName="depotoir">
+            <column name="communeid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="1.5.0-6-index-depotoir-quartierid">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_depotoir_quartierid"/></not>
+        </preConditions>
+        <createIndex indexName="idx_depotoir_quartierid" tableName="depotoir">
+            <column name="quartierid"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- ADR-0012 : l'alerte référence son point de collecte par IDENTIFIANT (sans FK).
+         Nullable : les alertes saisies manuellement ne visent pas forcément un dépotoir. -->
+    <changeSet author="claude" id="1.5.0-7-alert-depotoirid">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="depotoirid"/></not>
+        </preConditions>
+        <addColumn tableName="alert">
+            <column name="depotoirid" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="claude" id="1.5.0-8-index-alert-depotoirid">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_alert_depotoirid"/></not>
+        </preConditions>
+        <createIndex indexName="idx_alert_depotoirid" tableName="alert">
+            <column name="depotoirid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

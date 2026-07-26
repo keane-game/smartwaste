@@ -31,12 +31,12 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
     @Override
     public List<CircuitBalayage> readAllCircuitBalayage() {
-        var circuitBalayageList = circuitBalayageRepository.findAll();
+        var circuitBalayageList = circuitBalayageRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return CircuitBalayageMapper.CBMP.asListDto(circuitBalayageList);
     }
 
     public Page<CircuitBalayage> readAllCircuitBalayage(Pageable pageable){
-        return circuitBalayageRepository.findAll (pageable).map(CircuitBalayageMapper.CBMP::asDto);
+        return circuitBalayageRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CircuitBalayageMapper.CBMP::asDto);
     }
 
     @Override
@@ -74,6 +74,6 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitBalayage with id [%s] not found ".formatted(circuitBalayageId)
                 ));
-        circuitBalayageRepository.delete(circuitBalayage);
+        circuitBalayage.markForDeletion(java.time.LocalDateTime.now()); circuitBalayageRepository.save(circuitBalayage); // soft-delete (rétention + purge planifiée)
     }
 }

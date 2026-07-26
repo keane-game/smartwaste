@@ -25,7 +25,7 @@ class AuthorityServiceImpl implements AuthorityService {
 
     @Override
     public List<AuthorityEntity> readAllAuthority() {
-        var authorityList = authorityRepository.findAll();
+        var authorityList = authorityRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return authorityList.stream().toList();
     }
 
@@ -53,6 +53,6 @@ class AuthorityServiceImpl implements AuthorityService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Authority with id [%s] not found ".formatted(authorityId)
                 ));
-        authorityRepository.delete(authority);
+        authority.markForDeletion(java.time.LocalDateTime.now()); authorityRepository.save(authority); // soft-delete (rétention + purge planifiée)
     }
 }

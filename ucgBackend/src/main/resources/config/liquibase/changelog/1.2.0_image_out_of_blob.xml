@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      P1-3 / ADR-0005 — Sortir les images du BLOB.
+      Modélise la table IMAGE en « référence de fichier » (plus de BLOB) et supprime le BLOB
+      display_picture de la table ALERT. Changesets idempotents (préconditions MARK_RAN) pour
+      couvrir aussi bien une base neuve qu'une base déjà créée par ddl-auto=update (BLOB présents).
+      Nommage : minuscules sans underscore, aligné sur le baseline existant (ex. lastmodifieddate).
+    -->
+
+    <changeSet id="1.2.0-1-create-image-table" author="sonaged">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="image"/></not>
+        </preConditions>
+        <createTable tableName="image">
+            <column autoIncrement="true" name="imageid" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="image_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="path" type="VARCHAR(1024)"/>
+            <column name="url" type="VARCHAR(1024)"/>
+            <column name="size" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- IMAGE existait déjà en BLOB (ddl-auto=update) : retirer la colonne data. -->
+    <changeSet id="1.2.0-2-image-drop-blob" author="sonaged">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="image" columnName="data"/>
+        </preConditions>
+        <dropColumn tableName="image" columnName="data"/>
+    </changeSet>
+
+    <!-- ... et lui ajouter les colonnes de référence si absentes. -->
+    <changeSet id="1.2.0-3-image-add-ref-columns" author="sonaged">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="image" columnName="path"/></not>
+        </preConditions>
+        <addColumn tableName="image">
+            <column name="path" type="VARCHAR(1024)"/>
+            <column name="url" type="VARCHAR(1024)"/>
+            <column name="size" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- ALERT : supprimer le BLOB display_picture (présent si créé via ddl-auto=update). -->
+    <changeSet id="1.2.0-4-alert-drop-display-picture" author="sonaged">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="alert" columnName="displaypicture"/>
+        </preConditions>
+        <dropColumn tableName="alert" columnName="displaypicture"/>
+    </changeSet>
+
+    <!-- ALERT.imageid : FK vers IMAGE (association OneToOne AlertEntity.image). -->
+    <changeSet id="1.2.0-5-alert-imageid-fk" author="sonaged">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="imageid"/></not>
+        </preConditions>
+        <addColumn tableName="alert">
+            <column name="imageid" type="BIGINT"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="alert" baseColumnNames="imageid"
+                                 constraintName="fk_alert_image"
+                                 referencedTableName="image" referencedColumnNames="imageid"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -13,8 +13,22 @@ services:
     volumes:
       - smtp4dev-data:/smtp4dev
 
+  # Stockage objet des images/fichiers (P1-3 / ADR-0005)
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # API S3 (sonaged.storage.minio.endpoint)
+      - "9001:9001"   # Console web
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio-data:/data
+
 volumes:
   smtp4dev-data:
+  minio-data:
 
 
 

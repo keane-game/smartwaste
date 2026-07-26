@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.CoordinateEntity;
 
 @Repository
-public interface CoordinateRepository extends JpaRepository<CoordinateEntity, Long> {
+public interface CoordinateRepository extends SoftDeleteRepository<CoordinateEntity, Long> {
 }

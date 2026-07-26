@@ -47,8 +47,11 @@ public class AuthServiceImpl implements AuthService {
         if(userOptional.isPresent()) {
             throw  new ResourceNotFoundException ("Votre email est déjà utilisé");
         }
-        String pwdCrypt = this.passwordEncoder.encode("Sonaged@123");
-        user.setUserPassword (pwdCrypt);
+        if (user.getUserPassword() == null || user.getUserPassword().isBlank()) {
+            throw new ResourceNotFoundException("Le mot de passe est obligatoire");
+        }
+        String pwdCrypt = this.passwordEncoder.encode(user.getUserPassword());
+        user.setUserPassword(pwdCrypt);
 
         user.setAuthority (user.getAuthority());
         user.setActivated(false);

@@ -44,8 +44,43 @@ export class SharedService {
   }
 
   delete(id: number): Observable<any>{
-    return this.http.delete(`${environment.apiUrl}${this.url}/${id}`).pipe(
+    // Les endpoints de suppression renvoient un message texte (pas du JSON).
+    return this.http.delete(`${environment.apiUrl}${this.url}/${id}`, {responseType: 'text'}).pipe(
     catchError(this.handleError)
+    );
+  }
+
+  // ---- Soft-delete (suppression logique, rétention 30 j, restauration) ----
+
+  /** Liste des éléments en attente de suppression (avec date de purge prévue). */
+  getDeletions(): Observable<any>{
+    return this.http
+      .get(`${environment.apiUrl}${this.url}/deletions`, {headers: {Accept: 'application/json'}})
+      .pipe(catchError(this.handleError));
+  }
+
+  /** Restaure un élément en attente de suppression (si le délai n'est pas dépassé). */
+  restore(id: number): Observable<any>{
+    return this.http.post(`${environment.apiUrl}${this.url}/${id}/restore`, {}).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // ---- Variante générique (endpoints transverses /v1/deletions/{resource}) ----
+  // Utilisable par n'importe quelle ressource sans configurer `url`. La réponse enveloppe
+  // l'entité : { item, deletionRequestedAt, purgeDueAt }.
+
+  /** Éléments en attente de suppression pour une ressource (clé = nom d'entité, ex. 'depotoir'). */
+  getPendingDeletions(resource: string): Observable<any>{
+    return this.http
+      .get(`${environment.apiUrl}/deletions/${resource}`, {headers: {Accept: 'application/json'}})
+      .pipe(catchError(this.handleError));
+  }
+
+  /** Restaure un élément d'une ressource donnée. */
+  restoreResource(resource: string, id: number): Observable<any>{
+    return this.http.post(`${environment.apiUrl}/deletions/${resource}/${id}/restore`, {}).pipe(
+      catchError(this.handleError)
     );
   }
 

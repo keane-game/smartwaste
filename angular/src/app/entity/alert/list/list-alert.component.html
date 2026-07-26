@@ -10,6 +10,12 @@
   <p class="message" *ngIf="message">{{ message }}</p>
   <p class="error" *ngIf="error">{{ error }}</p>
 
+  <!-- Flux temps réel (SSE / ADR-0007) : alertes reçues sans rechargement. -->
+  <p class="message" *ngIf="liveMessage">
+    🔔 {{ liveMessage }}
+    <span *ngIf="liveCount > 1">({{ liveCount }} reçues en direct)</span>
+  </p>
+
   <form class="entity-form" *ngIf="showForm" [formGroup]="form" (ngSubmit)="save()">
     <h3>{{ editingId ? 'Modifier l\'alerte' : 'Nouvelle alerte' }}</h3>
     <div class="fields">

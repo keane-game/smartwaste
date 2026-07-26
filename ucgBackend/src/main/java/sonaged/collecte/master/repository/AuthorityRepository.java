@@ -6,5 +6,5 @@ import sonaged.collecte.master.model.AuthorityEntity;
 
 
 @Repository
-public interface AuthorityRepository  extends JpaRepository<AuthorityEntity, Long> {
+public interface AuthorityRepository  extends SoftDeleteRepository<AuthorityEntity, Long> {
 }

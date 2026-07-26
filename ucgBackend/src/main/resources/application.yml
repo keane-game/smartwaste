@@ -1,81 +1,114 @@
+# =============================================================================
+# Configuration SONAGED — fichier UNIQUE (P2-4)
+#
+# `application.properties` a été fusionné ici puis supprimé. Les deux fichiers coexistaient
+# avec des valeurs divergentes (courrier, stratégie de nommage) ; or Spring Boot donne la
+# priorité à `application.properties` sur `application.yml`, si bien que la configuration
+# réellement appliquée n'était pas celle qu'on lisait dans le `.yml`. Les valeurs retenues
+# ci-dessous sont celles qui GAGNAIENT auparavant, afin de ne pas changer le comportement.
+#
+# Secrets : jamais de valeur en dur — uniquement des placeholders ${VAR:defaut} (ADR-0002).
+# =============================================================================
+
 application-description: ''
 application-version: ''
 project-version: ''
 
-
-
 server:
-  port: 8089
+  port: ${SERVER_PORT:8089}
 
 spring:
+  application:
+    name: '@project.name@'
+
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXX
-  activemq:
-    broker-url: tcp://localhost:61616
-    jmx-broker-url: service:jmx:rmi:///jndi/rmi://localhost:61616/jmxrmi
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/sonaged
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/sonaged}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
-    password: keane
-    username: postgres
-    initialization-mode: always
-    schema: classpath:schema.sql
+
+  # -------------------------------------------------------------------------
+  # Initialisation SQL : DÉSACTIVÉE explicitement.
+  #
+  # `schema.sql` commence par `DROP DATABASE IF EXISTS sonaged;` — le laisser exécutable
+  # détruirait la base au démarrage. L'ancienne configuration le référençait via
+  # `spring.datasource.schema` + `initialization-mode: always`, deux propriétés de
+  # Spring Boot 1.x qui n'existent plus en Boot 3 : elles étaient donc silencieusement
+  # IGNORÉES, et c'est uniquement pour cette raison que la base a survécu. Traduire ces
+  # clés vers les noms modernes (`spring.sql.init.*`) aurait effacé la base.
+  #
+  # Le schéma appartient à Liquibase, et à lui seul (ADR-0001 / P0-4).
+  # -------------------------------------------------------------------------
+  sql:
+    init:
+      mode: never
 
   liquibase:
     change-log: classpath:config/liquibase/master.xml
     enabled: true
 
   jpa:
+    show-sql: ${JPA_SHOW_SQL:true}
     hibernate:
-      ddl-auto: update
-      show-sql: true
+      # validate : Liquibase est la source unique du schéma. Ne PAS remettre update/create.
+      ddl-auto: validate
       naming:
-        #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        # -------------------------------------------------------------------
+        # UNE seule stratégie de nommage (P2-4).
+        #
+        # Les deux fichiers déclaraient auparavant des stratégies CONTRADICTOIRES :
+        # `PhysicalNamingStrategyStandardImpl` d'un côté, `SpringPhysicalNamingStrategy`
+        # de l'autre. Or le baseline Liquibase nomme les colonnes `depotoirid`,
+        # `quartierid`, `createddate` — c'est-à-dire le nom de `@Column` repris tel quel
+        # puis replié en minuscules par PostgreSQL. La stratégie « Spring » aurait exigé
+        # `depotoir_id` (camelCase -> snake_case) et fait échouer `ddl-auto: validate`
+        # au démarrage : c'est l'origine la plus probable de la « dérive » constatée.
+        # -------------------------------------------------------------------
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         jdbc:
           lob:
             non_contextual_creation: true
 
-  batch:
-    initialize-schema: always
-
-  mail:
-    default-encoding: UTF-8
-    host: localhost
-    username: #abdouaziz.kane@unchk.edu.sn #abdouazizk50@gmail.com
-    password:  #CKcRZdjhv@89109hmVZdpz2A #hmjF6E9hmVZdpz2@CKc
-    port: 25
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttls:
-            enable: false
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-
+  # Dépendance circulaire tolérée (dette existante, cf. PROJECT_STATUS).
   main:
     allow-circular-references: true
 
-  application:
-    name: '@project.name@'
+  mail:
+    default-encoding: UTF-8
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    # Pour le SMTP de développement (smtp4dev, docker-compose.yml) :
+    #   MAIL_HOST=localhost MAIL_PORT=25 + auth/starttls à false.
+
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:5MB}
+      max-request-size: ${MAX_REQUEST_SIZE:5MB}
 
 security:
   filter:
     active-cors: true
     cors:
-      allowed-origins: "http://localhost:4200"
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
       allowed-methods: "*"
       allowed-headers: "*"
       exposed-headers: "Authorization,Link"
@@ -89,13 +122,48 @@ security:
       - "127.0.0.1"
       - "192.168.1.4"
       - "10.0.0.0/8"
+
+# Configuration applicative SONAGED
+sonaged:
+  storage:
+    # Stockage objet des images/fichiers (P1-3 / ADR-0005) — MinIO, compatible S3.
+    # Les fichiers sont envoyés dans le bucket ; seule une référence (clé + URL) est en base.
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+      access-key: ${MINIO_ACCESS_KEY:minioadmin}
+      secret-key: ${MINIO_SECRET_KEY:minioadmin}
+      bucket: ${MINIO_BUCKET:sonaged-images}
+      # URL publique de diffusion des objets. Vide -> {endpoint}/{bucket}. Renseigner si proxy/CDN
+      # (ou pour des URLs présignées gérées en amont). Le bucket doit être lisible pour un accès direct.
+      public-base-url: ${MINIO_PUBLIC_URL:}
+  deletion:
+    # Soft-delete (toutes entités) : rétention avant purge définitive + fréquence de purge.
+    retention-days: ${DELETION_RETENTION_DAYS:30}
+    purge-cron: ${DELETION_PURGE_CRON:0 0 3 * * *}   # tous les jours à 03:00
+  import:
+    # Import automatisé des GeoJSON (P1-5) : datas/*.json -> base (réutilise UploadFileService).
+    geojson:
+      # Base des fichiers (préfixe file: ou classpath:). Défaut = dossier datas/ du dépôt
+      # (résolu relativement au répertoire de lancement : démarrer le backend depuis ucgBackend/).
+      location: ${GEOJSON_DIR:file:../datas}
+      # Rejouer l'import au démarrage (idempotent, saute les entités déjà peuplées). Défaut false.
+      # Déclenchement manuel : POST /v1/admin/import/geojson[?force=true] (authentifié).
+      on-startup: ${GEOJSON_IMPORT_ON_STARTUP:false}
+  alerts:
+    # Diffusion temps réel des alertes (P2-1 / ADR-0007).
+    stream:
+      timeout-ms: ${ALERTS_STREAM_TIMEOUT_MS:1800000}   # 30 min avant expiration d'un flux SSE
+      heartbeat-ms: ${ALERTS_STREAM_HEARTBEAT_MS:30000} # ping anti-coupure des proxies
+
 springdoc:
   api-docs:
     path: /sonaged-docs
   enable-data-rest: true
   use-fqn: true
+
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        # À restreindre avant toute mise en production (expose tous les endpoints Actuator).
+        include: ${ACTUATOR_EXPOSE:health,info}

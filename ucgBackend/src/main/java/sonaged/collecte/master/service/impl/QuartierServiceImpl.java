@@ -39,13 +39,13 @@ public class QuartierServiceImpl implements QuartierService {
 
     @Override
     public List<Quartier> readAllQuartier() {
-        var quartierList = quartierRepository.findAll();
+        var quartierList = quartierRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return QuartierMapper.QMP.listModelToDto(quartierList);
     }
 
     @Override
     public Page<Quartier> readAllQuartier(Pageable pageable) {
-        return quartierRepository.findAll (pageable).map (QuartierMapper.QMP::asDto);
+        return quartierRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map (QuartierMapper.QMP::asDto);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class QuartierServiceImpl implements QuartierService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quartier with id [%s] not found ".formatted(quartierId)
                 ));
-        quartierRepository.delete(quartier);
+        quartier.markForDeletion(java.time.LocalDateTime.now()); quartierRepository.save(quartier); // soft-delete (rétention + purge planifiée)
     }
 
 

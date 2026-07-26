@@ -6,17 +6,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.dto.DepotoirMaps;
+import sonaged.collecte.master.enums.DeletionStatus;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.dto.Depotoir;
 import sonaged.collecte.master.mapper.CommuneMapper;
 import sonaged.collecte.master.mapper.CoordinateMapper;
 import sonaged.collecte.master.mapper.DepotoirMapper;
+import sonaged.collecte.master.model.DepotoirEntity;
 import sonaged.collecte.master.model.GeometryEntity;
 import sonaged.collecte.master.repository.DepotoirRepository;
 import sonaged.collecte.master.repository.GeometryRepository;
 import sonaged.collecte.master.repository.QuartierRepository;
 import sonaged.collecte.master.repository.TypeDepotoirRepository;
+import sonaged.collecte.master.service.CrossContextReferenceValidator;
 import sonaged.collecte.master.service.DepotoirService;
+import sonaged.collecte.master.service.SoftDeleteService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,8 @@ public class DepotoirServiceImpl implements DepotoirService {
     private final TypeDepotoirRepository typeDepotoirRepository;
 
     private final DepotoirRepository depotoirRepository;
+    private final SoftDeleteService softDeleteService;
+    private final CrossContextReferenceValidator crossContextReferenceValidator;
 
     @Override
     public Depotoir readDepotoir(Long depotoirId) {
@@ -45,7 +51,8 @@ public class DepotoirServiceImpl implements DepotoirService {
 
     @Override
     public List<Depotoir> readAllDepotoir() {
-        var depotoirList = depotoirRepository.findAll();
+        // n'expose que les dépotoirs actifs (les soft-deletés sont masqués des listes normales)
+        var depotoirList = depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE);
         return DepotoirMapper.DETMP.asListDto(depotoirList);
     }
 
@@ -55,7 +62,7 @@ public class DepotoirServiceImpl implements DepotoirService {
        return readAllDepotoirs(pageable);
     }
     public Page<Depotoir> readAllDepotoirs(Pageable pageable) {
-        return depotoirRepository.findAll(pageable)
+        return depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE, pageable)
                 .map(depotoir -> {
                     Depotoir dto = DepotoirMapper.DETMP.asDto(depotoir);
                     Long geometryId = dto.getGeometry().getGeometryId();
@@ -70,7 +77,7 @@ public class DepotoirServiceImpl implements DepotoirService {
 
     @Override
     public List<DepotoirMaps> getDepotoirMap() {
-        var depotoirs = depotoirRepository.findAll ();
+        var depotoirs = depotoirRepository.findByDeletionStatus (DeletionStatus.ACTIVE);
         List<DepotoirMaps> depotoirMaps = new ArrayList<>();
         depotoirs.forEach (d -> {
             var depotoirMap = new DepotoirMaps (  );
@@ -84,19 +91,13 @@ public class DepotoirServiceImpl implements DepotoirService {
     }
     @Override
     public Depotoir createDepotoir(Depotoir depotoir) {
-        var t_depotId = depotoir.getTypeDepotoir().getTypeDepotoirId ();
-     /*   if(t_depotId != null && quartierId != null) {
-            var typeDepotoir = typeDepotoirRepository.findById (t_depotId).orElseThrow (
-                    () -> new ResourceNotFoundException ("")
-            );
-            var quartier = quartierRepository.findById (quartierId).orElseThrow (
-                    () -> new ResourceNotFoundException ("")
-            );
-           // depotoir.setTypeDepotoir (typeDepotoir);
-           // depotoir.setQuartier (quartier);
-        }*/
+        // P1-7 / ADR-0012 : `communeId` et `quartierId` sont des références par identifiant vers
+        // le « Référentiel territorial ». Les FK physiques ayant été retirées (changelog 1.5.0),
+        // leur existence est vérifiée ici, au niveau applicatif.
+        crossContextReferenceValidator.requireCommuneExists(depotoir.getCommuneId());
+        crossContextReferenceValidator.requireQuartierExists(depotoir.getQuartierId());
         var savedDepotoir = depotoirRepository.save(DepotoirMapper.DETMP.asModel(depotoir));
-        return DepotoirMapper.DETMP.asDto(depotoirRepository.save(savedDepotoir));
+        return DepotoirMapper.DETMP.asDto(savedDepotoir);
     }
 
 
@@ -115,12 +116,29 @@ public class DepotoirServiceImpl implements DepotoirService {
 
     @Override
     public void deleteDepotoir(Long depotoirId) {
-        var existeddepotoir = depotoirRepository.findById(depotoirId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Depotoir with id [%s] not found to update ".formatted(depotoirId)
-                ));
-        depotoirRepository.delete(existeddepotoir);
+        // Suppression logique : passe en PENDING_DELETION (purge définitive par le planificateur
+        // après la période de rétention). Restaurable via restoreDepotoir tant que le délai court.
+        softDeleteService.softDelete(depotoirRepository, depotoirId);
     }
 
+    @Override
+    public Depotoir restoreDepotoir(Long depotoirId) {
+        var restored = softDeleteService.restore(depotoirRepository, depotoirId);
+        return toDtoWithDeletionInfo(restored);
+    }
+
+    @Override
+    public List<Depotoir> readPendingDeletions() {
+        return depotoirRepository.findByDeletionStatus(DeletionStatus.PENDING_DELETION).stream()
+                .map(this::toDtoWithDeletionInfo)
+                .toList();
+    }
+
+    /** Mappe l'entité en DTO et complète la date de purge prévue (non portée par le mapper). */
+    private Depotoir toDtoWithDeletionInfo(DepotoirEntity entity) {
+        Depotoir dto = DepotoirMapper.DETMP.asDto(entity);
+        dto.setPurgeDueAt(softDeleteService.purgeDueAt(entity));
+        return dto;
+    }
 
 }

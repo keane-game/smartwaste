@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.MoblierUrbainEntity;
 
 @Repository
-public interface MoblierUrbainRepository extends JpaRepository<MoblierUrbainEntity, Long> {
+public interface MoblierUrbainRepository extends SoftDeleteRepository<MoblierUrbainEntity, Long> {
 }

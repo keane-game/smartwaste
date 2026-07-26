@@ -34,7 +34,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<Region> readAllRegion() {
-        var regionList = regionRepository.findAll();
+        var regionList = regionRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return RegionMapper.RMP.asListDto(regionList);
     }
 

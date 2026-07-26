@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import sonaged.collecte.master.model.CommuneEntity;
+
 import sonaged.collecte.master.model.GeometryEntity;
 
 import java.io.Serializable;
@@ -50,7 +50,8 @@ public class CircuitCollect implements Serializable {
     String Sectection;
 
     @JsonProperty(access = JsonProperty.Access.READ_WRITE)
-    CommuneEntity commune;
+    // P1-7 / ADR-0012 : commune référencée par identifiant (contexte distinct), plus par entité JPA.
+    Long communeId;
 
     Geometry geometry;
 }

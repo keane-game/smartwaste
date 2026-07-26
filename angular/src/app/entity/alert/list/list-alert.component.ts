@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs';
 import { SharedService } from '../../../services/shared.service';
 import { headerTitleService } from '../../../services/headerTitle.service';
+import { AlertStreamService } from '../../../services/alert-stream.service';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -19,7 +20,7 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './list-alert.component.html',
   styleUrls: ['./list-alert.component.scss']
 })
-export class ListAlertComponent implements OnInit {
+export class ListAlertComponent implements OnInit, OnDestroy {
 
   private readonly resource = '/alerts';
   private readonly listUrl = '/alertss';
@@ -32,6 +33,10 @@ export class ListAlertComponent implements OnInit {
   message = '';
   error = '';
 
+  /** Alertes reçues en direct via SSE depuis l'ouverture de l'écran (ADR-0007). */
+  liveCount = 0;
+  liveMessage = '';
+
   form!: FormGroup;
   showForm = false;
   editingId: number | null = null;
@@ -41,7 +46,8 @@ export class ListAlertComponent implements OnInit {
     private http: HttpClient,
     private sharedService: SharedService,
     private formBuilder: FormBuilder,
-    private headerTitleService: headerTitleService
+    private headerTitleService: headerTitleService,
+    private alertStream: AlertStreamService
   ) { }
 
   ngOnInit(): void {
@@ -53,6 +59,23 @@ export class ListAlertComponent implements OnInit {
       code: ['INFO', Validators.required]
     });
     this.load();
+
+    // Flux temps réel : une alerte créée ailleurs (autre superviseur, ou à terme le moteur
+    // de seuils IoT) apparaît sans rechargement ni polling.
+    this.alertStream.alerts.subscribe(alert => {
+      if (!alert) { return; }
+      const id = alert.alertId;
+      // Le créateur reçoit aussi son propre événement : on évite le doublon.
+      if (id != null && this.items.some(i => i.alertId === id)) { return; }
+      this.items = [alert, ...this.items];
+      this.liveCount++;
+      this.liveMessage = `Nouvelle alerte reçue en direct : ${alert.object ?? 'sans objet'}`;
+    });
+    this.alertStream.connect();
+  }
+
+  ngOnDestroy(): void {
+    this.alertStream.disconnect();
   }
 
   get f() { return this.form.controls; }

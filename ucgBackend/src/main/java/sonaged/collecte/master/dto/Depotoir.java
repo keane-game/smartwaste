@@ -7,9 +7,11 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import sonaged.collecte.master.model.CommuneEntity;
+import sonaged.collecte.master.enums.DeletionStatus;
+
 import sonaged.collecte.master.model.GeometryEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -24,12 +26,22 @@ public class Depotoir {
 
     String address;
 
+    // P1-6 / ADR-0012 : quartier référencé par identifiant (contexte distinct), pas par objet.
+    Long quartierId;
+
     TypeDepotoir typeDepotoir;
 
-    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
-    CommuneEntity commune;
+    // P1-7 / ADR-0012 : la commune était exposée sous forme d'ENTITÉ JPA dans le DTO
+    // (fuite du modèle + couplage cross-contexte). Remplacée par son identifiant ;
+    // les clients résolvent la commune via l'API du référentiel (`/v1/communes/{id}`).
+    Long communeId;
 
     Geometry geometry;
 
     List<Coordinate> coordinates;
+
+    // Soft-delete : statut + horodatage (mappés depuis l'entité) et date de purge prévue (calculée).
+    DeletionStatus deletionStatus;
+    LocalDateTime deletionRequestedAt;
+    LocalDateTime purgeDueAt;
 }

@@ -2,10 +2,10 @@ package sonaged.collecte.master;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling // purge planifiée du soft-delete (DeletionPurgeScheduler)
 public class SonagedApplication {
 
 	public static void main(String[] args) {

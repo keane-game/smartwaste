@@ -32,13 +32,13 @@ public class CoordinateServiceImpl implements CoordinateService {
 
     @Override
     public List<Coordinate> readAllCoordinate() {
-        var coordinateList = coordinateRepository.findAll();
+        var coordinateList = coordinateRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
         return CoordinateMapper.CODMP.asListDto(coordinateList);
     }
 
     @Override
     public Page<Coordinate> readAllCoordinate(Pageable pageable){
-        return coordinateRepository.findAll (pageable).map(CoordinateMapper.CODMP::asDto);
+        return coordinateRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CoordinateMapper.CODMP::asDto);
     }
 
 
@@ -74,6 +74,6 @@ public class CoordinateServiceImpl implements CoordinateService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Coordinate with id [%s] not found ".formatted(coordinateId)
                 ));
-        coordinateRepository.delete(coordinate);
+        coordinate.markForDeletion(java.time.LocalDateTime.now()); coordinateRepository.save(coordinate); // soft-delete (rétention + purge planifiée)
     }
 }

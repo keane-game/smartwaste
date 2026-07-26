@@ -8,7 +8,7 @@ import sonaged.collecte.master.model.DepotoirEntity;
 import java.util.List;
 
 @Repository
-public interface DepotoirRepository extends JpaRepository<DepotoirEntity, Long> {
+public interface DepotoirRepository extends SoftDeleteRepository<DepotoirEntity, Long> {
 
     List<DepotoirEntity> findByTypeDepotoir_NameContainingIgnoreCase(String name);
 }

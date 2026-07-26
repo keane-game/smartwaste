@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import sonaged.collecte.master.model.DepartmentEntity;
 
 @Repository
-public interface DepartmentRepository extends JpaRepository<DepartmentEntity, Long> {
+public interface DepartmentRepository extends SoftDeleteRepository<DepartmentEntity, Long> {
     DepartmentEntity findFirstByOrderByNameAsc();
 }
