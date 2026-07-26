@@ -20,6 +20,10 @@ const routes: Routes = [
         path: 'dashboard',component:DashboardComponent,
       },
       {
+        path: 'supervision',
+        loadComponent: () => import('./supervision/supervision-map.component').then(m => m.SupervisionMapComponent)
+      },
+      {
         path: '',
         loadChildren: () => import('./entity/entities.module').then(m => m.EntitiesModule)
       },

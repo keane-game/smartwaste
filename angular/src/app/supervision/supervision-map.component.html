@@ -1,0 +1,44 @@
+<div class="supervision">
+
+  <header class="sup-head">
+    <div>
+      <h1>Carte de supervision</h1>
+      <p class="sub">Contour du département et dépotoirs géolocalisés (données <code>/v1/maps</code>).</p>
+    </div>
+    <button type="button" class="btn-refresh" (click)="load()" [disabled]="loading">
+      <i class="bi bi-arrow-clockwise"></i> Actualiser
+    </button>
+  </header>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p *ngIf="loading">Chargement de la carte…</p>
+
+  <div class="map-wrap" *ngIf="!loading && !error">
+    <svg [attr.viewBox]="'0 0 ' + W + ' ' + H" class="map" preserveAspectRatio="xMidYMid meet">
+      <!-- Contour du département -->
+      <polygon *ngIf="departmentPolygon" [attr.points]="departmentPolygon" class="dept-shape"></polygon>
+
+      <!-- Marqueurs dépotoirs -->
+      <g *ngFor="let d of depotoirs" class="marker" (click)="select(d)"
+         [class.active]="selected === d" tabindex="0" role="button"
+         [attr.aria-label]="'Dépotoir ' + d.address">
+        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="6"></circle>
+        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="11" class="halo"></circle>
+      </g>
+    </svg>
+
+    <aside class="legend">
+      <h3>{{ departmentName }}</h3>
+      <p class="count"><strong>{{ depotoirs.length }}</strong> dépotoir(s) localisé(s)</p>
+
+      <div class="details" *ngIf="selected">
+        <h4>{{ selected.address }}</h4>
+        <p *ngIf="selected.type"><span class="tag">{{ selected.type }}</span></p>
+      </div>
+      <p class="hint" *ngIf="!selected">Cliquez un marqueur pour voir le détail.</p>
+
+      <p class="empty" *ngIf="depotoirs.length === 0">Aucun dépotoir géolocalisé.</p>
+    </aside>
+  </div>
+
+</div>
