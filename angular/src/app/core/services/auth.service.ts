@@ -50,6 +50,20 @@ export class AuthService {
     );
   }
 
+  /** Inscription : POST {host}/auth/register (hors préfixe /v1) avec un objet User. */
+  register(user: any): Observable<any> {
+    const authBase = environment.apiUrl.replace(/\/v1\/?$/, '');
+    return this.http.post(`${authBase}/auth/register`, user, { responseType: 'text' })
+      .pipe(catchError(this.handleError));
+  }
+
+  /** Activation du compte via le code reçu par e-mail : POST {host}/auth/activation. */
+  activate(code: string): Observable<any> {
+    const authBase = environment.apiUrl.replace(/\/v1\/?$/, '');
+    return this.http.post(`${authBase}/auth/activation`, { code }, { responseType: 'text' })
+      .pipe(catchError(this.handleError));
+  }
+
   logout(): void {
     // remove user from local storage and set current user to null
     localStorage.removeItem('currentUser');

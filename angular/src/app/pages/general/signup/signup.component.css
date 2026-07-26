@@ -1,0 +1,75 @@
+/* Inscription — thème éco/vert SONAGED, cohérent avec les écrans de gestion. */
+.signup-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #f8fafc;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #0f172a;
+}
+
+.signup-card {
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+}
+
+.signup-head h1 { margin: 0 0 .35rem; font-size: 1.5rem; font-weight: 600; }
+.signup-head p { margin: 0 0 1.25rem; color: #475569; font-size: .9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+@media (max-width: 480px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; margin-bottom: .85rem; }
+.field > span { font-size: .82rem; font-weight: 500; color: #334155; margin-bottom: .3rem; }
+.field em { color: #dc2626; font-style: normal; }
+.field input {
+  height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 .75rem;
+  font-size: .9rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.field input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, .15);
+}
+.err { color: #dc2626; font-size: .75rem; margin-top: .25rem; }
+
+.btn-primary {
+  width: 100%;
+  height: 46px;
+  margin-top: .5rem;
+  background: #16a34a;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.btn-primary:hover:not(:disabled) { background: #15803d; }
+.btn-primary:disabled { opacity: .6; cursor: default; }
+
+.msg.error {
+  background: #fef2f2;
+  border-left: 3px solid #dc2626;
+  color: #dc2626;
+  padding: .6rem .85rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  margin-bottom: 1rem;
+}
+
+.foot { margin: 1.25rem 0 0; text-align: center; font-size: .85rem; color: #475569; }
+.foot a { color: #16a34a; font-weight: 600; text-decoration: none; }
+.foot a:hover { text-decoration: underline; }
