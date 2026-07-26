@@ -1,0 +1,69 @@
+<div class="entity-list">
+
+  <header class="toolbar">
+    <h2>Circuits de balayage</h2>
+    <button type="button" class="btn btn-primary" (click)="openCreate()" *ngIf="!showForm">
+      + Nouveau circuit de balayage
+    </button>
+  </header>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="entity-form" *ngIf="showForm" [formGroup]="form" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Modifier le circuit de balayage' : 'Nouveau circuit de balayage' }}</h3>
+    <div class="fields">
+      <label>Nom
+        <input type="text" formControlName="name">
+        <span class="field-error" *ngIf="f['name'].touched && f['name'].invalid">Nom requis.</span>
+      </label>
+      <label>Code <input type="text" formControlName="code"></label>
+      <label>Commune
+        <select formControlName="commune">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let c of communes" [ngValue]="c">{{ c.name }}</option>
+        </select>
+      </label>
+      <label>Rotation (shift) <input type="text" formControlName="shift"></label>
+      <label>Longueur <input type="text" formControlName="length"></label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancel()">Annuler</button>
+    </div>
+  </form>
+
+  <p *ngIf="loading">Chargement…</p>
+
+  <table class="grid" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nom</th>
+        <th>Code</th>
+        <th>Commune</th>
+        <th>Rotation</th>
+        <th class="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of items">
+        <td>{{ c.circuitbalayageId }}</td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.code }}</td>
+        <td>{{ c.commune?.name }}</td>
+        <td>{{ c.shift }}</td>
+        <td class="actions">
+          <button type="button" class="btn btn-ghost" (click)="openEdit(c)">Modifier</button>
+          <button type="button" class="btn btn-danger" (click)="remove(c)">Supprimer</button>
+        </td>
+      </tr>
+      <tr *ngIf="items.length === 0">
+        <td colspan="6" class="empty">Aucun circuit de balayage.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

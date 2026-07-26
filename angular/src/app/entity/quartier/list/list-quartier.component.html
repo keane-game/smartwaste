@@ -1,0 +1,76 @@
+<div class="entity-list">
+
+  <header class="toolbar">
+    <h2>Quartiers</h2>
+    <button type="button" class="btn btn-primary" (click)="openCreate()" *ngIf="!showForm">
+      + Nouveau quartier
+    </button>
+  </header>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="entity-form" *ngIf="showForm" [formGroup]="form" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Modifier le quartier' : 'Nouveau quartier' }}</h3>
+    <div class="fields">
+      <label>Nom
+        <input type="text" formControlName="name">
+        <span class="field-error" *ngIf="f['name'].touched && f['name'].invalid">Nom requis.</span>
+      </label>
+      <label>Code <input type="text" formControlName="code"></label>
+      <label>Commune
+        <select formControlName="commune">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let c of communes" [ngValue]="c">{{ c.name }}</option>
+        </select>
+      </label>
+      <label>CAV <input type="text" formControlName="cav"></label>
+      <label>Code CAV <input type="text" formControlName="codeCav"></label>
+      <label>CCRCA <input type="text" formControlName="cCrca"></label>
+      <label>Code CCRCA <input type="text" formControlName="codeCcrca"></label>
+      <label>Code entité <input type="text" formControlName="codeEntity"></label>
+      <label>N° ZR <input type="text" formControlName="numerozr"></label>
+      <label>Code SZR <input type="text" formControlName="codeSzr"></label>
+      <label>Zone Coron <input type="text" formControlName="zoneCoron"></label>
+      <label>Pourcentage <input type="text" formControlName="poucentage"></label>
+      <label>Longueur <input type="text" formControlName="length"></label>
+      <label>Superficie <input type="text" formControlName="area"></label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancel()">Annuler</button>
+    </div>
+  </form>
+
+  <p *ngIf="loading">Chargement…</p>
+
+  <table class="grid" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nom</th>
+        <th>Code</th>
+        <th>Commune</th>
+        <th class="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let q of items">
+        <td>{{ q.quartierId }}</td>
+        <td>{{ q.name }}</td>
+        <td>{{ q.code }}</td>
+        <td>{{ q.commune?.name }}</td>
+        <td class="actions">
+          <button type="button" class="btn btn-ghost" (click)="openEdit(q)">Modifier</button>
+          <button type="button" class="btn btn-danger" (click)="remove(q)">Supprimer</button>
+        </td>
+      </tr>
+      <tr *ngIf="items.length === 0">
+        <td colspan="5" class="empty">Aucun quartier.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

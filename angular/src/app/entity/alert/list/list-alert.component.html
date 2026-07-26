@@ -1,0 +1,79 @@
+<div class="entity-list">
+
+  <header class="toolbar">
+    <h2>Alertes</h2>
+    <button type="button" class="btn btn-primary" (click)="openCreate()" *ngIf="!showForm">
+      + Nouvelle alerte
+    </button>
+  </header>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="entity-form" *ngIf="showForm" [formGroup]="form" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Modifier l\'alerte' : 'Nouvelle alerte' }}</h3>
+    <div class="fields">
+      <label>Objet
+        <input type="text" formControlName="object">
+        <span class="field-error" *ngIf="f['object'].touched && f['object'].invalid">Objet requis.</span>
+      </label>
+      <label>Niveau
+        <select formControlName="code">
+          <option *ngFor="let c of codes" [value]="c">{{ c }}</option>
+        </select>
+      </label>
+      <label>Adresse <input type="text" formControlName="address"></label>
+      <label class="full">Message
+        <textarea formControlName="message" rows="3"></textarea>
+        <span class="field-error" *ngIf="f['message'].touched && f['message'].invalid">Message requis.</span>
+      </label>
+      <label>Image (facultative)
+        <input type="file" accept="image/*" (change)="onFileSelected($event)">
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancel()">Annuler</button>
+    </div>
+  </form>
+
+  <p *ngIf="loading">Chargement…</p>
+
+  <table class="grid" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Objet</th>
+        <th>Niveau</th>
+        <th>Adresse</th>
+        <th>Message</th>
+        <th>Image</th>
+        <th class="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of items">
+        <td>{{ a.alertId }}</td>
+        <td>{{ a.object }}</td>
+        <td><span class="badge" [ngClass]="'badge-' + (a.code || '').toLowerCase()">{{ a.code }}</span></td>
+        <td>{{ a.address }}</td>
+        <td>{{ a.message }}</td>
+        <td>
+          <a *ngIf="a.image?.url" [href]="a.image.url" target="_blank" rel="noopener">
+            <img class="thumb" [src]="a.image.url" [alt]="a.object">
+          </a>
+        </td>
+        <td class="actions">
+          <button type="button" class="btn btn-ghost" (click)="openEdit(a)">Modifier</button>
+          <button type="button" class="btn btn-danger" (click)="remove(a)">Supprimer</button>
+        </td>
+      </tr>
+      <tr *ngIf="items.length === 0">
+        <td colspan="7" class="empty">Aucune alerte.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
