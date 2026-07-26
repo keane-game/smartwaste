@@ -1,4 +1,4 @@
-package sonaged.collecte.master.dto;
+package sonaged.ucg.supervision;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

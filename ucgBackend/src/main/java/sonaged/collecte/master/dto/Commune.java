@@ -7,8 +7,6 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import sonaged.collecte.master.model.DepartmentEntity;
-import sonaged.collecte.master.model.DepotoirEntity;
 import sonaged.collecte.master.model.GeometryEntity;
 
 import java.util.List;
@@ -39,9 +37,16 @@ public class Commune {
    /* @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     List<Quartier> quartiers;*/
 
-    List<DepotoirEntity> depotoirs;
+    // P1-7 / ADR-0012 : `List<DepotoirEntity> depotoirs` retiré.
+    // (1) Il exposait une ENTITÉ JPA dans un DTO ; (2) il créait un cycle
+    // « Référentiel territorial » -> « Points de collecte » entre deux bounded contexts,
+    // que Spring Modulith rejette. Les dépotoirs d'une commune se lisent via l'API du
+    // contexte propriétaire (`GET /v1/depotoirss`, filtrable sur `communeId`).
 
-    DepartmentEntity department;
+    // `DepartmentEntity department` -> identifiant. Department appartient au MÊME contexte
+    // (Référentiel territorial), l'association JPA reste donc légitime côté entité ;
+    // c'est son exposition en DTO qui ne l'était pas.
+    Long departmentId;
 
     Geometry geometry;
 

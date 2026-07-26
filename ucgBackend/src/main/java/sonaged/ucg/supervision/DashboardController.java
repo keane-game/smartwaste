@@ -1,12 +1,10 @@
-package sonaged.collecte.master.controller;
+package sonaged.ucg.supervision;
 
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sonaged.collecte.master.dto.DepartmentState;
-import sonaged.collecte.master.service.DashboardService;
 import sonaged.collecte.master.service.UploadFileService;
 
 @Slf4j

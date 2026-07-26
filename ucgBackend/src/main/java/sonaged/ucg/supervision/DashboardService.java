@@ -1,6 +1,5 @@
-package sonaged.collecte.master.service;
+package sonaged.ucg.supervision;
 
-import sonaged.collecte.master.dto.DepartmentState;
 
 public interface DashboardService {
 

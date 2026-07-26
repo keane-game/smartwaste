@@ -46,13 +46,20 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     public Commune createCommune(Commune commune) {
 
-        if(commune.getDepartment ().getDepartmentId () != null) {
-            var department = departmentRepository.findById (commune.getDepartment ().getDepartmentId ()).orElseThrow (
-                    () -> new ResourceNotFoundException ("")
+        // P1-7 : le DTO porte désormais `departmentId` et le mapper ignore l'association.
+        // Le rattachement se fait donc ici, sur l'ENTITÉ. Department est dans le même
+        // contexte (Référentiel territorial) : l'association JPA reste légitime.
+        // Au passage, l'ancien code déréférençait `getDepartment()` sans garde et levait
+        // une NullPointerException dès qu'une commune était créée sans département.
+        var communeEntity = CommuneMapper.COMP.asModel(commune);
+        if (commune.getDepartmentId() != null) {
+            var department = departmentRepository.findById(commune.getDepartmentId()).orElseThrow(
+                    () -> new ResourceNotFoundException(
+                            "Department with id [%s] not found".formatted(commune.getDepartmentId()))
             );
-            commune.setDepartment (department);
+            communeEntity.setDepartment(department);
         }
-        var communeSave = communeRepository.save(CommuneMapper.COMP.asModel(commune));
+        var communeSave = communeRepository.save(communeEntity);
         return CommuneMapper.COMP.asDto(communeSave);
     }
 

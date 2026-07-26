@@ -1,8 +1,7 @@
-package sonaged.collecte.master.service;
+package sonaged.ucg.supervision;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sonaged.collecte.master.dto.SupervisionStats;
 import sonaged.collecte.master.enums.DeletionStatus;
 import sonaged.collecte.master.model.AlertEntity;
 import sonaged.collecte.master.model.DepotoirEntity;

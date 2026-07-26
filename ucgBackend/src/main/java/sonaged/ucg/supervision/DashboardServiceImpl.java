@@ -1,12 +1,10 @@
-package sonaged.collecte.master.service.impl;
+package sonaged.ucg.supervision;
 
 import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.dto.DepartmentState;
 import sonaged.collecte.master.repository.*;
-import sonaged.collecte.master.service.DashboardService;
 
 import java.util.List;
 
