@@ -91,6 +91,18 @@
   .header-nav .nav-profile img {
     max-height: 36px;
   }
+  .header-nav .nav-profile .avatar-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #16a34a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .5px;
+  }
   .header-nav .nav-profile span {
     font-size: 14px;
     font-weight: 600;

@@ -50,7 +50,9 @@ export class AlertStreamService implements OnDestroy {
 
   private async openStream(): Promise<void> {
     this.controller = new AbortController();
-    const token = localStorage.getItem('access_token');
+    // Le JWT est rangé dans `currentUser.token` (cf. AuthService.login), pas sous une clé
+    // `access_token` : sans cette lecture, le flux `/v1/**` répondait 401 et restait muet.
+    const token = JSON.parse(localStorage.getItem('currentUser') || '{}').token;
 
     try {
       const response = await fetch(`${environment.apiUrl}/alerts/stream`, {
