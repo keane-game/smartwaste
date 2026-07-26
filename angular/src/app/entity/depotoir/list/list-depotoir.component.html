@@ -1,1 +1,72 @@
-<p>list-depotoir works!</p>
+<div class="depotoir-list">
+
+  <header class="toolbar">
+    <h2>Dépotoirs</h2>
+    <div class="toolbar-actions">
+      <a class="btn btn-primary" routerLink="create">+ Nouveau dépotoir</a>
+      <button type="button" class="btn btn-ghost" (click)="toggleTrash()">
+        {{ showTrash ? 'Masquer la corbeille' : 'Corbeille' }}
+      </button>
+    </div>
+  </header>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+  <p *ngIf="loading">Chargement…</p>
+
+  <!-- Dépotoirs actifs -->
+  <table class="grid" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Adresse</th>
+        <th>Commune</th>
+        <th class="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of depotoirs">
+        <td>{{ d.depotoirId }}</td>
+        <td>{{ d.address }}</td>
+        <td>{{ d.communeId }}</td>
+        <td class="actions">
+          <button type="button" class="btn btn-danger" (click)="softDelete(d)">Supprimer</button>
+        </td>
+      </tr>
+      <tr *ngIf="depotoirs.length === 0">
+        <td colspan="4" class="empty">Aucun dépotoir.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Corbeille : en attente de suppression (purge après 30 jours) -->
+  <section class="trash" *ngIf="showTrash">
+    <h3>Corbeille — en attente de suppression</h3>
+    <p class="hint">Les éléments sont définitivement purgés après 30 jours. Restaurez-les avant cette date.</p>
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Adresse</th>
+          <th>Supprimé le</th>
+          <th>Purge prévue le</th>
+          <th class="actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of deletions">
+          <td>{{ d.depotoirId }}</td>
+          <td>{{ d.address }}</td>
+          <td>{{ d.deletionRequestedAt | date:'short' }}</td>
+          <td>{{ d.purgeDueAt | date:'short' }}</td>
+          <td class="actions">
+            <button type="button" class="btn btn-primary" (click)="restore(d)">Restaurer</button>
+          </td>
+        </tr>
+        <tr *ngIf="deletions.length === 0">
+          <td colspan="5" class="empty">La corbeille est vide.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>

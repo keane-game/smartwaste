@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { DepotoirRoutingModule } from './depotoir-routing.module';
 import { DepotoirComponent } from './depotoir.component';
@@ -15,6 +17,9 @@ import { ListDepotoirComponent } from './list/list-depotoir.component';
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule,
     DepotoirRoutingModule
   ]
 })

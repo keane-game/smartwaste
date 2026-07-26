@@ -20,7 +20,6 @@ import { LayoutComponent } from './shares/layout/layout.component';
 import { SidebarComponent } from './shares/sidebar/sidebar.component';
 import { FooterComponent } from './shares/footer/footer.component';
 import { HeaderComponent } from './shares/header/header.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 
 import { TapbarWidget } from './shares/widget/tapbar.widget';
 import { PuPopWidget } from './shares/widget/pupop.widget'

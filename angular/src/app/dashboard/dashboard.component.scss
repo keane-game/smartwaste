@@ -1,0 +1,116 @@
+/**
+ * Tableau de bord — cartes d'indicateurs (KPI) alimentées par `GET /data/departmentState`.
+ * Thème éco/vert SONAGED, cohérent avec le design system des écrans de gestion.
+ */
+$eco-500: #16a34a;
+$eco-50:  #ecfdf5;
+$ink:     #0f172a;
+$ink-soft:#475569;
+$muted:   #94a3b8;
+$border:  #e2e8f0;
+$surface: #ffffff;
+$surface-2: #f8fafc;
+
+.dashboard {
+  padding: 1.5rem;
+  color: $ink;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  .dash-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; }
+    .sub { margin: .25rem 0 0; color: $ink-soft; font-size: .9rem; }
+  }
+
+  .btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: $eco-500;
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease, transform 150ms ease;
+    &:hover:not(:disabled) { background: #15803d; }
+    &:active:not(:disabled) { transform: translateY(1px); }
+    &:disabled { opacity: .5; cursor: default; }
+  }
+
+  .error {
+    background: #fef2f2;
+    border-left: 3px solid #dc2626;
+    color: #dc2626;
+    padding: .6rem .85rem;
+    border-radius: 8px;
+    font-size: .875rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 1px 3px rgba(15, 23, 42, .06);
+    padding: 1.1rem 1.25rem;
+    transition: box-shadow 150ms ease, transform 150ms ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      border-radius: 12px;
+      background: $eco-50;
+      color: $eco-500;
+      font-size: 1.4rem;
+    }
+
+    .stat-body { display: flex; flex-direction: column; min-width: 0; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .stat-label { font-size: .9rem; font-weight: 600; color: $ink; margin-top: .15rem; }
+    .stat-hint { font-size: .76rem; color: $muted; }
+
+    &.skeleton {
+      height: 82px;
+      background: linear-gradient(90deg, $surface-2 25%, #eef2f7 37%, $surface-2 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+      &:hover { transform: none; box-shadow: none; }
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stat-card, .btn-refresh { transition: none; }
+    .stat-card.skeleton { animation: none; }
+  }
+}

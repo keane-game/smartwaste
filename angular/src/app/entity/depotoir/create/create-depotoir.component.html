@@ -1,1 +1,39 @@
-<p>create-depotoir works!</p>
+<div class="entity-list">
+
+  <header class="toolbar">
+    <h2>Nouveau dépotoir</h2>
+  </header>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="entity-form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="fields">
+      <label>Adresse
+        <input type="text" formControlName="address" placeholder="Adresse du dépotoir">
+        <span class="field-error" *ngIf="f['address'].touched && f['address'].invalid">Adresse requise.</span>
+      </label>
+      <label>Type de dépotoir
+        <select formControlName="typeDepotoir">
+          <option [ngValue]="null">— Aucun —</option>
+          <option *ngFor="let t of types" [ngValue]="t">{{ t.name }}</option>
+        </select>
+      </label>
+      <label>Commune
+        <select formControlName="commune">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let c of communes" [ngValue]="c">{{ c.name }}</option>
+        </select>
+      </label>
+      <label>Quartier (id)
+        <input type="number" formControlName="quartierId" placeholder="Identifiant du quartier">
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Créer le dépotoir' }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancel()">Annuler</button>
+    </div>
+  </form>
+
+</div>
