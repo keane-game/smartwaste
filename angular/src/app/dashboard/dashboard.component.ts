@@ -39,6 +39,9 @@ export class DashboardComponent implements OnInit {
   statsError = '';
   windowDays = 30;
 
+  /** Correspondance identifiant de commune -> nom, pour libeller les agrégats. */
+  private communeNames: Record<string, string> = {};
+
   readonly cards: StatCard[] = [
     { key: 'totalHabitants', label: 'Habitants', hint: 'Population supervisée', icon: 'bi-people' },
     { key: 'totalCommunes',  label: 'Communes', hint: 'Communes couvertes', icon: 'bi-geo-alt' },
@@ -60,6 +63,27 @@ export class DashboardComponent implements OnInit {
     this.headerTitleService.setTitle('Dashboard');
     this.loadState();
     this.loadStats();
+    this.loadCommuneNames();
+  }
+
+  /** Charge les communes pour traduire les identifiants des agrégats en noms lisibles. */
+  private loadCommuneNames(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/communess`).subscribe({
+      next: rows => {
+        (rows || []).forEach(c => { this.communeNames[String(c.communeId)] = c.name; });
+      },
+      error: () => { /* non bloquant : on retombe sur l'identifiant */ }
+    });
+  }
+
+  /** Nom d'une commune depuis son identifiant, avec repli sur « Commune #id ». */
+  communeName(key: string): string {
+    return this.communeNames[key] || `Commune #${key}`;
+  }
+
+  /** Nombre d'alertes du jour le plus chargé de la fenêtre, pour l'échelle du graphique. */
+  get peakAlerts(): number {
+    return Math.max(0, ...(this.stats?.alertsPerDay ?? []).map((d: any) => d.count));
   }
 
   /**

@@ -127,10 +127,16 @@ $surface-2: #f8fafc;
 .kpi strong { display: block; font-size: 1.5rem; line-height: 1.1; }
 .kpi span { font-size: .82rem; color: #52606d; }
 
-.chart { display: flex; align-items: flex-end; gap: 2px; height: 120px;
+.chart-wrap { display: flex; align-items: stretch; gap: .5rem; }
+.chart__axis { display: flex; flex-direction: column; justify-content: space-between;
+               height: 120px; padding: .5rem 0; font-size: .72rem; color: #9aa5b1;
+               font-variant-numeric: tabular-nums; }
+.chart { flex: 1 1 auto; display: flex; align-items: flex-end; gap: 2px; height: 120px;
          background: #fff; border: 1px solid #e4e7eb; border-radius: 8px; padding: .5rem; }
-.chart__bar { flex: 1 1 0; min-height: 2px; background: #1f7a3f; border-radius: 2px 2px 0 0; opacity: .85; }
+.chart__bar { flex: 1 1 0; min-height: 2px; background: #1f7a3f; border-radius: 2px 2px 0 0;
+              opacity: .85; transition: opacity 120ms ease; }
 .chart__bar:hover { opacity: 1; }
+.chart__bar--zero { background: #e4e7eb; opacity: .6; }
 .chart__caption { font-size: .8rem; color: #52606d; margin: .35rem 0 0; }
 
 .breakdowns { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1.25rem; }

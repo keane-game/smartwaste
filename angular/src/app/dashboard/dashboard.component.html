@@ -51,14 +51,21 @@
     </div>
 
     <!-- Alertes par jour : les jours sans alerte sont présents à 0 (série pré-remplie côté backend). -->
-    <div class="chart" *ngIf="stats.alertsPerDay?.length">
-      <div class="chart__bar" *ngFor="let d of stats.alertsPerDay"
-           [style.height.%]="barHeight(d.count)"
-           [title]="d.day + ' — ' + d.count + ' alerte(s)'">
+    <div class="chart-wrap" *ngIf="stats.alertsPerDay?.length">
+      <div class="chart__axis">
+        <span>{{ peakAlerts }}</span>
+        <span>0</span>
+      </div>
+      <div class="chart">
+        <div class="chart__bar" *ngFor="let d of stats.alertsPerDay"
+             [class.chart__bar--zero]="!d.count"
+             [style.height.%]="barHeight(d.count)"
+             [title]="d.day + ' — ' + d.count + ' alerte(s)'">
+        </div>
       </div>
     </div>
     <p class="chart__caption" *ngIf="stats.alertsPerDay?.length">
-      Alertes par jour sur {{ stats.windowDays }} jours
+      Alertes par jour sur {{ stats.windowDays }} jours — pic à {{ peakAlerts }}
     </p>
 
     <div class="breakdowns">
@@ -83,7 +90,7 @@
         <p class="empty" *ngIf="!entries(stats.circuitsByCommune).length">Aucun circuit.</p>
         <ul>
           <li *ngFor="let e of entries(stats.circuitsByCommune)">
-            <span>Commune #{{ e.key }}</span><b>{{ e.value }}</b>
+            <span>{{ communeName(e.key) }}</span><b>{{ e.value }}</b>
           </li>
         </ul>
       </div>
