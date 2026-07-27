@@ -1,4 +1,7 @@
-package sonaged.ucg.supervision;
+package sonaged.ucg.supervision.controller;
+
+import sonaged.ucg.supervision.dto.SupervisionStats;
+import sonaged.ucg.supervision.service.SupervisionStatsService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

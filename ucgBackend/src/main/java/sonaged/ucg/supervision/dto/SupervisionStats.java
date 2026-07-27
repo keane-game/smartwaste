@@ -1,4 +1,4 @@
-package sonaged.ucg.supervision;
+package sonaged.ucg.supervision.dto;
 
 import java.time.LocalDate;
 import java.util.List;

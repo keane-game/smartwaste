@@ -1,4 +1,6 @@
-package sonaged.ucg.supervision;
+package sonaged.ucg.supervision.service;
+
+import sonaged.ucg.supervision.dto.SupervisionStats;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

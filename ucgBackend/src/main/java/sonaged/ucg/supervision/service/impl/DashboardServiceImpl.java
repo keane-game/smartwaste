@@ -1,4 +1,7 @@
-package sonaged.ucg.supervision;
+package sonaged.ucg.supervision.service.impl;
+
+import sonaged.ucg.supervision.dto.DepartmentState;
+import sonaged.ucg.supervision.service.DashboardService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;

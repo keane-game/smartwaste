@@ -1,4 +1,7 @@
-package sonaged.ucg.supervision;
+package sonaged.ucg.supervision.controller;
+
+import sonaged.ucg.supervision.dto.DepartmentState;
+import sonaged.ucg.supervision.service.DashboardService;
 
 
 import lombok.RequiredArgsConstructor;

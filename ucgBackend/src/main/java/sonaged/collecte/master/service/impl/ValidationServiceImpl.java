@@ -1,40 +1,70 @@
 package sonaged.collecte.master.service.impl;
 
-import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import sonaged.collecte.master.event.ActivationCodeIssued;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.model.UserEntity;
 import sonaged.collecte.master.model.Validation;
 import sonaged.collecte.master.repository.ValidationRepository;
-import sonaged.collecte.master.service.NotificationService;
 import sonaged.collecte.master.service.ValidationService;
 
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Random;
-@AllArgsConstructor
+
+/**
+ * Émission et vérification des codes d'activation (contexte <b>Identité &amp; Accès</b>).
+ *
+ * <p>P1-7b : ce service ne dépend plus de {@code NotificationService}. Il publie
+ * {@link ActivationCodeIssued} ; c'est le contexte Communication qui décide d'en faire un
+ * e-mail. Le cycle Identité ↔ Communication est ainsi rompu, sans changement de comportement
+ * observable (l'écouteur est synchrone).
+ */
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
-    private ValidationRepository validationRepository;
-    private NotificationService notificationService;
+    /** Validité du code (~972 jours) — valeur historique conservée telle quelle. */
+    private static final long CODE_VALIDITY_SECONDS = 84_000_000L;
 
-    public void registerUserCode(UserEntity user) {
-        Validation validation = new Validation();
-        validation.setUser (user);
-        Instant creation = Instant.now();
-        validation.setCreation(creation);
-        Instant expiration = creation.plusSeconds(84_000_000);
-        validation.setExpiration(expiration);
-        Random random = new Random();
-        int randomInteger = random.nextInt(999999);
-        String code = String.format("%06d", randomInteger);
+    /**
+     * {@link SecureRandom} plutôt que {@link java.util.Random} : le code d'activation est un
+     * secret. Un générateur non cryptographique est prédictible à partir de quelques valeurs
+     * observées, ce qui permettrait d'activer le compte d'un tiers.
+     */
+    private static final SecureRandom RANDOM = new SecureRandom();
 
-        validation.setCode(code);
-        this.validationRepository.save(validation);
-        this.notificationService.sendCodeOfValidation(validation);
+    private final ValidationRepository validationRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    public ValidationServiceImpl(ValidationRepository validationRepository,
+                                 ApplicationEventPublisher eventPublisher) {
+        this.validationRepository = validationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
+    @Override
+    public void registerUserCode(UserEntity user) {
+        Instant creation = Instant.now();
+
+        Validation validation = new Validation();
+        validation.setUser(user);
+        validation.setCreation(creation);
+        validation.setExpiration(creation.plusSeconds(CODE_VALIDITY_SECONDS));
+        // nextInt(1_000_000) et non nextInt(999999) : l'ancienne borne excluait 999999.
+        validation.setCode(String.format("%06d", RANDOM.nextInt(1_000_000)));
+
+        this.validationRepository.save(validation);
+
+        this.eventPublisher.publishEvent(new ActivationCodeIssued(
+                user.getUserEmail(),
+                user.getUserLastname(),
+                validation.getCode()
+        ));
+    }
+
+    @Override
     public Validation readByCode(String code) {
-        return this.validationRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException("Votre code est invalide"));
+        return this.validationRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Votre code est invalide"));
     }
 }

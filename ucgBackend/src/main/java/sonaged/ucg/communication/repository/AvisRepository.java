@@ -1,7 +1,8 @@
-package sonaged.collecte.master.repository;
+package sonaged.ucg.communication.repository;
+
+import sonaged.ucg.communication.model.Avis;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import sonaged.collecte.master.model.Avis;
 
 
 public interface AvisRepository extends JpaRepository<Avis, Integer> {

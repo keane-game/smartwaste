@@ -1,4 +1,7 @@
-package sonaged.collecte.master.controller;
+package sonaged.ucg.communication.controller;
+
+import sonaged.ucg.communication.model.Avis;
+import sonaged.ucg.communication.service.AvisService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import sonaged.collecte.master.model.Avis;
-import sonaged.collecte.master.service.AvisService;
 
 @AllArgsConstructor
 @RequestMapping("avis")

@@ -9,3 +9,4 @@
  */
 @org.springframework.modulith.ApplicationModule(displayName = "Communication")
 package sonaged.ucg.communication;
+

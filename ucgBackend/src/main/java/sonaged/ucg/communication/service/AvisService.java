@@ -1,4 +1,7 @@
-package sonaged.ucg.communication;
+package sonaged.ucg.communication.service;
+
+import sonaged.ucg.communication.model.Avis;
+import sonaged.ucg.communication.repository.AvisRepository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
