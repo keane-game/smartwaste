@@ -1,0 +1,39 @@
+<div class="avis">
+  <header class="avis-head">
+    <h1>Donner mon avis</h1>
+    <p class="sub">Vos retours aident à améliorer la supervision de la collecte.</p>
+  </header>
+
+  <div class="avis-card">
+
+    <!-- Confirmation -->
+    <div class="sent" *ngIf="sent">
+      <i class="bi bi-check-circle"></i>
+      <h2>Merci pour votre retour</h2>
+      <p>Votre avis a bien été transmis à l'équipe SONAGED.</p>
+      <button type="button" class="btn-secondary" (click)="another()">Envoyer un autre avis</button>
+    </div>
+
+    <!-- Formulaire -->
+    <form *ngIf="!sent" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <p class="msg error" *ngIf="error">{{ error }}</p>
+
+      <label class="field">
+        <span>Votre message <em>*</em></span>
+        <textarea formControlName="message" rows="6"
+                  placeholder="Décrivez votre suggestion, un problème rencontré…"></textarea>
+        <div class="field-foot">
+          <small class="err" *ngIf="form.get('message')?.touched && form.get('message')?.invalid">
+            Le message doit contenir entre 5 et 1000 caractères.
+          </small>
+          <small class="count" [class.count--low]="remaining < 0">{{ remaining }} caractères restants</small>
+        </div>
+      </label>
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        {{ loading ? 'Envoi…' : 'Envoyer mon avis' }}
+      </button>
+    </form>
+
+  </div>
+</div>

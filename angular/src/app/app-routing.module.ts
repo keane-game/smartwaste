@@ -24,6 +24,10 @@ const routes: Routes = [
         loadComponent: () => import('./supervision/supervision-map.component').then(m => m.SupervisionMapComponent)
       },
       {
+        path: 'avis',
+        loadComponent: () => import('./avis/avis.component').then(m => m.AvisComponent)
+      },
+      {
         path: '',
         loadChildren: () => import('./entity/entities.module').then(m => m.EntitiesModule)
       },
