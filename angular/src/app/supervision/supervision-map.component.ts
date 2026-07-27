@@ -9,7 +9,9 @@ interface DepotoirMarker {
   x: number; y: number;
   address: string;
   type: string;
+  color: string;
 }
+interface TypeStat { name: string; count: number; color: string; }
 
 /**
  * Carte de supervision — rendu SVG autonome (sans dépendance cartographique externe).
@@ -38,6 +40,15 @@ export class SupervisionMapComponent implements OnInit {
   departmentPolygon = '';                 // attribut `points` du <polygon>
   depotoirs: DepotoirMarker[] = [];
   selected: DepotoirMarker | null = null;
+
+  /** Répartition des dépotoirs par type (pour la légende/filtre). */
+  typeStats: TypeStat[] = [];
+  /** Types actuellement affichés ; vide au départ = tous visibles. */
+  private hidden = new Set<string>();
+
+  /** Palette stable par type, assignée dans l'ordre d'apparition. */
+  private readonly palette = ['#dc2626', '#16a34a', '#2563eb', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d'];
+  private readonly UNTYPED = 'Non typé';
 
   constructor(
     private mapsService: MapsService,
@@ -85,13 +96,47 @@ export class SupervisionMapComponent implements OnInit {
     this.departmentName = dept?.name || 'Département';
     this.departmentPolygon = deptCoords.map(toSvg).map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
+    // Couleur stable par type (dans l'ordre d'apparition).
+    const colorByType = new Map<string, string>();
+    const colorFor = (type: string): string => {
+      if (!colorByType.has(type)) {
+        colorByType.set(type, this.palette[colorByType.size % this.palette.length]);
+      }
+      return colorByType.get(type)!;
+    };
+
     this.depotoirs = depots.map(d => {
       const c = this.centroid(this.toLatLng(d?.coordinates));
       if (!c) { return null; }
       const s = toSvg(c);
-      return { x: s.x, y: s.y, address: d?.address || 'Dépotoir', type: d?.typeDepot || '' } as DepotoirMarker;
+      const type = (d?.typeDepot || '').trim() || this.UNTYPED;
+      return { x: s.x, y: s.y, address: d?.address || 'Dépotoir', type, color: colorFor(type) } as DepotoirMarker;
     }).filter((m): m is DepotoirMarker => m !== null);
+
+    // Statistiques par type pour la légende.
+    const counts = new Map<string, number>();
+    this.depotoirs.forEach(m => counts.set(m.type, (counts.get(m.type) || 0) + 1));
+    this.typeStats = [...counts.entries()]
+      .map(([name, count]) => ({ name, count, color: colorFor(name) }))
+      .sort((a, b) => b.count - a.count);
   }
+
+  /** Dépotoirs visibles selon les types actifs. */
+  get visibleDepotoirs(): DepotoirMarker[] {
+    if (!this.hidden.size) { return this.depotoirs; }
+    return this.depotoirs.filter(m => !this.hidden.has(m.type));
+  }
+
+  /** Active/désactive l'affichage d'un type. */
+  toggleType(name: string): void {
+    if (this.hidden.has(name)) { this.hidden.delete(name); }
+    else {
+      this.hidden.add(name);
+      if (this.selected && this.selected.type === name) { this.selected = null; }
+    }
+  }
+
+  isHidden(name: string): boolean { return this.hidden.has(name); }
 
   /** Parse une liste de Coordinate (latitude/longitude en chaînes) en points {x:lng, y:lat}. */
   private toLatLng(coords: any[]): Pt[] {

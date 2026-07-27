@@ -19,21 +19,34 @@
       <polygon *ngIf="departmentPolygon" [attr.points]="departmentPolygon" class="dept-shape"></polygon>
 
       <!-- Marqueurs dépotoirs -->
-      <g *ngFor="let d of depotoirs" class="marker" (click)="select(d)"
+      <g *ngFor="let d of visibleDepotoirs" class="marker" (click)="select(d)"
          [class.active]="selected === d" tabindex="0" role="button"
          [attr.aria-label]="'Dépotoir ' + d.address">
-        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="6"></circle>
-        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="11" class="halo"></circle>
+        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="6" [attr.fill]="d.color"></circle>
+        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="11" class="halo" [attr.fill]="d.color"></circle>
       </g>
     </svg>
 
     <aside class="legend">
       <h3>{{ departmentName }}</h3>
-      <p class="count"><strong>{{ depotoirs.length }}</strong> dépotoir(s) localisé(s)</p>
+      <p class="count"><strong>{{ visibleDepotoirs.length }}</strong> / {{ depotoirs.length }} dépotoir(s) affiché(s)</p>
+
+      <!-- Filtre par type -->
+      <div class="types" *ngIf="typeStats.length">
+        <h4>Types de dépotoir</h4>
+        <button type="button" class="type-row" *ngFor="let t of typeStats"
+                [class.off]="isHidden(t.name)" (click)="toggleType(t.name)"
+                [attr.aria-pressed]="!isHidden(t.name)">
+          <span class="swatch" [style.background]="t.color"></span>
+          <span class="type-name">{{ t.name }}</span>
+          <b>{{ t.count }}</b>
+        </button>
+        <p class="hint">Cliquez un type pour l'afficher / le masquer.</p>
+      </div>
 
       <div class="details" *ngIf="selected">
         <h4>{{ selected.address }}</h4>
-        <p *ngIf="selected.type"><span class="tag">{{ selected.type }}</span></p>
+        <p><span class="tag" [style.background]="selected.color + '22'" [style.color]="selected.color">{{ selected.type }}</span></p>
       </div>
       <p class="hint" *ngIf="!selected">Cliquez un marqueur pour voir le détail.</p>
 
