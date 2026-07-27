@@ -10,16 +10,20 @@
       <div class="col-md-5">
         <form class="login-form" (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
           <h1 class="app-name">Connexion</h1>
-          <p>Veuilez renseigner votre e-mail et votre mot de passe</p>
+          <p>Veuillez renseigner votre e-mail et votre mot de passe</p>
+
+          <div class="alert-p" role="alert" *ngIf="isLoginFailed">
+            E-mail ou mot de passe incorrect.
+          </div>
+
           <div class="form-input">
             <input
-              type="text"
-              placeholder="username"
+              type="email"
+              placeholder="E-mail"
               class="form-control"
               name="username"
               [(ngModel)]="form.username"
               required
-              minlength="6"
               #username="ngModel"
             />
             <span
@@ -27,13 +31,13 @@
               role="alert"
               *ngIf="f.submitted && username.invalid"
             >
-              Username is required!
+              L'e-mail est requis.
             </span>
           </div>
           <div class="form-input">
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Mot de passe"
               class="form-control"
               name="password"
               [(ngModel)]="form.password"
@@ -47,15 +51,15 @@
               *ngIf="f.submitted && password.invalid"
             >
               <span *ngIf="password.errors?.['required']"
-                >Password is required</span
+                >Le mot de passe est requis.</span
               >
               <span *ngIf="password.errors?.['minlength']">
-                Password must be at least 5 characters
+                Le mot de passe doit contenir au moins 5 caractères.
               </span>
             </div>
           </div>
-          <button [disabled]="" class="btn btn- w-100">Sign In</button>
-          <a href="#" class="text-sm">Forgot your password?</a>
+          <button class="btn btn- w-100">Se connecter</button>
+          <a href="#" class="text-sm">Mot de passe oublié ?</a>
           <p class="text-sm mt-2">Pas encore de compte ? <a routerLink="/signup">Créer un compte</a></p>
         </form>
       </div>
