@@ -1,5 +1,7 @@
 package sonaged.collecte.master.service.impl;
 
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,14 +11,14 @@ import sonaged.collecte.master.dto.DepotoirMaps;
 import sonaged.collecte.master.enums.DeletionStatus;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
 import sonaged.collecte.master.dto.Depotoir;
-import sonaged.collecte.master.mapper.CommuneMapper;
-import sonaged.collecte.master.mapper.CoordinateMapper;
+import sn.smartwaste.collect.territory.application.mapper.CommuneMapper;
+import sn.smartwaste.collect.territory.application.mapper.CoordinateMapper;
 import sonaged.collecte.master.mapper.DepotoirMapper;
 import sonaged.collecte.master.model.DepotoirEntity;
-import sonaged.collecte.master.model.GeometryEntity;
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
 import sonaged.collecte.master.repository.DepotoirRepository;
-import sonaged.collecte.master.repository.GeometryRepository;
-import sonaged.collecte.master.repository.QuartierRepository;
+import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
+import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sonaged.collecte.master.repository.TypeDepotoirRepository;
 import sonaged.collecte.master.service.CrossContextReferenceValidator;
 import sonaged.collecte.master.service.DepotoirService;
@@ -65,7 +67,7 @@ public class DepotoirServiceImpl implements DepotoirService {
         return depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE, pageable)
                 .map(depotoir -> {
                     Depotoir dto = DepotoirMapper.DETMP.asDto(depotoir);
-                    Long geometryId = dto.getGeometry().getGeometryId();
+                    UUID geometryId = dto.getGeometry().getGeometryId();
 
                     geometryRepository.findById(geometryId).ifPresent(geometry -> {
                         dto.setCoordinates(CoordinateMapper.CODMP.asListDto(geometry.getCoordinates()));

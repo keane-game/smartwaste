@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ============================================================================
+      ADR-0013 — Passage des identifiants du RÉFÉRENTIEL TERRITORIAL en UUID v7.
+      ============================================================================
+
+      ⚠️ CHANGELOG DESTRUCTEUR — À N'APPLIQUER QUE SUR UNE BASE JETABLE.
+
+      PostgreSQL ne sait pas convertir implicitement `BIGINT` en `uuid` : un simple
+      `ALTER TABLE ... TYPE uuid` échoue. Comme la base de développement est explicitement
+      jetable (décision utilisateur, l'application n'a jamais démarré contre une base réelle),
+      on retire puis on recrée les colonnes concernées. **Toute donnée du référentiel et
+      toute référence vers celui-ci sont perdues** : il faut relancer l'import GeoJSON
+      (`POST /v1/admin/import/geojson`) après application.
+
+      Les identifiants sont générés côté APPLICATION (UuidV7Generator, @UuidGenerator) :
+      les colonnes ne portent donc ni `defaultValueComputed`, ni séquence, ni identité.
+
+      Choix du type : `uuid` natif PostgreSQL (16 octets), et non `varchar(36)` (36 octets,
+      comparaisons de chaînes) — moitié moins d'espace en index et comparaison binaire.
+    -->
+
+    <!-- ===== 1. Retrait des FK qui traversent ou composent le référentiel ===== -->
+    <!-- Les 4 FK cross-contexte ont déjà été retirées en 1.5.0 (ADR-0012). Restent ici les FK
+         de composition (*.geometryid) et les FK internes au référentiel. -->
+    <changeSet author="claude" id="2.0.0-1-drop-fk-geometry">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkkdnqabjhab44iybx1b6pdrgeq"/>
+        </preConditions>
+        <comment>FK *.geometryid retirées avant changement de type.</comment>
+        <dropForeignKeyConstraint baseTableName="depotoir" constraintName="fkkdnqabjhab44iybx1b6pdrgeq"/>
+        <dropForeignKeyConstraint baseTableName="circuit" constraintName="fkf7f3h9tkywnal60q6mbg81te6"/>
+        <dropForeignKeyConstraint baseTableName="circuitcollect" constraintName="fkkwsxxb9b5g5es0f5c18ckjrk6"/>
+        <dropForeignKeyConstraint baseTableName="circuitbalayage" constraintName="fkr2du2tnoen3yy0ftv0xsri8ss"/>
+        <dropForeignKeyConstraint baseTableName="commune" constraintName="fkl8rg0oeq9meqoujaf87mygo00"/>
+        <dropForeignKeyConstraint baseTableName="quartier" constraintName="fk3exp6tgedn9hqsf8w0u0oyvfn"/>
+        <dropForeignKeyConstraint baseTableName="departement" constraintName="fk4dqvm6gelkey8j1p81xaktt95"/>
+        <dropForeignKeyConstraint baseTableName="region" constraintName="fkoldsx9dw3wknym9be76af3ox0"/>
+        <dropForeignKeyConstraint baseTableName="coordinate" constraintName="fkrrw0uvbm7ir8xl9dw4pwm8r22"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.0.0-2-drop-fk-internes-referentiel">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkjg8ghcnax3fd6lsf4douwf5ui"/>
+        </preConditions>
+        <comment>Hiérarchie territoriale : quartier→commune→departement→region.</comment>
+        <dropForeignKeyConstraint baseTableName="commune" constraintName="fkjg8ghcnax3fd6lsf4douwf5ui"/>
+        <dropForeignKeyConstraint baseTableName="quartier" constraintName="fklw76gly0fwwnol4xqmy7n6ffj"/>
+        <dropForeignKeyConstraint baseTableName="departement" constraintName="fkt8vknek6pw1ep2icreme0rnrf"/>
+    </changeSet>
+
+    <!-- ===== 2. Vidage des tables du référentiel et de leurs référents =====
+         Obligatoire : on ne peut pas convertir des valeurs BIGINT existantes en UUID.
+         Les tables du contexte `waste` ne sont pas vidées — seules leurs COLONNES de
+         référence vers le référentiel sont réinitialisées (étape 4). Elles devront être
+         reliées à nouveau après réimport. -->
+    <changeSet author="claude" id="2.0.0-3-purge-referentiel">
+        <comment>⚠️ Destructeur : vide le référentiel territorial (base jetable).</comment>
+        <delete tableName="coordinate"/>
+        <delete tableName="quartier"/>
+        <delete tableName="commune"/>
+        <delete tableName="departement"/>
+        <delete tableName="region"/>
+        <delete tableName="geometry"/>
+    </changeSet>
+
+    <!-- ===== 3. Clés primaires du référentiel : BIGINT -> uuid ===== -->
+    <changeSet author="claude" id="2.0.0-4-pk-uuid">
+        <comment>PK du référentiel en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+
+        <dropPrimaryKey tableName="region"/>
+        <dropColumn tableName="region" columnName="regionid"/>
+        <addColumn tableName="region">
+            <column name="regionid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="region" columnName="regionid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="region" columnNames="regionid" constraintName="pk_region"/>
+
+        <dropPrimaryKey tableName="departement"/>
+        <dropColumn tableName="departement" columnName="departmentid"/>
+        <addColumn tableName="departement">
+            <column name="departmentid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="departement" columnName="departmentid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="departement" columnNames="departmentid" constraintName="pk_departement"/>
+
+        <dropPrimaryKey tableName="commune"/>
+        <dropColumn tableName="commune" columnName="communeid"/>
+        <addColumn tableName="commune">
+            <column name="communeid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="commune" columnName="communeid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="commune" columnNames="communeid" constraintName="pk_commune"/>
+
+        <dropPrimaryKey tableName="quartier"/>
+        <dropColumn tableName="quartier" columnName="quartierid"/>
+        <addColumn tableName="quartier">
+            <column name="quartierid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="quartier" columnName="quartierid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="quartier" columnNames="quartierid" constraintName="pk_quartier"/>
+
+        <dropPrimaryKey tableName="geometry"/>
+        <dropColumn tableName="geometry" columnName="geometryid"/>
+        <addColumn tableName="geometry">
+            <column name="geometryid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="geometry" columnName="geometryid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="geometry" columnNames="geometryid" constraintName="pk_geometry"/>
+
+        <dropPrimaryKey tableName="coordinate"/>
+        <dropColumn tableName="coordinate" columnName="coordinateid"/>
+        <addColumn tableName="coordinate">
+            <column name="coordinateid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="coordinate" columnName="coordinateid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="coordinate" columnNames="coordinateid" constraintName="pk_coordinate"/>
+    </changeSet>
+
+    <!-- ===== 4. Colonnes de référence vers le référentiel : BIGINT -> uuid ===== -->
+    <changeSet author="claude" id="2.0.0-5-fk-columns-uuid">
+        <comment>Colonnes pointant vers le référentiel, y compris depuis le contexte `waste`.</comment>
+
+        <!-- interne au référentiel -->
+        <dropColumn tableName="departement" columnName="regionid"/>
+        <addColumn tableName="departement"><column name="regionid" type="uuid"/></addColumn>
+        <dropColumn tableName="commune" columnName="departmentid"/>
+        <addColumn tableName="commune"><column name="departmentid" type="uuid"/></addColumn>
+        <dropColumn tableName="quartier" columnName="communeid"/>
+        <addColumn tableName="quartier"><column name="communeid" type="uuid"/></addColumn>
+
+        <!-- composition : géométrie -->
+        <dropColumn tableName="region" columnName="geometryid"/>
+        <addColumn tableName="region"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="departement" columnName="geometryid"/>
+        <addColumn tableName="departement"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="commune" columnName="geometryid"/>
+        <addColumn tableName="commune"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="quartier" columnName="geometryid"/>
+        <addColumn tableName="quartier"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="coordinate" columnName="geometryid"/>
+        <addColumn tableName="coordinate"><column name="geometryid" type="uuid"/></addColumn>
+
+        <!-- contexte `waste` : références vers le référentiel (PK encore BIGINT de leur côté) -->
+        <dropColumn tableName="depotoir" columnName="geometryid"/>
+        <addColumn tableName="depotoir"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="depotoir" columnName="communeid"/>
+        <addColumn tableName="depotoir"><column name="communeid" type="uuid"/></addColumn>
+        <dropColumn tableName="depotoir" columnName="quartierid"/>
+        <addColumn tableName="depotoir"><column name="quartierid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="circuit" columnName="geometryid"/>
+        <addColumn tableName="circuit"><column name="geometryid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="circuitcollect" columnName="geometryid"/>
+        <addColumn tableName="circuitcollect"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="circuitcollect" columnName="communeid"/>
+        <addColumn tableName="circuitcollect"><column name="communeid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="circuitbalayage" columnName="geometryid"/>
+        <addColumn tableName="circuitbalayage"><column name="geometryid" type="uuid"/></addColumn>
+        <dropColumn tableName="circuitbalayage" columnName="communeid"/>
+        <addColumn tableName="circuitbalayage"><column name="communeid" type="uuid"/></addColumn>
+    </changeSet>
+
+    <changeSet author="claude" id="2.0.0-6-alert-coordinateid">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="alert" columnName="coordinateid"/>
+        </preConditions>
+        <comment>Alert compose une Coordinate (même agrégat) : la colonne suit le type de la PK.</comment>
+        <dropColumn tableName="alert" columnName="coordinateid"/>
+        <addColumn tableName="alert"><column name="coordinateid" type="uuid"/></addColumn>
+    </changeSet>
+
+    <!-- ===== 5. Rétablissement des FK de composition et de hiérarchie =====
+         Les FK CROSS-CONTEXTE (depotoir/circuit* -> commune/quartier) ne sont PAS rétablies :
+         elles ont été supprimées volontairement en 1.5.0 (ADR-0012), l'intégrité étant assurée
+         par CrossContextReferenceValidator. -->
+    <changeSet author="claude" id="2.0.0-7-recreate-fk">
+        <comment>FK internes au référentiel + compositions vers geometry.</comment>
+        <addForeignKeyConstraint baseTableName="departement" baseColumnNames="regionid"
+                                 constraintName="fk_departement_region"
+                                 referencedTableName="region" referencedColumnNames="regionid"/>
+        <addForeignKeyConstraint baseTableName="commune" baseColumnNames="departmentid"
+                                 constraintName="fk_commune_departement"
+                                 referencedTableName="departement" referencedColumnNames="departmentid"/>
+        <addForeignKeyConstraint baseTableName="quartier" baseColumnNames="communeid"
+                                 constraintName="fk_quartier_commune"
+                                 referencedTableName="commune" referencedColumnNames="communeid"/>
+        <addForeignKeyConstraint baseTableName="coordinate" baseColumnNames="geometryid"
+                                 constraintName="fk_coordinate_geometry"
+                                 referencedTableName="geometry" referencedColumnNames="geometryid"/>
+    </changeSet>
+
+    <!-- ===== 6. Index sur les références cross-contexte (remplacent ceux de 1.5.0,
+         supprimés en même temps que leurs colonnes) ===== -->
+    <changeSet author="claude" id="2.0.0-8-index-refs">
+        <createIndex indexName="idx_depotoir_communeid" tableName="depotoir">
+            <column name="communeid"/>
+        </createIndex>
+        <createIndex indexName="idx_depotoir_quartierid" tableName="depotoir">
+            <column name="quartierid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

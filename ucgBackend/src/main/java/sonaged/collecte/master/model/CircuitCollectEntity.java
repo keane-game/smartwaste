@@ -1,5 +1,11 @@
 package sonaged.collecte.master.model;
 
+import java.util.UUID;
+
+// Le référentiel territorial a migré vers son module dédié : les types autrefois résolus
+// par appartenance au même package requièrent maintenant un import explicite.
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -80,7 +86,7 @@ public class CircuitCollectEntity extends AbstractAuditingEntity<Long> {
     // P1-7 / ADR-0012 : référence par IDENTIFIANT vers le contexte « Référentiel territorial »
     // (plus d'association objet ni de FK physique cross-contexte).
     @Column(name = "communeId")
-    Long communeId;
+    UUID communeId;
 
     @Override
     public final boolean equals(Object o) {

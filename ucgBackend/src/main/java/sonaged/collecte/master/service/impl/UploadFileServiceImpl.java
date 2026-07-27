@@ -8,7 +8,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sonaged.collecte.master.enums.CircuitShift;
 import sonaged.collecte.master.model.*;
+// Le référentiel territorial a migré vers son module dédié : l'import « étoile » sur le package
+// hérité ne le couvre plus, les entités territoriales sont donc importées nommément.
+import sn.smartwaste.collect.territory.domain.model.CommuneEntity;
+import sn.smartwaste.collect.territory.domain.model.CoordinateEntity;
+import sn.smartwaste.collect.territory.domain.model.DepartmentEntity;
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
+import sn.smartwaste.collect.territory.domain.model.QuartierEntity;
+import sn.smartwaste.collect.territory.domain.model.RegionEntity;
 import sonaged.collecte.master.repository.*;
+// Le référentiel territorial a migré vers son module dédié : l'import « étoile » sur le package
+// hérité ne couvre plus ses repositories, importés nommément ci-dessous.
+import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
+import sn.smartwaste.collect.territory.domain.repository.CoordinateRepository;
+import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
+import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
+import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
+import sn.smartwaste.collect.territory.domain.repository.RegionRepository;
 import sonaged.collecte.master.service.UploadFileService;
 
 import java.io.BufferedReader;
@@ -51,7 +67,10 @@ public class UploadFileServiceImpl implements UploadFileService {
             var jsonContent = readContent(file.getInputStream());
             var jsonArray = new JSONArray(jsonContent);
 
-            var regionOpt = regionRepository.findById(1L);
+            // Les PK du référentiel sont des UUID : l'identifiant « 1 » du script de seed
+            // n'existe plus. L'import vise la région de référence unique du jeu de données
+            // (Dakar) — on prend donc la première enregistrée plutôt qu'un identifiant codé en dur.
+            var regionOpt = regionRepository.findAll().stream().findFirst();
             if (regionOpt.isEmpty ()) {
                 return "Department not found";
             }
@@ -99,7 +118,8 @@ public class UploadFileServiceImpl implements UploadFileService {
             var jsonContent = readContent(file.getInputStream());
             var jsonArray = new JSONArray(jsonContent);
 
-            var departmentOpt = departmentRepository.findById(1L);
+            // Idem : plus d'identifiant numérique codé en dur depuis le passage aux UUID.
+            var departmentOpt = departmentRepository.findAll().stream().findFirst();
             if (departmentOpt.isEmpty ()) {
                 return "Department not found";
             }

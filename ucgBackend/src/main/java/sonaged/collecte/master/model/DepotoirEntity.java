@@ -1,5 +1,11 @@
 package sonaged.collecte.master.model;
 
+import java.util.UUID;
+
+// Le référentiel territorial a migré vers son module dédié : les types autrefois résolus
+// par appartenance au même package requièrent maintenant un import explicite.
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
@@ -62,7 +68,7 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     // collecte ») et Quartier (contexte « Référentiel territorial ») sont des contextes distincts
     // → pas d'association objet, pas de cascade. FK physique retirée en P1-7 (1.5.0).
     @Column(name = "quartierId")
-    Long quartierId;
+    UUID quartierId;
 
     // P1-7 / ADR-0012 : `@ManyToOne CommuneEntity` → référence par IDENTIFIANT.
     // Commune appartient au contexte « Référentiel territorial », Depotoir au contexte
@@ -70,7 +76,7 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     // ne doit traverser cette frontière. L'existence de la commune est vérifiée par
     // validation APPLICATIVE (ContexteReferentielValidator), plus par contrainte SQL.
     @Column(name = "communeId")
-    Long communeId;
+    UUID communeId;
 
 
 

@@ -16,8 +16,9 @@ Contexte global : voir `PROJECT_ANALYSIS.md`. Plan : `ROADMAP.md`. Découpage ci
 | [0007](0007-notifications-temps-reel.md) | Notifications temps réel (SSE) | Proposé | P2-1 |
 | [0008](0008-strategie-fetch-et-multitenant.md) | Stratégie de fetch/performance et multi-tenant | Proposé | P1-2, P2-3 |
 | [0009](0009-nettoyage-dependances.md) | Nettoyage des dépendances backend | Proposé | P1-1 |
-| [0010](0010-evolution-microservices-monolithe-modulaire.md) | Évolution vers microservices : monolithe modulaire d'abord | Proposé | structurant |
+| [0010](0010-evolution-microservices-monolithe-modulaire.md) | Évolution vers microservices : monolithe modulaire d'abord | ⚠️ Remplacé par 0013 | structurant |
 | [0011](0011-keycloak-identity-provider.md) | Keycloak comme fournisseur d'identité (OIDC) | Proposé (remplace part. 0003) | P0 |
 | [0012](0012-decouplage-entites-references-par-id.md) | Découplage des entités : références par identifiant entre contextes | Proposé | P1 |
+| [0013](0013-architecture-ddd-smartwaste.md) | Architecture DDD `sn.smartwaste.collect` : 8 contextes, Clean Architecture, SaaS multi-tenant | **Accepté** (remplace 0010) | structurant |
 
 > « Proposé » = en attente de validation. Conformément à la règle projet, aucune implémentation n'est lancée avant passage à « Accepté ».

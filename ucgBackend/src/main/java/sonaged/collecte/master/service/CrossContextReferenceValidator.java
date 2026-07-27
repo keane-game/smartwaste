@@ -1,9 +1,11 @@
 package sonaged.collecte.master.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.repository.CommuneRepository;
-import sonaged.collecte.master.repository.QuartierRepository;
+import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
+import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 
 /**
  * Validation applicative des références <strong>cross-contexte</strong> (P1-7 / ADR-0012).
@@ -38,7 +40,7 @@ public class CrossContextReferenceValidator {
     }
 
     /** Vérifie qu'une commune référencée existe. {@code null} est accepté (référence optionnelle). */
-    public void requireCommuneExists(Long communeId) {
+    public void requireCommuneExists(UUID communeId) {
         if (communeId != null && !communeRepository.existsById(communeId)) {
             throw new ResourceNotFoundException(
                     "Commune référencée [%s] introuvable (référentiel territorial)".formatted(communeId));
@@ -46,7 +48,7 @@ public class CrossContextReferenceValidator {
     }
 
     /** Vérifie qu'un quartier référencé existe. {@code null} est accepté (référence optionnelle). */
-    public void requireQuartierExists(Long quartierId) {
+    public void requireQuartierExists(UUID quartierId) {
         if (quartierId != null && !quartierRepository.existsById(quartierId)) {
             throw new ResourceNotFoundException(
                     "Quartier référencé [%s] introuvable (référentiel territorial)".formatted(quartierId));

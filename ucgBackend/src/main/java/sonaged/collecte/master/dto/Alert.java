@@ -1,5 +1,9 @@
 package sonaged.collecte.master.dto;
 
+// Les DTO du référentiel territorial ont migré vers leur module dédié : ils ne sont plus
+// résolus par appartenance au même package et exigent un import explicite.
+import sn.smartwaste.collect.territory.application.dto.Coordinate;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

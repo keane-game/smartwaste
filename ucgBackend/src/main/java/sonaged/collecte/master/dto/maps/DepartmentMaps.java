@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import sonaged.collecte.master.dto.Coordinate;
+import sn.smartwaste.collect.territory.application.dto.Coordinate;
 
 import java.util.List;
 

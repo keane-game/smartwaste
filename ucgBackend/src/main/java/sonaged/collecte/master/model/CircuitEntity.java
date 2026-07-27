@@ -1,5 +1,9 @@
 package sonaged.collecte.master.model;
 
+// Le référentiel territorial a migré vers son module dédié : les types autrefois résolus
+// par appartenance au même package requièrent maintenant un import explicite.
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
+
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

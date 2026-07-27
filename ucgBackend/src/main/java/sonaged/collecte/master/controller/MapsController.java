@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import sonaged.collecte.master.dto.DepotoirMaps;
 import sonaged.collecte.master.dto.maps.DepartmentMaps;
-import sonaged.collecte.master.service.DepartmentService;
+import sn.smartwaste.collect.territory.application.service.DepartmentService;
 import lombok.AllArgsConstructor;
 import sonaged.collecte.master.service.DepotoirService;
 

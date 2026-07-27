@@ -10,9 +10,13 @@ Structure **cible** du monolithe modulaire (cf. `docs/architecture-cible.md`, AD
 | `referentiel` | Référentiel Territorial | à peupler |
 | `collecte` | Gestion des Collectes (points, alertes, circuits) | à peupler |
 | `ingestioniot` | Ingestion IoT | ⚠️ **RÉSERVÉ — non implémenté, module inerte** |
-| `communication` | Avis + notifications (e-mail/SSE/push) | à peupler |
-| `supervision` | Dashboard / stats / historique / audit | à peupler |
 | `shared` | Shared kernel (module ouvert) | à peupler |
+
+> ⚠️ La cible est désormais `sn.smartwaste.collect` (ancre `SmartWasteModulith`), qui reprend ces
+> modules avec un découpage en couches Clean Architecture (`presentation` / `application` /
+> `domain` / `infrastructure`). `communication` → `platform` et `supervision` → `analytics` y sont
+> **déjà migrés** et ont été supprimés d'ici. Les modules ci-dessus restent à migrer ; cette
+> arborescence disparaîtra avec le dernier.
 
 `UcgModulith` est l'**ancre d'analyse** (annotée `@Modulithic`) — pas une application Spring Boot, pas de `main`.
 

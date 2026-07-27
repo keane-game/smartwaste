@@ -1,6 +1,12 @@
 # ADR-0010 — Évolution vers les microservices : monolithe modulaire d'abord
 
-- Statut : Proposé
+- Statut : ⚠️ **REMPLACÉ par [ADR-0013](0013-architecture-ddd-smartwaste.md)** (2026-07-27)
+- Statut initial : Proposé
+
+> **Ce document est conservé pour l'historique.** Le découpage en 5 modules sous `sonaged.ucg`,
+> ainsi que l'organisation interne par couches, sont abandonnés au profit de 8 contextes bornés
+> sous `sn.smartwaste.collect` en Clean Architecture — motifs : absence de contexte `tenant`
+> (bloquant pour le SaaS), module `collecte` fourre-tout, et IoT non extractible. Voir ADR-0013.
 - Date : 2026-07-11
 - Priorité : structurant (cadre P1-2, P2-3) — supporte ADR-0011, ADR-0012
 

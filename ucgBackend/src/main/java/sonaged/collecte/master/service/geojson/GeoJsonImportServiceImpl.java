@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sonaged.collecte.master.repository.CircuitBalayageRepository;
 import sonaged.collecte.master.repository.CircuitCollectRepository;
-import sonaged.collecte.master.repository.CommuneRepository;
-import sonaged.collecte.master.repository.DepartmentRepository;
+import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
+import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
 import sonaged.collecte.master.repository.DepotoirRepository;
-import sonaged.collecte.master.repository.QuartierRepository;
+import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sonaged.collecte.master.service.UploadFileService;
 
 import java.io.FileNotFoundException;

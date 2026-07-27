@@ -1,5 +1,12 @@
 package sonaged.collecte.master.dto;
 
+import java.util.UUID;
+
+// Les DTO du référentiel territorial ont migré vers leur module dédié : ils ne sont plus
+// résolus par appartenance au même package et exigent un import explicite.
+import sn.smartwaste.collect.territory.application.dto.Coordinate;
+import sn.smartwaste.collect.territory.application.dto.Geometry;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +16,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import sonaged.collecte.master.enums.DeletionStatus;
 
-import sonaged.collecte.master.model.GeometryEntity;
+import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,14 +34,14 @@ public class Depotoir {
     String address;
 
     // P1-6 / ADR-0012 : quartier référencé par identifiant (contexte distinct), pas par objet.
-    Long quartierId;
+    UUID quartierId;
 
     TypeDepotoir typeDepotoir;
 
     // P1-7 / ADR-0012 : la commune était exposée sous forme d'ENTITÉ JPA dans le DTO
     // (fuite du modèle + couplage cross-contexte). Remplacée par son identifiant ;
     // les clients résolvent la commune via l'API du référentiel (`/v1/communes/{id}`).
-    Long communeId;
+    UUID communeId;
 
     Geometry geometry;
 
