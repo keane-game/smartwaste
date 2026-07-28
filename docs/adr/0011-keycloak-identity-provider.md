@@ -1,6 +1,23 @@
 # ADR-0011 — Keycloak comme fournisseur d'identité (OIDC)
 
-- Statut : **Accepté — NON implémenté**. La dépendance `spring-boot-starter-oauth2-resource-server` est présente mais **inerte** (aucun `issuer-uri`). Blueprint complet : `../keycloak-migration.md`.
+- Statut : **Accepté sur le principe — AJOURNÉ** (2026-07-29). Reste la cible ; n'est pas le chantier courant.
+
+> **Décision d'ajournement.** Keycloak supprimerait d'un coup l'auth maison, les secrets versionnés
+> et la gestion de mot de passe, et apporterait SSO/MFA/reset. Mais son adoption **maintenant** est
+> un mauvais séquencement : complexité L, trois clients à convertir au flux PKCE, une brique
+> opérationnelle à héberger — et, dans l'environnement de développement actuel, **aucun moyen de
+> l'exécuter** (pas de Docker), donc une configuration qu'on écrirait sans jamais la vérifier.
+>
+> Entre-temps, les **sessions révocables** (2026-07-28) ont fermé le défaut le plus grave : la
+> déconnexion n'existait pas côté serveur. Elles sont testées et opérationnelles. C'est donc la
+> solution **en vigueur**, et ce document cesse d'être en tension avec elle.
+>
+> **Conditions de reprise** — au premier des trois : un besoin de SSO ou de MFA ; l'extraction d'un
+> second service (l'auth centralisée devient alors structurante, cf. ADR-0013) ; ou une mise en
+> service réelle, qui rend la gestion des mots de passe maison inacceptable.
+>
+> ⚠️ Tant que Keycloak n'est pas adopté, **la rotation des secrets d'ADR-0002 reste due** : c'est
+> Keycloak qui devait la rendre sans objet.
 > ⚠️ **Tension à arbitrer** : le blueprint prévoit de supprimer `JwtService`, `JwtFilter` et `SecurityConstants`, alors que le chantier « sessions révocables » en cours étend précisément ces classes.
 - Date : 2026-07-11
 - Priorité : P0 (sécurité) — **remplace la partie « JWT + mot de passe » de [ADR-0003](0003-authentification-et-jwt.md)**

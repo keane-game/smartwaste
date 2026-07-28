@@ -1,6 +1,12 @@
 # Migration vers Keycloak (P0-A / ADR-0011) — blueprint
 
-> Statut : **scaffolding**. Aucune bascule effectuée. Ce document est la référence d'implémentation.
+> Statut : **AJOURNÉ** (2026-07-29, cf. ADR-0011). Aucune bascule effectuée. Ce document reste la
+> référence d'implémentation **le jour où la bascule est décidée**.
+>
+> ⚠️ **Ne pas appliquer le §4 en l'état.** Il prévoit de supprimer `JwtService`, `JwtFilter` et
+> `SecurityConstants` — or ces classes portent désormais les **sessions révocables**, qui sont la
+> solution d'authentification en vigueur. Les supprimer aujourd'hui retirerait la révocation sans
+> rien mettre à la place.
 > Contrainte de la session courante : pas de JDK → code de référence **non compilé/non vérifié**.
 > Étapes marquées 🔧 = code à ajouter ; ⛔ = code à retirer ; 🖥️ = infra ; 📱 = clients.
 

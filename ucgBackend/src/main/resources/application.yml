@@ -136,6 +136,24 @@ sonaged:
       # URL publique de diffusion des objets. Vide -> {endpoint}/{bucket}. Renseigner si proxy/CDN
       # (ou pour des URLs présignées gérées en amont). Le bucket doit être lisible pour un accès direct.
       public-base-url: ${MINIO_PUBLIC_URL:}
+  security:
+    jwt:
+      # Duree de vie du jeton d'acces. Passee de 10 JOURS a 15 minutes : c'est ce que les
+      # sessions revocables ont rendu possible, et c'est la moitie du benefice attendu.
+      # Un jeton copie n'est plus exploitable que 15 min ; au-dela, il faut le jeton de
+      # rafraichissement, lui revocable et tourne a chaque usage.
+      # Non regressif : le client Angular renouvelle desormais l'acces de maniere transparente
+      # (ErrorInterceptor sur 401 -> POST /auth/refresh -> rejeu de la requete).
+      access-ttl-ms: ${JWT_ACCESS_TTL_MS:900000}
+    session:
+      # Au-dela, il faut se reconnecter.
+      refresh-ttl-days: ${SESSION_REFRESH_TTL_DAYS:30}
+  alerting:
+    # ADR-0004 : seuil de declenchement de l'alerte automatique, en % de remplissage.
+    # Global pour l'instant ; par type de depotoir a terme (un bac de rue et une caisse
+    # polybenne ne se remplissent pas au meme rythme).
+    fill-threshold-percent: ${ALERT_FILL_THRESHOLD:80}
+
   deletion:
     # Soft-delete (toutes entités) : rétention avant purge définitive + fréquence de purge.
     retention-days: ${DELETION_RETENTION_DAYS:30}
