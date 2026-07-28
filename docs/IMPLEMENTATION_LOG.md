@@ -280,6 +280,32 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Import GeoJSON recâblé — la dette de la migration est soldée (2026-07-29)
+
+L'import écrivait **directement dans 12 repositories** de `territory` et `waste`, ce qui avait
+obligé à ouvrir trois `@NamedInterface` transitoires. **Elles sont refermées.**
+
+- **`ImportedFeature`** (shared) : attributs bruts + contour, en types neutres (`Map`, `String`).
+  Aucune dépendance JPA, JSON ou Spring ne franchit plus la frontière.
+- **`TerritoryImportPort`** et **`WasteImportPort`** : chaque contexte reçoit des attributs bruts et
+  décide seul de leur signification. Le savoir déplacé est celui qui n'appartenait pas à l'import —
+  que `COD_DEPT` est un code de département, que `Type_de_Mo` est un type de point de collecte,
+  qu'un type inconnu se crée à la volée.
+- **`UploadFileServiceImpl` : 646 → 195 lignes**, et ne connaît plus aucune entité ni aucun
+  repository. Il ne fait plus que ce qui est réellement son métier : lire du GeoJSON ArcGIS
+  (`features` / `attributes` / `geometry`, anneaux `rings` ou tracés `paths`).
+- Les six méthodes d'upload, qui dupliquaient la même boucle d'analyse, se réduisent à une
+  déclaration chacune.
+
+**Supprimés** : `waste/domain/model/package-info.java`, `waste/domain/repository/package-info.java`,
+`territory/domain/model/package-info.java` — les trois expositions ouvertes la veille.
+
+⚠️ **Il reste une exposition, antérieure** : `territory.domain.repository`
+(`@NamedInterface("repositories")`), avec quatre consommateurs — `CrossContextReferenceValidator`,
+`DepotoirServiceImpl`, `DashboardServiceImpl` et `GeoJsonImportServiceImpl`. Ce n'était pas l'objet
+de cette tâche ; la refermer suppose de traiter la vérification d'existence cross-contexte et
+l'écriture de géométries depuis `waste`, ce qui est un chantier distinct.
+
 ### ADR-0013 — 🏁 Migration terminée : plus rien dans `sonaged.collecte.master` (2026-07-28)
 
 Dernière passe, sur décision explicite de finir malgré la réserve exprimée.
