@@ -13,4 +13,5 @@
     <include file="config/liquibase/changelog/2.1.0_identity_uuid.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.2.0_tenant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.3.0_user_session.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.4.0_iot_ingestion.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

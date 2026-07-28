@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0004 — Chaine d'ingestion du niveau de remplissage (coeur metier).
+      NON destructeur : deux tables ajoutees + deux colonnes sur `depotoir`.
+    -->
+
+    <changeSet author="claude" id="2.4.0-1-sensor">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="sensor"/></not></preConditions>
+        <comment>Capteur installe sur un point de collecte.</comment>
+        <createTable tableName="sensor">
+            <column name="sensorid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_sensor"/>
+            </column>
+            <column name="devicecode" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_sensor_devicecode"/>
+            </column>
+            <!-- Empreinte SHA-256 de la cle d'API, jamais la cle : une base exfiltree ne doit pas
+                 permettre d'injecter de fausses mesures. -->
+            <column name="apikeyhash" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_sensor_apikeyhash"/>
+            </column>
+            <!-- Reference par identifiant vers le contexte « Dechets » : pas de FK traversante. -->
+            <column name="depotoirid" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+            <column name="lastseenat" type="TIMESTAMP WITH TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_sensor_depotoirid" tableName="sensor">
+            <column name="depotoirid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.4.0-2-measurement">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="measurement"/></not></preConditions>
+        <comment>Historique des mesures. Table volumineuse par nature.</comment>
+        <createTable tableName="measurement">
+            <column name="measurementid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_measurement"/>
+            </column>
+            <column name="sensorid" type="uuid"><constraints nullable="false"/></column>
+            <column name="depotoirid" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="filllevelpercent" type="INTEGER"/>
+            <column name="temperaturecelsius" type="DOUBLE PRECISION"/>
+            <column name="humiditypercent" type="DOUBLE PRECISION"/>
+            <column name="measuredat" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="receivedat" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="source" type="VARCHAR(20)" defaultValue="IOT"><constraints nullable="false"/></column>
+        </createTable>
+        <!-- Axe de lecture reel : « l'historique de CE point, du plus recent au plus ancien ». -->
+        <createIndex indexName="idx_measurement_depotoir_measuredat" tableName="measurement">
+            <column name="depotoirid"/>
+            <column name="measuredat"/>
+        </createIndex>
+        <!-- Idempotence : un capteur qui reemet la meme mesure ne doit pas la dupliquer. -->
+        <createIndex indexName="idx_measurement_sensor_measuredat" tableName="measurement">
+            <column name="sensorid"/>
+            <column name="measuredat"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.4.0-3-depotoir-filllevel">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="depotoir" columnName="filllevelpercent"/></not>
+        </preConditions>
+        <comment>Dernier etat connu, denormalise (ADR-0004) — en PLUS de l'historique, pas a sa place.</comment>
+        <addColumn tableName="depotoir">
+            <column name="filllevelpercent" type="INTEGER"/>
+            <column name="lastmeasuredat" type="TIMESTAMP WITH TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

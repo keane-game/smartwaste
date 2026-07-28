@@ -42,7 +42,7 @@ public interface WasteReadModel {
     /** Alertes actives, réduites à ce dont la supervision a besoin. */
     List<ActiveAlert> activeAlerts();
 
-    /** Points de collecte actifs, réduits à leur type. */
+    /** Points de collecte actifs, réduits à leur type et à leur dernier niveau connu. */
     List<ActiveCollectionPoint> activeCollectionPoints();
 
     /** Circuits actifs (collecte + balayage), réduits à leur commune de rattachement. */
@@ -65,8 +65,11 @@ public interface WasteReadModel {
      */
     record ActiveAlert(String code, LocalDateTime createdAt) { }
 
-    /** @param typeName libellé du type de point de collecte, {@code null} si non rattaché */
-    record ActiveCollectionPoint(String typeName) { }
+    /**
+     * @param typeName         libellé du type de point de collecte, {@code null} si non rattaché
+     * @param fillLevelPercent dernier niveau connu, {@code null} si le point n'est pas instrumenté
+     */
+    record ActiveCollectionPoint(String typeName, Integer fillLevelPercent) { }
 
     /** @param communeId commune de rattachement, {@code null} si le circuit n'est pas affecté */
     record ActiveCircuit(UUID communeId) { }

@@ -85,7 +85,8 @@ public class WasteReadModelAdapter implements WasteReadModel {
         return depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE).stream()
                 .map(d -> {
                     var type = d.getTypeDepotoir();
-                    return new ActiveCollectionPoint(type == null ? null : type.getName());
+                    return new ActiveCollectionPoint(type == null ? null : type.getName(),
+                                                    d.getFillLevelPercent());
                 })
                 .toList();
     }

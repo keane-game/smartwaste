@@ -52,6 +52,20 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "Address")
     String address;
 
+    // ---------------------------------------------------------------------------------
+    // ADR-0004 : dernier etat connu, denormalise depuis l'historique des mesures.
+    // Ce n'est PAS un remplacement de `measurement` : sans historique, plus d'analyse de
+    // tendance ni d'optimisation de tournees. C'est un cache de lecture, pour que la carte
+    // et les listes n'aient pas a agreger a la volee sur des milliers de points.
+    // ---------------------------------------------------------------------------------
+
+    /** Niveau de remplissage en %, {@code null} tant qu'aucune mesure n'est arrivee. */
+    @Column(name = "fillLevelPercent")
+    Integer fillLevelPercent;
+
+    @Column(name = "lastMeasuredAt")
+    java.time.Instant lastMeasuredAt;
+
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
     @JsonIgnore

@@ -74,6 +74,14 @@ public class SecurityConfiguration{
                                                 // le jeton sur toutes les requêtes, et l'écran d'import
                                                 // n'est atteignable qu'authentifié.
                                                 .requestMatchers(GET, "/data/**").permitAll()
+                                                // Ingestion IoT (ADR-0004) : un capteur n'est pas
+                                                // une personne. Il s'authentifie par une cle de
+                                                // device (en-tete X-Device-Key) que le service
+                                                // verifie lui-meme, et repond 401 si elle est
+                                                // inconnue. Lui distribuer un JWT utilisateur
+                                                // reviendrait a donner a un objet pose dans la rue
+                                                // les droits d'un compte.
+                                                .requestMatchers(POST, "/v1/measurements").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->
