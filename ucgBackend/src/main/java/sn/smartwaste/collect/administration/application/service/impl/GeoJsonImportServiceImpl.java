@@ -10,13 +10,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
-import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
-import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
-import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
-import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
-import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sn.smartwaste.collect.administration.application.service.UploadFileService;
+import sn.smartwaste.collect.territory.application.api.TerritoryImportPort;
+import sn.smartwaste.collect.waste.application.api.WasteImportPort;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,12 +44,10 @@ public class GeoJsonImportServiceImpl implements GeoJsonImportService {
 
     private final UploadFileService uploadFileService;
     private final ResourceLoader resourceLoader;
-    private final DepartmentRepository departmentRepository;
-    private final CommuneRepository communeRepository;
-    private final QuartierRepository quartierRepository;
-    private final CircuitCollectRepository circuitCollectRepository;
-    private final CircuitBalayageRepository circuitBalayageRepository;
-    private final DepotoirRepository depotoirRepository;
+
+    /** Compteurs publies par les contextes proprietaires : plus aucun repository ici. */
+    private final TerritoryImportPort territory;
+    private final WasteImportPort waste;
 
     @Value("${sonaged.import.geojson.location:file:../datas}")
     private String location;
@@ -61,17 +55,17 @@ public class GeoJsonImportServiceImpl implements GeoJsonImportService {
     @Override
     public Map<String, String> importAll(boolean force) {
         var results = new LinkedHashMap<String, String>();
-        results.put("department", step(FILE_DEPARTMENT, departmentRepository.count(), force,
+        results.put("department", step(FILE_DEPARTMENT, territory.countDepartments(), force,
                 uploadFileService::uploadDataDepartment));
-        results.put("commune", step(FILE_COMMUNE, communeRepository.count(), force,
+        results.put("commune", step(FILE_COMMUNE, territory.countCommunes(), force,
                 uploadFileService::uploadDataCommune));
-        results.put("quartier", step(FILE_QUARTIER, quartierRepository.count(), force,
+        results.put("quartier", step(FILE_QUARTIER, territory.countQuartiers(), force,
                 uploadFileService::uploadDataQuartier));
-        results.put("circuitCollect", step(FILE_CIRCUIT_COLLECT, circuitCollectRepository.count(), force,
+        results.put("circuitCollect", step(FILE_CIRCUIT_COLLECT, waste.countCircuitCollects(), force,
                 uploadFileService::uploadDataCircuitCollect));
-        results.put("circuitBalayage", step(FILE_CIRCUIT_BALAYAGE, circuitBalayageRepository.count(), force,
+        results.put("circuitBalayage", step(FILE_CIRCUIT_BALAYAGE, waste.countCircuitBalayages(), force,
                 uploadFileService::uploadDataCircuitBalayage));
-        results.put("depotoir", step(FILE_DEPOTOIR, depotoirRepository.count(), force,
+        results.put("depotoir", step(FILE_DEPOTOIR, waste.countDepotoirs(), force,
                 uploadFileService::uploadDataDepotoir));
         return results;
     }

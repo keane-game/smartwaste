@@ -138,6 +138,24 @@ public class TerritoryImportAdapter implements TerritoryImportPort {
         return Optional.ofNullable(resolveCommune(name)).map(CommuneEntity::getCommuneId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countDepartments() {
+        return departmentRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countCommunes() {
+        return communeRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countQuartiers() {
+        return quartierRepository.count();
+    }
+
     /**
      * Résolution tolérante : égalité stricte, puis correspondance partielle. Les noms des fichiers
      * source ne coïncident pas toujours exactement avec ceux du référentiel.

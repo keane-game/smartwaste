@@ -20,4 +20,15 @@ public interface WasteImportPort {
 
     /** Le type de point de collecte est créé à la volée s'il n'existe pas encore. */
     void importDepotoir(ImportedFeature feature, UUID communeId);
+
+    // ---------- Compteurs « déjà importé ? » ----------
+    // L'import en lot saute un fichier dont la ressource est déjà peuplée. Ces compteurs sont
+    // publiés séparément de WasteReadModel.countCircuits(), qui agrège collecte + balayage :
+    // ici il faut savoir lequel des deux est vide.
+
+    long countCircuitCollects();
+
+    long countCircuitBalayages();
+
+    long countDepotoirs();
 }

@@ -37,4 +37,12 @@ public interface TerritoryImportPort {
      * commune <b>par son nom</b>, tel qu'écrit dans les fichiers source.
      */
     Optional<UUID> findCommuneIdByName(String name);
+
+    // ---------- Compteurs « déjà importé ? » ----------
+
+    long countDepartments();
+
+    long countCommunes();
+
+    long countQuartiers();
 }

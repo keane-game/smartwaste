@@ -96,6 +96,24 @@ public class WasteImportAdapter implements WasteImportPort {
         depotoirRepository.saveAndFlush(depotoir);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countCircuitCollects() {
+        return circuitCollectRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countCircuitBalayages() {
+        return circuitBalayageRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countDepotoirs() {
+        return depotoirRepository.count();
+    }
+
     /**
      * Un libellé de type inconnu est créé à la volée : les fichiers source font autorité sur la
      * nomenclature, et refuser l'import parce qu'un type manque au référentiel serait absurde.
