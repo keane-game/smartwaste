@@ -1,5 +1,16 @@
 # PROJECT_STATUS.md
 
+> 🔴 **ARCHIVE — GELÉE AU 2026-07-11. NE PAS PLANIFIER À PARTIR DE CE DOCUMENT.**
+>
+> Conservée pour l'historique : elle montre l'état du projet à la reprise. **La majorité des défauts
+> qu'elle liste sont corrigés depuis** (`.gitignore`, `ddl-auto`, springfox, jeton journalisé, 500 sur
+> JWT expiré, README vide, `endpoint.md` erroné, import GeoJSON…). Sa numérotation P0/P1 **diffère**
+> de celle de `ROADMAP.md` : « P0-4 » n'y désigne pas la même chose.
+>
+> Pour l'état réel : `docs/IMPLEMENTATION_LOG.md`. Pour la carte documentaire : `docs/KNOWLEDGE_MAP.md`.
+> Pour le plan : `ROADMAP.md` (numérotation de référence).
+
+
 > Projet : **Gestion automatisée des ordures ménagères** (marque backend : **SONAGED**)
 > Document généré par analyse du dépôt — dernière mise à jour : 2026-07-11
 > Aucune modification de code n'a été effectuée. Ce document est une **photographie de l'état actuel**.

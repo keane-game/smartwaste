@@ -71,9 +71,16 @@ déclaratif (`angular/src/app/shares/crud/entity-config.ts`) rendu par des compo
 `EntityListComponent` / `EntityFormComponent`. Ajouter une ressource = ajouter une entrée au
 registre plus une route.
 
-**Décisions d'architecture** : [`docs/adr/`](docs/adr/) (12 ADR) — cible **monolithe modulaire
-orienté microservices** (ADR-0010), **Keycloak** comme fournisseur d'identité (ADR-0011),
-**découplage des entités par identifiant entre contextes** (ADR-0012, appliqué en P1-7a).
+**Décisions d'architecture** : [`docs/adr/`](docs/adr/) (**13 ADR**, avec leur statut réel) — cible
+**architecture DDD en 8 contextes bornés** ([ADR-0013](docs/adr/0013-architecture-ddd-smartwaste.md),
+qui **remplace** ADR-0010), **Keycloak** comme fournisseur d'identité (ADR-0011, non implémenté),
+**découplage des entités par identifiant** (ADR-0012, appliqué).
+
+> ⚠️ [`docs/architecture-cible.md`](docs/architecture-cible.md) décrit le découpage de l'**ADR-0010,
+> remplacé**. Il est conservé pour l'historique — la cible actuelle est l'ADR-0013.
+
+**Cartographie documentaire** : [`docs/KNOWLEDGE_MAP.md`](docs/KNOWLEDGE_MAP.md) — inventaire de
+toutes les sources, incohérences entre documents, fonctionnalités spécifiées mais absentes.
 
 **Journal d'implémentation** : [`docs/IMPLEMENTATION_LOG.md`](docs/IMPLEMENTATION_LOG.md) —
 ce qui a été fait, pourquoi, et ce qui reste à vérifier.

@@ -247,10 +247,230 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 6. **Read-models de carte** (`DepotoirMaps`, `DepartmentMaps`) : produits par `collecte`/`referentiel`, consommés par `supervision` — ils traversent la frontière et demandent une décision d'API (`@NamedInterface` exposée par le contexte producteur, ou contrat publié par `supervision`). Laissés en place pour cette raison.
 7. Une fois un module dépendu d'un autre **migré**, exposer son API via `@NamedInterface` et masquer ses internes.
 
+### ADR-0013 — Bascule vers `sn.smartwaste.collect` : `analytics`, `platform`, `territory` (2026-07-27)
+- **Changement de cible d'architecture.** Le cadrage produit passe à un **SaaS multi-collectivités** : l'ADR-0010 (5 modules sous `sonaged.ucg`, découpage par couches) est **remplacé par l'ADR-0013** — nouvelle racine `sn.smartwaste.collect`, **8 contextes bornés**, Clean Architecture interne (`domain` / `application` / `infrastructure` / `presentation`). Trois manques rendaient l'ADR-0010 bloquant : aucun contexte `tenant`, un module `collecte` fourre-tout, et un découpage par couches qui ne dit rien du métier.
+- **Migrés** : `analytics` (ex-`supervision`), `platform` (ex-`communication`), `territory` (42 fichiers). `SonagedApplication` scanne les deux racines pendant la transition ; `sonaged.ucg` n'est plus qu'un échafaudage vide et **obsolète** (son retrait exige une validation explicite — règle projet).
+- **UUID v7 (contexte territory)** — `UuidV7Generator` sans dépendance externe, branché par `@UuidGenerator`. *Pourquoi pas v4* : un identifiant entièrement aléatoire tombe n'importe où dans l'index B-tree de PostgreSQL → fragmentation et écritures amplifiées ; le v7 préfixe un horodatage et conserve la localité d'insertion d'un `BIGSERIAL`. 4 tests réels (version, variante, horodatage encodé, ordonnancement, 50 000 générations sans collision).
+- **Changelog `2.0.0_territory_uuid.xml`** : PK et colonnes de référence `BIGINT → uuid` natif. **DESTRUCTEUR, assumé** (base jetable) — PostgreSQL ne convertit pas `BIGINT` en `uuid`, il faut supprimer/recréer les colonnes.
+- **Deux bugs introduits puis corrigés pendant la conversion** : un remplacement global `Long → UUID` avait produit `SUM(CAST(c.total AS UUID))` dans un agrégat JPQL (compilait, aurait échoué au démarrage d'Hibernate) ; `UuidV7Generator` avait un constructeur privé alors qu'Hibernate l'instancie par réflexion. `UploadFileServiceImpl` faisait `findById(1L)` sur la région/le département semés — identifiant qui n'existe plus, remplacé par « le premier enregistré ».
+- **Statut** : ✅ `mvnw clean verify` vert, 20 tests (19 passants, 1 ignoré).
+
+### ADR-0013 — Shared kernel + contexte `identity` migrés (2026-07-27)
+
+**1. Shared kernel** — `AbstractAuditingEntity`, `DeletionStatus`, `SoftDeleteRepository`, les trois exceptions métier et `ErrorMessage` quittent `sonaged.collecte.master` pour `sn.smartwaste.collect.shared` (`domain/model`, `domain/repository`, `domain/exception`, `presentation`). C'est le préalable au reste : ces types étaient les 6 imports hérités les plus fréquents depuis la nouvelle racine, et tant qu'ils vivaient dans le legacy, chaque contexte migré traînait une dépendance vers lui.
+
+**2. Contexte `identity`** — 27 fichiers (entités, repositories, DTO, mapper, services, sécurité JWT, contrôleurs) réorganisés en Clean Architecture. `ActivationCodeIssued` rejoint `shared/domain/event` : l'événement est un contrat entre deux contextes, le loger chez l'émetteur obligerait le récepteur à dépendre de lui.
+
+**3. Frontière `platform → identity` fermée par un port, pas par un repository.**
+- `AvisService` lisait le `SecurityContextHolder` puis **castait le principal en `UserEntity`** : le contexte plateforme connaissait l'entité JPA de l'identité. Remplacé par `identity.application.api.CurrentUserProvider` (`@NamedInterface("api")`), qui ne renvoie qu'un `UUID`. Le cast vit désormais dans un seul endroit, `IdentityApiAdapter`, et l'externalisation vers Keycloak (ADR-0011) se fera en réimplémentant ce port.
+- `Avis.user` (`@ManyToOne UserEntity`) → `Avis.userId` (`UUID`, sans FK SQL), conformément à l'ADR-0012.
+- **Choix délibéré de ne pas reproduire la concession `territory`** : le référentiel territorial publie encore ses six repositories via `@NamedInterface("repositories")`. Publier de même `UserRepository` aurait exposé tout l'agrégat utilisateur — l'ADR-0013 §3 l'interdit explicitement. `DashboardServiceImpl` **injectait `UserRepository` sans jamais s'en servir** : l'injection morte a simplement été retirée, ce qui a supprimé la seule dépendance `analytics → identity`. Aucun port n'a donc eu à être créé pour elle.
+- `modules.verify()` confirme la frontière : le seul type d'`identity` visible de l'extérieur est `CurrentUserProvider`.
+
+**4. Identifiants `identity` en UUID v7** — `UserEntity.userId`, `AuthorityEntity.authorityId` (`Long`) et `Validation.id` (`int`) passent en `UUID`, propagés aux repositories, DTO, services et contrôleurs (`@PathVariable UUID`).
+
+**5. Changelog `2.1.0_identity_uuid.xml`** — même schéma destructeur qu'en 2.0.0 (base jetable) : purge de `users` / `authority` / `authoritypermission` / `validation`, PK et colonnes de référence en `uuid`, FK **internes au contexte** rétablies (elles ne traversent aucune frontière, donc légitimes). Les rôles de référence sont **resemés** : `config/liquibase/data/authority.sql` insérait les identifiants `1, 2, 3` en dur et ne peut plus s'appliquer ; les trois UUID de remplacement sont fixes, de forme v7 valide, et volontairement reconnaissables — un rôle est une donnée de référence, son identifiant doit être stable d'un environnement à l'autre.
+
+**6. 🔴 Défaut latent de démarrage corrigé au passage.** La table `avis` n'a **jamais eu de colonne** pour l'association `Avis.user` : le baseline ne déclare qu'`utilisateur_id`, héritée d'une table `utilisateur` abandonnée. Avec `ddl-auto: validate` (P0-4), Hibernate attendait `user_userid` et **le démarrage aurait échoué**. Invisible jusqu'ici parce que l'application n'a jamais été lancée contre une base. Le changelog crée `avis.userid uuid` (+ index, sans FK).
+
+**7. `AuthorityServiceImplTest` : 5 méthodes vides → 7 tests réels.** La dette signalée en P1-7b est soldée pour cette classe. Les tests couvrent notamment les deux comportements contre-intuitifs du service : `readAllAuthority` filtre sur `DeletionStatus.ACTIVE` (et non `findAll`), et `deleteAuthority` est une **suppression logique** — un test vérifie explicitement que `delete()` n'est jamais appelé.
+
+**8. Frontend** — `angular/src/app/models/user.model.ts` : `userId: number` → `string`. Aucune autre occurrence de `userId` dans l'application (l'identifiant ne sert qu'à composer les URL), donc pas d'impact fonctionnel — mais le type déclaré était devenu faux.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
+- **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
+
+### Réconciliation documentaire + sessions révocables (2026-07-28)
+
+#### Documentation : fermeture de la boucle de retour
+La cartographie exhaustive (`docs/KNOWLEDGE_MAP.md`) a mis au jour une cause racine unique : la chaîne
+descendante *spécification → analyse → plan → ADR → code* fonctionne, mais **rien ne remonte**. Ce
+journal enregistrait le réel ; ni les statuts d'ADR, ni `PROJECT_STATUS.md`, ni `CLAUDE.md`, ni
+`architecture-cible.md` n'étaient mis à jour en retour. Corrigé :
+
+- **Statuts des 13 ADR** alignés sur l'état constaté dans le code. Ils étaient tous « Proposé » sous
+  une règle affirmant qu'« aucune implémentation n'est lancée avant passage à Accepté » — alors que la
+  moitié était implémentée. L'index ne renseignait plus sur rien.
+- **`CLAUDE.md`** : c'est le seul document chargé automatiquement à chaque session, donc celui dont les
+  erreurs se propagent le plus. Corrigé sur Java 21 / Boot 3.5.3 / Angular 17, l'existence du
+  `.gitignore`, l'architecture (DDD 10 modules et non « layered »), les ports de frontière, le
+  `Sonaged@123` résiduel dans `createUser`, et une hiérarchie explicite des documents fiables.
+- **`PROJECT_STATUS.md` et `PROJECT_ANALYSIS.md`** portent un bandeau **ARCHIVE gelée au 2026-07-11**.
+  Le premier était encore désigné par `CLAUDE.md` comme « autoritatif, à lire avant de planifier »,
+  alors que la majorité des défauts qu'il liste sont corrigés — et que sa numérotation P0 **diffère**
+  de celle de la ROADMAP (« P0-4 » ne désignait pas la même chose selon le fichier lu).
+- **`architecture-cible.md`** porte un bandeau d'obsolescence : il décrit les 5 modules d'ADR-0010,
+  remplacé, alors que le README le présentait comme la cible. Le bandeau distingue ce qui reste valable
+  (flux métier IoT, ordre d'extraction, entités à créer) de ce qui est faux (découpage, packages,
+  `Geometry`/`Coordinate` en embeddables).
+- **`README.md`** : 12 → 13 ADR, cible corrigée en ADR-0013, renvoi vers la cartographie.
+- **ADR-0006 marqué « prémisse invalidée »** : il retient `angular/` comme « le plus complet » et
+  propose de supprimer `sonaged_web/`. Mesure : `angular/` = 164 fichiers `.ts` / ~9 900 l. (Angular
+  17.0.7, NgModules) ; **`sonaged_web/` = 196 fichiers / ~16 900 l. (Angular 17.3, standalone)**.
+  L'appliquer en l'état pourrait supprimer la meilleure base.
+- **ADR-0004 marqué « périmètre à revoir »** : le mémoire demande des seuils de **température et
+  d'humidité** (capteur DHT11) en plus du remplissage ; l'ADR ne modélise que le remplissage.
+- Les **décisions prises hors ADR** (UUID v7, module `administration`, ports applicatifs, propriétaire
+  du rattachement tenant, soft-delete) sont désormais listées dans `docs/adr/README.md` comme dette
+  documentaire assumée.
+
+#### Sessions d'authentification révocables (contexte identity)
+- **Le défaut corrigé** : l'authentification était purement autoportante — un JWT signé valable
+  **10 jours**, rien côté serveur. La déconnexion n'existait donc pas : `logout()` vidait le
+  `localStorage` du navigateur et le jeton restait parfaitement valide. Un jeton copié ne pouvait pas
+  être révoqué, et un changement de mot de passe ne fermait aucune session.
+- **`UserSession`** + `POST /auth/refresh` + `POST /auth/logout`. Le jeton d'accès porte un claim
+  `sid` ; `JwtFilter` vérifie à chaque requête que la session est ouverte — c'est ce qui rend la
+  déconnexion réelle. Coût assumé : une lecture indexée par requête authentifiée, prix incontournable
+  de la révocation (un JWT autoportant ne peut pas être révoqué, par construction).
+- **Le jeton de rafraîchissement est opaque, pas un JWT** : un JWT se vérifie sans la base, ce qui est
+  exactement ce qu'on ne veut pas pour le jeton révocable. 256 bits de `SecureRandom`, stocké
+  **haché en SHA-256** — une base exfiltrée ne permet pas de rejouer les sessions. SHA-256 sans sel
+  volontairement : le raisonnement bcrypt vaut pour un mot de passe à faible entropie, pas pour 256
+  bits d'aléa.
+- **Rotation à chaque rafraîchissement** : si un jeton est volé, la première des deux parties à s'en
+  servir invalide l'autre — l'anomalie devient visible au lieu de rester silencieuse.
+- **Messages d'échec indiscernables** (inconnu / révoqué / expiré → même texte) : distinguer les cas
+  renseignerait un attaquant sur la validité d'un jeton en sa possession.
+- **Réponse de connexion inchangée** (`bearer`), `refresh` purement additif : aucun client existant ne
+  casse. **La TTL du jeton d'accès reste à 10 jours** et devient configurable
+  (`sonaged.security.jwt.access-ttl-ms`) : la réduire — ce que la session rend enfin possible —
+  déconnecterait les clients qui n'appellent pas encore `/auth/refresh`. C'est un changement de
+  configuration à faire quand les clients savent rafraîchir, pas un effet de bord de ce chantier.
+- **Second secret versionné supprimé** : `ENCRIPTION_KEY` / `getKey()` dans `JwtService`. Ce n'était
+  **pas** la clé de signature (`SecurityConstants.SECRET` l'est) et son unique appelant était un bloc
+  commenté. La revue de sécurité automatique l'avait signalé en croyant l'inverse. Complète l'ADR-0009 §3.
+  ⚠️ Les deux secrets restent dans l'historique Git et doivent être rotés (ADR-0002 §4-5).
+- **Changelog `2.3.0_user_session.xml`**, non destructeur.
+- **10 tests, vérifiés par deux mutations** : supprimer la rotation → 1 échec ; accepter une session
+  révoquée → 2 échecs.
+- ⚠️ **Tension à arbitrer** : `docs/keycloak-migration.md` §4 prévoit de **supprimer** `JwtService`,
+  `JwtFilter` et `SecurityConstants`, que ce chantier étend. Les deux directions sont défendables ;
+  elles ne doivent pas être menées en parallèle.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **52 tests, 51 passants, 1 ignoré**.
+
+### Le contexte Spring démarre — pour la première fois vérifié (2026-07-28)
+
+**C'est le trou le plus grave qui restait**, et l'ADR-0013 se l'attribuait lui-même : « une régression de câblage Spring ne serait visible qu'au démarrage ». Aucun test n'instanciait le contexte — le seul qui l'aurait fait, `SonagedApplicationTests`, était `@Disabled` faute de PostgreSQL. Toute la classe d'erreurs « ça compile mais ça ne démarre pas » (bean manquant, injection ambiguë, référence circulaire, classe sortie du périmètre de `scanBasePackages`) était donc invisible — pendant une migration qui déplace des centaines de classes entre deux racines de packages.
+
+- **`ApplicationContextLoadsTest`** démarre le contexte complet sur **H2 en mode compatibilité PostgreSQL** (dépendance de test ajoutée), Liquibase désactivé, schéma dérivé des entités. Trois tests : le contexte démarre, **les deux racines sont scannées** (un bean de chaque), et **chaque port publié a exactement une implémentation** — une injection ambiguë ou manquante ne casse qu'au démarrage, jamais à la compilation.
+- **Le piège rencontré est instructif** : placé dans `sn.smartwaste.collect`, le test échouait sur « Unable to find a @SpringBootConfiguration » — la recherche ascendante part du package du test et ne peut pas atteindre `SonagedApplication`, resté dans `sonaged.collecte.master`. C'est exactement ce qui rendait l'ancien test inopérant avant qu'il ne soit déplacé puis désactivé. Résolu par `@SpringBootTest(classes = SonagedApplication.class)` — et c'est un argument de plus pour faire remonter la classe d'application dans la racine cible.
+- ⚠️ **Ce que ce test ne prouve pas** : que les entités correspondent au schéma **Liquibase**. Un schéma dérivé des entités leur est cohérent *par construction* — c'est précisément ce que `ddl-auto: validate` sert à contredire, au démarrage réel contre PostgreSQL, qui n'a toujours pas été exercé. Ne pas confondre les deux garanties.
+- `SonagedApplicationTests` (désactivé) devient redondant ; laissé en place (suppression → validation).
+
+### ADR-0013 §4 — Contexte `tenant` : fondations multi-tenant (2026-07-28)
+
+Objectif de l'ADR : « l'architecture doit **porter** l'isolation avant qu'elle ne soit exploitée ».
+
+- **`Organization`** (collectivité cliente) et **`OrganizationMembership`** (rattachement utilisateur → collectivité), en UUID v7, + repositories. Changelog **`2.2.0_tenant.xml`**, **non destructeur** cette fois : deux tables ajoutées, rien de touché.
+- **Le rattachement vit côté tenant, pas sur `UserEntity`.** Poser un `organizationId` sur l'utilisateur aurait été plus court, mais aurait mis une donnée de cloisonnement dans « Identité & Accès », qui répond à une autre question : *qui es-tu*, pas *pour le compte de quelle collectivité*. Conséquence concrète : **l'identité n'a pas eu à changer**, et ouvrir au multi-collectivités ne demandera que de lever une contrainte d'unicité.
+- **`CurrentTenantProvider`** (`@NamedInterface("api")`) rend un `Optional<UUID>`.
+
+#### Pourquoi pas un filtre + ThreadLocal, la solution réflexe
+Deux raisons, la première rédhibitoire :
+1. **Cycle de modules.** Le filtre devrait être inséré dans la chaîne Spring Security, déclarée par `SecurityConfiguration` — qui appartient à *identity*. Ce module dépendrait donc de *tenant*, lequel dépend déjà de lui pour connaître l'utilisateur. `modules.verify()` l'aurait refusé, à raison.
+2. **Fuite entre requêtes.** Un `ThreadLocal` mal nettoyé se propage d'une requête à l'autre sur un pool de threads. Fuiter un identifiant de tenant, c'est servir les données d'une collectivité à une autre — le pire défaut possible dans un SaaS cloisonné.
+
+La résolution est donc **paresseuse** : une lecture indexée sur `userId` au moment où la question est posée. Si le volume l'exigeait, la parade serait un cache de portée requête, pas un `ThreadLocal` maison.
+
+- **3 tests, vérifiés par mutation.** Le cas décisif est la requête **non authentifiée** : `CurrentUserProvider` lève alors `IllegalStateException`, et la laisser remonter ferait répondre 500 à tout endpoint public interrogeant le tenant. Mutation : en retirant le `try/catch`, le test échoue bien sur `IllegalStateException: Aucun utilisateur authentifié`.
+- **Volontairement absent** : aucun `tenantId` sur les agrégats métier, et **aucun rattachement semé**. Le premier est P2-3 (XL) et suppose de trancher, agrégat par agrégat, ce qui est cloisonné et ce qui reste partagé — le référentiel territorial de Pikine n'a aucune raison d'être dupliqué par collectivité. Le second donnerait l'illusion d'un cloisonnement qui n'est pas encore appliqué. `currentOrganizationId()` rend donc `empty` aujourd'hui, et **`empty` n'autorise rien** : l'appelant qui cloisonnera devra refuser, jamais élargir au global.
+- Pas encore de CRUD d'organisation : la gestion des collectivités est une décision produit (qui les crée ? un super-admin transverse ?), pas une conséquence de la migration.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **42 tests, 41 passants, 1 ignoré**. 10 modules, aucune violation.
+
+### ADR-0013 — Read-models de carte, corbeille transverse, module `administration` (2026-07-28)
+
+#### 🔴 Import de données ouvert sans authentification
+`SecurityConfiguration` déclarait `.requestMatchers("/data/**").permitAll()` — **toutes méthodes confondues**. Or ce préfixe ne sert pas qu'aux compteurs publics du tableau de bord : `DashboardController` y expose aussi **sept `POST /data/{commune|department|quartier|circuitcollect|circuitbalayage|depotoir|…}`** qui écrivent des GeoJSON en base. N'importe qui, sans jeton, pouvait donc injecter ou écraser le référentiel territorial et les points de collecte.
+- Corrigé en restreignant l'ouverture à la **lecture** : `.requestMatchers(GET, "/data/**").permitAll()`. L'écriture retombe sur `anyRequest().authenticated()`.
+- **Non régressif** : `JwtInterceptor` (Angular) pose le jeton sur *toutes* les requêtes, sans filtre d'URL, et l'écran d'import n'est atteignable qu'authentifié — vérifié avant de changer la règle.
+- Cause structurelle : des endpoints d'**écriture d'administration** vivent dans le contrôleur du tableau de bord, donc sous son préfixe public. Ils rejoindront `administration` avec le reste de l'import.
+
+#### Read-models de carte : produits par le propriétaire, assemblés par la supervision
+- `DepotoirMaps` → `waste.application.api`, `DepartmentMaps` → nouvelle `territory.application.api` (`@NamedInterface("api")`). Ces projections sont **produites** par le contexte propriétaire, qui seul sait résoudre une géométrie et un type dans sa transaction.
+- `MapsController` rejoint `analytics.presentation` : la carte est un *read-side*, au même titre que le tableau de bord. Il n'assemble plus que deux ports (`WasteReadModel.collectionPointsForMap()`, `TerritoryReadModel.firstDepartmentForMap()`) et ne dépend plus d'aucun service interne.
+- `TerritoryReadModel` est le **premier pas hors de la concession** `@NamedInterface("repositories")` du référentiel : un contrat applicatif plutôt que six repositories exposés.
+- **Corrigé au passage** : `DepotoirMaps.java` vivait dans `dto/maps/` en déclarant `package …dto;` (incohérence répertoire/package datant de `cae9be4`). Maven compilait, mais la navigation IDE et tout outillage supposant l'arborescence standard s'y cassaient les dents.
+
+#### 🔴 Deux NPE qui vidaient la carte de supervision
+`getDepotoirMap()` faisait `d.getGeometry().getType()` **et** `d.getTypeDepotoir().getName()` sans aucune garde ; `getFirstDepartment()` déréférençait `department.getGeometry()` de même. Les trois associations sont facultatives — un dépotoir créé depuis les écrans CRUD n'a ni contour ni type. **Un seul enregistrement de ce genre faisait répondre 500 à tout l'endpoint** : carte vide, sans message exploitable.
+- Un point sans géométrie est désormais **omis** (on ne peut pas le dessiner) sans emporter les autres ; un type absent donne un `typeDepot` nul ; un département sans contour est rendu sans tracé plutôt que pas du tout.
+- **`DepotoirMapReadModelTest`, 4 tests, vérifiés par mutation** : en retirant la garde, le test échoue bien sur `NullPointerException: Cannot invoke "GeometryEntity.getType()" because "geometry" is null`.
+
+#### Nouveau module `administration` (non-contexte)
+- Accueille la **corbeille** : `DeletionController` + `DeletionPurgeScheduler`. `SoftDeleteService` va en revanche dans le **shared kernel** (`shared.domain.service`) — les services métier l'utilisent, il ne pouvait donc pas rejoindre un module dont personne ne doit dépendre.
+- **Justification du 3ᵉ module non-contexte.** Ces opérations ne sont le métier de personne : la corbeille agit sur *toute* entité soft-deletable, l'import écrit dans le référentiel *et* dans le cœur métier. Les ranger dans un contexte lui donnerait autorité sur les autres ; les mettre dans le shared kernel en ferait une dépendance de tout le système, contrôleurs compris. L'ADR-0013 admet déjà `shared` et `config` comme non-contextes ; celui-ci est le troisième, dans le même esprit. **Invariant à tenir : personne ne dépend d'`administration`** — c'est ce qui préserve l'acyclicité malgré sa position transverse.
+
+#### Statuer sur l'import GeoJSON — décision prise, exécution différée
+**Destination : `administration`.** Mais le déplacement ne peut pas être mécanique. `UploadFileServiceImpl` (~550 lignes) écrit **directement** dans 12 repositories des contextes `territory` et `waste`. Deux voies :
+1. **Exposer les 12 repositories** en `@NamedInterface` — rejeté : c'est exactement l'anti-pattern écarté pour `analytics` (ADR-0013 §3), et en écriture, ce qui est pire.
+2. **Recâbler l'import sur les services applicatifs** de chaque contexte (`RegionService`, `CommuneService`, `DepotoirService`… qui existent déjà). C'est la bonne cible, mais c'est un **refactoring** de la logique d'assemblage, pas un déplacement de packages.
+La voie 2 est retenue, et traitée comme une tâche à part entière — la faire en douce au milieu d'une migration mélangerait deux natures de changement dans un même diff. En attendant, l'import reste dans `sonaged.collecte.master`, d'où il ne gêne personne : le code hérité a le droit de dépendre des nouveaux modules.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **36 tests, 35 passants, 1 ignoré**. `modules.verify()` reconnaît les **10 modules** et ne signale aucune violation.
+- **Reste dans le legacy : 16 fichiers**, et **un seul import** du legacy depuis la nouvelle racine (`UploadFileService`, depuis `DashboardController`). Le reste est de l'amorçage (`SonagedApplication`, `config/`, `annotations/`, `aspects/`, gestionnaires d'exceptions) plus l'import GeoJSON.
+
+### ADR-0013 — Contexte `waste` migré, `analytics` sevré des repositories (2026-07-27)
+
+**55 fichiers** déplacés vers `sn.smartwaste.collect.waste` en Clean Architecture : 9 entités + 2 enums (`AlertCode`, `CircuitShift`) en `domain/model`, 9 repositories en `domain/repository`, 9 DTO + 9 mappers + 10 services + 9 implémentations en `application`, 8 contrôleurs en `presentation`. `Image` est bien reclassée ici (et non dans Plateforme) : l'ADR-0012 §1 range `Alert → Image` dans un même contexte. `CrossContextReferenceValidator` suit, seul `waste` l'utilisant. **Il ne reste que 22 fichiers** dans `sonaged.collecte.master`.
+
+**Diffusion SSE rangée dans Plateforme.** `AlertBroadcaster` et `AlertStreamController` vont dans `platform`, conformément au schéma de l'ADR-0013 §3 (`waste ──AlertRaised──▶ platform`) : l'écouteur d'un événement appartient au contexte qui notifie, pas à celui qui produit.
+
+#### `analytics` ne touche plus aucun repository d'un autre contexte
+`modules.verify()` a listé **28 violations** dès le déplacement : la supervision lisait quatre repositories de `waste`, naviguait dans ses entités JPA, et dépendait d'`AlertBroadcaster`. Deux ports publiés les remplacent :
+- **`waste.application.api.WasteReadModel`** (`@NamedInterface("api")`) — compteurs du tableau de bord + trois projections autonomes (`ActiveAlert`, `ActiveCollectionPoint`, `ActiveCircuit`). Aucune entité ne franchit plus la frontière.
+- **`platform.application.api.AlertStreamMetrics`** — nombre de flux SSE ouverts, implémenté par `AlertBroadcaster`.
+- **Bénéfice non prévu** : les projections sont produites dans la transaction du contexte propriétaire. L'accès à `Depotoir.typeDepotoir`, LAZY depuis P1-2, ne dépend plus de la transaction de l'appelant — la supervision portait jusqu'ici cette contrainte sans raison.
+- **Encore des injections mortes** : `DashboardServiceImpl` injectait **sept** repositories jamais utilisés (`circuitRepository`, `typeDepotoirRepository`, `geometryRepository`, `coordinateRepository`, `departmentRepository`, `regionRepository`, `quartierRepository`) — après `UserRepository` à l'itération précédente. Retirés. La moitié du couplage `analytics → tout le reste` n'était donc que du code mort.
+- La corbeille (`Map<String, SoftDeleteRepository<?,?>>`) est **conservée telle quelle** : l'injection est faite par type sur une interface du shared kernel, donc sans dépendance vers les modules propriétaires — Modulith ne la signale pas, à juste titre.
+
+#### 🔴 `AlertRaisedEvent` transportait le DTO d'un contexte, depuis le shared kernel
+- Le contrat d'événement vit dans `shared`, qui est un module **ouvert** dont tout le système dépend. En portant `waste.application.dto.Alert`, il faisait du contexte « Déchets » une dépendance implicite de **tous** les autres (`Module 'shared' depends on non-exposed type … within module 'waste'`).
+- La charge utile devient autonome : `RaisedAlert` + `ImageRef`, en types primitifs, définis dans `shared`. `code` devient une `String` — le noyau partagé n'a pas à connaître le vocabulaire métier de `waste`, et Jackson produisait déjà cette chaîne.
+- **Format SSE préservé** pour le frontend (`alertId`, `object`, `message`, `address`, `code`, `image.url`). Deux champs disparaissent volontairement : `coordinate`, qu'aucun abonné ne lit, et **`file` — un `MultipartFile`** : un flux de requête HTTP n'avait rien à faire dans une charge utile sérialisée en SSE et n'aurait pas survécu à la fin de la requête.
+- **`AlertRaisedEventPayloadTest`, 3 tests, vérifiés par mutation** : le test assemble le JSON réellement émis et l'assertionne champ par champ, parce que **aucun type ne relie le backend au gabarit Angular** — un renommage casserait le temps réel en silence. Mutation : renommer `alertId` en `id` fait bien échouer le test.
+
+#### Géométrie : exposition nommée, dette documentée
+`waste` compose `GeometryEntity`/`CoordinateEntity` (FK `geometryid`, rétablies par le changelog 2.0.0) et imbrique leurs DTO. Ces cinq types sont exposés par `@NamedInterface("geo")` **au niveau du type** — et non du package, ce qui aurait exposé toutes les entités territoriales au passage. Décision assumée et annotée dans le code : la géométrie est conceptuellement un *value object* partagé (le `package-info` du shared kernel annonce déjà des « value objects géographiques »), mais l'y déplacer emporterait repositories, DTO, mappers, services **et contrôleurs** — or un contrôleur n'a rien à faire dans un noyau partagé. La décision de modélisation mérite d'être prise pour elle-même, pas au détour d'une migration.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **32 tests, 31 passants, 1 ignoré**. `modules.verify()` passe sur les 5 contextes peuplés, sans aucune violation.
+- **Reste dans le legacy (22 fichiers)** : amorçage (`SonagedApplication`, `config/`, `annotations/`, `aspects/`, gestionnaires d'exceptions), la corbeille transverse (`SoftDeleteService`, `DeletionPurgeScheduler`, `DeletionController`), l'import (`UploadFileService(+Impl)`, `service/geojson/`) et les read-models de carte (`MapsController`, `dto/maps/`). Ce sont exactement les trois points suivants du plan.
+- **Découverte à traiter** : `DataNotifierAspect` a un pointcut sur `com.worldline.tapandgo.user.annotations.Notifiable` — un vestige d'un autre projet. Il ne peut donc **jamais** intercepter le `@Notifiable` local : l'aspect est mort. `HistoryEntity` est par ailleurs une coquille vide (un `@Id` sans générateur, aucun autre champ) qui traîne DTO, mapper, repository, service et contrôleur.
+
+### 🔴 Mapping JPA cassé : le démarrage était impossible (2026-07-27)
+*Trouvé en préparant la migration du contexte `waste` : c'est la dernière dépendance `territory → waste` qui restait.*
+
+- **Le défaut.** `CommuneEntity` portait trois `@OneToMany(mappedBy = "commune")` vers `DepotoirEntity`, `CircuitCollectEntity` et `CircuitBalayageEntity`. Or P1-7a (ADR-0012) avait converti le côté propriétaire en `UUID communeId` : **le champ `commune` n'existe plus sur aucune des trois**. Hibernate refuse de construire le métamodèle :
+  `AnnotationException: Collection 'CommuneEntity.depotoirs' is 'mappedBy' a property named 'commune' which does not exist in the target entity 'DepotoirEntity'`
+- **Pourquoi c'est passé inaperçu** : `mappedBy` est une **chaîne de caractères**, le compilateur ne la vérifie pas. Le pendant sur `QuartierEntity.depotoirs` avait bien été commenté lors de P1-7a ; ces trois-là ont été oubliés. Le build restait vert, et l'échec ne se serait manifesté qu'au premier démarrage réel — qui n'a jamais eu lieu.
+- **Le correctif** : les trois collections sont retirées. Ce n'est pas un arbitrage de modélisation — une association inverse **ne peut pas** exister quand le côté propriétaire est une référence par identifiant. Les dépotoirs/circuits d'une commune se lisent via le contexte propriétaire (`findByCommuneId`). Aucun code ne lisait ces collections (vérifié). Au passage, leurs `CascadeType.ALL` cross-contexte auraient supprimé en cascade les dépotoirs et circuits d'une commune effacée — le risque R4 signalé en P1-2, bien réel ici.
+- **Bénéfice de frontière** : `territory` n'importe plus rien du contexte « Déchets ». Il redevient ce que l'ADR-0013 prescrit — une source de vérité qui ne dépend de personne — ce qui débloque la migration de `waste`.
+- **Garde-fou ajouté : `JpaMappingBootstrapTest`.** Il construit le métamodèle Hibernate de **toutes** les entités des deux racines, **sans base de données** (dialecte imposé, donc aucune connexion). Il ferme toute une classe d'erreurs que le compilateur ne voit pas : `mappedBy` orphelin, `@JoinColumn` en double, identifiant incohérent. Les entités sont découvertes par scan (le test couvrira donc les futures entités automatiquement) avec une assertion de cardinalité minimale, pour qu'il ne puisse pas passer à vide comme l'ont fait les tests Modulith et `AuthorityServiceImplTest`.
+- **Vérifié par mutation** : en rétablissant une seule des trois collections, le test échoue avec exactement l'`AnnotationException` ci-dessus.
+- ⚠️ Ce test ne valide **pas** que le schéma SQL correspond aux entités — seulement que le mapping objet est cohérent avec lui-même. La correspondance au schéma Liquibase reste vérifiée par `ddl-auto: validate`, au démarrage réel, qui n'a toujours pas été exercé.
+
+#### 🔴 Élévation de privilèges à l'inscription publique — trouvée et corrigée (2026-07-27)
+- **La faille** : `/auth/register` est en `permitAll`, et `register()` faisait `user.setAuthority(user.getAuthority())` — le rôle arrivait donc **du corps de la requête**. Chemin d'exploitation complet et non authentifié : s'inscrire avec `authority: {authorityId: <uuid SUPER_ADMIN>}`, recevoir le code d'activation à sa propre adresse, activer, se connecter administrateur. Aggravé par le fait que les règles `SecurityRule` sont inertes (cf. ci-dessous) : `POST /v1/users` n'exige qu'un compte authentifié, donc le compte ainsi obtenu peut en créer d'autres.
+- **Le correctif** : le rôle est imposé côté serveur (`USER`, via `findByNameAndDeletionStatus`), **après** le mapping DTO → entité pour qu'aucune valeur du client ne survive. Le filtre sur `DeletionStatus` évite d'attribuer un rôle mis à la corbeille, qui disparaîtrait à la purge.
+- **Effet de bord : l'inscription était de toute façon cassée.** Le formulaire Angular n'envoie aucun `authority` alors que la colonne est `nullable=false` — tout signup légitime échouait sur une violation de contrainte. Le correctif ferme la faille *et* répare le parcours.
+- **6 tests ajoutés** (`AuthServiceImplTest`), **vérifiés par mutation** : en rétablissant l'ancien comportement, le test échoue bien (`expected: "USER" but was: "SUPER_ADMIN"`). Il ne s'agit donc pas d'un test qui passe à vide, contrairement à ce que fut `AuthorityServiceImplTest`.
+- Trouvé via la revue de sécurité automatique déclenchée par la migration — les fichiers déplacés ont été re-scannés comme neufs.
+
+#### Points connus, volontairement non traités ici
+- **Deux secrets versionnés dans `JwtService`, dont un mort.** La revue automatique a signalé `ENCRIPTION_KEY` ; c'est bien un secret versionné, mais **ce n'est pas la clé de signature** : son unique lecteur `getKey()` n'est appelé que depuis un bloc `getAllClaims()` **commenté**. La signature et la vérification utilisent `SecurityConstants.SECRET`, que la revue n'a pas signalé. Les deux sont compromis et à roter ; seul le second influe aujourd'hui sur la validité des jetons. P0-2 / ADR-0002 — non touché ici (CLAUDE.md : signaler avant d'intervenir sur les secrets).
+- **`createUser` et `register` divergent** : `UserServiceImpl.createUser` force encore `encode("Sonaged@123")` alors que `AuthServiceImpl.register` hache bien le mot de passe fourni. Le correctif relève de P0-1/P0-A (Keycloak), pas d'une migration de packages.
+- **CSRF désactivé avec `setAllowCredentials(true)`** : signalé par la revue. Non exploitable en l'état — la chaîne est `STATELESS` et l'authentification passe uniquement par l'en-tête `Authorization`, donc aucune créance ambiante ne peut être rejouée. À passer à `false` pour rendre le contrat « jeton uniquement » explicite.
+- **Les beans `SecurityRule` ne sont jamais appliqués** : `AuthorityRules` et `UserRules` déclarent 13 règles d'autorisation que `SecurityConfiguration` n'appelle nulle part (`configure(...)` n'est invoqué par personne). L'autorisation réelle se limite donc à `anyRequest().authenticated()` — **aucun contrôle de permission par rôle n'est actif**. Migré tel quel pour ne pas changer le comportement au milieu d'un déplacement de packages ; à trancher (câbler ou retirer) avec P0-A.
+- **`AuthReponse`, `AuthRequest`, `UserResponse`, `AuthorityInfo`** ne sont référencés nulle part. Conservés (suppression → validation requise).
+
 ## Découvertes à traiter (hors périmètre d'une itération)
 - **Double config** `application.properties` + `application.yml` (valeurs qui se chevauchent) → à fusionner (le `.properties` prime, source de confusion).
 - `schema.sql` + `spring.batch.initialize-schema=always` concurrencent Liquibase.
 
 ## Prochaines tâches (selon ROADMAP, hors IoT)
-- **P1-4** front unique *(suppression de dépôts → validation requise avant retrait)*. **P1-7** frontières Modulith + découplage systématique des entités cross-contexte par ID (commune, circuits…) + validation applicative + retrait des FK cross-contexte (ADR-0010/0012).
+- **Suite ADR-0013** — migrer `waste` (le gros morceau : dépotoirs, circuits, alertes, mobilier, historique, images ; y reclasser `Image`, cf. point 3 de la liste P1-7b), puis statuer sur `UploadFileServiceImpl` / import GeoJSON, puis les read-models de carte (`DepotoirMaps`, `DepartmentMaps`). Restent ensuite `tenant` et `iot`, à créer.
+- **Convertir la concession `territory`** : remplacer `@NamedInterface("repositories")` par un port applicatif, sur le modèle d'`identity.application.api`.
+- **P1-4** front unique *(suppression de dépôts → validation requise avant retrait)*.
 - **P2** tests/CI, doc, multi-tenant.

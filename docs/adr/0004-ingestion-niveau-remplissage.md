@@ -1,6 +1,7 @@
 # ADR-0004 — Architecture d'ingestion du niveau de remplissage (cœur IoT)
 
-- Statut : Proposé
+- Statut : **Accepté — NON implémenté**. C'est le cœur du produit et il n'existe pas.
+> ⚠️ **Périmètre à revoir** : le mémoire (cas d'usage administrateur) demande de configurer des seuils de **température et d'humidité** en plus du remplissage — le capteur DHT11 est prévu à cet effet. Cet ADR ne modélise que le remplissage. Un ADR-0004bis est nécessaire avant implémentation.
 - Date : 2026-07-11
 - Priorité : P0-5, P0-6
 

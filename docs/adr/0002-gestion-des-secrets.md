@@ -1,6 +1,6 @@
 # ADR-0002 — Externalisation et rotation des secrets
 
-- Statut : Proposé
+- Statut : **Accepté — partiellement implémenté**. Externalisation par variables d'environnement et `.gitignore` racine : faits. ⚠️ **Rotation des secrets et purge de l'historique Git : NON faits** (§4-5 ci-dessous) — les secrets restent exploitables via l'historique.
 - Date : 2026-07-11
 - Priorité : P0-2
 

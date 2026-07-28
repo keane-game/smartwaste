@@ -1,6 +1,7 @@
 # ADR-0006 — Consolidation vers un frontend web unique
 
-- Statut : Proposé
+- Statut : **Proposé — ⚠️ PRÉMISSE INVALIDÉE, à réexaminer avant toute action**.
+> Cet ADR retient `angular/` au motif qu'il serait « le plus complet ». Mesure du 2026-07-28 : `angular/` = 164 fichiers `.ts` / ~9 900 lignes (Angular 17.0.7, NgModules) ; **`sonaged_web/` = 196 fichiers / ~16 900 lignes (Angular 17.3, composants standalone)**. Le second est plus gros et plus moderne. Le volume ne prouve pas la complétude, mais **appliquer cet ADR en l'état pourrait supprimer la meilleure base**. Comparaison fonctionnelle requise avant décision.
 - Date : 2026-07-11
 - Priorité : P1-4
 

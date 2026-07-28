@@ -1,6 +1,7 @@
 # ADR-0011 — Keycloak comme fournisseur d'identité (OIDC)
 
-- Statut : Proposé
+- Statut : **Accepté — NON implémenté**. La dépendance `spring-boot-starter-oauth2-resource-server` est présente mais **inerte** (aucun `issuer-uri`). Blueprint complet : `../keycloak-migration.md`.
+> ⚠️ **Tension à arbitrer** : le blueprint prévoit de supprimer `JwtService`, `JwtFilter` et `SecurityConstants`, alors que le chantier « sessions révocables » en cours étend précisément ces classes.
 - Date : 2026-07-11
 - Priorité : P0 (sécurité) — **remplace la partie « JWT + mot de passe » de [ADR-0003](0003-authentification-et-jwt.md)**
 

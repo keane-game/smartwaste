@@ -1,5 +1,20 @@
 # Architecture cible — découpage en modules → microservices
 
+> ⛔ **DOCUMENT OBSOLÈTE — conservé pour l'historique.**
+>
+> Il concrétise l'**ADR-0010**, qui a été **remplacé par l'[ADR-0013](adr/0013-architecture-ddd-smartwaste.md)**
+> le 2026-07-27 : la cible n'est plus 5 modules sous `sonaged.ucg` découpés par couches, mais
+> **8 contextes bornés sous `sn.smartwaste.collect`** en Clean Architecture, avec un contexte
+> `tenant` et un contexte `iot` extractibles.
+>
+> Ce qui reste valable et n'a pas été repris ailleurs : le **flux métier central** (capteur → mesure →
+> seuil → alerte → notification), l'**ordre d'extraction** en microservices, et l'inventaire des
+> entités à créer (`Capteur`, `Measurement`, `Tournee`, `Notification`).
+>
+> Ce qui est faux : le découpage en 5 modules, les noms de packages, et la place de
+> `Geometry`/`Coordinate` — annoncés ici comme *embeddables du shared kernel*, ils sont en réalité
+> des **entités du contexte `territory`** exposées par `@NamedInterface("geo")`.
+
 > Concrétise ADR-0010 (monolithe modulaire d'abord), ADR-0011 (Keycloak), ADR-0012 (découplage par identifiant).
 > **5 modules** de haut niveau (frontières vérifiées par Spring Modulith), chacun **extractible** en microservice.
 > Historique : une première version proposait 9 modules ; jugée trop granulaire, consolidée ici en 5 avec des **sous-domaines cloisonnés** pour préserver les coutures d'extraction.

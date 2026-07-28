@@ -1,6 +1,6 @@
 # ADR-0008 — Stratégie de fetch/performance et multi-tenant
 
-- Statut : Proposé
+- Statut : **Accepté — partiellement implémenté**. Performance (LAZY par défaut, cascades cross-contexte retirées, index) : faite (P1-2). Multi-tenant : **fondations posées** (contexte `tenant`, `Organization`, `OrganizationMembership`, `CurrentTenantProvider`) mais ⚠️ **le discriminant `organizationId` n'est posé sur aucun agrégat métier** — le cloisonnement n'est pas appliqué (P2-3, XL).
 - Date : 2026-07-11
 - Priorité : P1-2, P2-3
 

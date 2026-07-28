@@ -1,6 +1,6 @@
 # ADR-0003 — Authentification, mot de passe et durcissement JWT
 
-- Statut : Proposé — **partiellement remplacé par [ADR-0011](0011-keycloak-identity-provider.md)** (le minting JWT et la gestion des mots de passe passent à Keycloak ; le durcissement des erreurs 401/403 reste pertinent, désormais assuré nativement par le resource server)
+- Statut : **Accepté — partiellement implémenté**, et **partiellement remplacé par [ADR-0011](0011-keycloak-identity-provider.md)**. Faits : mot de passe soumis haché, JWT durci (401 au lieu de 500), garde sur `roles.get(0)`, journalisation du jeton retirée. ⚠️ **Non fait : la durée de vie du jeton est toujours de 10 jours** (§4) ; les sessions révocables et le rafraîchissement sont en cours.
 - Date : 2026-07-11
 - Priorité : P0-1, P0-3
 

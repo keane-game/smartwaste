@@ -1,6 +1,6 @@
 # ADR-0007 — Notifications temps réel (SSE)
 
-- Statut : Proposé
+- Statut : **Accepté — partiellement implémenté** (P2-1). SSE `GET /v1/alerts/stream` + `AlertBroadcaster` : faits, portée mono-instance. ⚠️ **Push mobile FCM : non fait.**
 - Date : 2026-07-11
 - Priorité : P2-1
 

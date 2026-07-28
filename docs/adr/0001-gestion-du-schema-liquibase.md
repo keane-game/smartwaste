@@ -1,6 +1,6 @@
 # ADR-0001 — Gestion du schéma de base de données : Liquibase comme source unique
 
-- Statut : Proposé
+- Statut : **Accepté — implémenté** (2026-07-11, P0-4). Liquibase est source unique, `ddl-auto=validate`.
 - Date : 2026-07-11
 - Priorité : P0-4
 

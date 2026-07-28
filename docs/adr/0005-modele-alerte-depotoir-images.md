@@ -1,6 +1,6 @@
 # ADR-0005 — Relation Alerte↔Dépotoir et stockage des images
 
-- Statut : Proposé
+- Statut : **Accepté — partiellement implémenté**. Images sorties du BLOB vers MinIO : fait. Colonne `alert.depotoirid` créée. ⚠️ **La relation Alerte→Dépotoir n'est pas exploitée** : aucune alerte n'est rattachée à un point de collecte tant que le moteur de seuils (ADR-0004) n'existe pas.
 - Date : 2026-07-11
 - Priorité : P0-6, P1-3
 

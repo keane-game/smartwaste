@@ -1,6 +1,6 @@
 # ADR-0009 — Nettoyage des dépendances backend
 
-- Statut : Proposé
+- Statut : **Accepté — quasi implémenté** (P1-1). springfox retiré, auth0 `java-jwt` retiré, code mort `ENCRIPTION_KEY`/`getKey()` retiré (2026-07-28). ⚠️ **Reste le §4 : `spring.main.allow-circular-references=true` est toujours actif.**
 - Date : 2026-07-11
 - Priorité : P1-1
 

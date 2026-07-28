@@ -1,5 +1,12 @@
 # PROJECT_ANALYSIS.md
 
+> 🟠 **ARCHIVE — GELÉE AU 2026-07-11.**
+>
+> L'analyse métier (§1 vision, acteurs, flux cibles) et les **risques R1–R8** restent pertinents et
+> sont référencés partout ailleurs. En revanche l'état technique décrit (§2, §3, §5, §6) est dépassé :
+> voir `docs/IMPLEMENTATION_LOG.md` pour le réel et `docs/KNOWLEDGE_MAP.md` pour la synthèse.
+
+
 > Rapport d'analyse de reprise — rôle : Senior Software Engineer / Architecte.
 > Date : 2026-07-11 · Aucune modification de code effectuée.
 > Complément opérationnel : voir `PROJECT_STATUS.md` (état des fonctionnalités) et `ROADMAP.md` (plan priorisé). Décisions : `docs/adr/`.

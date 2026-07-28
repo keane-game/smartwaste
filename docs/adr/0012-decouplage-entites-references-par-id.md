@@ -1,6 +1,6 @@
 # ADR-0012 — Découplage des entités : références par identifiant entre contextes
 
-- Statut : Proposé
+- Statut : **Accepté — implémenté** (P1-7a puis ADR-0013). Toutes les références cross-contexte passent par identifiant ; les FK traversantes ont été retirées (changelog 1.5.0).
 - Date : 2026-07-11
 - Priorité : P1 — condition de faisabilité d'ADR-0010 ; complète [ADR-0008](0008-strategie-fetch-et-multitenant.md)
 
