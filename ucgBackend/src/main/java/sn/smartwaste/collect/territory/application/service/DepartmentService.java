@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import sn.smartwaste.collect.territory.application.dto.Department;
-import sonaged.collecte.master.dto.maps.DepartmentMaps;
+import sn.smartwaste.collect.territory.application.api.DepartmentMaps;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 import java.util.UUID;
 
-import sonaged.collecte.master.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

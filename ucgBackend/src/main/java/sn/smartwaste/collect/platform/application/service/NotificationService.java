@@ -1,6 +1,6 @@
 package sn.smartwaste.collect.platform.application.service;
 
-import sonaged.collecte.master.event.ActivationCodeIssued;
+import sn.smartwaste.collect.shared.domain.event.ActivationCodeIssued;
 
 /**
  * Envoi des notifications sortantes (contexte <b>Communication</b>).

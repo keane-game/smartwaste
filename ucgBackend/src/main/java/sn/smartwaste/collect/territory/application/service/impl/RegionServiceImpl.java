@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.GeometryMapper;
 import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
 import sn.smartwaste.collect.territory.domain.repository.RegionRepository;
@@ -36,7 +36,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<Region> readAllRegion() {
-        var regionList = regionRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+        var regionList = regionRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return RegionMapper.RMP.asListDto(regionList);
     }
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Sessions d'authentification révocables (contexte « Identité & Accès »).
+      Non destructeur : une seule table ajoutée.
+
+      `refreshtokenhash` porte l'empreinte SHA-256 du jeton, jamais le jeton : une base
+      exfiltrée ne doit pas permettre de rejouer les sessions. L'unicité sert autant à la
+      correction (un jeton = une session) qu'à la performance (recherche indexée à chaque
+      rafraîchissement).
+    -->
+    <changeSet author="claude" id="2.3.0-1-usersession">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="usersession"/></not>
+        </preConditions>
+        <comment>Sessions révocables : rend la déconnexion réelle côté serveur.</comment>
+        <createTable tableName="usersession">
+            <column name="sessionid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_usersession"/>
+            </column>
+            <column name="userid" type="uuid"><constraints nullable="false"/></column>
+            <column name="refreshtokenhash" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_usersession_refreshhash"/>
+            </column>
+            <column name="issuedat" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="expiresat" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="revokedat" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="lastusedat" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+        <!-- Le filtre interroge les sessions à chaque requête authentifiée : l'index sur
+             l'utilisateur sert la révocation en masse, la PK sert la vérification unitaire. -->
+        <createIndex indexName="idx_usersession_userid" tableName="usersession">
+            <column name="userid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

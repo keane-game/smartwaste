@@ -4,16 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-// Import devenu explicite : Avis vivait dans le même package qu'UserEntity avant la
-// migration modulaire (P1-7b). Référence cross-contexte vers « Identité & Accès »,
-// à convertir en `userId` (ADR-0012) quand ce contexte sera migré à son tour.
-import sonaged.collecte.master.model.UserEntity;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -28,7 +25,14 @@ public class Avis {
     private int id;
     private String message;
     private String statut;
-    @ManyToOne
-    private UserEntity user;
+
+    /**
+     * Auteur de l'avis, référencé <b>par identifiant</b> et non par association JPA : le contexte
+     * « Identité &amp; Accès » est un autre bounded context (ADR-0012 / ADR-0013 §3). Aucune FK SQL
+     * ne traverse la frontière — la valeur provient du principal authentifié, donc son existence
+     * est acquise à l'écriture et n'a pas à être revalidée.
+     */
+    @Column(name = "userId")
+    private UUID userId;
 
 }

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.DepartmentMapper;
 import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
 import sn.smartwaste.collect.territory.application.dto.Commune;
@@ -37,12 +37,12 @@ public class CommuneServiceImpl implements CommuneService {
 
     @Override
     public List<Commune> readAllCommune() {
-       var communeList = communeRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+       var communeList = communeRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CommuneMapper.COMP.asListDto(communeList);
     }
 
     public Page<Commune> readAllCommune(Pageable pageable){
-        return communeRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CommuneMapper.COMP::asDto);
+        return communeRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CommuneMapper.COMP::asDto);
     }
 
     @Override

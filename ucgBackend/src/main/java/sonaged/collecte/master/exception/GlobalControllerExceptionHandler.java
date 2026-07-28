@@ -1,5 +1,9 @@
 package sonaged.collecte.master.exception;
 
+import sn.smartwaste.collect.shared.domain.exception.MediaTypeNotSupportedException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceAlreadyExistException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

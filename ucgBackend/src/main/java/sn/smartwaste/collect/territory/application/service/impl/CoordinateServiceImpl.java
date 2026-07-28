@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.territory.application.dto.Coordinate;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.CoordinateMapper;
 import sn.smartwaste.collect.territory.domain.repository.CoordinateRepository;
 import sn.smartwaste.collect.territory.application.service.CoordinateService;
@@ -34,13 +34,13 @@ public class CoordinateServiceImpl implements CoordinateService {
 
     @Override
     public List<Coordinate> readAllCoordinate() {
-        var coordinateList = coordinateRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+        var coordinateList = coordinateRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CoordinateMapper.CODMP.asListDto(coordinateList);
     }
 
     @Override
     public Page<Coordinate> readAllCoordinate(Pageable pageable){
-        return coordinateRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map(CoordinateMapper.CODMP::asDto);
+        return coordinateRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CoordinateMapper.CODMP::asDto);
     }
 
 

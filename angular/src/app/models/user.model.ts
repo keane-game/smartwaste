@@ -1,6 +1,11 @@
 
 export abstract class User {
-     userId!: number;
+     /**
+      * UUID v7 depuis la migration DDD du contexte « Identité & Accès » (ADR-0013) : le backend
+      * ne renvoie plus un entier. Aucun code ne fait d'arithmétique dessus — l'identifiant ne
+      * sert qu'à composer les URL — mais le type doit refléter ce que l'API renvoie réellement.
+      */
+     userId!: string;
      userLastname!: string;
      userFirstname!: string
      password!: string;

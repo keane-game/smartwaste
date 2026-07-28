@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ============================================================================
+      ADR-0013 — Contexte IDENTITÉ & ACCÈS : identifiants en UUID v7.
+      ============================================================================
+
+      ⚠️ CHANGELOG DESTRUCTEUR — À N'APPLIQUER QUE SUR UNE BASE JETABLE.
+      Même raison qu'en 2.0.0 : PostgreSQL ne convertit pas `BIGINT`/`INTEGER` en `uuid`.
+      Les colonnes sont donc supprimées puis recréées, ce qui impose de vider au préalable
+      `users`, `authority`, `authoritypermission` et `validation`.
+      **Tous les comptes existants sont perdus** ; les trois rôles de référence sont resemés
+      plus bas avec des identifiants UUID fixes.
+
+      Identifiants générés côté APPLICATION (UuidV7Generator, @UuidGenerator) : aucune
+      séquence ni identité côté base.
+    -->
+
+    <!-- ===== 1. Retrait des contraintes portant sur les colonnes à convertir ===== -->
+    <changeSet author="claude" id="2.1.0-1-drop-constraints">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkgqsw6ash82b1ck033vw4i74cy"/>
+        </preConditions>
+        <comment>FK users→authority, validation→users, authoritypermission→authority.</comment>
+        <dropForeignKeyConstraint baseTableName="users" constraintName="fkgqsw6ash82b1ck033vw4i74cy"/>
+        <dropForeignKeyConstraint baseTableName="validation" constraintName="fkhu1tjniw44o1x9yeehgvjqael"/>
+        <dropForeignKeyConstraint baseTableName="authoritypermission" constraintName="fk1lc9x8f4oydr0swoju93x1l5k"/>
+        <dropUniqueConstraint tableName="validation" constraintName="uk_7ehgxlckh0yloii8m0l971nn3"/>
+    </changeSet>
+
+    <!-- ===== 2. Vidage (préalable obligatoire au changement de type) ===== -->
+    <changeSet author="claude" id="2.1.0-2-purge-identity">
+        <comment>⚠️ Destructeur : vide comptes, rôles et codes d'activation (base jetable).</comment>
+        <delete tableName="validation"/>
+        <delete tableName="authoritypermission"/>
+        <delete tableName="users"/>
+        <delete tableName="authority"/>
+    </changeSet>
+
+    <!-- ===== 3. Clés primaires : BIGINT/INTEGER -> uuid ===== -->
+    <changeSet author="claude" id="2.1.0-3-pk-uuid">
+        <comment>PK de l'identité en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+
+        <dropPrimaryKey tableName="authority"/>
+        <dropColumn tableName="authority" columnName="authorityid"/>
+        <addColumn tableName="authority">
+            <column name="authorityid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="authority" columnName="authorityid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="authority" columnNames="authorityid" constraintName="pk_authority"/>
+
+        <dropPrimaryKey tableName="users"/>
+        <dropColumn tableName="users" columnName="userid"/>
+        <addColumn tableName="users">
+            <column name="userid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="users" columnName="userid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="users" columnNames="userid" constraintName="pk_users"/>
+
+        <dropPrimaryKey tableName="validation"/>
+        <dropColumn tableName="validation" columnName="id"/>
+        <addColumn tableName="validation">
+            <column name="id" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="validation" columnName="id" columnDataType="uuid"/>
+        <addPrimaryKey tableName="validation" columnNames="id" constraintName="pk_validation"/>
+    </changeSet>
+
+    <!-- ===== 4. Colonnes de référence internes au contexte ===== -->
+    <changeSet author="claude" id="2.1.0-4-fk-columns-uuid">
+        <comment>users.authorityid, validation.user_userid, authoritypermission.authorityid.</comment>
+
+        <dropColumn tableName="users" columnName="authorityid"/>
+        <addColumn tableName="users"><column name="authorityid" type="uuid"/></addColumn>
+        <addNotNullConstraint tableName="users" columnName="authorityid" columnDataType="uuid"/>
+
+        <dropColumn tableName="validation" columnName="user_userid"/>
+        <addColumn tableName="validation"><column name="user_userid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="authoritypermission" columnName="authorityid"/>
+        <addColumn tableName="authoritypermission"><column name="authorityid" type="uuid"/></addColumn>
+        <addNotNullConstraint tableName="authoritypermission" columnName="authorityid" columnDataType="uuid"/>
+    </changeSet>
+
+    <!-- ===== 5. Rétablissement des contraintes INTERNES au contexte =====
+         Ces FK ne traversent aucune frontière (users, authority et validation appartiennent
+         tous à « Identité & Accès ») : elles restent donc légitimes (ADR-0012 §1). -->
+    <changeSet author="claude" id="2.1.0-5-recreate-constraints">
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="authorityid"
+                                 constraintName="fk_users_authority"
+                                 referencedTableName="authority" referencedColumnNames="authorityid"/>
+        <addForeignKeyConstraint baseTableName="authoritypermission" baseColumnNames="authorityid"
+                                 constraintName="fk_authoritypermission_authority"
+                                 referencedTableName="authority" referencedColumnNames="authorityid"/>
+        <addForeignKeyConstraint baseTableName="validation" baseColumnNames="user_userid"
+                                 constraintName="fk_validation_users"
+                                 referencedTableName="users" referencedColumnNames="userid"/>
+        <addUniqueConstraint tableName="validation" columnNames="user_userid"
+                             constraintName="uk_validation_user"/>
+    </changeSet>
+
+    <!-- ===== 6. Avis : auteur référencé par identifiant (cross-contexte) =====
+
+         Double correction.
+
+         (a) `avis` n'a jamais eu de colonne pour l'association `Avis.user` : le baseline ne
+             déclare qu'`utilisateur_id`, héritée d'une table `utilisateur` abandonnée. Avec
+             `ddl-auto: validate` (P0-4), Hibernate attendait `user_userid` et **le démarrage
+             échouait** — défaut latent, jamais vu parce que l'application n'a pas encore été
+             lancée contre une base.
+         (b) La frontière platform → identity interdit désormais l'association JPA : la colonne
+             créée est `userid uuid`, sans FK, conformément à l'ADR-0012.
+    -->
+    <changeSet author="claude" id="2.1.0-6-avis-userid">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="avis" columnName="userid"/></not>
+        </preConditions>
+        <comment>Avis.userId : référence cross-contexte par identifiant, sans FK SQL.</comment>
+        <addColumn tableName="avis">
+            <column name="userid" type="uuid"/>
+        </addColumn>
+        <createIndex indexName="idx_avis_userid" tableName="avis">
+            <column name="userid"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- ===== 7. Resemis des rôles de référence =====
+         `config/liquibase/data/authority.sql` (joué en 1.0.0) insérait les identifiants 1, 2 et 3
+         en dur : il ne peut plus s'appliquer. Les UUID ci-dessous sont **fixes et volontairement
+         reconnaissables** — ce sont des données de référence, dont l'identifiant doit rester
+         stable d'un environnement à l'autre. Ils respectent la forme d'un UUID v7
+         (nibble de version = 7, variante = 0b10) pour ne pas fausser l'ordonnancement des index. -->
+    <changeSet author="claude" id="2.1.0-7-seed-authorities">
+        <comment>Rôles SUPER_ADMIN / ADMIN / USER et leurs permissions, en UUID.</comment>
+        <sql>
+            INSERT INTO authority (authorityid, name, description, createdby, lastmodifiedby,
+                                   createddate, lastmodifieddate, archived, deletionstatus)
+            VALUES
+              ('01983c4f-0000-7000-8000-000000000001', 'SUPER_ADMIN', 'Super administration',
+               'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE'),
+              ('01983c4f-0000-7000-8000-000000000002', 'ADMIN', 'administration',
+               'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE'),
+              ('01983c4f-0000-7000-8000-000000000003', 'USER', 'Possibilité de voir',
+               'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE');
+
+            INSERT INTO authoritypermission (authorityid, permission) VALUES
+              ('01983c4f-0000-7000-8000-000000000001', 'USER_VIEW'),
+              ('01983c4f-0000-7000-8000-000000000001', 'ACCESS_ADMIN'),
+              ('01983c4f-0000-7000-8000-000000000001', 'MANAGE_ROLE'),
+              ('01983c4f-0000-7000-8000-000000000001', 'CREATE_USER'),
+              ('01983c4f-0000-7000-8000-000000000002', 'USER_VIEW'),
+              ('01983c4f-0000-7000-8000-000000000002', 'ACCESS_ADMIN'),
+              ('01983c4f-0000-7000-8000-000000000002', 'MANAGE_ROLE'),
+              ('01983c4f-0000-7000-8000-000000000002', 'CREATE_USER'),
+              ('01983c4f-0000-7000-8000-000000000003', 'USER_VIEW');
+        </sql>
+        <rollback>
+            DELETE FROM authoritypermission;
+            DELETE FROM authority;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

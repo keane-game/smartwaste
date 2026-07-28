@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.territory.application.dto.Coordinate;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.domain.repository.CoordinateRepository;
 import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
 import sn.smartwaste.collect.territory.application.dto.Geometry;
@@ -39,7 +39,7 @@ public class GeometryServiceImpl implements GeometryService {
 
     @Override
     public List<Geometry> readAllGeometry() {
-        var geometryList = geometryRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+        var geometryList = geometryRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return GeometryMapper.GMP.asListDto(geometryList);
     }
 

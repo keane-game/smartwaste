@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.CommuneMapper;
 import sn.smartwaste.collect.territory.application.mapper.RegionMapper;
 import sn.smartwaste.collect.territory.domain.model.QuartierEntity;
@@ -41,13 +41,13 @@ public class QuartierServiceImpl implements QuartierService {
 
     @Override
     public List<Quartier> readAllQuartier() {
-        var quartierList = quartierRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+        var quartierList = quartierRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return QuartierMapper.QMP.listModelToDto(quartierList);
     }
 
     @Override
     public Page<Quartier> readAllQuartier(Pageable pageable) {
-        return quartierRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map (QuartierMapper.QMP::asDto);
+        return quartierRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map (QuartierMapper.QMP::asDto);
     }
 
     @Override

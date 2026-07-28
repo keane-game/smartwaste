@@ -8,7 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.event.ActivationCodeIssued;
+import sn.smartwaste.collect.shared.domain.event.ActivationCodeIssued;
 
 /**
  * Envoi des e-mails sortants (contexte <b>Communication</b>).

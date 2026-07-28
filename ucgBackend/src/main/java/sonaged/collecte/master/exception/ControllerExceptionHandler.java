@@ -1,5 +1,8 @@
 package sonaged.collecte.master.exception;
 
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.presentation.ErrorMessage;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

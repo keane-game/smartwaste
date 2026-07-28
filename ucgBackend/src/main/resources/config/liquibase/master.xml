@@ -10,4 +10,7 @@
     <include file="config/liquibase/changelog/1.4.0_soft_delete_all.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/1.5.0_context_boundaries.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.0.0_territory_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.1.0_identity_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.2.0_tenant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.3.0_user_session.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>
