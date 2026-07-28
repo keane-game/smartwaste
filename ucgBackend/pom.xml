@@ -114,6 +114,19 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Base en mémoire, uniquement pour `ApplicationContextLoadsTest` : jusqu'ici AUCUN test
+		     ne démarrait le contexte Spring (le seul qui l'aurait fait était @Disabled faute de
+		     PostgreSQL). Une erreur de câblage — bean manquant, injection ambiguë, référence
+		     circulaire, entité hors du périmètre de scan — n'était donc détectable qu'au premier
+		     démarrage réel. C'est le risque nommé par l'ADR-0013 lui-même.
+		     H2 en mode compatibilité PostgreSQL, avec Liquibase désactivé et le schéma dérivé des
+		     entités : ce test valide le CÂBLAGE, pas la correspondance au schéma Liquibase, qui
+		     reste du ressort de `ddl-auto: validate` au démarrage réel. -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
