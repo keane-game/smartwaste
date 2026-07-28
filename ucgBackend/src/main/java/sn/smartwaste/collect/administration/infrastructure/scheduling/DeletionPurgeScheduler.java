@@ -1,10 +1,10 @@
-package sonaged.collecte.master.service.impl;
+package sn.smartwaste.collect.administration.infrastructure.scheduling;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import sonaged.collecte.master.repository.SoftDeleteRepository;
-import sonaged.collecte.master.service.SoftDeleteService;
+import sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository;
+import sn.smartwaste.collect.shared.domain.service.SoftDeleteService;
 
 import java.util.List;
 

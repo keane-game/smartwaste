@@ -1,4 +1,4 @@
-package sonaged.collecte.master.dto.maps;
+package sn.smartwaste.collect.territory.application.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

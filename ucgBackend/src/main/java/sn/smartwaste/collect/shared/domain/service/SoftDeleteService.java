@@ -1,4 +1,4 @@
-package sonaged.collecte.master.service;
+package sn.smartwaste.collect.shared.domain.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import sonaged.collecte.master.enums.DeletionStatus;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
-import sonaged.collecte.master.model.AbstractAuditingEntity;
-import sonaged.collecte.master.repository.SoftDeleteRepository;
+import sn.smartwaste.collect.shared.domain.model.DeletionStatus;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

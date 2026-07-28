@@ -1,4 +1,4 @@
-package sonaged.collecte.master.controller;
+package sn.smartwaste.collect.administration.presentation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import sonaged.collecte.master.model.AbstractAuditingEntity;
-import sonaged.collecte.master.repository.SoftDeleteRepository;
-import sonaged.collecte.master.service.SoftDeleteService;
+import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository;
+import sn.smartwaste.collect.shared.domain.service.SoftDeleteService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

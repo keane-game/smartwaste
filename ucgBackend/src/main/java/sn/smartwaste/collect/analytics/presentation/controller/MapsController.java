@@ -1,4 +1,4 @@
-package sonaged.collecte.master.controller;
+package sn.smartwaste.collect.analytics.presentation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,21 +8,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import sonaged.collecte.master.dto.DepotoirMaps;
-import sonaged.collecte.master.dto.maps.DepartmentMaps;
-import sn.smartwaste.collect.territory.application.service.DepartmentService;
 import lombok.AllArgsConstructor;
-import sonaged.collecte.master.service.DepotoirService;
+import sn.smartwaste.collect.territory.application.api.DepartmentMaps;
+import sn.smartwaste.collect.territory.application.api.TerritoryReadModel;
+import sn.smartwaste.collect.waste.application.api.DepotoirMaps;
+import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/v1/maps")
+/**
+ * Fond de carte de supervision (`/v1/maps/**`).
+ *
+ * <p>Rattaché à « Supervision &amp; Analytique » : c'est un <b>read-side</b>, au même titre que le
+ * tableau de bord. Les read-models sont en revanche <b>produits</b> par les contextes propriétaires
+ * — le référentiel territorial pour le contour du département, le cœur métier déchets pour les
+ * points de collecte — et consommés ici via leurs interfaces publiées. Ce contrôleur assemble, il
+ * ne calcule rien.
+ */
 public class MapsController {
 
-    private final DepartmentService departmentService;
-    private final DepotoirService depotoirService;
+    private final TerritoryReadModel territoryReadModel;
+    private final WasteReadModel wasteReadModel;
     @Operation(summary = "Get One Department by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get One Department"),
@@ -32,7 +41,7 @@ public class MapsController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/departments")
     public DepartmentMaps getFirstDepartment(){
-        return departmentService.getFirstDepartment ();
+        return territoryReadModel.firstDepartmentForMap();
     }
 
     @Operation(summary = "Read Depotoir by pagination with size", description = "Read Depotoir")
@@ -46,6 +55,6 @@ public class MapsController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/depotoirs")
     public List<DepotoirMaps> getDepotoirMap(){
-        return depotoirService.getDepotoirMap ();
+        return wasteReadModel.collectionPointsForMap();
     }
 }

@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.dto.maps.DepartmentMaps;
-import sonaged.collecte.master.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.territory.application.api.DepartmentMaps;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.CoordinateMapper;
 import sn.smartwaste.collect.territory.application.mapper.RegionMapper;
 import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
@@ -40,7 +40,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Department> readAllDepartment() {
-        var departmentList = departmentRepository.findByDeletionStatus(sonaged.collecte.master.enums.DeletionStatus.ACTIVE);
+        var departmentList = departmentRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return DepartmentMapper.DMP.asListDto(departmentList);
     }
 
@@ -53,15 +53,20 @@ public class DepartmentServiceImpl implements DepartmentService {
         var departmentMaps = new DepartmentMaps (  );
         departmentMaps.setName (department.getName ());
         departmentMaps.setCode (department.getCode ());
-        departmentMaps.setTypeGeo (department.getGeometry ().getType ());
-        departmentMaps.setCoordinates (CoordinateMapper.CODMP.asListDto (department.getGeometry().getCoordinates () ));
+        // Géométrie facultative : sans garde, un département sans contour faisait échouer le fond
+        // de carte en 500. On rend le département sans tracé plutôt que rien du tout.
+        var geometry = department.getGeometry ();
+        if (geometry != null) {
+            departmentMaps.setTypeGeo (geometry.getType ());
+            departmentMaps.setCoordinates (CoordinateMapper.CODMP.asListDto (geometry.getCoordinates () ));
+        }
 
         return departmentMaps;
     }
 
     @Override
     public Page<Department> readAllDepartment(Pageable pageable) {
-        return departmentRepository.findByDeletionStatus (sonaged.collecte.master.enums.DeletionStatus.ACTIVE, pageable).map (DepartmentMapper.DMP::asDto);
+        return departmentRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map (DepartmentMapper.DMP::asDto);
     }
 
     @Override
