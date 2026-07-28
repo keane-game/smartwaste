@@ -6,7 +6,7 @@ import org.springframework.modulith.Modulithic;
  * Ancre du monolithe modulaire DDD <b>SmartWaste Collect</b> (Spring Modulith).
  *
  * <p>Ce type <b>n'est pas</b> une application Spring Boot : il ne porte pas de {@code main} et ne
- * remplace pas {@code sonaged.collecte.master.SonagedApplication}. Il sert uniquement de point
+ * remplace pas {@code sn.smartwaste.collect.config.SonagedApplication}. Il sert uniquement de point
  * d'entrée à l'analyse de modularité ({@code ApplicationModules.of(SmartWasteModulith.class)}),
  * afin de matérialiser et vérifier les frontières des contextes bornés.
  *

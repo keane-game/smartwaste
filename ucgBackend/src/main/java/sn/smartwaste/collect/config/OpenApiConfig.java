@@ -1,4 +1,4 @@
-package sonaged.collecte.master.config;
+package sn.smartwaste.collect.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

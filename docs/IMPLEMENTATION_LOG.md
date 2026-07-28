@@ -280,6 +280,29 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### ADR-0013 — Migration terminée : amorçage et technique transverse (2026-07-28)
+
+Dernière passe. `SonagedApplication`, `MinioConfig`, `OpenApiConfig`, les annotations maison, les
+deux aspects AOP et les deux `@ControllerAdvice` rejoignent `sn.smartwaste.collect.config`.
+
+**Il ne reste que l'import GeoJSON** dans `sonaged.collecte.master` (7 fichiers), et c'est
+délibéré. Le déplacer dans `administration` imposerait d'exposer les **entités et les
+repositories** de `territory` **et** de `waste` — il y écrit directement, dans 12 repositories.
+Ce serait exactement l'anti-pattern écarté pour `analytics`, et en écriture. Sa migration suppose
+de le recâbler sur les services applicatifs de chaque contexte : un **refactoring**, pas un
+déplacement de packages, et il mérite son propre commit.
+
+- `SonagedApplicationTests` suit son sujet (toujours `@Disabled`, redondant avec
+  `ApplicationContextLoadsTest` — candidat à suppression, sous réserve de validation).
+- Deux vestiges documentés dans le `package-info` du module : `DataNotifierAspect`, dont le
+  pointcut vise `com.worldline.tapandgo` (projet étranger — l'aspect ne peut jamais se déclencher),
+  et `SleuthTraceJmsListener`, alors que Spring Cloud Sleuth n'est pas une dépendance.
+- Le scan reste sur les deux racines tant que l'import n'a pas bougé ; `sonaged.ucg` ne contient
+  plus que l'échafaudage mort de l'ADR-0010, sans aucun bean.
+
+**Bilan de la migration ADR-0013** : 10 modules, `modules.verify()` sans violation, ~190 classes
+déplacées, 52 tests (51 passants, 1 ignoré), build vert.
+
 ### Réconciliation documentaire + sessions révocables (2026-07-28)
 
 #### Documentation : fermeture de la boucle de retour

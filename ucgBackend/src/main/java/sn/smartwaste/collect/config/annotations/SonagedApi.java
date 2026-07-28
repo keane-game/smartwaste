@@ -1,4 +1,4 @@
-package sonaged.collecte.master.annotations;
+package sn.smartwaste.collect.config.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

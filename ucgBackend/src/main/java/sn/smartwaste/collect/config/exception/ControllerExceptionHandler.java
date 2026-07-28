@@ -1,4 +1,4 @@
-package sonaged.collecte.master.exception;
+package sn.smartwaste.collect.config.exception;
 
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.shared.presentation.ErrorMessage;

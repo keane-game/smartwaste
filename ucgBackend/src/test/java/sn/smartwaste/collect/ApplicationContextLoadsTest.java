@@ -12,7 +12,7 @@ import sn.smartwaste.collect.platform.application.api.AlertStreamMetrics;
 import sn.smartwaste.collect.territory.application.api.TerritoryReadModel;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
-import sonaged.collecte.master.SonagedApplication;
+import sn.smartwaste.collect.config.SonagedApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package sonaged.collecte.master;
+package sn.smartwaste.collect.config;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

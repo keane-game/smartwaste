@@ -1,4 +1,4 @@
-package sonaged.collecte.master.aspects;
+package sn.smartwaste.collect.config.aspects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import sonaged.collecte.master.annotations.Notifiable;
+import sn.smartwaste.collect.config.annotations.Notifiable;
 
 
 public class DataNotifierAspect {

@@ -1,4 +1,4 @@
-package sonaged.collecte.master.config;
+package sn.smartwaste.collect.config;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
