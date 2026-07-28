@@ -280,7 +280,39 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
-### ADR-0013 — Migration terminée : amorçage et technique transverse (2026-07-28)
+### ADR-0013 — 🏁 Migration terminée : plus rien dans `sonaged.collecte.master` (2026-07-28)
+
+Dernière passe, sur décision explicite de finir malgré la réserve exprimée.
+
+- **Import GeoJSON déplacé** vers `administration` (7 fichiers), réparti en `application/service`,
+  `application/service/impl`, `infrastructure/geojson`, `presentation/controller`.
+- **Les 6 `POST /data/{ressource}` quittent `DashboardController`** pour un `DataImportController`
+  dans `administration`, **aux mêmes URL** (le frontend n'est pas touché). Ils héritaient du préfixe
+  public du tableau de bord : c'est la cause structurelle des écritures joignables sans jeton,
+  corrigée à la racine. Au passage, l'invariant « personne ne dépend d'`administration` » est
+  préservé — sans ce déplacement, `analytics` en aurait dépendu.
+- **`SonagedApplication` remonte à la racine** `sn.smartwaste.collect`, sa place conventionnelle.
+  `scanBasePackages`, `@EntityScan` et `@EnableJpaRepositories` explicites **disparaissent** : le
+  scan par défaut suffit désormais. `ApplicationContextLoadsTest` n'a plus besoin de
+  `classes = ...`, ce qui referme le piège de la recherche ascendante de `@SpringBootConfiguration`.
+- `sonaged.collecte.master` **n'existe plus**. Subsiste `sonaged.ucg` : l'échafaudage mort de
+  l'ADR-0010 (11 classes marqueurs, aucun bean), conservé faute de validation pour le retirer.
+
+#### ⚠️ Le prix payé, à ne pas oublier
+Trois `@NamedInterface` **transitoires** ont dû être ouvertes pour que l'import reste légal :
+`waste.domain.model`, `waste.domain.repository` et `territory.domain.model`. C'est contraire à
+l'ADR-0013 §3 et c'est exactement ce qui avait été refusé pour `analytics`. La raison est assumée :
+`UploadFileServiceImpl` écrit **directement dans 12 repositories** de deux contextes, et le recâbler
+sur les services applicatifs est un refactoring de ~550 lignes, pas un déplacement de packages.
+
+**Ces trois fichiers sont la dette de la migration.** Le jour où l'import passe par les services
+applicatifs, ils disparaissent et les frontières se referment d'elles-mêmes. Chacun le dit dans son
+propre javadoc pour que personne ne s'en serve par commodité.
+
+**Bilan ADR-0013** : 10 modules, `modules.verify()` sans violation, ~197 classes déplacées,
+52 tests (51 passants, 1 ignoré), build vert.
+
+### ADR-0013 — Amorçage et technique transverse (2026-07-28)
 
 Dernière passe. `SonagedApplication`, `MinioConfig`, `OpenApiConfig`, les annotations maison, les
 deux aspects AOP et les deux `@ControllerAdvice` rejoignent `sn.smartwaste.collect.config`.

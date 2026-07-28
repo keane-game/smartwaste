@@ -1,4 +1,4 @@
-package sonaged.collecte.master.controller;
+package sn.smartwaste.collect.administration.presentation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import sonaged.collecte.master.service.geojson.GeoJsonImportService;
+import sn.smartwaste.collect.administration.application.service.GeoJsonImportService;
 
 import java.util.Map;
 

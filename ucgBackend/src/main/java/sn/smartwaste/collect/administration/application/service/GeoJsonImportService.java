@@ -1,4 +1,4 @@
-package sonaged.collecte.master.service.geojson;
+package sn.smartwaste.collect.administration.application.service;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import java.util.Map;
  *
  * <p>Charge les fichiers {@code datas/*.json} (département, communes, quartiers, circuits,
  * dépotoirs) en base en réutilisant la logique de parsing existante
- * ({@link sonaged.collecte.master.service.UploadFileService}), dans l'ordre de dépendance
+ * ({@link sn.smartwaste.collect.administration.application.service.UploadFileService}), dans l'ordre de dépendance
  * (département → commune → quartier → circuits → dépotoir).
  */
 public interface GeoJsonImportService {

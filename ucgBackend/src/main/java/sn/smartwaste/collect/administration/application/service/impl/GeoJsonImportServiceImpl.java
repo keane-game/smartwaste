@@ -1,4 +1,7 @@
-package sonaged.collecte.master.service.geojson;
+package sn.smartwaste.collect.administration.application.service.impl;
+
+import sn.smartwaste.collect.administration.application.service.GeoJsonImportService;
+import sn.smartwaste.collect.administration.infrastructure.geojson.InMemoryMultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +16,7 @@ import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
 import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
 import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
-import sonaged.collecte.master.service.UploadFileService;
+import sn.smartwaste.collect.administration.application.service.UploadFileService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

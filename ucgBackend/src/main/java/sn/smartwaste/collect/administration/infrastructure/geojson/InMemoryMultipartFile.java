@@ -1,4 +1,4 @@
-package sonaged.collecte.master.service.geojson;
+package sn.smartwaste.collect.administration.infrastructure.geojson;
 
 import org.springframework.web.multipart.MultipartFile;
 

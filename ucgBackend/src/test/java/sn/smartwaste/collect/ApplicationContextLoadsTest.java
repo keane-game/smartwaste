@@ -12,8 +12,6 @@ import sn.smartwaste.collect.platform.application.api.AlertStreamMetrics;
 import sn.smartwaste.collect.territory.application.api.TerritoryReadModel;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
-import sn.smartwaste.collect.config.SonagedApplication;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -39,11 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * entités est cohérent avec elles <i>par construction</i> — c'est justement ce que
  * {@code validate} sert à contredire.
  */
-// `classes = ...` est indispensable : la recherche ascendante de @SpringBootConfiguration part de
-// `sn.smartwaste.collect` et ne peut pas atteindre `SonagedApplication`, resté dans la racine
-// héritée `sonaged.collecte.master`. C'est exactement le piège qui rendait l'ancien test
-// inopérant — une raison de plus pour que la classe d'application rejoigne la racine cible.
-@SpringBootTest(classes = SonagedApplication.class)
+// Plus besoin de `classes = ...` : `SonagedApplication` a rejoint `sn.smartwaste.collect.config`,
+// donc la recherche ascendante de @SpringBootConfiguration l'atteint depuis ce package. C'est
+// précisément le piège qui rendait l'ancien test inopérant.
+@SpringBootTest
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:h2:mem:smartwaste;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH",
         "spring.datasource.driver-class-name=org.h2.Driver",
@@ -71,15 +68,13 @@ class ApplicationContextLoadsTest {
     }
 
     @Test
-    @DisplayName("les deux racines de packages sont bien scannées")
-    void bothPackageRootsAreScanned() {
-        // Racine cible.
+    @DisplayName("tous les contextes sont scannés, y compris l'import migré en dernier")
+    void everyContextIsScanned() {
         assertThat(context.getBeansOfType(WasteReadModel.class)).isNotEmpty();
-        // Racine héritée : l'import GeoJSON y vit encore. S'il cessait d'être un bean, rien ne le
-        // signalerait à la compilation.
-        assertThat(context.containsBean("uploadFileServiceImpl"))
-                .as("le code hérité doit rester scanné pendant la transition")
-                .isTrue();
+        // L'import GeoJSON est le dernier arrivé dans la racine cible : s'il cessait d'être un
+        // bean, rien ne le signalerait à la compilation.
+        assertThat(context.containsBean("uploadFileServiceImpl")).isTrue();
+        assertThat(context.containsBean("dataImportController")).isTrue();
     }
 
     @Test

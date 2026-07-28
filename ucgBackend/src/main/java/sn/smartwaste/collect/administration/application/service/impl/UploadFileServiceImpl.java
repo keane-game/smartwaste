@@ -1,4 +1,4 @@
-package sonaged.collecte.master.service.impl;
+package sn.smartwaste.collect.administration.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
 import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
 import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sn.smartwaste.collect.territory.domain.repository.RegionRepository;
-import sonaged.collecte.master.service.UploadFileService;
+import sn.smartwaste.collect.administration.application.service.UploadFileService;
 
 import java.io.BufferedReader;
 import java.io.IOException;

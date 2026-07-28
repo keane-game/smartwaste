@@ -1,4 +1,6 @@
-package sonaged.collecte.master.service.geojson;
+package sn.smartwaste.collect.administration.infrastructure.geojson;
+
+import sn.smartwaste.collect.administration.application.service.GeoJsonImportService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

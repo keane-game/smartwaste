@@ -1,4 +1,4 @@
-package sonaged.collecte.master.service;
+package sn.smartwaste.collect.administration.application.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
