@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ============================================================================
+      ADR-0013 §4 — Fondations multi-tenant : collectivités clientes et rattachements.
+      ============================================================================
+
+      Contrairement à 2.0.0 et 2.1.0, ce changelog n'est **PAS destructeur** : il ne fait
+      qu'ajouter deux tables. Aucune donnée existante n'est touchée.
+
+      Ce qu'il ne fait PAS, volontairement : ajouter une colonne `tenantId` aux agrégats
+      métier. C'est le gros du multi-tenant (P2-3, complexité XL) et cela suppose d'avoir
+      tranché, agrégat par agrégat, ce qui est cloisonné et ce qui reste partagé — le
+      référentiel territorial de Pikine, par exemple, n'a aucune raison d'être dupliqué par
+      collectivité. Poser la colonne partout « en attendant » figerait cette décision.
+    -->
+
+    <changeSet author="claude" id="2.2.0-1-organization">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="organization"/></not>
+        </preConditions>
+        <comment>Collectivité cliente (tenant).</comment>
+        <createTable tableName="organization">
+            <column name="organizationid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_organization"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="code" type="VARCHAR(50)"><constraints nullable="false" unique="true"
+                                                                uniqueConstraintName="uk_organization_code"/></column>
+            <column name="status" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <!-- Colonnes d'audit et de soft-delete héritées d'AbstractAuditingEntity. -->
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <!--
+      Rattachement utilisateur -> collectivité.
+
+      `userid` est une référence par IDENTIFIANT vers le contexte « Identité & Accès »
+      (ADR-0012) : **aucune FK** ne traverse la frontière, volontairement. L'index unique
+      matérialise la règle actuelle « un utilisateur, une collectivité » ; l'ouvrir au
+      multi-collectivités consistera à le remplacer par un index non unique sur (userid,
+      organizationid).
+    -->
+    <changeSet author="claude" id="2.2.0-2-organization-membership">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="organizationmembership"/></not>
+        </preConditions>
+        <comment>Rattachement d'un utilisateur à une collectivité.</comment>
+        <createTable tableName="organizationmembership">
+            <column name="membershipid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_organizationmembership"/>
+            </column>
+            <column name="userid" type="uuid">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_membership_user"/>
+            </column>
+            <column name="organizationid" type="uuid"><constraints nullable="false"/></column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="organizationmembership" baseColumnNames="organizationid"
+                                 constraintName="fk_membership_organization"
+                                 referencedTableName="organization" referencedColumnNames="organizationid"/>
+    </changeSet>
+
+    <!--
+      Collectivité de démarrage. Identifiant fixe, de forme UUID v7 valide, pour les mêmes
+      raisons que les rôles semés en 2.1.0 : c'est une donnée de référence, son identifiant
+      doit être stable d'un environnement à l'autre.
+
+      AUCUN rattachement n'est semé : les utilisateurs existants restent sans collectivité, et
+      `currentOrganizationId()` rend donc `Optional.empty()`. C'est délibéré — inventer des
+      rattachements donnerait l'illusion d'un cloisonnement qui n'est pas encore appliqué.
+    -->
+    <changeSet author="claude" id="2.2.0-3-seed-default-organization">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM organization</sqlCheck>
+        </preConditions>
+        <comment>Collectivité de démarrage (Ville de Pikine).</comment>
+        <sql>
+            INSERT INTO organization (organizationid, name, code, status, archived,
+                                      createdby, lastmodifiedby, createddate, lastmodifieddate,
+                                      deletionstatus)
+            VALUES ('01983c4f-0001-7000-8000-000000000001', 'Ville de Pikine', 'PIKINE', 'ACTIVE',
+                    false, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE');
+        </sql>
+        <rollback>
+            DELETE FROM organization WHERE organizationid = '01983c4f-0001-7000-8000-000000000001';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
