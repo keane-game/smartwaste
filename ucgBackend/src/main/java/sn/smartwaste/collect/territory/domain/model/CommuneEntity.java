@@ -5,13 +5,10 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 import java.util.UUID;
 
-import sonaged.collecte.master.model.AbstractAuditingEntity;
-// Associations sortantes vers le contexte « Déchets », encore dans le code hérité : ces types
-// étaient résolus par appartenance au même package avant la migration, ils exigent désormais
-// des imports explicites.
-import sonaged.collecte.master.model.CircuitBalayageEntity;
-import sonaged.collecte.master.model.CircuitCollectEntity;
-import sonaged.collecte.master.model.DepotoirEntity;
+import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+// Plus aucun import vers le contexte « Déchets » : les trois associations sortantes ont été
+// retirées (voir le commentaire sur les collections, plus bas). Le référentiel territorial
+// redevient ce que l'ADR-0013 prescrit — une source de vérité qui ne dépend de personne.
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -94,29 +91,32 @@ public class CommuneEntity extends AbstractAuditingEntity<UUID> {
     @ToString.Exclude
     List<QuartierEntity> quartiers;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            mappedBy = "commune")
-    @JsonIgnore
-    @ToString.Exclude
-    List<CircuitBalayageEntity> circuitBalayage;
-
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            mappedBy = "commune")
-    @JsonIgnore
-    @ToString.Exclude
-    List<CircuitCollectEntity> circuitCollect;
-
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            mappedBy = "commune")
-    @JsonIgnore
-    @ToString.Exclude
-    List<DepotoirEntity> depotoirs;
+    // ---------------------------------------------------------------------------------
+    // 🔴 Trois collections inverses RETIRÉES ici — elles empêchaient le démarrage.
+    //
+    // `circuitBalayage`, `circuitCollect` et `depotoirs` étaient des
+    // `@OneToMany(mappedBy = "commune")` vers le contexte « Déchets ». Or P1-7a (ADR-0012) a
+    // converti le côté propriétaire en simple identifiant : `DepotoirEntity`,
+    // `CircuitCollectEntity` et `CircuitBalayageEntity` portent désormais `UUID communeId` et
+    // n'ont plus AUCUN champ `commune`. Le `mappedBy` pointait donc dans le vide.
+    //
+    // Pourquoi personne ne l'avait vu : `mappedBy` est une chaîne de caractères, le compilateur
+    // ne la vérifie pas. La rupture n'apparaît qu'à la construction du métamodèle Hibernate
+    // (`AnnotationException: ... 'mappedBy' a property named 'commune' which does not exist`),
+    // c'est-à-dire au démarrage — et l'application n'a jamais été lancée contre une base.
+    // Le pendant sur `QuartierEntity.depotoirs` avait bien été commenté à l'époque ; ces
+    // trois-là ont été oubliés. Aucun code ne les lisait (vérifié).
+    //
+    // Il ne s'agit donc pas d'un choix de modélisation à refaire : une association inverse ne
+    // PEUT PAS exister quand le côté propriétaire est une référence par identifiant. Les
+    // dépotoirs et circuits d'une commune se lisent via le contexte propriétaire
+    // (`findByCommuneId`), comme le prévoit l'ADR-0012. `CommuneServiceImpl` faisait déjà de
+    // même après le retrait du champ équivalent sur `dto/Commune`.
+    //
+    // Bonus : ces `CascadeType.ALL` cross-contexte auraient supprimé en cascade les dépotoirs
+    // et circuits d'une commune effacée — exactement le risque signalé en P1-2 (R4).
+    // Couvert désormais par `JpaMappingBootstrapTest`.
+    // ---------------------------------------------------------------------------------
 
     // P1-2 : @ManyToOne est EAGER par défaut → LAZY explicite (chaîne N+1, R3).
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.LAZY)
