@@ -7,11 +7,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sonaged.collecte.master.repository.CircuitBalayageRepository;
-import sonaged.collecte.master.repository.CircuitCollectRepository;
+import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
+import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
 import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
-import sonaged.collecte.master.repository.DepotoirRepository;
+import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
 import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sonaged.collecte.master.service.UploadFileService;
 

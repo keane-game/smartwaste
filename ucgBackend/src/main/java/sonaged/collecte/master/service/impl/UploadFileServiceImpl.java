@@ -6,8 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sonaged.collecte.master.enums.CircuitShift;
-import sonaged.collecte.master.model.*;
+import sn.smartwaste.collect.waste.domain.model.CircuitShift;
+import sn.smartwaste.collect.waste.domain.model.CircuitBalayageEntity;
+import sn.smartwaste.collect.waste.domain.model.CircuitCollectEntity;
+import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
+import sn.smartwaste.collect.waste.domain.model.TypeDepotoirEntity;
 // Le référentiel territorial a migré vers son module dédié : l'import « étoile » sur le package
 // hérité ne le couvre plus, les entités territoriales sont donc importées nommément.
 import sn.smartwaste.collect.territory.domain.model.CommuneEntity;
@@ -16,7 +19,12 @@ import sn.smartwaste.collect.territory.domain.model.DepartmentEntity;
 import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
 import sn.smartwaste.collect.territory.domain.model.QuartierEntity;
 import sn.smartwaste.collect.territory.domain.model.RegionEntity;
-import sonaged.collecte.master.repository.*;
+import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
+import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
+import sn.smartwaste.collect.waste.domain.repository.CircuitRepository;
+import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
+import sn.smartwaste.collect.waste.domain.repository.MoblierUrbainRepository;
+import sn.smartwaste.collect.waste.domain.repository.TypeDepotoirRepository;
 // Le référentiel territorial a migré vers son module dédié : l'import « étoile » sur le package
 // hérité ne couvre plus ses repositories, importés nommément ci-dessous.
 import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;

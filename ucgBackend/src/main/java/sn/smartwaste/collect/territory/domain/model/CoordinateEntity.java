@@ -1,11 +1,13 @@
 package sn.smartwaste.collect.territory.domain.model;
 
+import org.springframework.modulith.NamedInterface;
+
 import org.hibernate.annotations.UuidGenerator;
 import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 import java.util.UUID;
 
-import sonaged.collecte.master.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -19,6 +21,13 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
 
+/**
+ * Point d'un contour géographique.
+ *
+ * <p><b>Exposé</b> ({@code @NamedInterface("geo")}) pour la même raison que {@code GeometryEntity} :
+ * une alerte compose une coordonnée (ADR-0012 §1). Voir la note de dette sur {@code GeometryEntity}.
+ */
+@NamedInterface("geo")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @NoArgsConstructor

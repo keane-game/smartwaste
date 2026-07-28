@@ -6,15 +6,10 @@ import sn.smartwaste.collect.analytics.application.dto.SupervisionStats;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sonaged.collecte.master.enums.DeletionStatus;
-import sonaged.collecte.master.model.AlertEntity;
-import sonaged.collecte.master.model.DepotoirEntity;
-import sonaged.collecte.master.repository.AlertRepository;
-import sonaged.collecte.master.repository.CircuitBalayageRepository;
-import sonaged.collecte.master.repository.CircuitCollectRepository;
-import sonaged.collecte.master.repository.DepotoirRepository;
-import sonaged.collecte.master.repository.SoftDeleteRepository;
-import sonaged.collecte.master.service.notification.AlertBroadcaster;
+import sn.smartwaste.collect.shared.domain.model.DeletionStatus;
+import sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository;
+import sn.smartwaste.collect.platform.application.api.AlertStreamMetrics;
+import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,24 +35,25 @@ public class SupervisionStatsService {
     /** Fenêtre d'analyse par défaut, en jours. */
     private static final int DEFAULT_WINDOW_DAYS = 30;
 
-    private final AlertRepository alertRepository;
-    private final DepotoirRepository depotoirRepository;
-    private final CircuitCollectRepository circuitCollectRepository;
-    private final CircuitBalayageRepository circuitBalayageRepository;
-    private final AlertBroadcaster alertBroadcaster;
+    /**
+     * Port publié par le contexte « Déchets ». Remplace l'injection de quatre repositories et la
+     * navigation dans ses entités JPA (ADR-0013 §3) : ce service ne reçoit plus que des
+     * projections autonomes.
+     */
+    private final WasteReadModel wasteReadModel;
+
+    /** Port publié par le contexte « Plateforme » — nombre de flux SSE ouverts (ADR-0007). */
+    private final AlertStreamMetrics alertStreamMetrics;
+
     private final Map<String, SoftDeleteRepository<?, ?>> softDeleteRepositories = new TreeMap<>();
 
-    public SupervisionStatsService(AlertRepository alertRepository,
-                                   DepotoirRepository depotoirRepository,
-                                   CircuitCollectRepository circuitCollectRepository,
-                                   CircuitBalayageRepository circuitBalayageRepository,
-                                   AlertBroadcaster alertBroadcaster,
+    public SupervisionStatsService(WasteReadModel wasteReadModel,
+                                   AlertStreamMetrics alertStreamMetrics,
                                    Map<String, SoftDeleteRepository<?, ?>> repositoriesByBeanName) {
-        this.alertRepository = alertRepository;
-        this.depotoirRepository = depotoirRepository;
-        this.circuitCollectRepository = circuitCollectRepository;
-        this.circuitBalayageRepository = circuitBalayageRepository;
-        this.alertBroadcaster = alertBroadcaster;
+        this.wasteReadModel = wasteReadModel;
+        this.alertStreamMetrics = alertStreamMetrics;
+        // La corbeille reste transverse : `SoftDeleteRepository` vit dans le shared kernel (module
+        // ouvert) et l'injection se fait par type, sans dépendance vers les modules propriétaires.
         // Même convention de nommage que DeletionController : `depotoirRepository` -> `depotoir`.
         repositoriesByBeanName.forEach((beanName, repository) ->
                 softDeleteRepositories.put(beanName.replaceFirst("(?i)repository$", "").toLowerCase(), repository));
@@ -67,8 +63,8 @@ public class SupervisionStatsService {
     public SupervisionStats compute(Integer windowDays) {
         int window = (windowDays == null || windowDays <= 0) ? DEFAULT_WINDOW_DAYS : Math.min(windowDays, 365);
 
-        List<AlertEntity> alerts = alertRepository.findByDeletionStatus(DeletionStatus.ACTIVE);
-        List<DepotoirEntity> depotoirs = depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE);
+        List<WasteReadModel.ActiveAlert> alerts = wasteReadModel.activeAlerts();
+        List<WasteReadModel.ActiveCollectionPoint> depotoirs = wasteReadModel.activeCollectionPoints();
 
         LocalDate today = LocalDate.now();
         LocalDate from = today.minusDays(window - 1L);
@@ -81,7 +77,7 @@ public class SupervisionStatsService {
                 alerts.size(),
                 countSince(alerts, today.minusDays(6)),
                 pendingDeletions(),
-                alertBroadcaster.countEmitters(),
+                alertStreamMetrics.openStreamCount(),
                 window
         );
     }
@@ -93,13 +89,13 @@ public class SupervisionStatsService {
      * alerte seraient absents et un graphique côté frontend les relierait en ligne droite,
      * masquant les creux d'activité.
      */
-    private List<SupervisionStats.DailyCount> alertsPerDay(List<AlertEntity> alerts, LocalDate from, LocalDate to) {
+    private List<SupervisionStats.DailyCount> alertsPerDay(List<WasteReadModel.ActiveAlert> alerts, LocalDate from, LocalDate to) {
         Map<LocalDate, Long> byDay = new LinkedHashMap<>();
         for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
             byDay.put(d, 0L);
         }
-        for (AlertEntity alert : alerts) {
-            LocalDateTime created = alert.getCreatedDate();
+        for (WasteReadModel.ActiveAlert alert : alerts) {
+            LocalDateTime created = alert.createdAt();
             if (created == null) { continue; }
             LocalDate day = created.toLocalDate();
             byDay.computeIfPresent(day, (k, v) -> v + 1);
@@ -109,19 +105,17 @@ public class SupervisionStatsService {
                 .toList();
     }
 
-    private Map<String, Long> alertsByCode(List<AlertEntity> alerts) {
+    private Map<String, Long> alertsByCode(List<WasteReadModel.ActiveAlert> alerts) {
         return alerts.stream().collect(Collectors.groupingBy(
-                a -> a.getCode() == null ? "NON_DEFINI" : a.getCode().name(),
+                a -> a.code() == null ? "NON_DEFINI" : a.code(),
                 TreeMap::new, Collectors.counting()));
     }
 
-    private Map<String, Long> depotoirsByType(List<DepotoirEntity> depotoirs) {
+    private Map<String, Long> depotoirsByType(List<WasteReadModel.ActiveCollectionPoint> depotoirs) {
         return depotoirs.stream().collect(Collectors.groupingBy(
-                d -> {
-                    // typeDepotoir est LAZY (P1-2) : l'accès reste dans la transaction en lecture.
-                    var type = d.getTypeDepotoir();
-                    return type == null || type.getName() == null ? "NON_DEFINI" : type.getName();
-                },
+                // Le type est résolu par le contexte propriétaire, dans SA transaction : la
+                // contrainte LAZY de P1-2 ne remonte plus jusqu'ici.
+                d -> d.typeName() == null ? "NON_DEFINI" : d.typeName(),
                 TreeMap::new, Collectors.counting()));
     }
 
@@ -133,10 +127,7 @@ public class SupervisionStatsService {
      */
     private Map<String, Long> circuitsByCommune() {
         Map<String, Long> byCommune = new TreeMap<>();
-        circuitCollectRepository.findByDeletionStatus(DeletionStatus.ACTIVE)
-                .forEach(c -> increment(byCommune, c.getCommuneId()));
-        circuitBalayageRepository.findByDeletionStatus(DeletionStatus.ACTIVE)
-                .forEach(c -> increment(byCommune, c.getCommuneId()));
+        wasteReadModel.activeCircuits().forEach(c -> increment(byCommune, c.communeId()));
         return byCommune;
     }
 
@@ -156,9 +147,9 @@ public class SupervisionStatsService {
         return counts;
     }
 
-    private long countSince(List<AlertEntity> alerts, LocalDate since) {
+    private long countSince(List<WasteReadModel.ActiveAlert> alerts, LocalDate since) {
         return alerts.stream()
-                .map(AlertEntity::getCreatedDate)
+                .map(WasteReadModel.ActiveAlert::createdAt)
                 .filter(d -> d != null && !d.toLocalDate().isBefore(since))
                 .count();
     }

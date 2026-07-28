@@ -7,15 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import sonaged.collecte.master.repository.*;
-// Le référentiel territorial a migré vers son module dédié : l'import « étoile » sur le package
-// hérité ne couvre plus ses repositories, importés nommément ci-dessous.
 import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
-import sn.smartwaste.collect.territory.domain.repository.CoordinateRepository;
-import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
-import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
-import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
-import sn.smartwaste.collect.territory.domain.repository.RegionRepository;
+import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
 import java.util.List;
 
@@ -24,19 +17,15 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DashboardServiceImpl implements DashboardService {
 
-    final CircuitRepository circuitRepository;
     final CommuneRepository communeRepository;
-    final CircuitCollectRepository circuitCollectRepository;
-    final CircuitBalayageRepository circuitBalayageRepository;
-    final DepartmentRepository departmentRepository;
-    final RegionRepository regionRepository;
-    final QuartierRepository quartierRepository;
-    final TypeDepotoirRepository typeDepotoirRepository;
-    final DepotoirRepository depotoirRepository;
-    final GeometryRepository geometryRepository;
-    final CoordinateRepository coordinateRepository;
-    final MoblierUrbainRepository moblierUrbainRepository;
-    final UserRepository userRepository;
+
+    /**
+     * Port publié par le contexte « Déchets ». Remplace l'injection directe de six repositories
+     * (ADR-0013 §3) — dont sept étaient d'ailleurs injectés sans jamais être utilisés :
+     * `circuitRepository`, `typeDepotoirRepository`, `geometryRepository`, `coordinateRepository`,
+     * `departmentRepository`, `regionRepository` et `quartierRepository`.
+     */
+    final WasteReadModel wasteReadModel;
 
     @Override
     public Long totalCommunes() {
@@ -45,23 +34,22 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Long totalDepotoirs() {
-        return depotoirRepository.count();
+        return wasteReadModel.countCollectionPoints();
     }
 
     @Override
     public Long totalBennes() {
-        return moblierUrbainRepository.count();
+        return wasteReadModel.countStreetFurniture();
     }
 
     @Override
     public Long totalCircuits() {
-        return circuitCollectRepository.count() + circuitBalayageRepository.count();
+        return wasteReadModel.countCircuits();
     }
 
     @Override
     public Long totalBacs() {
-        var bacs =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("Bac");
-        return (long) bacs.size();
+        return wasteReadModel.countCollectionPointsByTypeNameContaining("Bac");
     }
 
     /*
@@ -69,8 +57,7 @@ public class DashboardServiceImpl implements DashboardService {
     */
     @Override
     public Long totalPRN() {
-        var pnr =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("PRN");
-        return (long) pnr.size();
+        return wasteReadModel.countCollectionPointsByTypeNameContaining("PRN");
     }
 
     /*
@@ -79,8 +66,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public Long totalPP() {
 
-        var pointPropres =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("PP");
-        return (long) pointPropres.size();
+        return wasteReadModel.countCollectionPointsByTypeNameContaining("PP");
     }
 
     /*
@@ -89,8 +75,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public Long totalCP() {
 
-        var caissePolybenne =  depotoirRepository.findByTypeDepotoir_NameContainingIgnoreCase("Caisse Polybenne");
-        return (long) caissePolybenne.size();
+        return wasteReadModel.countCollectionPointsByTypeNameContaining("Caisse Polybenne");
     }
     @Override
     public Long totalHabitans() {

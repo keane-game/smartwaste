@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.territory.application.dto;
 
+import org.springframework.modulith.NamedInterface;
+
 import java.util.UUID;
 
 
@@ -15,6 +17,11 @@ import sn.smartwaste.collect.territory.domain.model.CoordinateEntity;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * DTO de contour géographique. <b>Exposé</b> ({@code @NamedInterface("geo")}) : les DTO du contexte
+ * « Déchets » l'imbriquent. Voir la note de dette sur {@code GeometryEntity}.
+ */
+@NamedInterface("geo")
 @Getter
 @Setter
 @AllArgsConstructor
