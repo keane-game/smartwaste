@@ -1,6 +1,8 @@
 package sn.smartwaste.collect.waste.application.api;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +61,17 @@ public interface WasteReadModel {
      */
     List<DepotoirMaps> collectionPointsForMap();
 
+    // ---------- Horaires de collecte ----------
+
+    /**
+     * Passages de collecte prévus un jour donné.
+     *
+     * <p>Publié pour que le contexte Plateforme puisse prévenir les habitants abonnés. Il rend un
+     * quartier et une heure — pas un circuit : l'habitant s'abonne à son quartier, qu'il connaît,
+     * pas au circuit qui le dessert.
+     */
+    List<ScheduledCollection> collectionsScheduledOn(DayOfWeek dayOfWeek);
+
     /**
      * @param code      code de l'alerte, {@code null} si non renseigné
      * @param createdAt date de création, {@code null} si l'audit n'a pas été alimenté
@@ -73,4 +86,10 @@ public interface WasteReadModel {
 
     /** @param communeId commune de rattachement, {@code null} si le circuit n'est pas affecté */
     record ActiveCircuit(UUID communeId) { }
+
+    /**
+     * @param quartierId  quartier desservi
+     * @param passageTime heure de passage prévue
+     */
+    record ScheduledCollection(UUID quartierId, LocalTime passageTime) { }
 }

@@ -50,4 +50,16 @@ public class NotificationServiceImpl implements NotificationService {
         // Le code lui-même n'est jamais journalisé : c'est un secret d'activation.
         log.info("Code d'activation envoyé à {}", event.recipientEmail());
     }
+
+    @Override
+    public void sendCollectionReminder(String recipientEmail, java.time.LocalTime passageTime) {
+        var message = new org.springframework.mail.SimpleMailMessage();
+        message.setFrom("no-reply@sonaged.sn");
+        message.setTo(recipientEmail);
+        message.setSubject("Sortez vos ordures : passage prevu a " + passageTime);
+        message.setText("Bonjour,\n\nLe camion de collecte passera dans votre quartier a "
+                + passageTime + ".\nPensez a sortir vos ordures avant son passage.\n\nSONAGED");
+        javaMailSender.send(message);
+        log.info("Rappel de collecte envoye pour un passage a {}", passageTime);
+    }
 }

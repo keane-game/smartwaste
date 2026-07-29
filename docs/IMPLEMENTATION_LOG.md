@@ -280,6 +280,44 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Alerte citoyenne « sortez vos ordures » (2026-07-29)
+
+**La demande n°1 de la seule étude utilisateur du projet**, absente du backlog jusqu'ici.
+L'enquête (34 réponses) donne ~29/34 favorables à « un système d'alerte pour sortir vos ordures »,
+et les deux problèmes les plus cités — « les voitures ne passent pas souvent » et « on oublie de
+sortir les ordures » — se répondent par la même chose : savoir **quand** le camion passe. La chaîne
+d'alerte construite jusqu'ici va du bac vers le superviseur ; celle-ci va vers l'habitant.
+
+- **`CollectionSchedule`** (waste) : jour et heure de passage d'un circuit dans un quartier.
+  `CircuitCollect` portait déjà `frequence` et `rotation`, mais **en texte libre**, donc
+  inexploitable par une machine — impossible d'en déduire « le camion passe demain à 7 h ici ».
+  C'était le chaînon manquant entre les données de collecte et l'habitant.
+- **`CollectionSubscription`** (platform) : l'habitant s'abonne à son **quartier**, maille qu'il
+  connaît, et non au circuit qui le dessert. L'abonné est toujours l'utilisateur du jeton — sinon
+  n'importe qui pourrait abonner ou désabonner un tiers.
+- **`CollectionReminderScheduler`** : envoie le rappel avec un délai d'avance (90 min par défaut).
+  Prévenir à l'instant du passage serait inutile ; prévenir six heures avant aussi.
+- **`Clock` injectable** (`ClockConfig`) : sans lui, la logique horaire ne serait testable qu'en
+  attendant le bon moment de la journée.
+
+#### Les deux gardes qui font la différence
+Les répondants reprochent précisément au klaxon des camions d'être intrusif. Un rappel envoyé en
+double, ou après le passage, reproduirait le défaut qu'on cherche à corriger.
+- **Anti-répétition** : la tâche tourne toutes les 15 min, la fenêtre en fait 90 — sans garde, le
+  même passage serait notifié six fois. Les couples (quartier, heure) déjà traités sont mémorisés,
+  purgés au changement de jour.
+- **Fenêtre stricte** : un passage déjà effectué ne déclenche rien. Prévenir après coup est pire
+  que ne rien envoyer — l'habitant a raté le camion.
+
+5 tests, **deux mutations vérifiées** : retirer l'anti-répétition → 1 échec ; accepter les passages
+déjà effectués → 1 échec.
+
+Changelog 2.5.0, non destructeur. `verify` EXIT=0, 64 tests.
+
+⚠️ Les horaires doivent être saisis : aucune donnée source ne les porte (les GeoJSON de circuits
+n'ont qu'une `frequence` textuelle). Un écran d'administration ou un import dédié reste à faire
+pour que la fonctionnalité serve en production.
+
 ### Import GeoJSON recâblé — la dette de la migration est soldée (2026-07-29)
 
 L'import écrivait **directement dans 12 repositories** de `territory` et `waste`, ce qui avait

@@ -12,4 +12,12 @@ public interface NotificationService {
 
     /** Envoie le code d'activation au destinataire décrit par l'événement. */
     void sendActivationCode(ActivationCodeIssued event);
+
+    /**
+     * Previent un habitant du passage imminent du camion dans son quartier.
+     *
+     * <p>Reponse directe a la demande n°1 de l'enquete citoyenne — et remplacement du klaxon,
+     * que la majorite des repondants declare genant.
+     */
+    void sendCollectionReminder(String recipientEmail, java.time.LocalTime passageTime);
 }

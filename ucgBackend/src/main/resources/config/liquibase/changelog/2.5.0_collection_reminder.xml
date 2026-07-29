@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Alerte citoyenne « sortez vos ordures » — demande n°1 de l'enquete (29/34).
+      NON destructeur : deux tables ajoutees.
+    -->
+
+    <changeSet author="claude" id="2.5.0-1-collectionschedule">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="collectionschedule"/></not></preConditions>
+        <comment>Horaire de passage d'un circuit dans un quartier — jour et heure STRUCTURES.</comment>
+        <createTable tableName="collectionschedule">
+            <column name="scheduleid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_collectionschedule"/>
+            </column>
+            <column name="circuitcollectid" type="BIGINT"/>
+            <!-- Maille d'abonnement : l'habitant connait son quartier, pas son circuit. -->
+            <column name="quartierid" type="uuid"><constraints nullable="false"/></column>
+            <column name="dayofweek" type="VARCHAR(12)"><constraints nullable="false"/></column>
+            <column name="passagetime" type="TIME"><constraints nullable="false"/></column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_collectionschedule_day" tableName="collectionschedule">
+            <column name="dayofweek"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.5.0-2-collectionsubscription">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="collectionsubscription"/></not></preConditions>
+        <comment>Abonnement d'un habitant aux passages de son quartier.</comment>
+        <createTable tableName="collectionsubscription">
+            <column name="subscriptionid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_collectionsubscription"/>
+            </column>
+            <!-- References par identifiant (ADR-0012) : aucune FK ne traverse la frontiere. -->
+            <column name="userid" type="uuid"><constraints nullable="false"/></column>
+            <column name="quartierid" type="uuid"><constraints nullable="false"/></column>
+            <column name="email" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+        </createTable>
+        <addUniqueConstraint tableName="collectionsubscription" columnNames="userid, quartierid"
+                             constraintName="uk_subscription_user_quartier"/>
+        <createIndex indexName="idx_subscription_quartier" tableName="collectionsubscription">
+            <column name="quartierid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

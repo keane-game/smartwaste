@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.api.DepotoirMaps;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 import sn.smartwaste.collect.waste.application.service.DepotoirService;
 import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
+import sn.smartwaste.collect.waste.domain.repository.CollectionScheduleRepository;
 import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
 import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
@@ -36,19 +37,22 @@ public class WasteReadModelAdapter implements WasteReadModel {
     private final CircuitBalayageRepository circuitBalayageRepository;
     private final AlertRepository alertRepository;
     private final DepotoirService depotoirService;
+    private final CollectionScheduleRepository collectionScheduleRepository;
 
     public WasteReadModelAdapter(DepotoirRepository depotoirRepository,
                                  MoblierUrbainRepository moblierUrbainRepository,
                                  CircuitCollectRepository circuitCollectRepository,
                                  CircuitBalayageRepository circuitBalayageRepository,
                                  AlertRepository alertRepository,
-                                 DepotoirService depotoirService) {
+                                 DepotoirService depotoirService,
+                                 CollectionScheduleRepository collectionScheduleRepository) {
         this.depotoirRepository = depotoirRepository;
         this.moblierUrbainRepository = moblierUrbainRepository;
         this.circuitCollectRepository = circuitCollectRepository;
         this.circuitBalayageRepository = circuitBalayageRepository;
         this.alertRepository = alertRepository;
         this.depotoirService = depotoirService;
+        this.collectionScheduleRepository = collectionScheduleRepository;
     }
 
     @Override
@@ -104,5 +108,12 @@ public class WasteReadModelAdapter implements WasteReadModel {
     @Override
     public List<DepotoirMaps> collectionPointsForMap() {
         return depotoirService.getDepotoirMap();
+    }
+
+    @Override
+    public List<ScheduledCollection> collectionsScheduledOn(java.time.DayOfWeek dayOfWeek) {
+        return collectionScheduleRepository.findByDayOfWeekAndActiveTrue(dayOfWeek).stream()
+                .map(s -> new ScheduledCollection(s.getQuartierId(), s.getPassageTime()))
+                .toList();
     }
 }
