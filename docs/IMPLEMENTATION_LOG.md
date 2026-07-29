@@ -333,9 +333,20 @@ e-mail** — c'est la forme la plus directe d'empêcher la régression.
 Changelog 2.5.0 corrigé en place (aucun environnement ne l'avait appliqué).
 `verify` EXIT=0, **69 tests**.
 
-⚠️ Les horaires doivent être saisis : aucune donnée source ne les porte (les GeoJSON de circuits
-n'ont qu'une `frequence` textuelle). Un écran d'administration ou un import dédié reste à faire
-pour que la fonctionnalité serve en production.
+#### Saisie des horaires — la fonctionnalité était inerte sans elle
+Le rappel citoyen lisait `collectionschedule`, mais **rien ne pouvait la remplir** : aucune donnée
+source ne porte ces horaires (les GeoJSON de circuits n'ont qu'une `frequence` en texte libre).
+CRUD ajouté sous `/v1/collection-schedules` (lister, créer, modifier, suspendre).
+
+- **Le quartier est validé à l'écriture** via `CrossContextReferenceValidator`. C'est une référence
+  par identifiant (ADR-0012), donc sans FK SQL : un horaire pointant un quartier inexistant serait
+  accepté, ne déclencherait jamais aucun rappel, et **rien ne le signalerait**. La panne serait
+  silencieuse — le pire mode de défaillance pour ce service.
+- Suspendre plutôt que supprimer : les rappels cessent, l'historique reste.
+- Les secondes sont tronquées — elles n'ont aucun sens pour un passage de camion, et brouilleraient
+  la déduplication du planificateur, qui indexe sur (quartier, heure).
+
+5 tests. `verify` EXIT=0, **74 tests**.
 
 ### Import GeoJSON recâblé — la dette de la migration est soldée (2026-07-29)
 
