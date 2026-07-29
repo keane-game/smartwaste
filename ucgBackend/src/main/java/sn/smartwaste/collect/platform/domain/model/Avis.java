@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +25,38 @@ public class Avis {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    /** Description libre du signalement, saisie par l'habitant. */
     private String message;
-    private String statut;
+
+    /**
+     * État du traitement. Auparavant une chaîne libre que rien ne faisait évoluer : l'habitant
+     * pouvait signaler, personne ne pouvait clore.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", length = 20, nullable = false)
+    private AvisStatus statut = AvisStatus.SIGNALE;
+
+    // ---- Localisation du signalement ----
+    // Un depot sauvage sans position n'est pas exploitable : impossible de l'afficher sur la
+    // carte de supervision, ni d'envoyer une equipe. Le memoire en fait un cas d'usage citoyen
+    // explicite (« envoyer une alerte pour signaler un depot sauvage »).
+    // Chaines et non doubles, par coherence avec CoordinateEntity du referentiel.
+
+    @Column(name = "latitude")
+    private String latitude;
+
+    @Column(name = "longitude")
+    private String longitude;
+
+    // ---- Traitement ----
+
+    @Column(name = "processedAt")
+    private java.time.Instant processedAt;
+
+    /** Agent ayant clos le signalement — reference par identifiant (ADR-0012). */
+    @Column(name = "processedByUserId")
+    private UUID processedByUserId;
 
     /**
      * Auteur de l'avis, référencé <b>par identifiant</b> et non par association JPA : le contexte

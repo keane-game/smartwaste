@@ -25,9 +25,9 @@ spring:
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXX
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/sonaged}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/smartwaste}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:keane}
     driver-class-name: org.postgresql.Driver
 
   # -------------------------------------------------------------------------

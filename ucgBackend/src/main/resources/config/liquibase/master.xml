@@ -15,4 +15,5 @@
     <include file="config/liquibase/changelog/2.3.0_user_session.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.4.0_iot_ingestion.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.5.0_collection_reminder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.6.0_avis_signalement.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

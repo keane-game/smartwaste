@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Signalement citoyen : localisation + cycle de vie.
+      NON destructeur : quatre colonnes ajoutees, une normalisee.
+    -->
+
+    <changeSet author="claude" id="2.6.0-1-avis-signalement">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="avis" columnName="latitude"/></not>
+        </preConditions>
+        <comment>Localisation et traitement du signalement.</comment>
+        <addColumn tableName="avis">
+            <!-- Un depot sauvage sans position n'est pas exploitable : ni carte, ni intervention. -->
+            <column name="latitude" type="VARCHAR(64)"/>
+            <column name="longitude" type="VARCHAR(64)"/>
+            <column name="processedat" type="TIMESTAMP WITH TIME ZONE"/>
+            <!-- Qui a clos, reference par identifiant (ADR-0012) : sans FK traversante. -->
+            <column name="processedbyuserid" type="uuid"/>
+        </addColumn>
+        <createIndex indexName="idx_avis_statut" tableName="avis">
+            <column name="statut"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      `statut` etait une chaine libre initialisee a « EN_ATTENTE » et que rien ne faisait
+      jamais evoluer. Elle devient une enumeration ; la valeur historique est convertie.
+    -->
+    <changeSet author="claude" id="2.6.0-2-avis-statut-enum">
+        <comment>Normalisation du statut vers l'enumeration AvisStatus.</comment>
+        <sql>UPDATE avis SET statut = 'SIGNALE' WHERE statut IS NULL OR statut = 'EN_ATTENTE';</sql>
+        <addNotNullConstraint tableName="avis" columnName="statut"
+                              columnDataType="VARCHAR(255)" defaultNullValue="SIGNALE"/>
+    </changeSet>
+
+</databaseChangeLog>

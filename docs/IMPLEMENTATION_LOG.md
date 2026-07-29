@@ -280,6 +280,30 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Signalement citoyen exploitable : localisation + cycle de vie (2026-07-29)
+
+Le mémoire fait du **signalement de dépôt sauvage** un cas d'usage citoyen explicite. `Avis`
+existait, mais l'API ne savait qu'**enregistrer** : ni localiser, ni suivre, ni clore. Un
+signalement qu'on ne peut pas traiter n'est pas un signalement, c'est une boîte aux lettres.
+
+- **`AvisStatus`** remplace la chaîne libre `statut`, initialisée à « EN_ATTENTE » et que **rien ne
+  faisait jamais évoluer**. Transitions explicites : `SIGNALE → EN_COURS → TRAITE|REJETE`, avec
+  rejet possible après prise en charge — c'est souvent en se déplaçant qu'on découvre qu'un
+  signalement est infondé. Les états terminaux ne se rouvrent pas.
+- **Localisation** (`latitude`/`longitude`) : un dépôt sauvage sans position n'est pas exploitable —
+  ni carte, ni intervention. Exposé par `GET /avis/map` pour la supervision.
+- **Traçabilité de la clôture** (`processedAt`, `processedByUserId`) : une file traitée qui ne dit
+  pas qui a fait quoi ne vaut rien.
+- Endpoints : `/avis/mine` (l'habitant suit les siens), `/avis?statut=` (file de traitement),
+  `/avis/map`, `PUT /avis/{id}/statut/{statut}` (409 sur transition interdite).
+
+**6 tests, mutation vérifiée** : autoriser toutes les transitions casse 2 tests. Ils couvrent aussi
+la neutralisation à la création — un habitant ne peut ni déposer un signalement déjà clos, ni
+l'attribuer à un tiers, ni écraser celui d'un autre en fournissant son identifiant.
+
+Changelog 2.6.0, non destructeur (la valeur historique « EN_ATTENTE » est convertie en `SIGNALE`).
+`verify` EXIT=0, **77 tests**.
+
 ### Alerte citoyenne « sortez vos ordures » (2026-07-29)
 
 **La demande n°1 de la seule étude utilisateur du projet**, absente du backlog jusqu'ici.
