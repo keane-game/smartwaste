@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * comme le veut la convention Spring Boot — c'est ce qui rend le scan par
  * défaut de Spring Boot suffit donc — plus besoin de {@code scanBasePackages}, {@code @EntityScan}
  * ni {@code @EnableJpaRepositories} explicites, qui ne servaient qu'à couvrir les deux racines
- * pendant la transition.
+ * pendant la transition — désormais supprimées.
  *
  * <p>{@code sonaged.ucg} subsiste, mais ne contient que l'échafaudage mort de l'ADR-0010
  * (classes marqueurs et {@code package-info}, aucun bean) : ne plus le scanner est sans effet.

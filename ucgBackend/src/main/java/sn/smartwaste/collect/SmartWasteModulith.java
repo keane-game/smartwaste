@@ -10,11 +10,9 @@ import org.springframework.modulith.Modulithic;
  * d'entrée à l'analyse de modularité ({@code ApplicationModules.of(SmartWasteModulith.class)}),
  * afin de matérialiser et vérifier les frontières des contextes bornés.
  *
- * <p>Trois racines cohabitent pendant la transition : le code hérité
- * ({@code sonaged.collecte.master}, organisé par couche technique), le squelette intermédiaire
- * ({@code sonaged.ucg}, ancré sur {@code UcgModulith}) et cette racine cible. Chaque module migré
- * quitte définitivement les deux premières pour arriver ici ; les deux ancres restent donc
- * vérifiées en parallèle tant que la migration n'est pas terminée.
+ * <p><b>Racine unique.</b> La migration ADR-0013 est terminée : {@code sonaged.collecte.master}
+ * (code hérité) et {@code sonaged.ucg} (échafaudage de l'ADR-0010) ont été supprimés. Tout le code
+ * applicatif vit désormais sous cette racine, et cette ancre est la seule à vérifier.
  *
  * <p>Chaque module est découpé en couches (Clean Architecture) :
  * {@code presentation} → {@code application} → {@code domain} → {@code infrastructure},

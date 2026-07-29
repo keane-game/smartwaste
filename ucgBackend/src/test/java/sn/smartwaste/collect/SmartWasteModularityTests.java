@@ -15,9 +15,8 @@ import org.springframework.modulith.docs.Documenter;
  *       sous {@code target/spring-modulith-docs/}.</li>
  * </ul>
  *
- * <p>Ce test coexiste avec {@code sonaged.ucg.UcgModularityTests} : les deux ancres doivent rester
- * vertes tant que la migration n'est pas terminée, la seconde ne couvrant plus que les modules
- * encore non migrés.
+ * <p>C'est désormais la <b>seule</b> ancre de modularité du projet : {@code sonaged.ucg} et son
+ * {@code UcgModularityTests} — qui ne vérifiaient plus rien depuis l'ADR-0013 — ont été supprimés.
  *
  * <p>NB : {@code maven-surefire-plugin} a {@code skipTests=true} dans le pom ; lancer explicitement via
  * {@code ./mvnw test -DskipTests=false -Dtest=SmartWasteModularityTests}.
