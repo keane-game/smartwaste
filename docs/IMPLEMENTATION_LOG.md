@@ -280,6 +280,35 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Priorisation des tournées — la dernière promesse produit (2026-07-29)
+
+« Optimiser les tournées » figure dans l'objectif du projet depuis l'origine et n'avait jamais rien
+produit : les circuits étaient stockés, aucun ordre n'en sortait. C'est faisable maintenant que les
+niveaux de remplissage arrivent des capteurs. `GET /v1/collection-routes?communeId=` rend l'ordre de
+passage recommandé.
+
+**Ce n'est délibérément pas une optimisation de trajet.** Le voyageur de commerce suppose un graphe
+routier qu'on n'a pas. Le besoin réel exprimé est autre : « quels points dois-je vider aujourd'hui,
+et dans quel ordre ». C'est une priorisation par urgence.
+
+#### Trois règles, trois erreurs naturelles évitées
+- **Un point jamais mesuré n'est pas un point vide.** C'est l'erreur la plus coûteuse : trier sur
+  `fillLevel` en lisant `null` comme 0 relègue en fin de liste exactement les points dont on ne sait
+  rien — capteur en panne, jamais installé, hors réseau. Ils ne seraient **jamais** collectés et
+  l'angle mort grandirait tout seul. Ils passent donc juste après les débordements.
+- **Une mesure périmée vaut une absence de mesure.** Un niveau de 10 % daté de 30 h ne dit rien de
+  l'état d'aujourd'hui ; le croire revient à ignorer un point qui a pu déborder entre-temps. Au-delà
+  de 24 h (réglable), l'état redevient inconnu — y compris pour un point *au-dessus* du seuil, qu'on
+  n'annonce alors pas comme débordant puisqu'on ne le sait plus.
+- **À urgence égale, le plus ancien passe devant.** Sans ce départage, un point à 95 % remesuré en
+  continu repasserait indéfiniment devant un point à 82 % qui attend depuis 20 h. C'est de la
+  famine, et c'est ce qui fait abandonner ce genre d'outil.
+
+Chaque arrêt porte **sa raison** : un ordre qu'on ne peut pas expliquer n'est pas suivi sur le terrain.
+
+6 tests, **deux mutations vérifiées** : traiter « jamais mesuré » comme vide casse 1 test, retirer le
+départage par ancienneté en casse 1. `verify` EXIT=0, **104 tests**.
+
 ### Enrôlement des équipements et gestion de flotte — deux chaînes rendues utilisables (2026-07-29)
 
 Deux fonctionnalités livrées étaient **inexploitables** : ni capteur, ni traceur, ni véhicule ne

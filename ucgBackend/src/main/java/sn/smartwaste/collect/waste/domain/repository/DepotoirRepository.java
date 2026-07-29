@@ -13,4 +13,9 @@ import java.util.List;
 public interface DepotoirRepository extends SoftDeleteRepository<DepotoirEntity, Long> {
 
     List<DepotoirEntity> findByTypeDepotoir_NameContainingIgnoreCase(String name);
+
+    /** Points de collecte actifs d'une commune — perimetre d'une tournee. */
+    java.util.List<DepotoirEntity> findByCommuneIdAndDeletionStatus(
+            java.util.UUID communeId,
+            sn.smartwaste.collect.shared.domain.model.DeletionStatus deletionStatus);
 }
