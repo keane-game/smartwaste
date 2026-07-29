@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import sn.smartwaste.collect.identity.application.api.UserDirectory;
 import sn.smartwaste.collect.platform.application.service.NotificationService;
 import sn.smartwaste.collect.platform.domain.repository.CollectionSubscriptionRepository;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
@@ -41,6 +42,7 @@ public class CollectionReminderScheduler {
     private final WasteReadModel wasteReadModel;
     private final CollectionSubscriptionRepository subscriptionRepository;
     private final NotificationService notificationService;
+    private final UserDirectory userDirectory;
     private final Clock clock;
     private final int leadTimeMinutes;
 
@@ -51,11 +53,13 @@ public class CollectionReminderScheduler {
     public CollectionReminderScheduler(WasteReadModel wasteReadModel,
                                        CollectionSubscriptionRepository subscriptionRepository,
                                        NotificationService notificationService,
+                                       UserDirectory userDirectory,
                                        Clock clock,
                                        @Value("${sonaged.collection.reminder.lead-minutes:90}") int leadTimeMinutes) {
         this.wasteReadModel = wasteReadModel;
         this.subscriptionRepository = subscriptionRepository;
         this.notificationService = notificationService;
+        this.userDirectory = userDirectory;
         this.clock = clock;
         this.leadTimeMinutes = leadTimeMinutes;
     }
@@ -84,7 +88,11 @@ public class CollectionReminderScheduler {
                 continue;
             }
             var subscribers = subscriptionRepository.findByQuartierIdAndActiveTrue(collection.quartierId());
-            subscribers.forEach(s -> notificationService.sendCollectionReminder(s.getEmail(), passage));
+            // L'adresse est résolue ici, et non figée à l'abonnement : elle appartient au
+            // contexte « Identité & Accès », qui seul la détient vérifiée. Un compte supprimé
+            // n'a plus d'adresse — on s'abstient plutôt que d'échouer.
+            subscribers.forEach(s -> userDirectory.emailOf(s.getUserId())
+                    .ifPresent(email -> notificationService.sendCollectionReminder(email, passage)));
             if (!subscribers.isEmpty()) {
                 log.info("Rappel de collecte : {} habitant(s) prevenu(s) pour le quartier {} a {}",
                         subscribers.size(), collection.quartierId(), passage);

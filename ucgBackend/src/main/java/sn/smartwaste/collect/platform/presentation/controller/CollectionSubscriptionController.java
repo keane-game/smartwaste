@@ -19,8 +19,9 @@ import sn.smartwaste.collect.platform.application.service.CollectionSubscription
 /**
  * Abonnement des habitants aux passages de collecte (`/v1/collection-subscriptions`).
  *
- * <p>Endpoints authentifiés : l'abonné est l'utilisateur du jeton, jamais un identifiant transmis
- * dans le corps de la requête — sans quoi n'importe qui pourrait abonner ou désabonner un tiers.
+ * <p>Endpoints authentifiés : l'abonné est l'utilisateur du jeton, jamais un identifiant — ni une
+ * adresse e-mail — transmis dans le corps de la requête. Sans quoi n'importe qui pourrait abonner
+ * un tiers, ou inscrire une adresse arbitraire à des rappels récurrents.
  */
 @RestController
 @RequestMapping("/v1/collection-subscriptions")
@@ -36,7 +37,7 @@ public class CollectionSubscriptionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void subscribe(@RequestBody SubscriptionRequest request) {
-        subscriptionService.subscribe(request.quartierId(), request.email());
+        subscriptionService.subscribe(request.quartierId());
     }
 
     @Operation(summary = "Se désabonner d'un quartier")
@@ -52,6 +53,9 @@ public class CollectionSubscriptionController {
         return subscriptionService.mySubscriptions();
     }
 
-    /** @param email adresse de notification, figée à l'abonnement */
-    public record SubscriptionRequest(UUID quartierId, String email) { }
+    /**
+     * Le destinataire n'y figure pas : c'est l'utilisateur du jeton, et son adresse est résolue
+     * côté serveur. L'accepter ici revenait à laisser abonner l'adresse d'un tiers.
+     */
+    public record SubscriptionRequest(UUID quartierId) { }
 }

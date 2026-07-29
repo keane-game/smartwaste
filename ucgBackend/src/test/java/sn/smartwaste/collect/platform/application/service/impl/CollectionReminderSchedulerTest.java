@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import sn.smartwaste.collect.identity.application.api.UserDirectory;
 import sn.smartwaste.collect.platform.application.service.NotificationService;
 import sn.smartwaste.collect.platform.domain.model.CollectionSubscription;
 import sn.smartwaste.collect.platform.domain.repository.CollectionSubscriptionRepository;
@@ -48,6 +50,8 @@ class CollectionReminderSchedulerTest {
     private CollectionSubscriptionRepository subscriptionRepository;
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private UserDirectory userDirectory;
 
     private Clock clockAt(String time) {
         LocalDateTime moment = LocalDateTime.parse("2026-07-28T" + time);
@@ -56,7 +60,7 @@ class CollectionReminderSchedulerTest {
 
     private CollectionReminderScheduler schedulerAt(String time) {
         return new CollectionReminderScheduler(wasteReadModel, subscriptionRepository,
-                notificationService, clockAt(time), LEAD_MINUTES);
+                notificationService, userDirectory, clockAt(time), LEAD_MINUTES);
     }
 
     private void scheduled(String passageTime) {
@@ -64,14 +68,21 @@ class CollectionReminderSchedulerTest {
                 List.of(new WasteReadModel.ScheduledCollection(QUARTIER, LocalTime.parse(passageTime))));
     }
 
+    /** Abonnés du quartier ; leur adresse est résolue à l'envoi, jamais stockée avec l'abonnement. */
     private void subscribers(String... emails) {
-        lenient().when(subscriptionRepository.findByQuartierIdAndActiveTrue(QUARTIER))
-                .thenReturn(java.util.Arrays.stream(emails).map(e -> {
-                    var s = new CollectionSubscription();
-                    s.setQuartierId(QUARTIER);
-                    s.setEmail(e);
-                    return s;
-                }).toList());
+        List<CollectionSubscription> list = new java.util.ArrayList<>();
+        for (String email : emails) {
+            var s = new CollectionSubscription();
+            s.setQuartierId(QUARTIER);
+            s.setUserId(UUID.randomUUID());
+            list.add(s);
+        }
+        // Stubbing en deux temps : imbriquer un when() dans un autre fait echouer Mockito.
+        for (int i = 0; i < list.size(); i++) {
+            lenient().when(userDirectory.emailOf(list.get(i).getUserId()))
+                    .thenReturn(Optional.of(emails[i]));
+        }
+        lenient().when(subscriptionRepository.findByQuartierIdAndActiveTrue(QUARTIER)).thenReturn(list);
     }
 
     @Test
@@ -132,6 +143,23 @@ class CollectionReminderSchedulerTest {
         scheduled("09:00");
         subscribers();
 
+        schedulerAt("08:00").sendUpcomingReminders();
+
+        verify(notificationService, never()).sendCollectionReminder(any(), any());
+    }
+
+    @Test
+    @DisplayName("un abonne dont le compte a disparu ne recoit rien, et n'interrompt pas les autres")
+    void subscriptionWithoutAccountIsSkipped() {
+        scheduled("09:00");
+        var orphan = new CollectionSubscription();
+        orphan.setQuartierId(QUARTIER);
+        orphan.setUserId(UUID.randomUUID());
+        when(subscriptionRepository.findByQuartierIdAndActiveTrue(QUARTIER)).thenReturn(List.of(orphan));
+        when(userDirectory.emailOf(orphan.getUserId())).thenReturn(Optional.empty());
+
+        // Un abonnement peut survivre a la suppression de son titulaire : on s'abstient
+        // plutot que d'echouer et de bloquer les rappels des autres quartiers.
         schedulerAt("08:00").sendUpcomingReminders();
 
         verify(notificationService, never()).sendCollectionReminder(any(), any());

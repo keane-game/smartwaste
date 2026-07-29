@@ -312,7 +312,26 @@ double, ou après le passage, reproduirait le défaut qu'on cherche à corriger.
 5 tests, **deux mutations vérifiées** : retirer l'anti-répétition → 1 échec ; accepter les passages
 déjà effectués → 1 échec.
 
-Changelog 2.5.0, non destructeur. `verify` EXIT=0, 64 tests.
+#### 🔴 Correctif de sécurité sur ce même chantier
+La revue de sécurité automatique du commit a signalé — à raison — que `subscribe()` acceptait
+**l'adresse e-mail depuis le client**. Un compte authentifié pouvait donc inscrire l'adresse de
+n'importe qui à des rappels récurrents, expédiés au nom du service : un vecteur d'envoi non
+sollicité, sans le moindre consentement du destinataire.
+
+- `email` disparaît de la requête, de l'interface de service **et de l'entité**.
+- L'adresse est résolue **à l'envoi** via un nouveau port `identity.application.api.UserDirectory`.
+  C'est le seul contexte qui la détient **prouvée** : l'inscription y envoie un code d'activation
+  et le compte ne s'ouvre qu'une fois le code saisi. Ma justification initiale — « figer l'adresse
+  pour ne pas dépendre du contexte identité » — était le raisonnement qui avait créé le trou.
+- Bénéfice secondaire : une adresse modifiée est désormais suivie, là où la version figée aurait
+  continué d'écrire à l'ancienne.
+- Un abonnement dont le titulaire a disparu est ignoré sans interrompre les autres.
+
+4 tests supplémentaires, dont un qui vérifie par réflexion que l'entité **n'a plus aucun champ
+e-mail** — c'est la forme la plus directe d'empêcher la régression.
+
+Changelog 2.5.0 corrigé en place (aucun environnement ne l'avait appliqué).
+`verify` EXIT=0, **69 tests**.
 
 ⚠️ Les horaires doivent être saisis : aucune donnée source ne les porte (les GeoJSON de circuits
 n'ont qu'une `frequence` textuelle). Un écran d'administration ou un import dédié reste à faire

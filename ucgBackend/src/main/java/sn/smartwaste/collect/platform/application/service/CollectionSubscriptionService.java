@@ -6,8 +6,13 @@ import java.util.UUID;
 /** Abonnement des habitants aux passages de collecte de leur quartier. */
 public interface CollectionSubscriptionService {
 
-    /** Abonne l'utilisateur authentifié au quartier donné. Idempotent : réabonner réactive. */
-    void subscribe(UUID quartierId, String email);
+    /**
+     * Abonne l'utilisateur authentifié au quartier donné. Idempotent : réabonner réactive.
+     *
+     * <p>Aucune adresse en paramètre : le destinataire est l'utilisateur du jeton, et son adresse
+     * est résolue à l'envoi. Accepter une adresse du client permettait d'abonner un tiers.
+     */
+    void subscribe(UUID quartierId);
 
     /** Désabonne l'utilisateur authentifié. Idempotent. */
     void unsubscribe(UUID quartierId);

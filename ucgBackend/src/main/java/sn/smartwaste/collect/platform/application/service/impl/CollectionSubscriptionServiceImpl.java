@@ -17,6 +17,12 @@ import sn.smartwaste.collect.platform.domain.repository.CollectionSubscriptionRe
  * <p>L'abonné est <b>toujours</b> l'utilisateur authentifié, jamais un identifiant fourni par le
  * client : sans cela, n'importe qui pourrait abonner — ou désabonner — un tiers. Même raisonnement
  * que pour l'auteur d'un avis.
+ *
+ * <p><b>Et pas davantage l'adresse e-mail.</b> Une première version acceptait le destinataire dans
+ * le corps de la requête : un compte authentifié pouvait alors inscrire l'adresse de n'importe qui
+ * à des rappels récurrents — un vecteur d'envoi non sollicité, avec le nom du service en
+ * expéditeur. L'adresse est désormais résolue à l'envoi auprès du contexte « Identité & Accès »,
+ * seul à la détenir vérifiée.
  */
 @Service
 @Transactional
@@ -32,14 +38,13 @@ public class CollectionSubscriptionServiceImpl implements CollectionSubscription
     }
 
     @Override
-    public void subscribe(UUID quartierId, String email) {
+    public void subscribe(UUID quartierId) {
         UUID userId = currentUserProvider.requireCurrentUserId();
         // Réabonnement : on réactive l'existant plutôt que d'échouer sur la contrainte d'unicité.
         var subscription = repository.findByUserIdAndQuartierId(userId, quartierId)
                 .orElseGet(CollectionSubscription::new);
         subscription.setUserId(userId);
         subscription.setQuartierId(quartierId);
-        subscription.setEmail(email);
         subscription.setActive(true);
         repository.save(subscription);
     }

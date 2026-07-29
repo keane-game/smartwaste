@@ -6,7 +6,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import sn.smartwaste.collect.identity.application.api.CurrentUserProvider;
+import sn.smartwaste.collect.identity.application.api.UserDirectory;
+import sn.smartwaste.collect.identity.domain.repository.UserRepository;
 import sn.smartwaste.collect.identity.domain.model.UserEntity;
 
 /**
@@ -18,7 +22,13 @@ import sn.smartwaste.collect.identity.domain.model.UserEntity;
  * l'entité JPA de l'identité.
  */
 @Service
-public class IdentityApiAdapter implements CurrentUserProvider {
+public class IdentityApiAdapter implements CurrentUserProvider, UserDirectory {
+
+    private final UserRepository userRepository;
+
+    public IdentityApiAdapter(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UUID requireCurrentUserId() {
@@ -30,5 +40,10 @@ public class IdentityApiAdapter implements CurrentUserProvider {
             throw new IllegalStateException("Aucun utilisateur authentifié sur la requête courante");
         }
         return user.getUserId();
+    }
+
+    @Override
+    public Optional<String> emailOf(UUID userId) {
+        return userRepository.findById(userId).map(UserEntity::getUserEmail);
     }
 }

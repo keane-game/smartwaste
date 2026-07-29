@@ -51,9 +51,12 @@ public class CollectionSubscription {
     @Column(name = "quartierId", nullable = false)
     UUID quartierId;
 
-    /** Adresse de notification, figée à l'abonnement pour ne pas dépendre du contexte identité. */
-    @Column(name = "email", nullable = false)
-    String email;
+    // Aucune adresse e-mail ici, volontairement. Elle est résolue au moment de l'envoi, auprès
+    // du contexte « Identité & Accès » (UserDirectory), qui est le seul à la détenir PROUVÉE :
+    // l'inscription y envoie un code d'activation, et le compte ne s'ouvre qu'une fois saisi.
+    // La stocker ici l'aurait figée (une adresse changée n'aurait plus été suivie) et, surtout,
+    // la version antérieure l'acceptait DU CLIENT — un abonné authentifié pouvait donc inscrire
+    // l'adresse d'un tiers à des e-mails récurrents, sans le moindre consentement.
 
     /** Se désabonner conserve la trace : on désactive plutôt qu'on efface. */
     @Column(name = "active", nullable = false)

@@ -38,6 +38,9 @@
 
     <changeSet author="claude" id="2.5.0-2-collectionsubscription">
         <preConditions onFail="MARK_RAN"><not><tableExists tableName="collectionsubscription"/></not></preConditions>
+        <!-- Pas de colonne `email` : l'adresse est resolue a l'envoi aupres du contexte
+             identite, seul a la detenir verifiee. La figer ici l'aurait rendue obsolete
+             au premier changement d'adresse, et la version initiale l'acceptait du client. -->
         <comment>Abonnement d'un habitant aux passages de son quartier.</comment>
         <createTable tableName="collectionsubscription">
             <column name="subscriptionid" type="uuid">
@@ -46,7 +49,6 @@
             <!-- References par identifiant (ADR-0012) : aucune FK ne traverse la frontiere. -->
             <column name="userid" type="uuid"><constraints nullable="false"/></column>
             <column name="quartierid" type="uuid"><constraints nullable="false"/></column>
-            <column name="email" type="VARCHAR(255)"><constraints nullable="false"/></column>
             <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
         </createTable>
         <addUniqueConstraint tableName="collectionsubscription" columnNames="userid, quartierid"
