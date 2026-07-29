@@ -280,6 +280,37 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Enrôlement des équipements et gestion de flotte — deux chaînes rendues utilisables (2026-07-29)
+
+Deux fonctionnalités livrées étaient **inexploitables** : ni capteur, ni traceur, ni véhicule ne
+pouvait être déclaré. Les tables existaient, l'ingestion attendait, rien ne pouvait émettre. Même
+défaut que les horaires de collecte, et la même leçon : livrer une mécanique sans son point
+d'entrée, c'est livrer une pièce détachée.
+
+- **`/v1/devices/**`** (iot) : enrôler un capteur ou un traceur, faire tourner sa clé, le désactiver,
+  lister. **`/v1/vehicles`** (waste) : gérer la flotte.
+- Les deux sont réservés à l'encadrement. Enrôler un équipement, c'est créer une identité capable
+  d'écrire en base **sans compte utilisateur** — au moins aussi sensible que gérer un compte.
+
+#### Ce qui fait la solidité de cette identité
+- **La clé est générée par le serveur, jamais choisie par l'appelant.** Laisser un administrateur la
+  choisir reviendrait à accepter « 1234 » sur un objet posé dans la rue, qui émettra pendant des
+  années. 256 bits de `SecureRandom`.
+- **Elle n'est rendue qu'une fois**, à l'enrôlement ou à la rotation. Seule l'empreinte est
+  persistée : la clé est irrécupérable, y compris pour un administrateur — c'est précisément ce qui
+  donne sa valeur au stockage haché. Une clé perdue se remplace, elle ne se relit pas.
+- **La rotation invalide réellement l'ancienne clé**, ce qui est tout l'objet d'une rotation après
+  suspicion de compromission.
+- **Les listes d'administration n'exposent ni clé ni empreinte** : une empreinte suffirait à vérifier
+  hors ligne une clé devinée.
+- **La position d'un véhicule n'est jamais acceptée par l'API** : elle vient exclusivement des
+  traceurs. Pouvoir la fixer à la main permettrait de placer un camion où l'on veut sur la carte
+  sans qu'il y soit — une information fausse est pire qu'une information absente.
+- Immatriculations normalisées : « dk-1234-a » et « DK 1234 A » sont le même camion.
+
+7 tests, **mutation vérifiée** : stocker la clé en clair au lieu de son empreinte casse un test.
+`verify` EXIT=0, **98 tests**.
+
 ### Suivi de la flotte — le dernier tiers de « Localisation » (2026-07-29)
 
 Le mémoire exige de localiser « les poubelles, les dépôts sauvages **et les véhicules de
