@@ -27,7 +27,10 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/smartwaste}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:keane}
+    # Aucune valeur par defaut : `keane` etait le mot de passe REEL de la base de developpement,
+    # donc un secret versionne (ADR-0002). Le demarrage doit echouer bruyamment si DB_PASSWORD
+    # n'est pas fourni — un defaut silencieux invite a l'oublier en production.
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # -------------------------------------------------------------------------

@@ -122,6 +122,32 @@ public class GlobalControllerExceptionHandler {
     }
 
 
+    /**
+     * Refus d'autorisation — <b>403</b>, et non 500.
+     *
+     * <p>Le fourre-tout {@code @ExceptionHandler(Exception.class)} ci-dessous capturait aussi les
+     * {@code AccessDeniedException} : toute defaillance d'autorisation de l'application etait donc
+     * rapportee comme une erreur serveur. Deux consequences, l'une pour le client et l'autre pour
+     * l'exploitant : le client ne pouvait pas distinguer « interdit » de « le serveur est casse »,
+     * et les refus legitimes polluaient les journaux d'erreur au meme titre que de vrais incidents.
+     *
+     * <p>Meme famille de defaut que le jeton expire qui rendait 500 au lieu de 401 (ADR-0003).
+     *
+     * <p>Le message est volontairement generique : detailler l'autorite manquante renseignerait
+     * l'appelant sur la structure des roles.
+     */
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public Error accessDenied(org.springframework.security.access.AccessDeniedException e) {
+        logger.warn("Acces refuse : {}", e.getMessage());
+
+        Error error = new Error();
+        error.setCode(HttpStatus.FORBIDDEN.value());
+        error.setMessage("Acces refuse");
+
+        return error;
+    }
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Error internalError(Exception e) {

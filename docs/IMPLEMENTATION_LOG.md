@@ -280,6 +280,43 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### 🔴 Autorisation réelle sur les signalements + 403 au lieu de 500 (2026-07-29)
+
+Signalé par la revue de sécurité automatique sur le commit précédent, et fondé : `changeStatus`
+n'avait **aucune autorisation**. N'importe quel compte authentifié — un habitant compris — pouvait
+clore ou rejeter le signalement d'autrui, et lire l'intégralité des signalements de la ville.
+
+**Le piège, d'abord.** Le projet n'avait **aucune sécurité au niveau méthode** : ajouter
+`@PreAuthorize` seul l'aurait laissé **silencieusement inopérant**. C'est exactement le défaut des
+beans `SecurityRule` d'`identity`, qui déclarent 13 règles que rien n'applique depuis toujours.
+`@EnableMethodSecurity` est donc activé en même temps — sans lui, le correctif n'aurait été qu'un
+commentaire.
+
+- `changeStatus`, `byStatus` et `map` → `hasAnyRole('ADMIN','SUPER_ADMIN')`. Déposer un signalement
+  et consulter les siens restent ouverts à tout compte : ce sont des gestes d'habitant.
+- Les rôles cités sont ceux qui **existent** (semés par le changelog 2.1.0). Le modèle ne connaît ni
+  agent ni superviseur — les modéliser rendra cette règle plus fine.
+
+#### 🔴 Tous les refus d'autorisation sortaient en 500
+En corrigeant, le test a révélé mieux : `GlobalControllerExceptionHandler` a un fourre-tout
+`@ExceptionHandler(Exception.class)` qui capturait aussi les `AccessDeniedException`. **Toute**
+défaillance d'autorisation de l'application était donc rapportée comme une erreur serveur — le
+client ne pouvait pas distinguer « interdit » de « le serveur est cassé », et les refus légitimes
+polluaient les journaux d'erreur au même titre que de vrais incidents. Même famille que le jeton
+expiré rendant 500 au lieu de 401 (ADR-0003). Un handler dédié rend désormais **403**, avec un
+message générique — détailler l'autorité manquante renseignerait l'appelant sur la structure des rôles.
+
+#### Mot de passe de base : plus de valeur par défaut
+`${DB_PASSWORD:keane}` → `${DB_PASSWORD}`. `keane` était le mot de passe **réel** de la base de
+développement, donc un secret versionné (ADR-0002). Le démarrage échoue désormais bruyamment si la
+variable manque : un défaut silencieux invite à l'oublier en production.
+
+**4 tests, mutation vérifiée** — et la mutation est le cœur du sujet : retirer `@EnableMethodSecurity`
+casse 2 tests, ce qui prouve que la protection s'applique vraiment et n'est pas une annotation
+décorative. Ils passent par le contexte Spring complet, seul moyen de le vérifier.
+
+`verify` EXIT=0, **81 tests**.
+
 ### Signalement citoyen exploitable : localisation + cycle de vie (2026-07-29)
 
 Le mémoire fait du **signalement de dépôt sauvage** un cas d'usage citoyen explicite. `Avis`
