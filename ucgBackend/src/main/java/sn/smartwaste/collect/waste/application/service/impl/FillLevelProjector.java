@@ -6,7 +6,6 @@ import java.time.ZoneId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -18,6 +17,7 @@ import sn.smartwaste.collect.waste.domain.model.AlertCode;
 import sn.smartwaste.collect.waste.domain.model.AlertEntity;
 import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
 import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
+import sn.smartwaste.collect.waste.application.service.ThresholdResolver;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
 
 /**
@@ -56,29 +56,26 @@ public class FillLevelProjector {
     private final AlertRepository alertRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    /** Seuil de déclenchement, en %. Global pour l'instant ; par type de dépotoir à terme. */
-    private final int fillThresholdPercent;
+    /** Seuils applicables au point mesuré : par type, avec repli sur le seuil par defaut. */
+    private final ThresholdResolver thresholdResolver;
 
     public FillLevelProjector(DepotoirRepository depotoirRepository,
                               AlertRepository alertRepository,
                               ApplicationEventPublisher eventPublisher,
-                              @Value("${sonaged.alerting.fill-threshold-percent:80}") int fillThresholdPercent) {
+                              ThresholdResolver thresholdResolver) {
         this.depotoirRepository = depotoirRepository;
         this.alertRepository = alertRepository;
         this.eventPublisher = eventPublisher;
-        this.fillThresholdPercent = fillThresholdPercent;
+        this.thresholdResolver = thresholdResolver;
     }
 
     @EventListener
     @Transactional
     public void on(MeasurementRecorded event) {
-        if (event.fillLevelPercent() == null) {
-            return; // mesure purement climatique (DHT11) : rien à projeter sur le remplissage
-        }
         DepotoirEntity depotoir = depotoirRepository.findById(event.depotoirId()).orElse(null);
         if (depotoir == null) {
-            // Capteur rattaché à un point supprimé : on ne perd pas la mesure (elle est déjà
-            // persistée côté iot), mais il n'y a rien à mettre à jour.
+            // Capteur rattaché à un point supprimé : la mesure est déjà persistée côté iot, mais
+            // il n'y a rien à mettre à jour.
             log.warn("Mesure recue pour un point de collecte inconnu ({}) — capteur {}",
                     event.depotoirId(), event.sensorId());
             return;
@@ -90,36 +87,82 @@ public class FillLevelProjector {
             return;
         }
 
-        Integer previous = depotoir.getFillLevelPercent();
-        depotoir.setFillLevelPercent(event.fillLevelPercent());
+        var thresholds = thresholdResolver.resolve(depotoir);
+        Integer previousFill = depotoir.getFillLevelPercent();
+        Double previousTemperature = depotoir.getLastTemperatureCelsius();
+        Double previousHumidity = depotoir.getLastHumidityPercent();
+
+        boolean changed = false;
+        if (event.fillLevelPercent() != null) {
+            depotoir.setFillLevelPercent(event.fillLevelPercent());
+            changed = true;
+        }
+        if (event.temperatureCelsius() != null) {
+            depotoir.setLastTemperatureCelsius(event.temperatureCelsius());
+            changed = true;
+        }
+        if (event.humidityPercent() != null) {
+            depotoir.setLastHumidityPercent(event.humidityPercent());
+            changed = true;
+        }
+        if (!changed) {
+            return; // mesure vide : rien à projeter
+        }
         depotoir.setLastMeasuredAt(event.measuredAt());
         depotoirRepository.save(depotoir);
 
-        if (crossesThreshold(previous, event.fillLevelPercent())) {
-            raiseAlert(depotoir, event);
+        // Les trois grandeurs sont evaluees INDEPENDAMMENT : un bac peut deborder ET fermenter,
+        // ce sont deux problemes distincts, pour deux interventions distinctes.
+        if (crosses(previousFill, event.fillLevelPercent(), (double) thresholds.fillLevelPercent())) {
+            raise(depotoir, AlertCode.WARNING, "Point de collecte plein",
+                    "Niveau de remplissage %d%% (seuil %d%%) mesure le %s."
+                            .formatted(event.fillLevelPercent(), thresholds.fillLevelPercent(), event.measuredAt()),
+                    event.measuredAt());
+        }
+        if (crosses(previousTemperature, event.temperatureCelsius(), thresholds.temperatureCelsius())) {
+            // Le capteur DHT11 est prevu par la specification precisement pour ca : au-dela d'un
+            // certain seuil, odeurs et prolifération bacterienne.
+            raise(depotoir, AlertCode.DANGER, "Temperature anormale",
+                    "Temperature interne %.1f°C (seuil %.1f°C) mesuree le %s."
+                            .formatted(event.temperatureCelsius(), thresholds.temperatureCelsius(), event.measuredAt()),
+                    event.measuredAt());
+        }
+        if (crosses(previousHumidity, event.humidityPercent(), thresholds.humidityPercent())) {
+            raise(depotoir, AlertCode.DANGER, "Humidite anormale",
+                    "Humidite interne %.1f%% (seuil %.1f%%) mesuree le %s."
+                            .formatted(event.humidityPercent(), thresholds.humidityPercent(), event.measuredAt()),
+                    event.measuredAt());
         }
     }
 
-    /** Vrai uniquement au FRANCHISSEMENT : on était en dessous (ou inconnu), on passe au-dessus. */
-    private boolean crossesThreshold(Integer previous, int current) {
-        boolean wasBelow = previous == null || previous < fillThresholdPercent;
-        return wasBelow && current >= fillThresholdPercent;
+    /**
+     * Vrai uniquement au FRANCHISSEMENT : on était en dessous (ou inconnu), on passe au-dessus.
+     *
+     * <p>Un seuil {@code null} ne déclenche jamais : la grandeur n'est pas surveillée, ce qui est
+     * différent d'un seuil à zéro qui alerterait en permanence.
+     */
+    private boolean crosses(Number previous, Number current, Double threshold) {
+        if (threshold == null || current == null) {
+            return false;
+        }
+        boolean wasBelow = previous == null || previous.doubleValue() < threshold;
+        return wasBelow && current.doubleValue() >= threshold;
     }
 
-    private void raiseAlert(DepotoirEntity depotoir, MeasurementRecorded event) {
+    private void raise(DepotoirEntity depotoir, AlertCode code, String object, String message,
+                       Instant measuredAt) {
         AlertEntity alert = new AlertEntity();
-        alert.setObject("Point de collecte plein");
-        alert.setMessage("Niveau de remplissage %d%% (seuil %d%%) mesure le %s."
-                .formatted(event.fillLevelPercent(), fillThresholdPercent, event.measuredAt()));
+        alert.setObject(object);
+        alert.setMessage(message);
         alert.setAddress(depotoir.getAddress());
-        alert.setCode(AlertCode.WARNING);
+        alert.setCode(code);
         // ADR-0005 : l'alerte automatique est, elle, TOUJOURS rattachee a son point de collecte.
         alert.setDepotoirId(depotoir.getDepotoirId());
-        alert.setCreatedDate(LocalDateTime.ofInstant(event.measuredAt(), ZoneId.systemDefault()));
+        alert.setCreatedDate(LocalDateTime.ofInstant(measuredAt, ZoneId.systemDefault()));
         AlertEntity saved = alertRepository.save(alert);
 
-        log.info("Seuil franchi sur le point {} : {}% >= {}% — alerte {} levee",
-                depotoir.getDepotoirId(), event.fillLevelPercent(), fillThresholdPercent, saved.getAlertId());
+        log.info("Seuil franchi sur le point {} : {} — alerte {} levee",
+                depotoir.getDepotoirId(), object, saved.getAlertId());
 
         // Meme evenement que les alertes manuelles : la diffusion SSE fonctionne sans modification.
         eventPublisher.publishEvent(new AlertRaisedEvent(

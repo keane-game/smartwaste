@@ -66,6 +66,15 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "lastMeasuredAt")
     java.time.Instant lastMeasuredAt;
 
+    // Dernieres valeurs climatiques connues. Memorisees pour la meme raison que le remplissage :
+    // sans elles, impossible de distinguer « vient de depasser le seuil » de « depasse depuis
+    // hier », donc impossible d'eviter une alerte a chaque mesure.
+    @Column(name = "lastTemperatureCelsius")
+    Double lastTemperatureCelsius;
+
+    @Column(name = "lastHumidityPercent")
+    Double lastHumidityPercent;
+
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
     @JsonIgnore

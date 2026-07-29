@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Seuils configurables + dernier climat connu. NON destructeur. -->
+
+    <changeSet author="claude" id="2.8.0-1-alertthreshold">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="alertthreshold"/></not></preConditions>
+        <comment>Seuils d'alerte, globaux ou par type de point de collecte.</comment>
+        <createTable tableName="alertthreshold">
+            <column name="thresholdid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_alertthreshold"/>
+            </column>
+            <!-- NULL = seuil par defaut, applique aux types qui n'ont pas le leur. -->
+            <column name="typedepotoirid" type="BIGINT"/>
+            <!-- NULL sur une grandeur = « ne pas surveiller », ce qui n'est PAS zero. -->
+            <column name="filllevelpercent" type="INTEGER"/>
+            <column name="temperaturecelsius" type="DOUBLE PRECISION"/>
+            <column name="humiditypercent" type="DOUBLE PRECISION"/>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_alertthreshold_type" tableName="alertthreshold">
+            <column name="typedepotoirid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.8.0-2-depotoir-climat">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="depotoir" columnName="lasttemperaturecelsius"/></not>
+        </preConditions>
+        <comment>Dernier climat connu — necessaire a la detection de FRANCHISSEMENT de seuil.</comment>
+        <addColumn tableName="depotoir">
+            <column name="lasttemperaturecelsius" type="DOUBLE PRECISION"/>
+            <column name="lasthumiditypercent" type="DOUBLE PRECISION"/>
+        </addColumn>
+    </changeSet>
+
+    <!--
+      Seuil par defaut, aligne sur la valeur de configuration historique (80 %). Temperature et
+      humidite restent NULL : les activer est une decision d'exploitation, pas un defaut technique
+      — un seuil arbitraire noierait les equipes d'alertes des le premier jour d'ete.
+    -->
+    <changeSet author="claude" id="2.8.0-3-seed-default">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM alertthreshold</sqlCheck>
+        </preConditions>
+        <comment>Seuil par defaut : remplissage a 80 %.</comment>
+        <sql>
+            INSERT INTO alertthreshold (thresholdid, typedepotoirid, filllevelpercent, active,
+                                        archived, createdby, lastmodifiedby, createddate,
+                                        lastmodifieddate, deletionstatus)
+            VALUES ('01983c4f-0002-7000-8000-000000000001', NULL, 80, true, false,
+                    'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE');
+        </sql>
+        <rollback>
+            DELETE FROM alertthreshold WHERE thresholdid = '01983c4f-0002-7000-8000-000000000001';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

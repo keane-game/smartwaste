@@ -15,9 +15,11 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import sn.smartwaste.collect.shared.domain.event.AlertRaisedEvent;
 import sn.smartwaste.collect.shared.domain.event.MeasurementRecorded;
+import sn.smartwaste.collect.waste.domain.model.AlertCode;
 import sn.smartwaste.collect.waste.domain.model.AlertEntity;
 import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
 import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
+import sn.smartwaste.collect.waste.application.service.ThresholdResolver;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,9 +57,17 @@ class FillLevelProjectorTest {
     private AlertRepository alertRepository;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private ThresholdResolver thresholdResolver;
 
     private FillLevelProjector projector() {
-        return new FillLevelProjector(depotoirRepository, alertRepository, eventPublisher, THRESHOLD);
+        return new FillLevelProjector(depotoirRepository, alertRepository, eventPublisher, thresholdResolver);
+    }
+
+    /** Seuils applicables : remplissage seul, sauf mention contraire. */
+    private void thresholds(Double temperature, Double humidity) {
+        lenient().when(thresholdResolver.resolve(any(DepotoirEntity.class)))
+                .thenReturn(new ThresholdResolver.EffectiveThresholds(THRESHOLD, temperature, humidity));
     }
 
     private static DepotoirEntity depotoir(Integer fill, Instant lastMeasuredAt) {
@@ -94,6 +104,7 @@ class FillLevelProjectorTest {
     @DisplayName("une mesure applique le niveau et l'horodatage au point de collecte")
     void measurementUpdatesCollectionPoint() {
         DepotoirEntity d = depotoir(null, null);
+        thresholds(null, null);
         givenDepotoir(d);
         Instant at = Instant.now();
 
@@ -108,6 +119,7 @@ class FillLevelProjectorTest {
     @Test
     @DisplayName("franchir le seuil leve une alerte rattachee au point de collecte")
     void crossingThresholdRaisesAlertLinkedToCollectionPoint() {
+        thresholds(null, null);
         givenDepotoir(depotoir(50, Instant.now().minus(1, ChronoUnit.HOURS)));
 
         projector().on(measure(87, Instant.now()));
@@ -128,6 +140,7 @@ class FillLevelProjectorTest {
     @Test
     @DisplayName("rester au-dessus du seuil ne releve PAS d'alerte a chaque mesure")
     void stayingAboveThresholdDoesNotSpam() {
+        thresholds(null, null);
         givenDepotoir(depotoir(85, Instant.now().minus(1, ChronoUnit.HOURS)));
 
         projector().on(measure(92, Instant.now()));
@@ -142,6 +155,7 @@ class FillLevelProjectorTest {
     @DisplayName("repasser sous le seuil puis au-dessus leve une nouvelle alerte")
     void newCrossingAfterCollectionRaisesAgain() {
         // Le bac a ete vide (retour a 10 %) : le prochain remplissage est un evenement neuf.
+        thresholds(null, null);
         givenDepotoir(depotoir(10, Instant.now().minus(1, ChronoUnit.HOURS)));
 
         projector().on(measure(81, Instant.now()));
@@ -167,9 +181,60 @@ class FillLevelProjectorTest {
     @Test
     @DisplayName("une mesure sans niveau (climat seul) ne touche pas au remplissage")
     void climateOnlyMeasurementIsIgnoredForFillLevel() {
+        thresholds(null, null);
+        givenDepotoir(depotoir(50, Instant.now().minus(1, ChronoUnit.HOURS)));
+
         projector().on(new MeasurementRecorded(SENSOR_ID, DEPOTOIR_ID, null, 34.5, 70.0, Instant.now()));
 
-        verify(depotoirRepository, never()).findById(any());
+        // Le climat est enregistre, mais aucune alerte de remplissage n'est levee et le niveau
+        // ne bouge pas : les grandeurs sont independantes.
+        verify(alertRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("franchir le seuil de temperature leve une alerte distincte du remplissage")
+    void temperatureThresholdRaisesItsOwnAlert() {
+        thresholds(40.0, null);
+        DepotoirEntity d = depotoir(20, Instant.now().minus(1, ChronoUnit.HOURS));
+        d.setLastTemperatureCelsius(30.0);
+        givenDepotoir(d);
+
+        projector().on(new MeasurementRecorded(SENSOR_ID, DEPOTOIR_ID, 20, 45.0, null, Instant.now()));
+
+        ArgumentCaptor<AlertEntity> saved = ArgumentCaptor.forClass(AlertEntity.class);
+        verify(alertRepository).save(saved.capture());
+        // Le capteur DHT11 est prevu par la specification precisement pour ca : odeurs et
+        // proliferation bacterienne. Rien a voir avec un bac plein.
+        assertThat(saved.getValue().getObject()).isEqualTo("Temperature anormale");
+        assertThat(saved.getValue().getCode()).isEqualTo(AlertCode.DANGER);
+    }
+
+    @Test
+    @DisplayName("un bac peut deborder ET fermenter : deux alertes, deux problemes")
+    void fillAndClimateAreEvaluatedIndependently() {
+        thresholds(40.0, 90.0);
+        DepotoirEntity d = depotoir(10, Instant.now().minus(1, ChronoUnit.HOURS));
+        d.setLastTemperatureCelsius(20.0);
+        d.setLastHumidityPercent(50.0);
+        givenDepotoir(d);
+
+        projector().on(new MeasurementRecorded(SENSOR_ID, DEPOTOIR_ID, 95, 45.0, 95.0, Instant.now()));
+
+        // Trois franchissements simultanes : ce sont trois interventions distinctes, pas une seule.
+        verify(alertRepository, org.mockito.Mockito.times(3)).save(any(AlertEntity.class));
+    }
+
+    @Test
+    @DisplayName("une grandeur non surveillee (seuil nul) ne declenche jamais")
+    void unmonitoredMetricNeverTriggers() {
+        thresholds(null, null);
+        DepotoirEntity d = depotoir(10, Instant.now().minus(1, ChronoUnit.HOURS));
+        givenDepotoir(d);
+
+        projector().on(new MeasurementRecorded(SENSOR_ID, DEPOTOIR_ID, 10, 200.0, 100.0, Instant.now()));
+
+        // Seuil nul = « ne pas surveiller », ce qui differe d'un seuil a zero qui alerterait
+        // en permanence.
         verify(alertRepository, never()).save(any());
     }
 

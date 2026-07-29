@@ -280,6 +280,33 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Seuils configurables + température et humidité exploitées (2026-07-29)
+
+**On ingérait température et humidité depuis le capteur DHT11 et on n'en faisait rien** : la donnée
+était stockée puis abandonnée. Le mémoire confie pourtant à l'administrateur la configuration des
+seuils « de température, d'humidité et de niveau de remplissage ». C'est l'écart de périmètre que
+j'avais signalé sur l'ADR-0004 ; il est comblé, et l'ADR passe à « implémenté ».
+
+- **`AlertThreshold`** : seuils par **type de point de collecte**, avec repli sur un seuil par
+  défaut. Une caisse polybenne et un bac de rue ne se remplissent pas au même rythme ; un seuil
+  unique oblige à choisir entre alerter trop tôt sur les gros et trop tard sur les petits.
+- **Le remplissage n'est plus une constante de configuration** mais une donnée d'exploitation,
+  éditable sous `/v1/alert-thresholds`.
+- **Les trois grandeurs sont évaluées indépendamment** : un bac peut déborder **et** fermenter, ce
+  sont deux problèmes pour deux interventions. La température et l'humidité lèvent des alertes
+  `DANGER` distinctes — c'est précisément ce pour quoi le DHT11 figure dans la spécification
+  (odeurs, prolifération bactérienne).
+- **Un seuil `null` signifie « ne pas surveiller »**, ce qui n'est pas un seuil à zéro : ce dernier
+  alerterait en permanence. Le changelog sème donc le défaut de remplissage à 80 % mais **laisse
+  température et humidité nulles** — les activer est une décision d'exploitation, un seuil
+  arbitraire noierait les équipes dès le premier jour d'été.
+- Repli en cascade jusqu'à la valeur de configuration historique : une base neuve, sans aucun seuil
+  saisi, continue d'alerter sur le remplissage. Perdre l'alerte parce que personne n'a rempli un
+  écran serait une régression silencieuse.
+
+3 tests ajoutés (10 au total sur le projecteur), **mutation vérifiée** : faire déclencher un seuil
+nul casse 2 tests. Changelog 2.8.0, non destructeur. `verify` EXIT=0, **107 tests**.
+
 ### Priorisation des tournées — la dernière promesse produit (2026-07-29)
 
 « Optimiser les tournées » figure dans l'objectif du projet depuis l'origine et n'avait jamais rien

@@ -20,7 +20,7 @@ Journal de ce qui est réellement fait : `../IMPLEMENTATION_LOG.md`.
 | [0001](0001-gestion-du-schema-liquibase.md) | Liquibase source unique du schéma | ✅ **Implémenté** | P0-4 |
 | [0002](0002-gestion-des-secrets.md) | Externalisation et rotation des secrets | 🟠 **Partiel** — ⚠️ rotation et purge d'historique **non faites** | P0-2 |
 | [0003](0003-authentification-et-jwt.md) | Authentification, mot de passe, durcissement JWT | 🟠 **Partiel** — TTL toujours à 10 j · part. remplacé par 0011 | P0-1, P0-3 |
-| [0004](0004-ingestion-niveau-remplissage.md) | Ingestion du niveau de remplissage (cœur IoT) | ❌ **Non implémenté** — ⚠️ périmètre à revoir (température/humidité) | P0-5, P0-6 |
+| [0004](0004-ingestion-niveau-remplissage.md) | Ingestion du niveau de remplissage (cœur IoT) | ✅ **Implémenté**, périmètre élargi (température/humidité) | P0-5, P0-6 |
 | [0005](0005-modele-alerte-depotoir-images.md) | Relation Alerte↔Dépotoir · images hors BLOB | 🟠 **Partiel** — MinIO fait, relation non exploitée | P0-6, P1-3 |
 | [0006](0006-consolidation-frontend.md) | Frontend web unique | ⚠️ **Prémisse invalidée** — ne pas appliquer en l'état | P1-4 |
 | [0007](0007-notifications-temps-reel.md) | Notifications temps réel (SSE) | 🟠 **Partiel** — SSE fait, FCM non fait | P2-1 |

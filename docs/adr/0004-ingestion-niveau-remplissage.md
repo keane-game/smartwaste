@@ -1,7 +1,15 @@
 # ADR-0004 — Architecture d'ingestion du niveau de remplissage (cœur IoT)
 
-- Statut : **Accepté — NON implémenté**. C'est le cœur du produit et il n'existe pas.
-> ⚠️ **Périmètre à revoir** : le mémoire (cas d'usage administrateur) demande de configurer des seuils de **température et d'humidité** en plus du remplissage — le capteur DHT11 est prévu à cet effet. Cet ADR ne modélise que le remplissage. Un ADR-0004bis est nécessaire avant implémentation.
+- Statut : **Accepté — implémenté** (2026-07-29), avec **périmètre élargi**.
+> La chaîne `capteur → mesure → seuil → alerte → notification` existe : `Sensor`, `Measurement`,
+> `POST /v1/measurements`, projection du niveau sur `Depotoir`, moteur de seuils dans le contexte
+> « Déchets », diffusion SSE via l'événement `AlertRaisedEvent` existant.
+>
+> **Écart comblé** : cet ADR ne modélisait que le remplissage, alors que le mémoire demande à
+> l'administrateur de configurer des seuils de **température et d'humidité** (capteur DHT11).
+> Les trois grandeurs sont désormais ingérées, et les seuils sont **configurables par type de point
+> de collecte** (`AlertThreshold`, `/v1/alert-thresholds`) et non plus par une constante globale.
+> Un seuil nul signifie « ne pas surveiller » — distinct d'un seuil à zéro.
 - Date : 2026-07-11
 - Priorité : P0-5, P0-6
 
