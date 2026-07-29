@@ -57,4 +57,17 @@ public class MapsController {
     public List<DepotoirMaps> getDepotoirMap(){
         return wasteReadModel.collectionPointsForMap();
     }
+
+    @Operation(summary = "Vehicules de collecte en circulation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Positions recentes de la flotte"),
+            @ApiResponse(responseCode = "500", description = "Server Error")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/vehicles")
+    public List<WasteReadModel.VehicleOnMap> getVehicles() {
+        // Le contexte proprietaire decide de ce qui est « en circulation » : la fraicheur est une
+        // regle metier, pas un parametre que l'appelant choisit.
+        return wasteReadModel.vehiclesOnMap();
+    }
 }

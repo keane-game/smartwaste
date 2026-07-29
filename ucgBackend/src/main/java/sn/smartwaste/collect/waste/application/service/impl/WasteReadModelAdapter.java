@@ -12,6 +12,7 @@ import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 import sn.smartwaste.collect.waste.application.service.DepotoirService;
 import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
 import sn.smartwaste.collect.waste.domain.repository.CollectionScheduleRepository;
+import sn.smartwaste.collect.waste.domain.repository.VehicleRepository;
 import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
 import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
@@ -38,6 +39,10 @@ public class WasteReadModelAdapter implements WasteReadModel {
     private final AlertRepository alertRepository;
     private final DepotoirService depotoirService;
     private final CollectionScheduleRepository collectionScheduleRepository;
+    private final VehicleRepository vehicleRepository;
+
+    /** Au-dela, une position n'est plus consideree comme representative du terrain. */
+    private final java.time.Duration vehicleFreshness;
 
     public WasteReadModelAdapter(DepotoirRepository depotoirRepository,
                                  MoblierUrbainRepository moblierUrbainRepository,
@@ -45,7 +50,9 @@ public class WasteReadModelAdapter implements WasteReadModel {
                                  CircuitBalayageRepository circuitBalayageRepository,
                                  AlertRepository alertRepository,
                                  DepotoirService depotoirService,
-                                 CollectionScheduleRepository collectionScheduleRepository) {
+                                 CollectionScheduleRepository collectionScheduleRepository,
+                                 VehicleRepository vehicleRepository,
+                                 @org.springframework.beans.factory.annotation.Value("${sonaged.fleet.position-freshness-minutes:15}") long freshnessMinutes) {
         this.depotoirRepository = depotoirRepository;
         this.moblierUrbainRepository = moblierUrbainRepository;
         this.circuitCollectRepository = circuitCollectRepository;
@@ -53,6 +60,8 @@ public class WasteReadModelAdapter implements WasteReadModel {
         this.alertRepository = alertRepository;
         this.depotoirService = depotoirService;
         this.collectionScheduleRepository = collectionScheduleRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.vehicleFreshness = java.time.Duration.ofMinutes(freshnessMinutes);
     }
 
     @Override
@@ -114,6 +123,15 @@ public class WasteReadModelAdapter implements WasteReadModel {
     public List<ScheduledCollection> collectionsScheduledOn(java.time.DayOfWeek dayOfWeek) {
         return collectionScheduleRepository.findByDayOfWeekAndActiveTrue(dayOfWeek).stream()
                 .map(s -> new ScheduledCollection(s.getQuartierId(), s.getPassageTime()))
+                .toList();
+    }
+
+    @Override
+    public List<VehicleOnMap> vehiclesOnMap() {
+        var since = java.time.Instant.now().minus(vehicleFreshness);
+        return vehicleRepository.findByActiveTrueAndLastPositionAtAfter(since).stream()
+                .map(v -> new VehicleOnMap(v.getVehicleId(), v.getRegistration(), v.getLabel(),
+                        v.getLastLatitude(), v.getLastLongitude(), v.getLastPositionAt()))
                 .toList();
     }
 }

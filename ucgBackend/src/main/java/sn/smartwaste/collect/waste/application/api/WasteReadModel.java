@@ -72,6 +72,17 @@ public interface WasteReadModel {
      */
     List<ScheduledCollection> collectionsScheduledOn(DayOfWeek dayOfWeek);
 
+    // ---------- Flotte ----------
+
+    /**
+     * Véhicules à afficher sur la carte de suivi.
+     *
+     * <p>Seuls ceux <b>vus récemment</b> sont rendus : afficher un camion à sa position d'il y a
+     * trois heures comme s'il y était encore est pire que ne rien afficher — on enverrait quelqu'un
+     * le rejoindre. La fraîcheur est décidée par le contexte propriétaire, pas par l'appelant.
+     */
+    List<VehicleOnMap> vehiclesOnMap();
+
     /**
      * @param code      code de l'alerte, {@code null} si non renseigné
      * @param createdAt date de création, {@code null} si l'audit n'a pas été alimenté
@@ -92,4 +103,11 @@ public interface WasteReadModel {
      * @param passageTime heure de passage prévue
      */
     record ScheduledCollection(UUID quartierId, LocalTime passageTime) { }
+
+    /**
+     * @param registration   immatriculation, l'identifiant que le terrain utilise
+     * @param lastPositionAt date de la position — l'appelant peut l'afficher pour lever le doute
+     */
+    record VehicleOnMap(UUID vehicleId, String registration, String label,
+                        double latitude, double longitude, java.time.Instant lastPositionAt) { }
 }

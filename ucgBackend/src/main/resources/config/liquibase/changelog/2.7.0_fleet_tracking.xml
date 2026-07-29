@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Suivi de la flotte de collecte. NON destructeur : deux tables ajoutees. -->
+
+    <changeSet author="claude" id="2.7.0-1-vehicle">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="vehicle"/></not></preConditions>
+        <comment>Vehicule de la flotte + derniere position connue (denormalisee).</comment>
+        <createTable tableName="vehicle">
+            <column name="vehicleid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_vehicle"/>
+            </column>
+            <column name="registration" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_vehicle_registration"/>
+            </column>
+            <column name="label" type="VARCHAR(255)"/>
+            <column name="circuitcollectid" type="BIGINT"/>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+            <!-- Derniere position seulement : la trace complete serait un autre volume et un
+                 autre besoin (reconstitution de tournee). -->
+            <column name="lastlatitude" type="DOUBLE PRECISION"/>
+            <column name="lastlongitude" type="DOUBLE PRECISION"/>
+            <column name="lastpositionat" type="TIMESTAMP WITH TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <!-- Axe de lecture de la carte : les vehicules actifs vus recemment. -->
+        <createIndex indexName="idx_vehicle_active_lastposition" tableName="vehicle">
+            <column name="active"/>
+            <column name="lastpositionat"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.7.0-2-vehicletracker">
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="vehicletracker"/></not></preConditions>
+        <comment>Traceur GPS embarque. La cle d'API n'est stockee que hachee.</comment>
+        <createTable tableName="vehicletracker">
+            <column name="trackerid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_vehicletracker"/>
+            </column>
+            <column name="devicecode" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_vehicletracker_devicecode"/>
+            </column>
+            <column name="apikeyhash" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_vehicletracker_apikeyhash"/>
+            </column>
+            <!-- Reference par identifiant vers le contexte « Dechets » : pas de FK traversante. -->
+            <column name="vehicleid" type="uuid"><constraints nullable="false"/></column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"><constraints nullable="false"/></column>
+            <column name="lastseenat" type="TIMESTAMP WITH TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE"><constraints nullable="false"/></column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

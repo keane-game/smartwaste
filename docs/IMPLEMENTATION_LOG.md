@@ -280,6 +280,38 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Suivi de la flotte — le dernier tiers de « Localisation » (2026-07-29)
+
+Le mémoire exige de localiser « les poubelles, les dépôts sauvages **et les véhicules de
+collecte** ». Les deux premiers existent ; le troisième n'était modélisé **nulle part**, alors que
+l'application Flutter embarque déjà un écran de suivi en direct (`liveTrackigUtils/`) sans backend.
+
+- **`Vehicle`** (waste) : la flotte, avec sa **dernière position connue** — pas la trace. Un camion
+  émet plusieurs fois par minute ; conserver l'historique complet serait un autre volume et un autre
+  besoin (reconstitution de tournée).
+- **`VehicleTracker`** (iot) : traceur embarqué, clé d'API hachée. Distinct de `Sensor` parce que la
+  cible, la charge utile et le rythme n'ont rien de commun — un bac transmet toutes les quelques
+  heures, un camion toutes les quelques secondes.
+- `POST /v1/vehicle-positions` → `VehiclePositionRecorded` → projection côté `waste`. Même chaîne
+  événementielle que le remplissage, donc même découplage.
+- `GET /v1/maps/vehicles` sur la carte de supervision.
+- **`DeviceApiKeys`** factorise le hachage : deux implémentations divergentes seraient le meilleur
+  moyen de rendre un jour des clés invérifiables.
+
+#### Trois règles qui viennent du terrain, pas de la théorie
+- **La position (0,0) est refusée.** Un traceur sans fix la renvoie volontiers — un point au large du
+  golfe de Guinée. L'accepter placerait le camion en pleine mer sur la carte.
+- **Une position arriérée n'écrase pas une plus récente.** Un traceur qui perd le réseau accumule et
+  rejoue à la reconnexion : sans garde, le camion **reculerait**. Une position figée se remarque ;
+  une position qui recule se croit.
+- **Seuls les véhicules vus récemment sont affichés** (15 min par défaut, réglable). Montrer un
+  camion à sa position d'il y a trois heures comme s'il y était encore est pire que ne rien montrer —
+  on enverrait quelqu'un le rejoindre. La fraîcheur est décidée par le contexte propriétaire, pas
+  par l'appelant.
+
+10 tests, **deux mutations vérifiées** : accepter les positions arriérées casse 1 test, accepter
+(0,0) en casse 1. Changelog 2.7.0, non destructeur. `verify` EXIT=0, **91 tests**.
+
 ### 🔴 Autorisation réelle sur les signalements + 403 au lieu de 500 (2026-07-29)
 
 Signalé par la revue de sécurité automatique sur le commit précédent, et fondé : `changeStatus`

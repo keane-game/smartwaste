@@ -87,6 +87,8 @@ public class SecurityConfiguration{
                                                 // reviendrait a donner a un objet pose dans la rue
                                                 // les droits d'un compte.
                                                 .requestMatchers(POST, "/v1/measurements").permitAll()
+                                                // Meme raison pour les traceurs embarques.
+                                                .requestMatchers(POST, "/v1/vehicle-positions").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->
