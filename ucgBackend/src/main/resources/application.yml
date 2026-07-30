@@ -189,6 +189,12 @@ sonaged:
       # Rejouer l'import au démarrage (idempotent, saute les entités déjà peuplées). Défaut false.
       # Déclenchement manuel : POST /v1/admin/import/geojson[?force=true] (authentifié).
       on-startup: ${GEOJSON_IMPORT_ON_STARTUP:false}
+  iot:
+    # Santé du parc de capteurs (G7 du backlog).
+    # Un capteur muet ne déclenchait rien : le point retombait silencieusement en « état inconnu »,
+    # ce que la tournée traite bien, mais personne n'apprenait que le capteur était mort.
+    silence-threshold-hours: ${IOT_SILENCE_THRESHOLD_HOURS:6}
+    silence-check-cron: ${IOT_SILENCE_CHECK_CRON:0 */15 * * * *}
   alerts:
     # Diffusion temps réel des alertes (P2-1 / ADR-0007).
     stream:

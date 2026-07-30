@@ -48,12 +48,16 @@ public class MeasurementIngestionServiceImpl implements MeasurementIngestionServ
     private final MeasurementRepository measurementRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final SensorHealthMonitor healthMonitor;
+
     public MeasurementIngestionServiceImpl(SensorRepository sensorRepository,
                                            MeasurementRepository measurementRepository,
-                                           ApplicationEventPublisher eventPublisher) {
+                                           ApplicationEventPublisher eventPublisher,
+                                           SensorHealthMonitor healthMonitor) {
         this.sensorRepository = sensorRepository;
         this.measurementRepository = measurementRepository;
         this.eventPublisher = eventPublisher;
+        this.healthMonitor = healthMonitor;
     }
 
     @Override
@@ -81,6 +85,9 @@ public class MeasurementIngestionServiceImpl implements MeasurementIngestionServ
 
         sensor.setLastSeenAt(now);
         sensorRepository.save(sensor);
+        // Une mesure recue est la seule preuve de vie d'un capteur : c'est ici, et nulle part
+        // ailleurs, qu'un silence signale peut etre leve (G7).
+        healthMonitor.noteActivity(sensor);
 
         eventPublisher.publishEvent(new MeasurementRecorded(
                 sensor.getSensorId(), sensor.getDepotoirId(),

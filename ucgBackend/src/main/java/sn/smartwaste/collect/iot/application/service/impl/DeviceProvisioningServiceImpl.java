@@ -122,9 +122,15 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
     @Override
     @Transactional(readOnly = true)
     public List<DeviceSummary> listSensors() {
+        // Trie du plus ancien contact au plus recent : le parc se lit par ce qui ne va pas.
+        // `nullsFirst` place en tete les capteurs qui n'ont JAMAIS emis — une installation qui n'a
+        // jamais parle est le premier cas a regarder, et il ne declenche aucune alerte (G7).
         return sensorRepository.findAll().stream()
+                .sorted(java.util.Comparator.comparing(Sensor::getLastSeenAt,
+                        java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
                 .map(s -> new DeviceSummary(s.getSensorId(), s.getDeviceCode(),
-                        String.valueOf(s.getDepotoirId()), s.isActive(), s.getLastSeenAt()))
+                        String.valueOf(s.getDepotoirId()), s.isActive(), s.getLastSeenAt(),
+                        s.getSilenceReportedAt()))
                 .toList();
     }
 
@@ -133,7 +139,7 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
     public List<DeviceSummary> listVehicleTrackers() {
         return trackerRepository.findAll().stream()
                 .map(t -> new DeviceSummary(t.getTrackerId(), t.getDeviceCode(),
-                        String.valueOf(t.getVehicleId()), t.isActive(), t.getLastSeenAt()))
+                        String.valueOf(t.getVehicleId()), t.isActive(), t.getLastSeenAt(), null))
                 .toList();
     }
 

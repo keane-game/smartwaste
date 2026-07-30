@@ -44,6 +44,11 @@ public interface DeviceProvisioningService {
     record ProvisionedDevice(UUID deviceId, String deviceCode, String apiKey) { }
 
     /** Vue d'administration : jamais la clé, ni son empreinte. */
+    /**
+     * @param silenceReportedAt non {@code null} si un silence a ete signale et n'est pas leve (G7).
+     *                          C'est ce qui distingue « pas encore installe » de « tombe en panne ».
+     */
     record DeviceSummary(UUID deviceId, String deviceCode, String target,
-                         boolean active, java.time.Instant lastSeenAt) { }
+                         boolean active, java.time.Instant lastSeenAt,
+                         java.time.Instant silenceReportedAt) { }
 }

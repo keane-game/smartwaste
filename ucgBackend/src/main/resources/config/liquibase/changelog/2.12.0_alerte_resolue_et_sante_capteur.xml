@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Lot 1 du backlog (G7) — et fondation du lot 2 (G1).
+
+      Une alerte n'avait jusqu'ici aucun etat : levee, elle restait indefiniment. Les deux lots en
+      ont besoin pour la meme raison — un capteur qui se remet a emettre, un point de collecte qui
+      est vide : dans les deux cas quelque chose CESSE, et rien ne permettait de le dire.
+      `resolvedAt` / `resolvedBy` donnent cet etat, sans inventer de cycle de vie complet :
+      « ouverte » = `resolvedat IS NULL`.
+
+      `sensor.silencereportedat` porte l'anti-repetition du lot 1 : sans lui, le planificateur
+      leverait une alerte a chaque passage pour un capteur mort depuis une semaine.
+    -->
+
+    <changeSet author="claude" id="2.12.0-1-alert-resolution">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="resolvedat"/></not>
+        </preConditions>
+        <comment>Etat d'une alerte : ouverte tant que resolvedat est NULL.</comment>
+        <addColumn tableName="alert">
+            <column name="resolvedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="resolvedby" type="VARCHAR(50)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="alert" columnName="resolvedat"/>
+            <dropColumn tableName="alert" columnName="resolvedby"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.12.0-2-alert-open-index">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_alert_open_by_depotoir"/></not>
+        </preConditions>
+        <comment>Les alertes ouvertes d'un point sont lues a chaque passage d'agent (lot 2).</comment>
+        <createIndex indexName="idx_alert_open_by_depotoir" tableName="alert">
+            <column name="depotoirid"/>
+            <column name="resolvedat"/>
+        </createIndex>
+        <rollback>
+            <dropIndex indexName="idx_alert_open_by_depotoir" tableName="alert"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.12.0-3-sensor-silence">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="sensor" columnName="silencereportedat"/></not>
+        </preConditions>
+        <comment>Anti-repetition : un episode de silence n'est signale qu'une fois.</comment>
+        <addColumn tableName="sensor">
+            <column name="silencereportedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="sensor" columnName="silencereportedat"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

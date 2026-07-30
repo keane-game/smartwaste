@@ -72,6 +72,15 @@ public class AlertEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "depotoirId")
     Long depotoirId;
 
+    // Lot 1 / lot 2 du backlog : une alerte avait un debut et jamais de fin. « Ouverte » se lit
+    // desormais `resolvedAt == null` — un capteur qui reemet, un point qui est vide, referment ce
+    // qu'ils avaient ouvert.
+    @Column(name = "resolvedAt")
+    java.time.LocalDateTime resolvedAt;
+
+    @Column(name = "resolvedBy", length = 50)
+    String resolvedBy;
+
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "coordinateId", nullable = true)
     @JsonIgnore

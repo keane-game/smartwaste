@@ -62,4 +62,12 @@ public class Sensor extends AbstractAuditingEntity<UUID> {
 
     @Column(name = "lastSeenAt")
     Instant lastSeenAt;
+
+    /**
+     * Horodatage du signalement de silence en cours, {@code null} si le capteur est considere
+     * comme vivant. Porte l'anti-repetition : sans lui, le planificateur signalerait a chaque
+     * passage un capteur mort depuis une semaine.
+     */
+    @Column(name = "silenceReportedAt")
+    Instant silenceReportedAt;
 }
