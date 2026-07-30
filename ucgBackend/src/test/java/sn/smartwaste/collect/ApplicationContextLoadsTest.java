@@ -8,7 +8,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 
 import sn.smartwaste.collect.identity.application.api.CurrentUserProvider;
+import sn.smartwaste.collect.iot.application.api.IngestionMetrics;
 import sn.smartwaste.collect.platform.application.api.AlertStreamMetrics;
+import sn.smartwaste.collect.platform.application.api.CitizenReportMetrics;
 import sn.smartwaste.collect.territory.application.api.TerritoryReadModel;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
@@ -86,5 +88,7 @@ class ApplicationContextLoadsTest {
         assertThat(context.getBeansOfType(TerritoryReadModel.class)).hasSize(1);
         assertThat(context.getBeansOfType(CurrentUserProvider.class)).hasSize(1);
         assertThat(context.getBeansOfType(AlertStreamMetrics.class)).hasSize(1);
+        assertThat(context.getBeansOfType(IngestionMetrics.class)).hasSize(1);
+        assertThat(context.getBeansOfType(CitizenReportMetrics.class)).hasSize(1);
     }
 }

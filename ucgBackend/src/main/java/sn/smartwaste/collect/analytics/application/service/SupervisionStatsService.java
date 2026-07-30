@@ -8,9 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.shared.domain.model.DeletionStatus;
 import sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository;
+import sn.smartwaste.collect.iot.application.api.IngestionMetrics;
 import sn.smartwaste.collect.platform.application.api.AlertStreamMetrics;
+import sn.smartwaste.collect.platform.application.api.CitizenReportMetrics;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -26,14 +30,46 @@ import java.util.stream.Collectors;
  * volontaire à ce stade : le volume actuel (quelques milliers de lignes) ne justifie pas
  * d'écrire des requêtes d'agrégation dédiées, et rester en Java évite de dupliquer la règle
  * « ne compter que les éléments ACTIVE » dans du JPQL. Si la volumétrie augmente — en
- * particulier quand l'ingestion IoT arrivera — ces méthodes devront passer en `@Query`
- * d'agrégation côté base.
+ * particulier avec la montée en charge de l'ingestion IoT — ces méthodes devront passer en
+ * `@Query` d'agrégation côté base. C'est déjà le cas de {@code countMeasurementsSince} et de
+ * {@code countByDeletionStatus}, qui comptent en base : la table des mesures est la seule dont
+ * le volume interdisait d'emblée un chargement complet.
  */
 @Service
 public class SupervisionStatsService {
 
     /** Fenêtre d'analyse par défaut, en jours. */
     private static final int DEFAULT_WINDOW_DAYS = 30;
+
+    /**
+     * Au-delà de 24 h sans transmission, un capteur est considéré muet.
+     *
+     * <p>Le pas d'émission attendu se compte en minutes (ADR-0004). Un jour entier de silence
+     * laisse donc largement la place à une coupure réseau passagère : ce qui est signalé n'est plus
+     * un aléa, c'est une installation à aller voir.
+     */
+    private static final int SILENCE_THRESHOLD_HOURS = 24;
+
+    /**
+     * Au-delà de 48 h, un signalement encore ouvert est compté comme oublié.
+     *
+     * <p>Deux jours ouvrés : le délai à partir duquel l'habitant qui a signalé un dépôt sauvage
+     * cesse raisonnablement de croire que quelqu'un s'en occupe.
+     */
+    private static final int STALE_REPORT_THRESHOLD_HOURS = 48;
+
+    /**
+     * Tranches de remplissage, dans l'ordre d'affichage.
+     *
+     * <p>Bornes hautes exclusives, la dernière tranche capturant tout le reste. Le découpage suit
+     * la lecture métier : en dessous de 50 % il n'y a rien à faire, 75 % est le seuil d'alerte par
+     * défaut, et au-delà de 90 % le point déborde bientôt.
+     */
+    private static final int[] FILL_LEVEL_BOUNDS = { 50, 75, 90 };
+    private static final String[] FILL_LEVEL_LABELS = { "0-49", "50-74", "75-89", "90-100" };
+
+    /** Points de collecte sans capteur : leur niveau est inconnu, pas nul. */
+    private static final String FILL_LEVEL_UNKNOWN = "NON_INSTRUMENTE";
 
     /**
      * Port publié par le contexte « Déchets ». Remplace l'injection de quatre repositories et la
@@ -45,13 +81,27 @@ public class SupervisionStatsService {
     /** Port publié par le contexte « Plateforme » — nombre de flux SSE ouverts (ADR-0007). */
     private final AlertStreamMetrics alertStreamMetrics;
 
+    /**
+     * Port publié par le contexte « Ingestion IoT ». La supervision ne voit ni capteur ni mesure —
+     * seulement des agrégats : le module est le premier candidat à l'extraction en microservice
+     * (ADR-0013), et rien ici ne doit rendre cette extraction plus coûteuse.
+     */
+    private final IngestionMetrics ingestionMetrics;
+
+    /** Port publié par le contexte « Plateforme » — traitement des signalements citoyens. */
+    private final CitizenReportMetrics citizenReportMetrics;
+
     private final Map<String, SoftDeleteRepository<?, ?>> softDeleteRepositories = new TreeMap<>();
 
     public SupervisionStatsService(WasteReadModel wasteReadModel,
                                    AlertStreamMetrics alertStreamMetrics,
+                                   IngestionMetrics ingestionMetrics,
+                                   CitizenReportMetrics citizenReportMetrics,
                                    Map<String, SoftDeleteRepository<?, ?>> repositoriesByBeanName) {
         this.wasteReadModel = wasteReadModel;
         this.alertStreamMetrics = alertStreamMetrics;
+        this.ingestionMetrics = ingestionMetrics;
+        this.citizenReportMetrics = citizenReportMetrics;
         // La corbeille reste transverse : `SoftDeleteRepository` vit dans le shared kernel (module
         // ouvert) et l'injection se fait par type, sans dépendance vers les modules propriétaires.
         // Même convention de nommage que DeletionController : `depotoirRepository` -> `depotoir`.
@@ -73,12 +123,59 @@ public class SupervisionStatsService {
                 alertsPerDay(alerts, from, today),
                 alertsByCode(alerts),
                 depotoirsByType(depotoirs),
+                depotoirsByFillLevel(depotoirs),
                 circuitsByCommune(),
                 alerts.size(),
                 countSince(alerts, today.minusDays(6)),
                 pendingDeletions(),
                 alertStreamMetrics.openStreamCount(),
+                ingestionHealth(window),
+                citizenReports(),
                 window
+        );
+    }
+
+    /**
+     * Santé de la chaîne de mesure.
+     *
+     * <p>Les mesures sont comptées sur la <b>fenêtre demandée</b>, comme les alertes : les deux
+     * séries se lisent l'une contre l'autre, et un dénombrement sur une autre période rendrait la
+     * comparaison trompeuse. Le silence, lui, se juge sur un délai fixe — ce n'est pas une
+     * volumétrie mais un état du matériel, indépendant de la largeur de la fenêtre.
+     */
+    private SupervisionStats.IngestionHealth ingestionHealth(int windowDays) {
+        Instant windowStart = Instant.now().minus(Duration.ofDays(windowDays));
+        Instant silenceCutoff = Instant.now().minus(Duration.ofHours(SILENCE_THRESHOLD_HOURS));
+
+        List<SupervisionStats.IngestionHealth.SilentSensor> silent = ingestionMetrics.silentSensors(silenceCutoff)
+                .stream()
+                // Recopié plutôt que republié tel quel : ce type est le contrat HTTP de la
+                // supervision. Réexposer le record du port ferait d'un renommage interne à
+                // l'ingestion une rupture d'API, sans que rien ne le signale.
+                .map(s -> new SupervisionStats.IngestionHealth.SilentSensor(
+                        s.deviceCode(), s.depotoirId(), s.lastSeenAt()))
+                .toList();
+
+        return new SupervisionStats.IngestionHealth(
+                ingestionMetrics.countActiveSensors(),
+                ingestionMetrics.countInstrumentedCollectionPoints(),
+                ingestionMetrics.countMeasurementsSince(windowStart),
+                SILENCE_THRESHOLD_HOURS,
+                silent
+        );
+    }
+
+    /** Traitement des signalements citoyens. */
+    private SupervisionStats.CitizenReports citizenReports() {
+        Long medianMinutes = citizenReportMetrics.medianResolutionTime()
+                .map(Duration::toMinutes)
+                .orElse(null);
+
+        return new SupervisionStats.CitizenReports(
+                citizenReportMetrics.countByStatus(),
+                medianMinutes,
+                STALE_REPORT_THRESHOLD_HOURS,
+                citizenReportMetrics.countOpenOlderThan(Duration.ofHours(STALE_REPORT_THRESHOLD_HOURS))
         );
     }
 
@@ -117,6 +214,44 @@ public class SupervisionStatsService {
                 // contrainte LAZY de P1-2 ne remonte plus jusqu'ici.
                 d -> d.typeName() == null ? "NON_DEFINI" : d.typeName(),
                 TreeMap::new, Collectors.counting()));
+    }
+
+    /**
+     * Répartition des points de collecte par tranche de remplissage.
+     *
+     * <p>C'est l'indicateur que le mémoire attend en premier — l'état du terrain à l'instant t —
+     * et il n'était pas calculable tant que rien n'alimentait {@code fillLevelPercent}. Il l'est
+     * depuis que l'ingestion projette les mesures sur le point de collecte.
+     *
+     * <p><b>Les points non instrumentés sont comptés à part, jamais à zéro.</b> Les ranger dans la
+     * tranche « 0-49 » ferait passer un parc sans capteurs pour un parc vide — exactement
+     * l'illusion que ce tableau de bord doit empêcher. Toutes les tranches sont pré-remplies à
+     * zéro pour la même raison qu'{@link #alertsPerDay} : une tranche absente se lit comme une
+     * donnée manquante, pas comme un résultat.
+     */
+    private Map<String, Long> depotoirsByFillLevel(List<WasteReadModel.ActiveCollectionPoint> depotoirs) {
+        Map<String, Long> byBucket = new LinkedHashMap<>();
+        for (String label : FILL_LEVEL_LABELS) {
+            byBucket.put(label, 0L);
+        }
+        byBucket.put(FILL_LEVEL_UNKNOWN, 0L);
+
+        for (WasteReadModel.ActiveCollectionPoint depotoir : depotoirs) {
+            byBucket.merge(fillLevelBucket(depotoir.fillLevelPercent()), 1L, Long::sum);
+        }
+        return byBucket;
+    }
+
+    private String fillLevelBucket(Integer fillLevelPercent) {
+        if (fillLevelPercent == null) {
+            return FILL_LEVEL_UNKNOWN;
+        }
+        for (int i = 0; i < FILL_LEVEL_BOUNDS.length; i++) {
+            if (fillLevelPercent < FILL_LEVEL_BOUNDS[i]) {
+                return FILL_LEVEL_LABELS[i];
+            }
+        }
+        return FILL_LEVEL_LABELS[FILL_LEVEL_LABELS.length - 1];
     }
 
     /**

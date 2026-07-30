@@ -1,5 +1,6 @@
 package sn.smartwaste.collect.platform.application.service;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -77,10 +78,14 @@ class AvisServiceTest {
         forged.setStatut(AvisStatus.TRAITE);                // tentative d'auto-clôture
         forged.setUserId(UUID.randomUUID());                // tentative d'attribution à un tiers
         forged.setProcessedByUserId(UUID.randomUUID());
+        // Antidater son signalement le ferait apparaître comme oublié depuis des semaines, et
+        // dégraderait le délai de traitement affiché en supervision.
+        forged.setSubmittedAt(Instant.parse("2020-01-01T00:00:00Z"));
         forged.setMessage("Depot sauvage rue 10");
         forged.setLatitude("14.75");
         forged.setLongitude("-17.39");
 
+        Instant avant = Instant.now();
         avisService.create(forged);
 
         Avis saved = captureSaved();
@@ -89,6 +94,7 @@ class AvisServiceTest {
         assertThat(saved.getUserId()).isEqualTo(AUTEUR);
         assertThat(saved.getProcessedByUserId()).isNull();
         assertThat(saved.getProcessedAt()).isNull();
+        assertThat(saved.getSubmittedAt()).isAfterOrEqualTo(avant);
         // Ce que l'habitant fournit légitimement est conservé.
         assertThat(saved.getMessage()).isEqualTo("Depot sauvage rue 10");
         assertThat(saved.getLatitude()).isEqualTo("14.75");

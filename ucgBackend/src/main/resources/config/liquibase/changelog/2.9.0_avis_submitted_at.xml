@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Date de depot du signalement. NON destructeur : une colonne ajoutee, puis remplie.
+
+      Sans elle, `processedat` ne se rapporte a rien : on sait quand un signalement a ete clos,
+      jamais combien de temps l'habitant a attendu. C'est la seule donnee qui manquait pour
+      mesurer le service rendu.
+    -->
+
+    <changeSet author="claude" id="2.9.0-1-avis-submittedat">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="avis" columnName="submittedat"/></not>
+        </preConditions>
+        <comment>Date de depot du signalement citoyen.</comment>
+
+        <addColumn tableName="avis">
+            <column name="submittedat" type="TIMESTAMP WITH TIME ZONE"/>
+        </addColumn>
+
+        <!--
+          Reprise de l'existant. La vraie date de depot est perdue : elle n'a jamais ete ecrite.
+          On prend `processedat` quand il existe — un signalement ne peut pas avoir ete clos avant
+          d'avoir ete depose, donc la valeur est au pire trop tardive, jamais incoherente — et
+          `now()` sinon. Consequence assumee : les signalements anterieurs affichent un delai de
+          traitement nul. Mieux vaut un delai visiblement plat qu'un delai invente.
+        -->
+        <sql>UPDATE avis SET submittedat = COALESCE(processedat, now()) WHERE submittedat IS NULL;</sql>
+
+        <addNotNullConstraint tableName="avis" columnName="submittedat"
+                              columnDataType="TIMESTAMP WITH TIME ZONE"/>
+    </changeSet>
+
+</databaseChangeLog>

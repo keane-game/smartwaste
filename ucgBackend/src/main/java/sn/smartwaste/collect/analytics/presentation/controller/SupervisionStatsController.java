@@ -29,11 +29,14 @@ public class SupervisionStatsController {
     @Operation(
             summary = "Indicateurs de supervision",
             description = """
-                    Alertes par jour et par code, répartition des points de collecte par type,
-                    circuits par commune, état de la corbeille et nombre de flux temps réel ouverts.
+                    Alertes par jour et par code, répartition des points de collecte par type et
+                    par tranche de remplissage, circuits par commune, état de la corbeille et
+                    nombre de flux temps réel ouverts.
 
-                    Le taux de remplissage n'est pas fourni : il dépend de l'ingestion IoT
-                    (ADR-0004, P0-5/P0-6), module réservé et non implémenté.""")
+                    Deux blocs disent ce que les compteurs d'alertes ne peuvent pas dire :
+                    `ingestion` signale les capteurs muets — une panne ne produit aucune alerte et
+                    ressemble donc, dans les chiffres, à un point de collecte qui va bien — et
+                    `citizenReports` mesure le délai de traitement des signalements des habitants.""")
     @GetMapping("/stats")
     public SupervisionStats stats(
             @Parameter(description = "Fenêtre d'analyse en jours (défaut 30, maximum 365)")

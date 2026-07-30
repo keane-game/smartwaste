@@ -49,6 +49,16 @@ public class Avis {
     @Column(name = "longitude")
     private String longitude;
 
+    /**
+     * Date de dépôt.
+     *
+     * <p>L'entité n'en avait <b>aucune</b> : impossible de dire quand un signalement avait été fait,
+     * donc impossible de mesurer un délai de traitement ou de repérer ceux qu'on oublie. C'est ce
+     * qui manquait pour rendre compte du service réellement rendu aux habitants.
+     */
+    @Column(name = "submittedAt", nullable = false)
+    private java.time.Instant submittedAt;
+
     // ---- Traitement ----
 
     @Column(name = "processedAt")

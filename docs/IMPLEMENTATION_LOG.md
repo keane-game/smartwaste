@@ -280,6 +280,73 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Le tableau de bord dit enfin ce qu'il ne détecte pas (2026-07-30)
+
+**Le défaut de fond.** Tous les indicateurs de supervision se déduisaient de ce que le système avait
+*détecté* : des alertes, des points de collecte, des circuits. Aucun ne disait ce qu'il était **en
+état** de détecter. Or un capteur en panne ne transmet rien, ne franchit aucun seuil et ne lève
+aucune alerte : dans les chiffres, sa défaillance est **indiscernable d'un point de collecte qui se
+porte bien**. Le tableau de bord devenait donc d'autant plus rassurant que le parc se dégradait —
+exactement l'inverse de ce qu'on lui demande. Même angle mort côté habitants : on savait combien de
+signalements avaient été clos, jamais combien de temps quelqu'un avait attendu.
+
+`GET /v1/supervision/stats` gagne trois blocs, chacun répondant sous un angle différent à la même
+question — *le service est-il réellement rendu ?*
+
+- **`ingestion`** — capteurs actifs, points effectivement instrumentés, mesures reçues sur la
+  fenêtre, et surtout **la liste des capteurs muets**. Le seuil (24 h) voyage *avec* la donnée :
+  « 3 capteurs muets » ne veut rien dire sans savoir depuis quand, et laisser cette convention au
+  frontend, c'est accepter qu'elle diverge. Un capteur enrôlé **n'ayant jamais émis** est le cas le
+  plus grave — l'installation n'a peut-être jamais fonctionné — et c'est précisément celui qu'un
+  filtre naïf sur `lastSeenAt` fait disparaître ; un capteur *désactivé* est au contraire exclu,
+  sinon chaque matériel retiré du terrain noierait les vraies pannes.
+- **`depotoirsByFillLevel`** — l'état du terrain maintenant, par tranches (`0-49`, `50-74`,
+  `75-89`, `90-100`). Le DTO annonçait cet indicateur « absent volontairement, l'ingestion IoT
+  n'existe pas » : c'était vrai à la rédaction, plus depuis que `FillLevelProjector` alimente
+  `Depotoir.fillLevelPercent`. **Les points non instrumentés sont comptés à part**
+  (`NON_INSTRUMENTE`), jamais dans la tranche basse — les y ranger ferait passer un parc sans
+  capteurs pour un parc vide, soit la même illusion sous une autre forme.
+- **`citizenReports`** — répartition par état, signalements ouverts depuis plus de 48 h, et délai
+  **médian** de traitement. Médiane et non moyenne : un seul signalement oublié six mois suffit à
+  rendre une moyenne méconnaissable, alors que la médiane décrit ce que vit la majorité. Rien n'est
+  substitué quand aucune clôture n'existe (`null`, pas `0`) — annoncer zéro ferait passer un service
+  qui n'a jamais rien traité pour un service instantané.
+
+**Ce qui manquait en base : `Avis.submittedAt`.** L'entité n'avait **aucune date de dépôt**. On
+savait quand un signalement avait été clos (`processedAt`), donc on pouvait mesurer un délai par
+rapport à rien. Sans cette colonne, aucun des indicateurs citoyens n'était calculable — c'est le
+seul changement de schéma du lot (`2.9.0_avis_submitted_at.xml`, non destructeur). La date est
+**imposée par le serveur** au même titre que l'auteur et le statut : antidater son propre
+signalement le ferait apparaître comme oublié depuis des semaines et dégraderait l'indicateur
+affiché en supervision. La reprise de l'existant prend `COALESCE(processedat, now())` — la vraie
+date est perdue, elle n'a jamais été écrite ; un signalement ne pouvant pas avoir été clos avant
+d'avoir été déposé, la valeur est au pire trop tardive, jamais incohérente. Conséquence assumée et
+documentée dans le changelog : les signalements antérieurs affichent un délai plat.
+
+**Deux ports publiés, pas deux dépendances.** `iot.application.api.IngestionMetrics` (nouvelle
+interface nommée du module) et `platform.application.api.CitizenReportMetrics` ne rendent que des
+agrégats : la supervision ne voit ni capteur, ni mesure, ni avis. C'est plus qu'une question de
+style pour `iot` — l'ADR-0013 en fait le **premier candidat à l'extraction en microservice**, et
+tout ce qu'on y laisserait déborder devrait être démêlé le jour venu. Le record `SilentSensor` est
+**recopié** dans le DTO de sortie plutôt que republié tel quel : ce type est le contrat HTTP de la
+supervision, et réexposer celui du port ferait d'un renommage interne à l'ingestion une rupture
+d'API que rien ne signalerait — même raisonnement que pour `AlertRaisedEvent`.
+
+**Une horloge injectée dans `CitizenReportMetricsAdapter`.** « Ouvert depuis plus de 48 h » n'est
+testable qu'à instant figé ; avec `Instant.now()` en dur, le test aurait dépendu de l'heure de son
+exécution. Le bean `Clock` existait déjà (`ClockConfig`), c'est la troisième classe à s'en servir.
+
+**18 tests, vérifiés par deux mutations.** Faire disparaître le capteur jamais vu
+(`lastSeenAt == null` retiré du filtre) → `neverEmittedIsSilent` échoue ; ranger les points non
+instrumentés dans la tranche basse → `uninstrumentedPointsAreNotCountedAsEmpty` échoue avec
+`["NON_INSTRUMENTE"=0L (expected: 2L)]`. `ApplicationContextLoadsTest` couvre les deux nouveaux
+ports : une implémentation manquante ou dupliquée ne casserait qu'au démarrage.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **125 tests, 124 passants, 1 ignoré**.
+  `modules.verify()` reconnaît les 10 modules, aucune violation.
+- ⚠️ **Non vérifié contre PostgreSQL**, comme tout le reste : le changeset `2.9.0` et la contrainte
+  `NOT NULL` sur `submittedat` n'ont jamais rencontré `ddl-auto: validate` en conditions réelles.
+
 ### Seuils configurables + température et humidité exploitées (2026-07-29)
 
 **On ingérait température et humidité depuis le capteur DHT11 et on n'en faisait rien** : la donnée

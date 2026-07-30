@@ -47,6 +47,7 @@ public class AvisService {
        // signalement déjà clos, ni s'attribuer la clôture d'un autre.
        avis.setProcessedAt(null);
        avis.setProcessedByUserId(null);
+       avis.setSubmittedAt(Instant.now());
        avis.setUserId(currentUserProvider.requireCurrentUserId());
         this.avisRepository.save(avis);
     }
