@@ -3,8 +3,9 @@
 Décisions techniques structurantes de la reprise du projet **Gestion automatisée des ordures ménagères / SONAGED**.
 Format : [MADR](https://adr.github.io/madr/).
 
-Cartographie documentaire complète : `../KNOWLEDGE_MAP.md`. Plan : `../../ROADMAP.md`.
+Cartographie documentaire complète : `../KNOWLEDGE_MAP.md`. Plan de reprise : `../../ROADMAP.md`.
 Journal de ce qui est réellement fait : `../IMPLEMENTATION_LOG.md`.
+Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` (ADR-0014, ADR-0015).
 
 > **Correction du 2026-07-28.** Ces ADR étaient tous marqués « Proposé » sous une règle affirmant
 > qu'« aucune implémentation n'est lancée avant passage à Accepté ». Or la moitié était implémentée :
@@ -30,6 +31,8 @@ Journal de ce qui est réellement fait : `../IMPLEMENTATION_LOG.md`.
 | [0011](0011-keycloak-identity-provider.md) | Keycloak comme fournisseur d'identité (OIDC) | ❌ **Non implémenté** — ⚠️ en tension avec le chantier « sessions » | P0 |
 | [0012](0012-decouplage-entites-references-par-id.md) | Références par identifiant entre contextes | ✅ **Implémenté** | P1 |
 | [0013](0013-architecture-ddd-smartwaste.md) | Architecture DDD `sn.smartwaste.collect` (8 contextes) | 🟢 **En cours, très avancé** | structurant |
+| [0014](0014-amorcage-du-systeme.md) | Amorçage : racine territoriale semée · compte d'administration par l'environnement | 🔵 **Proposé** | P0 |
+| [0015](0015-referentiel-geographique-projection-et-perimetre.md) | Référentiel géographique : reprojection UTM→WGS84, dédoublonnage, périmètre des fichiers | 🔵 **Proposé** | P0 |
 
 ## Décisions structurantes prises **hors ADR**
 
