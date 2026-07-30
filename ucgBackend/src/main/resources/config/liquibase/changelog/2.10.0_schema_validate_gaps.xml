@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Rattrapage des colonnes mappées par les entités mais absentes du schéma.
+
+      CONTEXTE. Le premier démarrage réel contre PostgreSQL a fait ce que ni le compilateur ni les
+      tests ne pouvaient faire : confronter les entités au schéma Liquibase. `ddl-auto: validate` a
+      échoué sur
+
+          SchemaManagementException: missing column [Address] in table [ALERT]
+
+      Le validateur s'arrête à la première anomalie ; la comparaison exhaustive entités ↔ base en a
+      révélé QUATRE. Elles sont toutes corrigées ici, pour ne pas découvrir les suivantes une par
+      redémarrage.
+
+      POURQUOI UN NOUVEAU FICHIER plutôt qu'une correction des changesets fautifs : ceux-ci ont déjà
+      été appliqués et sont enregistrés dans `databasechangelog` avec leur somme de contrôle. Les
+      modifier ferait échouer la validation Liquibase au démarrage suivant. Un changelog ne se
+      réécrit pas, il se prolonge.
+    -->
+
+    <!-- ================================================================
+         1. ALERT.address — jamais créée, dans aucun changeset.
+         `AlertEntity.address` est mappée depuis l'origine. La colonne `address` présente dans le
+         baseline 1.0.0 appartient à `depotoir` : la ressemblance des deux tables a masqué l'oubli.
+         C'est l'anomalie sur laquelle le démarrage a buté.
+         ================================================================ -->
+    <changeSet id="2.10.0-1-alert-address" author="claude">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="address"/></not>
+        </preConditions>
+        <comment>AlertEntity.address : colonne mappée jamais déclarée au schéma.</comment>
+        <addColumn tableName="alert">
+            <column name="address" type="VARCHAR(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="alert" columnName="address"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ================================================================
+         2. ALERT.coordinateid — supprimée par une précondition trop large.
+
+         Le changeset `2.0.0-6-alert-coordinateid` migre la colonne de BIGINT vers uuid :
+
+             <preConditions onFail="MARK_RAN">
+                 <columnExists tableName="alert" columnName="coordinateid"/>
+             </preConditions>
+             <dropColumn .../> <addColumn .../>
+
+         La précondition protège le `dropColumn` — légitime. Mais elle couvre TOUT le changeset,
+         `addColumn` compris. Or `alert` n'a jamais eu de `coordinateid` (le baseline 1.0.0 ne la
+         crée pas). La précondition a donc échoué, le changeset a été marqué exécuté, et la colonne
+         n'a jamais été créée : un MARK_RAN silencieux là où on croyait juste sauter une conversion
+         de type. On la crée ici directement au bon type.
+         ================================================================ -->
+    <changeSet id="2.10.0-2-alert-coordinateid" author="claude">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="coordinateid"/></not>
+        </preConditions>
+        <comment>Colonne jamais créée : 2.0.0-6 a été MARK_RAN faute de colonne préexistante.</comment>
+        <addColumn tableName="alert">
+            <column name="coordinateid" type="uuid"/>
+        </addColumn>
+        <!-- Pas de clé étrangère : `coordinate` relève du contexte « Territoire » et `alert` du
+             contexte « Déchets ». Les FK cross-contexte ont été retirées volontairement en 1.5.0
+             (ADR-0012), l'intégrité étant portée par CrossContextReferenceValidator. -->
+        <rollback>
+            <dropColumn tableName="alert" columnName="coordinateid"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ================================================================
+         3. USERS.deletionstatus / deletionrequestedat — table oubliée par le soft-delete.
+
+         `1.4.0_soft_delete_all.xml` annonce le soft-delete « pour TOUTES les entités héritant
+         d'AbstractAuditingEntity » et couvre 15 tables. `users` n'en fait pas partie, alors que
+         `UserEntity extends AbstractAuditingEntity` : les deux colonnes sont mappées et attendues.
+         Même forme que les 15 autres (défaut ACTIVE, NOT NULL) pour rester homogène.
+         ================================================================ -->
+    <changeSet id="2.10.0-3-users-soft-delete" author="claude">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="users" columnName="deletionstatus"/></not>
+        </preConditions>
+        <comment>Soft-delete de `users`, omis par 1.4.0 qui se disait pourtant exhaustif.</comment>
+        <addColumn tableName="users">
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="users" columnName="deletionstatus"/>
+            <dropColumn tableName="users" columnName="deletionrequestedat"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
