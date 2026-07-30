@@ -6,7 +6,7 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 /**
  * Gestion des communes — liste + création/édition inline + suppression.
  *
- * Backend `/v1/communes` : la liste complète est servie par `GET /communess`
+ * Backend `/v1/communes` : la liste complète est servie par `GET /communes/s`
  * (le `GET /communes` racine est paginé), le CRUD par les routes standard.
  */
 @Component({
@@ -17,7 +17,7 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 export class ListCommuneComponent implements OnInit {
 
   private readonly resource = '/communes';
-  private readonly listUrl = '/communess';
+  private readonly listUrl = '/communes/s';
 
   items: any[] = [];
   departments: any[] = [];

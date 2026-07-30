@@ -58,7 +58,7 @@ export class ListCircuitBalayageComponent implements OnInit {
   }
 
   loadCommunes(): void {
-    this.sharedService.url = '/communess';
+    this.sharedService.url = '/communes/s';
     this.sharedService.getAll().subscribe({
       next: (data) => { this.communes = data || []; },
       error: () => { /* non bloquant */ }

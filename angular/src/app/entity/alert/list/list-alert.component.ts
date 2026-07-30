@@ -10,7 +10,7 @@ import { environment } from '../../../../environments/environment';
 /**
  * Gestion des alertes — liste + création/édition (avec image) + suppression.
  *
- * Backend `/v1/alerts` : la liste complète est servie par `GET /alertss` ; la suppression par
+ * Backend `/v1/alerts` : la liste complète est servie par `GET /alerts/s` ; la suppression par
  * `DELETE /alerts/{id}`. La création/mise à jour se fait en **multipart** (champ `alert` =
  * JSON de l'alerte, partie `file` = image facultative), d'où l'appel `HttpClient` direct
  * plutôt que {@link SharedService} qui n'envoie que du JSON.
@@ -23,7 +23,7 @@ import { environment } from '../../../../environments/environment';
 export class ListAlertComponent implements OnInit, OnDestroy {
 
   private readonly resource = '/alerts';
-  private readonly listUrl = '/alertss';
+  private readonly listUrl = '/alerts/s';
 
   readonly codes = ['WARNING', 'INFO', 'DANGER'];
 

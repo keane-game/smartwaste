@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
 
   /** Charge les communes pour traduire les identifiants des agrégats en noms lisibles. */
   private loadCommuneNames(): void {
-    this.http.get<any[]>(`${environment.apiUrl}/communess`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/communes/s`).subscribe({
       next: rows => {
         (rows || []).forEach(c => { this.communeNames[String(c.communeId)] = c.name; });
       },

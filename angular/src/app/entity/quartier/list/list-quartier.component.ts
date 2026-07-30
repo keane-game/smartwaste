@@ -6,7 +6,7 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 /**
  * Gestion des quartiers — liste + création/édition inline + suppression.
  *
- * Backend `/v1/quartiers` : liste complète via `GET /quartierss` (racine paginée), CRUD standard.
+ * Backend `/v1/quartiers` : liste complète via `GET /quartiers/s` (racine paginée), CRUD standard.
  */
 @Component({
   selector: 'app-list-quartier',
@@ -16,7 +16,7 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 export class ListQuartierComponent implements OnInit {
 
   private readonly resource = '/quartiers';
-  private readonly listUrl = '/quartierss';
+  private readonly listUrl = '/quartiers/s';
 
   items: any[] = [];
   communes: any[] = [];
@@ -69,7 +69,7 @@ export class ListQuartierComponent implements OnInit {
   }
 
   loadCommunes(): void {
-    this.sharedService.url = '/communess';
+    this.sharedService.url = '/communes/s';
     this.sharedService.getAll().subscribe({
       next: (data) => { this.communes = data || []; },
       error: () => { /* non bloquant */ }

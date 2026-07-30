@@ -29,7 +29,7 @@ export class ListDepotoirComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.sharedService.url = '/depotoirss'; // liste des dépotoirs actifs
+    this.sharedService.url = '/depotoirs/s'; // liste des dépotoirs actifs
     this.sharedService.getAll().subscribe({
       next: (data) => { this.depotoirs = data || []; this.loading = false; },
       error: () => { this.loading = false; this.message = 'Erreur de chargement des dépotoirs.'; }

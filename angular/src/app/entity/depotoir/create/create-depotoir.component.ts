@@ -8,7 +8,7 @@ import { SharedService } from '../../../services/shared.service';
  * Création d'un dépotoir — formulaire réel (remplace l'ancien stub).
  *
  * `POST /v1/depotoirs` via {@link SharedService}. Le type et la commune sont sélectionnés
- * depuis les référentiels (`/typedepotoirs`, `/communess`) ; le quartier est référencé par id.
+ * depuis les référentiels (`/typedepotoirs`, `/communes/s`) ; le quartier est référencé par id.
  */
 @Component({
   selector: 'app-create-depotoir',
@@ -50,7 +50,7 @@ export class CreateDepotoirComponent implements OnInit {
   }
 
   loadCommunes(): void {
-    this.sharedService.url = '/communess';
+    this.sharedService.url = '/communes/s';
     this.sharedService.getAll().subscribe({ next: (d) => this.communes = d || [], error: () => {} });
   }
 

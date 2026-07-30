@@ -280,6 +280,44 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### 🔴 Frontend — les écrans « liste » tapaient tous un 404 (2026-07-30)
+
+*Suite directe de la découverte faite en câblant l'autorisation.*
+
+**Le défaut.** Cinq ressources réservent leur chemin simple à une réponse paginée (`page` et `size`
+**obligatoires**) et servent la liste complète sur un second chemin, déclaré `@GetMapping("s")` sous
+`@RequestMapping("/v1/communes")`. Ça se lit comme une concaténation — `/v1/communess` — et ça n'en
+est pas une : `PathPattern.combine` insère un séparateur, le chemin réel est **`/v1/communes/s`**.
+`angular/` appelait la forme concaténée partout. **Aucun écran « liste » ne pouvait donc afficher
+quoi que ce soit** : `/v1/communess` n'existe pas, n'a jamais existé, et ne *peut pas* exister — un
+chemin frère est hors de portée du préfixe de classe.
+
+**Ce qui rendait l'erreur invisible.** Elle était documentée comme une bizarrerie assumée du backend,
+dans `CLAUDE.md` comme dans l'en-tête du registre CRUD (« un chemin à double *s* »). Personne ne la
+cherchait donc, et le backend n'a jamais tourné contre PostgreSQL — un 404 sur une liste vide
+ressemble à une base vide.
+
+**Vérifié, pas déduit** : `GET /v1/users/s` rend **200**, `GET /v1/userss` rend
+« No static resource » — constaté en traversant la chaîne dans `AdministrationAuthorizationTest`.
+
+- **9 fichiers** corrigés (`/communess` → `/communes/s`, idem `quartiers`, `depotoirs`, `users`,
+  `alerts`), dont le registre déclaratif `shares/crud/entity-config.ts` d'où viennent la plupart des
+  écrans. Le commentaire qui affirmait le contraire est remplacé par l'explication du piège.
+- **Seules ces cinq ressources** ont un chemin `/s`. Les autres (`regions`, `departments`,
+  `circuits`, `coordinates`, `geometries`, `moblier-urbains`, `typedepotoirs`, `authorities`…)
+  listent bien sur leur chemin simple, et le registre les déclarait déjà correctement.
+- **Compilation vérifiée** : `npm run build` ne produit **aucune erreur TypeScript** (0 erreur hors
+  budget). Node a dû être remis en place (`~/.local/node/node-v24.18.0-linux-x64`) et les
+  dépendances réinstallées.
+
+⚠️ **Le build Angular reste rouge, pour deux raisons préexistantes et non touchées ici** :
+1. **18 dépassements de budget SCSS** (`anyComponentStyle` à 4 kB, dépassé de ~380 o à ~900 o) ;
+2. **le bundle initial pèse 4,22 Mo** contre un budget d'erreur d'1 Mo — soit **3,2 Mo de trop**.
+   Ce second point n'avait jamais été relevé : les erreurs SCSS masquaient le compte. Relever le
+   seuil a été essayé puis **annulé** — 4,22 Mo en chargement initial est un vrai défaut de
+   découpage (routes non paresseuses), pas une valeur de configuration mal réglée, et le silencier
+   ferait disparaître le seul indicateur qui le signale.
+
 ### 🔴 Autorisation réelle sur toute la surface d'administration (2026-07-30)
 
 **Le défaut.** La chaîne de sécurité se terminait par `anyRequest().authenticated()` et rien d'autre :

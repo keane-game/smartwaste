@@ -6,9 +6,17 @@
  * génériques `EntityListComponent` / `EntityFormComponent`.
  *
  * Les chemins reflètent fidèlement le backend, y compris ses irrégularités :
- *  - certaines ressources exposent la liste complète sur un chemin à double « s »
- *    (`/communess`, `/quartierss`, `/depotoirss`, `/userss`, `/alertss`) tandis que le
- *    chemin simple renvoie une `Page` ;
+ *  - cinq ressources réservent le chemin simple à une réponse `Page` (paramètres `page` et
+ *    `size` obligatoires) et servent la liste complète sur un **sous-chemin `/s`** :
+ *    `/communes/s`, `/quartiers/s`, `/depotoirs/s`, `/users/s`, `/alerts/s`.
+ *
+ *    ⚠️ Ce fichier disait précédemment `/communess`, `/quartierss`… — c'était **faux**, et
+ *    tous les écrans « liste » tapaient un 404. Le backend déclare `@GetMapping("s")` sous
+ *    `@RequestMapping("/v1/communes")`, ce qui se lit comme une concaténation mais n'en est
+ *    pas une : `PathPattern.combine` insère un séparateur. `/v1/communess` n'a jamais existé
+ *    et ne peut pas exister — un chemin frère est hors de portée du préfixe de classe.
+ *
+ *  - les autres ressources servent leur liste sur le chemin simple ;
  *  - `Region` n'expose ni PUT ni DELETE ;
  *  - `Coordinate` a un chemin de suppression non standard.
  */
@@ -89,7 +97,7 @@ export const ENTITY_CONFIGS: EntityConfig[] = [
   {
     key: 'communes', deletionResource: 'commune',
     label: 'Commune', labelPlural: 'Communes',
-    basePath: '/communes', listPath: '/communess', idField: 'communeId',
+    basePath: '/communes', listPath: '/communes/s', idField: 'communeId',
     columns: ['communeId', 'name', 'code', 'total', 'area'],
     fields: [
       text('name', 'Nom', { required: true, maxLength: 120 }),
@@ -105,7 +113,7 @@ export const ENTITY_CONFIGS: EntityConfig[] = [
   {
     key: 'quartiers', deletionResource: 'quartier',
     label: 'Quartier', labelPlural: 'Quartiers',
-    basePath: '/quartiers', listPath: '/quartierss', idField: 'quartierId',
+    basePath: '/quartiers', listPath: '/quartiers/s', idField: 'quartierId',
     columns: ['quartierId', 'name', 'code', 'cav', 'length'],
     fields: [
       text('name', 'Nom', { required: true, maxLength: 120 }),
