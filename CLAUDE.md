@@ -80,7 +80,7 @@ A legacy remnant survives in `sonaged.collecte.master` (bootstrap, config, aspec
 handlers, GeoJSON import). Legacy may depend on the new modules; the reverse must not happen.
 
 Mappers use a **static-instance pattern**: `XxxMapper.UMP.asModel(dto)` — reuse it, don't autowire.
-Circular references are still force-enabled (`spring.main.allow-circular-references=true`) — ADR-0009 §4, not yet resolved.
+Circular references are **forbidden** (`spring.main.allow-circular-references=false` since 2026-07-30, ADR-0009 §4 closed) — `ApplicationContextLoadsTest` starts the real context, so a reintroduced cycle fails the build.
 
 **Auth/security flow** (`identity/infrastructure/security`): `AuthController` → `AuthServiceImpl` (register → email activation code via `NotificationServiceImpl`/`ValidationService`; login via `AuthenticationManager`) → `JwtService` mints an HS256 token whose **subject is the user email**. `JwtFilter` (a `OncePerRequestFilter`) validates the `Bearer` token on every request; `SecurityConfiguration` is stateless, CORS-restricted to `localhost:4200`, and permits `/auth/**`, `/swagger-ui/**`, `/sonaged-docs/**` and **`GET` on `/data/**` only** (writes there were reachable unauthenticated — fixed). Users authenticate by email; `UserService.loadUserByUsername` looks up by email.
 

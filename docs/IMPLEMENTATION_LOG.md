@@ -280,6 +280,36 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### ADR-0009 §4 — la tolérance aux cycles couvrait un défaut disparu depuis longtemps (2026-07-30)
+
+`spring.main.allow-circular-references: true` traînait depuis l'origine, commenté « dette
+existante », pour masquer un cycle `JwtFilter → UserService → JwtService`. C'était le dernier point
+ouvert de l'ADR-0009, et le seul que personne n'avait osé toucher : le corriger « demandait un léger
+remaniement de l'injection dans la sécurité ».
+
+**Il ne demandait rien du tout.** Le cycle n'existait plus. `JwtService` ne dépend que de
+`UserService` et `UserRepository` ; `UserServiceImpl` ne dépend ni de l'un ni de l'autre
+(`AuthorityRepository`, `UserRepository`, `BCryptPasswordEncoder`). Le graphe est acyclique depuis
+un moment — probablement depuis la refonte de `JwtService` autour des sessions révocables. La ligne
+de configuration a survécu au défaut qu'elle contournait.
+
+**C'est précisément ce qui la rendait nuisible.** Elle ne couvrait plus le cycle d'origine : elle
+couvrait *les suivants*, ceux qu'on aurait introduits sans jamais le savoir. Une tolérance qui ne
+tolère plus rien de connu ne protège personne — elle désarme le seul détecteur.
+
+- **Passée à `false`.** Aucune abstraction, aucun `@Lazy`, aucune ligne de code applicatif.
+- **Vérifié par mutation, et c'est le point du chantier** : en réintroduisant *exactement* le cycle
+  documenté (une dépendance `JwtService` dans `UserServiceImpl`), le démarrage échoue désormais sur
+  « The dependencies of some of the beans in the application context form a cycle », via
+  `ApplicationContextLoadsTest`. Avant, le même cycle passait en silence.
+- **Un test garde la décision, pas seulement l'état** : `circularReferencesStayForbidden` vérifie que
+  la propriété vaut bien `false`. Le démarrage du contexte suffirait à détecter un cycle ; cette
+  assertion-là empêche autre chose — que la tolérance soit **rétablie en silence** pour débloquer un
+  démarrage, ce qui ressemblerait à un réglage anodin plutôt qu'à une dette contractée. C'est
+  exactement l'histoire qu'on vient de refermer.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **138 tests, 137 passants, 1 ignoré**. ADR-0009 clos.
+
 ### Frontend — 2,6 Mo de bibliothèques mortes chargées à chaque visite (2026-07-30)
 
 **Correction du diagnostic précédent.** L'entrée ci-dessous attribuait les 4,22 Mo du bundle initial

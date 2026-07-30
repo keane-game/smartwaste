@@ -1,6 +1,6 @@
 # ADR-0009 — Nettoyage des dépendances backend
 
-- Statut : **Accepté — quasi implémenté** (P1-1). springfox retiré, auth0 `java-jwt` retiré, code mort `ENCRIPTION_KEY`/`getKey()` retiré (2026-07-28). ⚠️ **Reste le §4 : `spring.main.allow-circular-references=true` est toujours actif.**
+- Statut : **Accepté — implémenté** (P1-1). springfox retiré, auth0 `java-jwt` retiré, code mort `ENCRIPTION_KEY`/`getKey()` retiré (2026-07-28). **§4 clos le 2026-07-30** : `allow-circular-references` est passé à `false`. Le cycle `JwtFilter ↔ UserService ↔ JwtService` n'existait plus — `JwtService` ne dépend que de `UserService` et `UserRepository`, et `UserServiceImpl` ne dépend d'aucun des deux ; aucune abstraction ni `@Lazy` n'a donc été nécessaire. La ligne de configuration avait survécu au défaut qu'elle contournait, et couvrait entre-temps les cycles suivants. Vérifié par mutation : réintroduire exactement ce cycle fait désormais échouer le démarrage du contexte.
 - Date : 2026-07-11
 - Priorité : P1-1
 

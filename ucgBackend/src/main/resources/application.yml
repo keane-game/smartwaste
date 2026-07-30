@@ -79,9 +79,17 @@ spring:
           lob:
             non_contextual_creation: true
 
-  # Dépendance circulaire tolérée (dette existante, cf. PROJECT_STATUS).
+  # Références circulaires INTERDITES (ADR-0009 §4).
+  #
+  # La tolérance était activée pour masquer un cycle `JwtFilter -> UserService -> JwtService`.
+  # Ce cycle n'existe plus : `JwtService` ne dépend que de `UserService` et `UserRepository`, et
+  # `UserServiceImpl` ne dépend d'aucun des deux. La ligne avait donc survécu au défaut qu'elle
+  # contournait, et continuait à couvrir les cycles suivants — qui, eux, n'auraient été découverts
+  # qu'en production.
+  #
+  # Ne pas remettre `true` pour débloquer un démarrage : ce serait accepter un cycle sans l'avoir vu.
   main:
-    allow-circular-references: true
+    allow-circular-references: false
 
   mail:
     default-encoding: UTF-8

@@ -91,4 +91,19 @@ class ApplicationContextLoadsTest {
         assertThat(context.getBeansOfType(IngestionMetrics.class)).hasSize(1);
         assertThat(context.getBeansOfType(CitizenReportMetrics.class)).hasSize(1);
     }
+
+    @Test
+    @DisplayName("les références circulaires restent interdites")
+    void circularReferencesStayForbidden() {
+        // Le démarrage du contexte, ci-dessus, est déjà la vraie garantie : avec
+        // `allow-circular-references: false`, un cycle réintroduit fait échouer `contextLoads`.
+        //
+        // Cette assertion garde autre chose — que **la tolérance ne soit pas rétablie en silence**.
+        // Elle l'a été pendant des mois pour masquer un cycle `JwtFilter ↔ UserService ↔ JwtService`
+        // qui, lui, avait disparu depuis longtemps : la ligne de configuration a survécu au défaut
+        // qu'elle contournait. Sans ce garde-fou, remettre `true` pour débloquer un démarrage
+        // ressemblerait à un réglage anodin plutôt qu'à une dette contractée.
+        assertThat(context.getEnvironment().getProperty("spring.main.allow-circular-references"))
+                .isEqualTo("false");
+    }
 }
