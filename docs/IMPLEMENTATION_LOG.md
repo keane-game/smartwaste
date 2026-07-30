@@ -29,6 +29,57 @@
 
 ## Détail
 
+### 🏁 Mise en service : le système contient enfin des données et un compte (2026-07-30)
+
+Plan : `PLAN_MISE_EN_SERVICE.md` (B1→B5). Décisions : ADR-0014, ADR-0015.
+
+**Point de départ.** Le premier démarrage réel contre PostgreSQL (même jour) avait montré une base
+quasi vide : rôles, organisation et seuil semés, mais `users = 0` et **tout le référentiel
+territorial à 0**. Le moteur de seuils, les read-models de carte, les tournées, la supervision :
+tout était écrit, testé, et tournait à vide.
+
+**Ce qui bloquait, et qui n'était visible qu'en exécutant.**
+- **Aucune région** : `2.0.0` purge le référentiel pour passer en `uuid`, `data/region.sql` n'a
+  jamais été rejoué. `UploadFileServiceImpl:60` renvoyait `"Region not found"` et **toute la chaîne
+  d'import s'arrêtait en cascade, sans erreur** — l'import ne échouait pas, il ne faisait rien.
+- **Aucun compte** : `2.1.0-3` vide `users` avant de convertir la clé ; `/auth/register` n'accorde
+  que `USER` et exige un code d'activation par courriel. Aucun chemin ne menait à un `ADMIN`.
+- **Coordonnées fausses** : les 13 fichiers sont en UTM 28N (`wkid 32628`, en mètres) et l'import
+  posait `x` dans `latitude` et `y` dans `longitude`. Chaque point serait allé à
+  « latitude 239 504 » — hors de la Terre pour la carte, Flutter et les read-models.
+- **Fichiers redondants** : les 7 fichiers de points totalisent 132 entrées pour **71 positions
+  distinctes** (49 coordonnées présentes dans plusieurs fichiers) ; 6 d'entre eux n'étaient lus par
+  personne alors qu'ils portent le schéma de `depotoir.json`.
+
+**Deux défauts latents découverts en exécutant, et qu'aucun test ne pouvait voir avant.**
+- `resolveOrCreateType` instanciait un `TypeDepotoirEntity` **sans l'enregistrer** ; comme
+  `Depotoir → TypeDepotoir` ne cascade pas en `PERSIST` (P1-2 l'a réduit à `REFRESH/MERGE` pour
+  protéger un référentiel partagé), le premier import réel est mort en
+  `TransientObjectException`. Le défaut existait depuis l'origine : `typedepotoir` était vide et
+  l'import n'avait jamais tourné.
+- `spring-boot-starter-test` traîne `com.vaadin.external.google:android-json`, qui redéfinit
+  `org.json` avec une API amputée (pas de `keySet()`) et **masque** le vrai `org.json` en scope
+  test. Tout test touchant `UploadFileServiceImpl` échouait en `NoSuchMethodError` — c'est pourquoi
+  l'import n'avait aucun test. Exclu du starter.
+
+**Résultat mesuré en base**, après import réel : `region=1`, `departement=1`, `commune=12`,
+`quartier=357`, `circuitcollect=52`, `circuitbalayage=156`, `depotoir=71` (22 bacs de rue,
+12 caisses polybennes, 25 PP, 12 PRN), `typedepotoir=4`, `users=1`. Rapport d'import :
+**71 importés, 61 doublons ignorés, 15 sans commune**. Les **14 416 coordonnées** tiennent dans
+`lat[14.7199 ; 14.7768]` et `lon[-17.4245 ; -17.2936]` — l'emprise de Pikine — et **aucune** n'en
+sort. Connexion `POST /auth/authenticate` → 200 avec `ROLE_SUPER_ADMIN` ; `/v1/communes/s`,
+`/v1/depotoirs/s`, `/v1/quartiers/s`, `/v1/users/s`, `/v1/supervision/stats` → 200.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-07-30 | **B1** Racine territoriale semée (région Dakar, UUID v7 fixe) | `changelog/2.11.0_seed_region_racine.xml`, `master.xml` | ✅ vérifié en base | Idempotent (précondition `sqlCheck`) ; l'import prend « la première région venue » |
+| 2026-07-30 | **B2** Amorçage du compte d'administration par l'environnement | `identity/application/api/AdminAccountProvisioning`, `identity/.../AdminAccountProvisioningImpl`, `administration/.../AdminBootstrapRunner`, `application.yml` | ✅ vérifié (connexion 200) | **`SONAGED_ADMIN_EMAIL` / `SONAGED_ADMIN_PASSWORD` obligatoires** : sans eux, aucun compte et un avertissement. Ne réécrit jamais un compte existant. Passe par un port publié — `modules.verify()` a refusé la 1ʳᵉ version qui touchait `UserRepository` depuis `administration` |
+| 2026-07-30 | **B3** Reprojection UTM 28N → WGS84 à l'import | `administration/.../CoordinateProjector`, `UploadFileServiceImpl` | ✅ vérifié (0 point hors emprise) | Formule fermée (Snyder §8), sans dépendance ; points de contrôle dérivés indépendamment. Seul composant connaissant une projection |
+| 2026-07-30 | **B4** 7 fichiers de points, dédoublonnage, rapport | `UploadFileService(+Impl)`, `GeoJsonImportServiceImpl`, `WasteImportAdapter` | ✅ 71 importés / 61 doublons | Clé = position au mètre + type. `pre_collecte.json` hors périmètre. `MoblierUrbain` non retenu (coquille vide — retrait = validation requise) |
+| 2026-07-30 | **B5** Parcours de fumée réel contre PostgreSQL | — | 🟠 **s'arrête sur la carte** | ⚠️ **`GET /v1/maps/depotoirs` renvoie `[]`** : `importDepotoir` n'attache **aucune géométrie** aux points (`0/71` ont un `geometryid`), par décision documentée de `WasteImportAdapter` (la géométrie appartient au référentiel territorial). Les 71 points ont adresse, type et commune, mais **ne peuvent pas s'afficher**. Leur donner des coordonnées est une décision cross-contexte → ADR à écrire |
+| 2026-07-30 | Correctif — type de dépôt jamais persisté | `WasteImportAdapter` | ✅ testé | Défaut d'origine, révélé au premier import |
+| 2026-07-30 | Correctif — `android-json` masquait `org.json` en test | `pom.xml` | ✅ testé | Débloque tout test de l'import GeoJSON |
+
 ### P0-1 — Hacher le mot de passe fourni (2026-07-11)
 - **Problème** : `register()` faisait `passwordEncoder.encode("Sonaged@123")` → tous les comptes partageaient le même mot de passe.
 - **Cause** : constante codée en dur au lieu du mot de passe soumis (`user.getUserPassword()`).
