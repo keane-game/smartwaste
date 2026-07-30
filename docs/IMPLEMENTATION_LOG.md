@@ -280,6 +280,67 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### Frontend — 2,6 Mo de bibliothèques mortes chargées à chaque visite (2026-07-30)
+
+**Correction du diagnostic précédent.** L'entrée ci-dessous attribuait les 4,22 Mo du bundle initial
+à des « routes non paresseuses ». C'était faux, et la mesure le montre : le code applicatif ne pèse
+que 148 ko. Les 4,22 Mo venaient de la liste `scripts` d'`angular.json` — **2,53 Mo de JavaScript
+global**, hérité tel quel du gabarit Bootstrap d'origine.
+
+**Ce qui était chargé sur chaque page, et utilisé nulle part** :
+
+| Bibliothèque | Poids | Références dans `src/` |
+|---|---|---|
+| tinymce | 1,1 Mo | 0 |
+| echarts | 992 ko | 0 |
+| apexcharts | 480 ko | 0 |
+| quill | 212 ko | 0 |
+| chart.js | 192 ko | 0 (une seule mention : un commentaire disant qu'il a été retiré) |
+| simple-datatables | 40 ko | 0 |
+| php-email-form/validate.js | 4 ko | 0 — poste vers un script PHP inexistant |
+
+Vérifié dans les deux sens : aucun `.ts`/`.html` ne nomme ces bibliothèques, et aucun gabarit ne
+porte les classes que `main.js` cherche pour les instancier (`.quill-editor-*`,
+`textarea.tinymce-editor`, `.datatable`, `.echart`).
+
+**Un seul obstacle réel, et il est instructif** : dans `assets/js/main.js`, les blocs Quill, ECharts
+et Datatables sont gardés par un sélecteur — ils ne s'exécutent pas quand l'élément est absent —
+mais `tinymce.init(...)` était appelé **sans condition**. Retirer la bibliothèque aurait donc planté
+au chargement. Une garde `typeof tinymce !== 'undefined'` suffit ; c'est la seule ligne de code
+touchée.
+
+**Deux versions de Bootstrap cohabitaient**, et pas de façon anodine : `node_modules` fournit la
+**5.3.2**, `assets/vendor` la **5.1.3**, et les quatre fichiers étaient déclarés. L'ordre de
+chargement faisait donc tourner l'application avec **le CSS de la 5.1.3 et le JS de la 5.3.2**. Les
+entrées `node_modules` sont retirées : le couple redevient cohérent en 5.1.3 — la version pour
+laquelle le gabarit a été écrit — et le JS conservé est le *bundle*, qui embarque Popper (dropdowns,
+tooltips), contrairement au `bootstrap.min.js` de la 5.3.2. **Le CSS effectivement appliqué ne
+change pas** : la 5.1.3 gagnait déjà, étant chargée en dernier.
+
+**jQuery est conservé** : `header.component.ts` et `sidebar.component.ts` l'utilisent réellement
+(`$('#sidebarCollapse')`). C'est discutable dans une application Angular, mais c'est vivant.
+
+**Résultat mesuré** (`npm run build`) :
+
+| | avant | après |
+|---|---|---|
+| `scripts` | 2,53 Mo | **167 ko** |
+| `styles` | 681 ko | **455 ko** |
+| **bundle initial** | **4,22 Mo** | **1,63 Mo** (−61 %) |
+| transfert estimé | 974 ko | **350 ko** (−64 %) |
+
+⚠️ **Le build reste rouge**, et il faut le dire précisément :
+- **bundle initial 1,63 Mo contre 1 Mo** de budget d'erreur. Le reliquat est surtout du CSS global
+  (455 ko : Bootstrap + **trois** polices d'icônes — bootstrap-icons, boxicons, remixicon) et le
+  framework Angular lui-même. Descendre sous 1 Mo demanderait d'arbitrer les polices d'icônes ou de
+  découper les routes : ce sont des décisions, pas des nettoyages.
+- **17 dépassements de budget de style de composant.** Le motif est parlant : la plupart sont à
+  **exactement 380 octets au-dessus** de 4 ko. Vérification faite, cinq de ces fichiers sont
+  **strictement identiques** (même MD5) — c'est une feuille de style de tableau recopiée dans chaque
+  écran « liste ». La corriger vraiment suppose de remonter ces règles dans la feuille globale, donc
+  de renoncer à l'encapsulation de vue sur ces composants ; relever le seuil masquerait le doublon.
+  Aucune des deux n'est un choix à faire en passant.
+
 ### 🔴 Frontend — les écrans « liste » tapaient tous un 404 (2026-07-30)
 
 *Suite directe de la découverte faite en câblant l'autorisation.*

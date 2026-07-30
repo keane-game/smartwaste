@@ -180,11 +180,16 @@
 
   /**
    * Initiate TinyMCE Editor
+   *
+   * Garde ajoutee : cet appel etait le seul du fichier a n'etre conditionne par rien. Les blocs
+   * voisins (Quill, ECharts, Datatables) sont deja gardes par un selecteur et ne s'executent pas
+   * quand l'element n'existe pas ; celui-ci plantait des le chargement si `tinymce` n'etait pas
+   * charge — ce qui interdisait de retirer une bibliotheque de 1,1 Mo qu'aucun ecran n'utilise.
    */
 
   var useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  tinymce.init({
+  if (typeof tinymce !== 'undefined') tinymce.init({
     selector: 'textarea.tinymce-editor',
     plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
     imagetools_cors_hosts: ['picsum.photos'],
