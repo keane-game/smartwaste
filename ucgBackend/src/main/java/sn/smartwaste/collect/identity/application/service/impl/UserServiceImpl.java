@@ -34,8 +34,10 @@ public class UserServiceImpl  implements UserService {
     private final AuthorityRepository authorityRepository;
     private final UserRepository userRepository;
 
-    @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    // Injecté par constructeur (via @RequiredArgsConstructor) et non plus par champ @Autowired :
+    // une dépendance posée par réflexion après construction ne peut pas être fournie par un test
+    // sans démarrer un contexte Spring — l'encodage du mot de passe restait donc non testable.
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public User readUser(UUID userId) {
@@ -58,9 +60,24 @@ public class UserServiceImpl  implements UserService {
 
     }
 
+    /**
+     * Création d'un compte par un administrateur.
+     *
+     * <p><b>Le mot de passe n'est plus une constante.</b> L'ancien code encodait
+     * {@code "Sonaged@123"} pour <i>tous</i> les comptes créés ici : la valeur est en clair dans le
+     * dépôt et dans son historique, donc connaître l'adresse d'un collègue suffisait à entrer dans
+     * son compte. `AuthServiceImpl.register` avait déjà été corrigé ; ce chemin-là, réservé à
+     * l'administration, était resté en arrière — et il attribue en plus le rôle, ce qui en faisait
+     * le plus intéressant des deux à emprunter.
+     *
+     * <p>Le mot de passe fourni est exigé et haché, exactement comme à l'inscription.
+     */
     @Override
     public User createUser(User user) {
-        user.setUserPassword(bCryptPasswordEncoder.encode("Sonaged@123"));
+        if (user.getUserPassword() == null || user.getUserPassword().isBlank()) {
+            throw new ResourceNotFoundException("Le mot de passe est obligatoire");
+        }
+        user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));
         var userSave = userRepository.save(UserMapper.UMP.asModel(user));
         return UserMapper.UMP.asDto(userSave);
     }

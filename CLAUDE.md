@@ -88,7 +88,7 @@ Circular references are still force-enabled (`spring.main.allow-circular-referen
 
 **API conventions**: base `/v1/**`, auth `/auth/**`, maps `/v1/maps/**`. Note `AlertController` uses quirky path suffixes (`@GetMapping("s")`, `@PostMapping("s")` under `/v1/alerts`). Schema belongs **exclusively to Liquibase** (`config/liquibase/master.xml`); Hibernate is `ddl-auto=validate`. Never switch back to `update`/`create`. Every entity change needs a changeset.
 
-**Note**: several list endpoints have a double-`s` path (`/v1/communess`, `/v1/userss`…) — a real quirk, encoded in the Angular CRUD registry.
+⚠️ **Note (corrected 2026-07-30)**: the "full list" endpoints are declared `@GetMapping("s")` under e.g. `@RequestMapping("/v1/users")`, which reads like `/v1/userss` — **it is not**. Spring's `PathPattern.combine` inserts a separator, so the real path is **`/v1/users/s`** (verified: `GET /v1/users/s` returns 200, `GET /v1/userss` returns "No static resource"). The Angular CRUD registry calls `/v1/communess`, `/v1/depotoirss`… — **those URLs do not exist on the backend**; every "list all" screen in `angular/` is hitting a 404. Not fixed here (frontend scope).
 
 ### Frontend — Angular (`angular/`)
 Feature areas: `core/` (login, guards, interceptors incl. `jwt.interceptor`, cross-cutting services), `entity/` (CRUD screens generated from the declarative registry `shares/crud/entity-config.ts`), `shares/` (layout/header/sidebar/footer), `pages/general/` (mostly empty), `services/` (generic `shared.service` is the real API client; `services/user.service.ts` is an empty stub). Backend URL comes from `src/environments/environment*.ts`.
@@ -99,8 +99,9 @@ Feature-first clean architecture: `features/<name>/{data,domain,presentation}`, 
 ## Known sharp edges (full list: `docs/KNOWLEDGE_MAP.md`)
 - **The app has never been started against PostgreSQL.** `ddl-auto=validate` has therefore never confronted the entities with the Liquibase schema. Neither the compiler, nor `JpaMappingBootstrapTest`, nor the H2 context test can substitute for that.
 - **Secrets remain in Git history** (JWT signing secret, DB password, Google key). Configuration is externalised and a root `.gitignore` exists, but **rotation and history purge were never done** (ADR-0002 §4-5). Do not add new ones.
-- `UserServiceImpl.createUser` still hardcodes `Sonaged@123`. `AuthServiceImpl.register` no longer does.
-- **`SecurityRule` beans are inert**: `AuthorityRules`/`UserRules` declare 13 authorization rules nothing ever applies. Real authorization is only `anyRequest().authenticated()` — no per-role check is active.
+- ~~`UserServiceImpl.createUser` still hardcodes `Sonaged@123`~~ — fixed 2026-07-30: it now requires and hashes the submitted password, like `AuthServiceImpl.register`. The constant remains in Git history.
+- **`SecurityRule` beans are inert**: `AuthorityRules`/`UserRules` declare 13 authorization rules nothing ever applies. They are now *redundant* as well as inert — real authorization lives in `SecurityConfiguration.authorizeHttpRequests` (writes under `/v1/**` and the whole administration surface require `ADMIN`/`SUPER_ADMIN`; referential reads stay open to any account) plus `@PreAuthorize` on the newer controllers. Deleting the dead rule beans still needs validation.
+- **`ADMIN` can manage roles** (`MANAGE_ROLE` is seeded on it): an `ADMIN` can therefore grant itself `SUPER_ADMIN` via `/v1/authorities`. That follows the seeded intent; narrowing it to `SUPER_ADMIN` is a product decision, not a bug fix.
 - **Foreign leftovers**: `DataNotifierAspect`'s pointcut targets `com.worldline.tapandgo`, and the `Permission` enum carries ~20 values from that unrelated domain. The aspect can never fire.
 - `HistoryEntity` is a hollow stub (one `@Id`) dragging a DTO, mapper, repository, service and controller.
 - ⚠️ `src/main/resources/schema.sql` begins with `DROP DATABASE`. It is neutralised (`spring.sql.init.mode: never`) and must never be re-enabled.

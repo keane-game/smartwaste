@@ -21,8 +21,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 
 @Configuration
 @EnableWebSecurity
@@ -31,6 +34,16 @@ import static org.springframework.http.HttpMethod.POST;
 // module, qui declarent 13 regles d'autorisation que rien n'applique.
 @EnableMethodSecurity
 public class SecurityConfiguration{
+
+    /**
+     * Rôles habilités à administrer. Ce sont ceux qui <b>existent réellement</b> (semés par le
+     * changelog 2.1.0) : le modèle ne connaît ni agent ni superviseur.
+     *
+     * <p>Sans préfixe {@code ROLE_} : {@code hasAnyRole} l'ajoute, et
+     * {@code UserEntity.getAuthorities()} le pose déjà côté principal.
+     */
+    private static final String[] ADMINISTRATION = { "ADMIN", "SUPER_ADMIN" };
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDetailsService userDetailsService;
 
@@ -89,6 +102,60 @@ public class SecurityConfiguration{
                                                 .requestMatchers(POST, "/v1/measurements").permitAll()
                                                 // Meme raison pour les traceurs embarques.
                                                 .requestMatchers(POST, "/v1/vehicle-positions").permitAll()
+
+                                                // =========================================================
+                                                //  AUTORISATION PAR RÔLE
+                                                //
+                                                //  Jusqu'ici la chaîne s'arrêtait à
+                                                //  `anyRequest().authenticated()` : **tout compte
+                                                //  authentifié pouvait tout faire**. Or `/auth/register`
+                                                //  est public — n'importe qui pouvait donc créer un compte
+                                                //  et, une fois activé, écraser le référentiel territorial,
+                                                //  réimporter les GeoJSON, créer d'autres comptes ou vider
+                                                //  la corbeille. Les 13 règles de `AuthorityRules` /
+                                                //  `UserRules` donnaient l'illusion du contraire : rien ne
+                                                //  les applique.
+                                                //
+                                                //  L'ordre compte : la première règle qui correspond gagne.
+                                                // =========================================================
+
+                                                // ---- Gestes d'habitant : déclarés AVANT le refus par
+                                                // défaut, sinon un citoyen ne pourrait plus rien déposer.
+                                                .requestMatchers(POST, "/avis").authenticated()
+                                                .requestMatchers(GET, "/avis/mine").authenticated()
+                                                .requestMatchers("/v1/collection-subscriptions",
+                                                                 "/v1/collection-subscriptions/**").authenticated()
+
+                                                // ---- Administration : la LECTURE aussi est réservée.
+                                                // La liste des comptes, l'état de la corbeille et les
+                                                // rapports de supervision renseignent sur l'organisation
+                                                // autant que les écritures la modifient.
+                                                .requestMatchers("/v1/users*", "/v1/users/**",
+                                                                 "/v1/authorities*", "/v1/authorities/**",
+                                                                 "/v1/deletions", "/v1/deletions/**",
+                                                                 "/v1/admin/**",
+                                                                 "/v1/supervision/**").hasAnyRole(ADMINISTRATION)
+                                                // Le flux SSE diffuse toutes les alertes de la ville.
+                                                .requestMatchers(GET, "/v1/alerts/stream").hasAnyRole(ADMINISTRATION)
+
+                                                // ---- Écriture : refusée par défaut.
+                                                //
+                                                // Énumérer les ressources à protéger serait reproduire
+                                                // l'erreur d'origine : celle qu'on oublie ne proteste pas.
+                                                // Ici c'est l'inverse — un nouvel endpoint d'écriture sous
+                                                // `/v1` est fermé tant que personne ne l'ouvre, et le mode
+                                                // de panne devient un 403 visible en développement plutôt
+                                                // qu'un trou silencieux.
+                                                .requestMatchers(POST, "/data/**").hasAnyRole(ADMINISTRATION)
+                                                .requestMatchers(POST, "/v1/**").hasAnyRole(ADMINISTRATION)
+                                                .requestMatchers(PUT, "/v1/**").hasAnyRole(ADMINISTRATION)
+                                                .requestMatchers(PATCH, "/v1/**").hasAnyRole(ADMINISTRATION)
+                                                .requestMatchers(DELETE, "/v1/**").hasAnyRole(ADMINISTRATION)
+
+                                                // ---- Lecture du référentiel : ouverte à tout compte.
+                                                // La carte, les quartiers et les horaires de collecte sont
+                                                // ce qu'un habitant vient consulter ; les fermer viderait
+                                                // l'application mobile de son contenu.
                                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->

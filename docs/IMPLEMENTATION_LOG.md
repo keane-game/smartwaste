@@ -280,6 +280,75 @@ Nombre de dépendances **entrantes** mesurées avant migration : `supervision` 0
 - **Statut** : ✅ `./mvnw clean verify` vert — **22 tests, 21 passants, 1 ignoré**. `modules.verify()` passe sur les 4 contextes peuplés. *(Le build Angular échoue sur 18 dépassements de budget SCSS **préexistants**, vérifié en rejouant le build sans la modification.)*
 - **Restes du legacy** : 90 fichiers dans `sonaged.collecte.master` — contexte `waste` (dépotoirs, circuits, alertes, mobilier, historique, images) + `UploadFileServiceImpl` / import GeoJSON.
 
+### 🔴 Autorisation réelle sur toute la surface d'administration (2026-07-30)
+
+**Le défaut.** La chaîne de sécurité se terminait par `anyRequest().authenticated()` et rien d'autre :
+**tout compte authentifié pouvait tout faire.** Or `/auth/register` est public. Le chemin
+d'exploitation était donc complet et à la portée de n'importe qui : s'inscrire, recevoir le code
+d'activation à sa propre adresse, activer — puis écraser le référentiel territorial, réimporter les
+GeoJSON en bloc, créer d'autres comptes, lire la liste des utilisateurs, fouiller et restaurer la
+corbeille. Les treize règles de `AuthorityRules` / `UserRules` donnaient précisément l'illusion
+inverse : elles décrivent une autorisation par permissions que **rien n'appelle**. Cinq contrôleurs
+récents portaient un `@PreAuthorize` ; les **vingt-cinq autres** n'avaient rien.
+
+**Le correctif est une inversion, pas une énumération.** Protéger en listant les ressources
+sensibles serait reproduire l'erreur d'origine — celle qu'on oublie ne proteste pas. La règle est
+donc :
+
+```
+POST/PUT/PATCH/DELETE  /v1/**   →  ADMIN | SUPER_ADMIN     (refus par défaut)
+/v1/users**, /v1/authorities**, /v1/deletions**, /v1/admin/**,
+/v1/supervision/**, GET /v1/alerts/stream
+                                →  ADMIN | SUPER_ADMIN     (lecture comprise)
+POST /data/**                   →  ADMIN | SUPER_ADMIN     (import GeoJSON manuel)
+tout le reste                   →  authentifié
+```
+
+Un nouvel endpoint d'écriture sous `/v1` est **fermé tant que personne ne l'ouvre** : le mode de
+panne devient un 403 visible en développement, plus un trou silencieux.
+
+**Ce qui reste délibérément ouvert**, et qui compte autant que ce qui ferme :
+- **la lecture du référentiel** (communes, quartiers, dépotoirs, circuits, carte, horaires) — c'est
+  le contenu même de l'application mobile ; la fermer la viderait ;
+- **les gestes d'habitant** — `POST /avis`, `GET /avis/mine`, et surtout
+  `/v1/collection-subscriptions`, qui est une **écriture sous `/v1`** : sans exception explicite,
+  le refus par défaut aurait supprimé l'abonnement aux rappels de collecte ;
+- **l'ingestion des capteurs** (`POST /v1/measurements`, `/v1/vehicle-positions`) — un capteur n'est
+  pas une personne, il s'authentifie par clé de device. Lui imposer un rôle couperait la chaîne.
+
+**La lecture de l'administration est réservée elle aussi.** La liste des comptes, l'état de la
+corbeille et les rapports de supervision renseignent sur l'organisation autant que les écritures la
+modifient ; les traiter comme de la consultation banale serait une demi-mesure.
+
+**Second défaut, même chaîne d'attaque : `UserServiceImpl.createUser` encodait `"Sonaged@123"`** —
+une constante en clair dans le dépôt — pour tous les comptes créés par l'administration. Connaître
+l'adresse d'un collègue suffisait donc à entrer dans son compte. `register` avait été corrigé en
+P0-1 ; ce chemin-là était resté en arrière, et comme il **attribue aussi le rôle**, c'était le plus
+intéressant des deux à emprunter. Le mot de passe fourni est désormais exigé et haché. Au passage,
+`BCryptPasswordEncoder` passe d'un champ `@Autowired` à une injection par constructeur : une
+dépendance posée par réflexion après construction rendait l'encodage **non testable** sans démarrer
+un contexte Spring.
+
+**⚠️ Découverte : les URL de liste du frontend n'existent pas.** Les endpoints « tout lister » sont
+déclarés `@GetMapping("s")` sous `@RequestMapping("/v1/users")`, ce qui se lit `/v1/userss` — et
+c'est faux. `PathPattern.combine` insère un séparateur : le chemin réel est **`/v1/users/s`**.
+Vérifié en traversant la chaîne : `GET /v1/users/s` rend 200, `GET /v1/userss` rend
+« No static resource ». Or le registre CRUD d'`angular/` appelle `/v1/communess`, `/v1/depotoirss`…
+**Tous les écrans « liste » du front tapent donc un 404.** `CLAUDE.md` documentait la mauvaise
+version ; il est corrigé. Le correctif frontend n'est pas fait ici (autre sous-projet).
+
+**12 tests, vérifiés par mutation.** `AdministrationAuthorizationTest` traverse le contexte Spring
+complet — une règle non câblée ne proteste pas, c'est le mode de panne de ce projet, et un test
+unitaire sur le contrôleur passerait au vert avec ou sans protection. Mutation : remplacer les sept
+`hasAnyRole(ADMINISTRATION)` par `authenticated()` fait échouer **les cinq cas de refus**, un
+`USER` obtenant alors 200 sur `/v1/users/s` et `/v1/supervision/stats`.
+
+- **Statut** : ✅ `./mvnw clean verify` vert — **137 tests, 136 passants, 1 ignoré**.
+- **Non traité** : les beans `SecurityRule` inertes sont maintenant *redondants* en plus d'être
+  morts ; leur suppression demande validation (règle du projet). Et `ADMIN` porte `MANAGE_ROLE`
+  dans le semis, donc un `ADMIN` peut se promouvoir `SUPER_ADMIN` via `/v1/authorities` : c'est
+  l'intention semée, la restreindre est une décision produit et non un correctif.
+
 ### Le tableau de bord dit enfin ce qu'il ne détecte pas (2026-07-30)
 
 **Le défaut de fond.** Tous les indicateurs de supervision se déduisaient de ce que le système avait
