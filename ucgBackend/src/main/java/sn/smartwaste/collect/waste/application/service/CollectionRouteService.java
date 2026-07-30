@@ -31,7 +31,8 @@ public interface CollectionRouteService {
      */
     record RouteStop(Long depotoirId, String address, String typeName,
                      StopPriority priority, Integer fillLevelPercent,
-                     Instant lastMeasuredAt, String reason) { }
+                     Instant lastMeasuredAt, String reason,
+                     Double latitude, Double longitude) { }
 
     /** Niveaux d'urgence, du plus au moins pressant. */
     enum StopPriority {

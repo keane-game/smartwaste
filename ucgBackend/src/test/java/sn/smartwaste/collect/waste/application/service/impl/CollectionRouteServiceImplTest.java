@@ -39,8 +39,10 @@ class CollectionRouteServiceImplTest {
     private DepotoirRepository depotoirRepository;
 
     private CollectionRouteServiceImpl service() {
+        // Anti-famine desactive (age maximal tres eleve) : ces cas-ci verifient le tri par urgence
+        // et par anciennete, sans que le rattrapage des delaisses ne s'en mele.
         return new CollectionRouteServiceImpl(depotoirRepository,
-                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24);
+                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650);
     }
 
     private static DepotoirEntity point(long id, String address, Integer fill, Instant measuredAt) {

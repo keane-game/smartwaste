@@ -3,7 +3,10 @@ package sn.smartwaste.collect.waste.application.service.impl;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.stream.Collectors;
+import sn.smartwaste.collect.waste.domain.model.GeoDistance;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,26 +47,134 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
     private final Clock clock;
     private final int fillThresholdPercent;
     private final Duration measurementValidity;
+    /** Au-dela de cet age d'information, un point repasse devant malgre la geographie. */
+    private final Duration maxStaleness;
 
     public CollectionRouteServiceImpl(DepotoirRepository depotoirRepository,
                                       Clock clock,
                                       @Value("${sonaged.alerting.fill-threshold-percent:80}") int fillThresholdPercent,
-                                      @Value("${sonaged.routing.measurement-validity-hours:24}") long validityHours) {
+                                      @Value("${sonaged.routing.measurement-validity-hours:24}") long validityHours,
+                                      @Value("${sonaged.routing.max-staleness-hours:72}") long maxStalenessHours) {
         this.depotoirRepository = depotoirRepository;
         this.clock = clock;
         this.fillThresholdPercent = fillThresholdPercent;
         this.measurementValidity = Duration.ofHours(validityHours);
+        this.maxStaleness = Duration.ofHours(maxStalenessHours);
     }
 
     @Override
     public List<RouteStop> planForCommune(UUID communeId) {
         Instant now = Instant.now(clock);
-        return depotoirRepository.findByCommuneIdAndDeletionStatus(communeId, DeletionStatus.ACTIVE).stream()
+        List<RouteStop> stops = depotoirRepository
+                .findByCommuneIdAndDeletionStatus(communeId, DeletionStatus.ACTIVE).stream()
                 .map(d -> toStop(d, now))
-                // Tri : urgence d'abord, puis anciennete de l'information a urgence egale.
-                .sorted(Comparator.comparing((RouteStop s) -> s.priority().ordinal())
-                        .thenComparing(s -> staleness(s, now), Comparator.reverseOrder()))
                 .toList();
+
+        // L'urgence decoupe la tournee en tranches ; la geographie n'ordonne QU'A L'INTERIEUR d'une
+        // tranche. Un debordement a l'autre bout de la commune passe donc toujours avant un point
+        // tiede qu'on a sous la main : une tournee optimisee qui laisse deborder n'a aucun sens.
+        List<RouteStop> plan = new ArrayList<>();
+        double[] depuis = null;
+        for (StopPriority priority : StopPriority.values()) {
+            List<RouteStop> tranche = stops.stream().filter(s -> s.priority() == priority)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (tranche.isEmpty()) {
+                continue;
+            }
+            depuis = chainByProximity(tranche, depuis, now, plan);
+        }
+        return List.copyOf(plan);
+    }
+
+    /**
+     * Ordonne une tranche par proximite, en repartant du dernier point de la tranche precedente —
+     * sinon la tournee se teleporterait a chaque changement d'urgence.
+     *
+     * <p>Deux garde-fous que le plus proche voisin, seul, ne donne pas :
+     * <ul>
+     *   <li><b>Anti-famine</b> : un point dont l'information depasse {@code maxStaleness} repasse
+     *       devant. Sans cela un point isole peut etre repousse indefiniment — il y a toujours
+     *       quelqu'un de plus pres — et c'est ce qui fait abandonner ce genre d'outil.</li>
+     *   <li><b>Points sans position</b> : ils ne peuvent pas etre chaines, mais les exclure les
+     *       rendrait invisibles. Ils ferment la tranche, dans l'ordre d'anciennete.</li>
+     * </ul>
+     *
+     * @return la position du dernier point place, ou {@code depuis} si la tranche n'en donnait aucune
+     */
+    private double[] chainByProximity(List<RouteStop> tranche, double[] depuis, Instant now,
+                                      List<RouteStop> plan) {
+        List<RouteStop> delaisses = new ArrayList<>();
+        List<RouteStop> sansPosition = new ArrayList<>();
+        List<RouteStop> chainables = new ArrayList<>();
+        for (RouteStop stop : tranche) {
+            // Le rattrapage ne vise QUE les points reellement mesures, il y a longtemps. Un point
+            // jamais mesure n'est pas delaisse : il est inconnu, ce que sa priorite dit deja.
+            // Les confondre a coute cher — l'anciennete conventionnelle d'un point jamais mesure
+            // (« depuis toujours ») depassant forcement l'age maximal, TOUTE la tranche basculait
+            // dans le rattrapage et le chainage geographique ne s'executait jamais : sur les
+            // 24 points de Mbao, la tournee sortait dans l'ordre du depot.
+            if (stop.lastMeasuredAt() != null
+                    && staleness(stop, now).compareTo(maxStaleness) > 0) {
+                delaisses.add(stop);
+            } else if (stop.latitude() == null || stop.longitude() == null) {
+                sansPosition.add(stop);
+            } else {
+                chainables.add(stop);
+            }
+        }
+
+        // Les delaisses d'abord, du plus ancien au moins ancien : c'est la dette qu'on rattrape.
+        delaisses.sort(Comparator.comparing((RouteStop s) -> staleness(s, now)).reversed());
+        plan.addAll(delaisses);
+        double[] courant = depuis;
+        for (RouteStop stop : delaisses) {
+            if (stop.latitude() != null && stop.longitude() != null) {
+                courant = new double[] { stop.latitude(), stop.longitude() };
+            }
+        }
+
+        while (!chainables.isEmpty()) {
+            RouteStop suivant = plusProche(chainables, courant, now);
+            chainables.remove(suivant);
+            plan.add(suivant);
+            courant = new double[] { suivant.latitude(), suivant.longitude() };
+        }
+
+        sansPosition.sort(Comparator.comparing((RouteStop s) -> staleness(s, now)).reversed());
+        plan.addAll(sansPosition);
+        return courant;
+    }
+
+    /**
+     * Le point le plus proche du precedent. Sans point de depart — premiere tranche de la tournee —
+     * on part du plus ancien : a defaut de geographie, l'attente fait foi.
+     */
+    private RouteStop plusProche(List<RouteStop> candidats, double[] depuis, Instant now) {
+        if (depuis == null) {
+            return candidats.stream()
+                    .max(Comparator.comparing(s -> staleness(s, now)))
+                    .orElseThrow();
+        }
+        return candidats.stream()
+                .min(Comparator.comparingDouble(s -> GeoDistance.metersBetween(
+                        depuis[0], depuis[1], s.latitude(), s.longitude())))
+                .orElseThrow();
+    }
+
+    /** Position du point de collecte, {@code null} tant qu'aucune geometrie ne lui est attachee. */
+    private static double[] positionOf(DepotoirEntity depotoir) {
+        var geometry = depotoir.getGeometry();
+        if (geometry == null || geometry.getCoordinates() == null
+                || geometry.getCoordinates().isEmpty()) {
+            return null;
+        }
+        var first = geometry.getCoordinates().getFirst();
+        try {
+            return new double[] { Double.parseDouble(first.getLatitude()),
+                                  Double.parseDouble(first.getLongitude()) };
+        } catch (NumberFormatException | NullPointerException e) {
+            return null;
+        }
     }
 
     private RouteStop toStop(DepotoirEntity depotoir, Instant now) {
@@ -90,9 +201,11 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
             reason = "Niveau %d%%, vide recemment".formatted(fill == null ? 0 : fill);
         }
 
+        double[] position = positionOf(depotoir);
         return new RouteStop(depotoir.getDepotoirId(), depotoir.getAddress(),
                 depotoir.getTypeDepotoir() == null ? null : depotoir.getTypeDepotoir().getName(),
-                priority, fill, measuredAt, reason);
+                priority, fill, measuredAt, reason,
+                position == null ? null : position[0], position == null ? null : position[1]);
     }
 
     /** Anciennete de l'information : sert a departager deux points de meme urgence. */
