@@ -128,6 +128,11 @@ public class WasteImportAdapter implements WasteImportPort {
             type.setName(name);
             stamp(type::setCreatedBy, type::setLastModifiedBy,
                   type::setCreatedDate, type::setLastModifiedDate, type::setArchived);
+            // Le type doit être PERSISTÉ, pas seulement instancié : `Depotoir → TypeDepotoir` ne
+            // cascade pas en PERSIST (P1-2 l'a réduit à REFRESH/MERGE pour qu'un dépôt ne puisse
+            // pas écraser une valeur d'un référentiel partagé). Sans cet enregistrement, le
+            // `saveAndFlush` du dépôt lève TransientObjectException.
+            type = typeDepotoirRepository.saveAndFlush(type);
         }
         return type;
     }

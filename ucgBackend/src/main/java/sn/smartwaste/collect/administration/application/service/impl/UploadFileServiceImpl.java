@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -19,6 +21,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import sn.smartwaste.collect.administration.application.service.CoordinateProjector;
 import sn.smartwaste.collect.administration.application.service.UploadFileService;
 import sn.smartwaste.collect.shared.domain.model.ImportedFeature;
 import sn.smartwaste.collect.territory.application.api.TerritoryImportPort;
@@ -54,6 +57,7 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     private final TerritoryImportPort territory;
     private final WasteImportPort waste;
+    private final CoordinateProjector projector;
 
     @Override
     public String uploadDataDepartment(MultipartFile file) {
@@ -89,6 +93,88 @@ public class UploadFileServiceImpl implements UploadFileService {
     @Override
     public String uploadDataDepotoir(MultipartFile file) {
         return processWithCommune(file, "Commune", waste::importDepotoir);
+    }
+
+    @Override
+    public String uploadDataDepotoirs(List<? extends MultipartFile> files) {
+        // Le dédoublonnage doit porter sur l'ENSEMBLE des fichiers, pas sur chacun : les 7 exports
+        // se recouvrent (132 entrées pour 71 positions distinctes). D'où l'état partagé, local à
+        // l'appel — un champ d'instance fuirait d'un import à l'autre.
+        var dejaVues = new HashSet<String>();
+        int importes = 0;
+        int doublons = 0;
+        int sansCommune = 0;
+
+        for (MultipartFile file : files) {
+            for (ImportedFeature feature : readFeatures(file)) {
+                if (!dejaVues.add(cleDePoint(feature))) {
+                    doublons++;
+                    continue;
+                }
+                UUID communeId = territory.findCommuneIdByName(feature.text("Commune")).orElse(null);
+                if (communeId == null) {
+                    sansCommune++;
+                }
+                waste.importDepotoir(feature, communeId);
+                importes++;
+            }
+        }
+
+        // Un import qui perd la moitié de ses entrées sans le dire est exactement ce qu'on cherche
+        // à ne plus avoir : les trois compteurs sont rendus, pas seulement le succès.
+        String rapport = "%d importé(s), %d doublon(s) ignoré(s), %d sans commune"
+                .formatted(importes, doublons, sansCommune);
+        log.info("Import des points de collecte : {}", rapport);
+        return rapport;
+    }
+
+    /**
+     * Identité d'un point de collecte : sa position, au mètre, et son type.
+     *
+     * <p>Pas l'{@code OBJECTID} : il est attribué par couche d'export et se répète d'un fichier à
+     * l'autre pour des points différents. La position, elle, identifie physiquement le point. Le
+     * type entre dans la clé parce qu'un bac de rue et une caisse polybenne peuvent partager une
+     * adresse sans être le même équipement.
+     */
+    private String cleDePoint(ImportedFeature feature) {
+        var points = feature.geometry() == null ? List.<ImportedFeature.GeoPoint>of()
+                : feature.geometry().points();
+        String position = points.isEmpty() ? "?" : "%.5f/%.5f".formatted(
+                Double.parseDouble(points.getFirst().latitude()),
+                Double.parseDouble(points.getFirst().longitude()));
+        return position + "|" + String.valueOf(feature.text("Type_de_Mo")).trim().toLowerCase(Locale.ROOT);
+    }
+
+    /** Lit les entités d'un fichier sans les dispatcher : le tri est fait par l'appelant. */
+    private List<ImportedFeature> readFeatures(MultipartFile file) {
+        var features = new ArrayList<ImportedFeature>();
+        if (file.isEmpty()) {
+            return features;
+        }
+        try {
+            var jsonArray = new JSONArray(readContent(file.getInputStream()));
+            var shapeHeader = jsonArray.getJSONObject(0);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                var root = jsonArray.getJSONObject(i);
+                if (!root.has("features") || !(root.get("features") instanceof JSONArray liste)) {
+                    continue;
+                }
+                for (int j = 0; j < liste.length(); j++) {
+                    var feature = liste.getJSONObject(j);
+                    if (!feature.has("attributes") || !feature.has("geometry")) {
+                        continue;
+                    }
+                    features.add(new ImportedFeature(
+                            toMap(feature.getJSONObject("attributes")),
+                            toShape(shapeHeader, feature.getJSONObject("geometry"))));
+                }
+            }
+        } catch (IOException e) {
+            log.error(READ_FAILED, e);
+        } catch (Exception e) {
+            log.error(PARSE_FAILED, e);
+        }
+        return features;
     }
 
     // ------------------------------------------------------------------------------------
@@ -192,8 +278,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         } else if (geometry.has("paths")) {
             addAll(points, geometry.getJSONArray("paths"));
         } else if (geometry.has("x") && geometry.has("y")) {
-            points.add(new ImportedFeature.GeoPoint(
-                    String.valueOf(geometry.getDouble("x")), String.valueOf(geometry.getDouble("y"))));
+            points.add(toWgs84(geometry.getDouble("x"), geometry.getDouble("y")));
         }
         return points;
     }
@@ -204,9 +289,23 @@ public class UploadFileServiceImpl implements UploadFileService {
             JSONArray ringOrPath = ringsOrPaths.getJSONArray(n);
             for (int k = 0; k < ringOrPath.length(); k++) {
                 JSONArray pair = ringOrPath.getJSONArray(k);
-                points.add(new ImportedFeature.GeoPoint(
-                        String.valueOf(pair.getDouble(0)), String.valueOf(pair.getDouble(1))));
+                points.add(toWgs84(pair.getDouble(0), pair.getDouble(1)));
             }
         }
+    }
+
+    /**
+     * Seul point de passage des coordonnées du fichier vers le modèle (ADR-0015 §1).
+     *
+     * <p>Les fichiers sont en UTM 28N, en <b>mètres</b>. Ces valeurs partaient telles quelles dans un
+     * record {@code (latitude, longitude)} — et dans l'ordre {@code (x, y)}, ce qui faisait de
+     * l'abscisse une latitude. Chaque point aurait atterri à « latitude 239 504 », hors de la Terre
+     * pour tout consommateur WGS84. Les deux formes de géométrie passaient par ce défaut : on les
+     * fait donc converger ici, pour qu'aucune ne puisse être corrigée sans l'autre.
+     */
+    private ImportedFeature.GeoPoint toWgs84(double easting, double northing) {
+        var wgs84 = projector.toWgs84(easting, northing);
+        return new ImportedFeature.GeoPoint(
+                String.valueOf(wgs84.latitude()), String.valueOf(wgs84.longitude()));
     }
 }
