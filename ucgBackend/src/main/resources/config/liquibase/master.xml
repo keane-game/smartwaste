@@ -20,4 +20,5 @@
     <include file="config/liquibase/changelog/2.8.0_alert_thresholds.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.9.0_avis_submitted_at.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.10.0_schema_validate_gaps.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.11.0_seed_region_racine.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

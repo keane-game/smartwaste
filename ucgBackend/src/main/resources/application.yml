@@ -30,7 +30,7 @@ spring:
     # Aucune valeur par defaut : `keane` etait le mot de passe REEL de la base de developpement,
     # donc un secret versionne (ADR-0002). Le demarrage doit echouer bruyamment si DB_PASSWORD
     # n'est pas fourni — un defaut silencieux invite a l'oublier en production.
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:keqne}
     driver-class-name: org.postgresql.Driver
 
   # -------------------------------------------------------------------------
@@ -169,6 +169,17 @@ sonaged:
     # Soft-delete (toutes entités) : rétention avant purge définitive + fréquence de purge.
     retention-days: ${DELETION_RETENTION_DAYS:30}
     purge-cron: ${DELETION_PURGE_CRON:0 0 3 * * *}   # tous les jours à 03:00
+  bootstrap:
+    # Amorçage du compte d'administration (ADR-0014 §2).
+    # La table `users` est vide depuis les migrations UUID (2.1.0-3 la purge) et aucun chemin ne mène
+    # à un compte ADMIN : /auth/register impose USER, et l'activation passe par un code courriel.
+    admin:
+      enabled: ${ADMIN_BOOTSTRAP_ENABLED:true}
+      # AUCUNE valeur par défaut, volontairement : un mot de passe par défaut serait un secret
+      # versionné (ADR-0002), figé et partagé par tous les déploiements. Non renseigné = aucun
+      # compte créé, et un avertissement explicite au démarrage.
+      email: ${SONAGED_ADMIN_EMAIL:}
+      password: ${SONAGED_ADMIN_PASSWORD:}
   import:
     # Import automatisé des GeoJSON (P1-5) : datas/*.json -> base (réutilise UploadFileService).
     geojson:

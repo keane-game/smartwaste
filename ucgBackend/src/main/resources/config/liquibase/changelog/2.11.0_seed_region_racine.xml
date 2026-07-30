@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      B1 du plan de mise en service — ADR-0014 §1.
+
+      La table `region` est vide. Le changelog 2.0.0 est destructif (purge du référentiel pour
+      convertir les identifiants BIGINT en uuid) et `data/region.sql`, qui semait une région sous
+      l'ancien format, n'a jamais été rejoué — alors que les rôles, eux, l'ont été (2.1.0-7).
+
+      Conséquence, invisible parce que l'import n'avait jamais tourné : `UploadFileServiceImpl:60`
+      renvoie « Region not found » et TOUTE la chaîne d'import s'arrête en cascade — département,
+      commune, quartier, circuits, dépotoirs — sans lever d'erreur. L'import ne échouait pas, il ne
+      faisait rien.
+
+      `TerritoryImportAdapter.importDepartment` prend « la première région venue » : le jeu de
+      données de Pikine n'en connaît qu'une. Semer Dakar suffit donc à réamorcer la chaîne entière.
+    -->
+
+    <changeSet author="claude" id="2.11.0-1-seed-region-dakar">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM region</sqlCheck>
+        </preConditions>
+        <comment>Racine territoriale : sans région, aucun import ne peut démarrer.</comment>
+        <!-- Identifiant FIXE et reconnaissable, comme les autres données de référence
+             (2.1.0-7 rôles, 2.2.0-3 organisation, 2.8.0-3 seuil) : il doit rester stable d'un
+             environnement à l'autre. Forme d'un UUID v7 (nibble de version = 7, variante = 0b10)
+             pour ne pas fausser l'ordonnancement des index B-tree. -->
+        <sql>
+            INSERT INTO region (regionid, name, code, createdby, lastmodifiedby,
+                                createddate, lastmodifieddate, archived, deletionstatus)
+            VALUES ('01983c4f-0004-7000-8000-000000000001', 'Dakar', 'DK',
+                    'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE');
+        </sql>
+        <rollback>
+            DELETE FROM region WHERE regionid = '01983c4f-0004-7000-8000-000000000001';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
