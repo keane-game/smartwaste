@@ -55,15 +55,18 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
     private final Duration maxStaleness;
 
     private final CollectionPassageRepository passageRepository;
+    private final TerritorialAccessGuard accessGuard;
 
     public CollectionRouteServiceImpl(DepotoirRepository depotoirRepository,
                                       CollectionPassageRepository passageRepository,
+                                      TerritorialAccessGuard accessGuard,
                                       Clock clock,
                                       @Value("${sonaged.alerting.fill-threshold-percent:80}") int fillThresholdPercent,
                                       @Value("${sonaged.routing.measurement-validity-hours:24}") long validityHours,
                                       @Value("${sonaged.routing.max-staleness-hours:72}") long maxStalenessHours) {
         this.depotoirRepository = depotoirRepository;
         this.passageRepository = passageRepository;
+        this.accessGuard = accessGuard;
         this.clock = clock;
         this.fillThresholdPercent = fillThresholdPercent;
         this.measurementValidity = Duration.ofHours(validityHours);
@@ -72,6 +75,9 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
 
     @Override
     public List<RouteStop> planForCommune(UUID communeId) {
+        // Un agent ne lit que la tournee de son territoire : lui ouvrir les 12 communes
+        // reviendrait a lui montrer 71 points dont 47 ne le concernent pas.
+        accessGuard.requireAccessTo(communeId);
         Instant now = Instant.now(clock);
         List<RouteStop> stops = depotoirRepository
                 .findByCommuneIdAndDeletionStatus(communeId, DeletionStatus.ACTIVE).stream()
@@ -96,6 +102,7 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
 
     @Override
     public CollectionPassageService.Completion completionForCommune(UUID communeId) {
+        accessGuard.requireAccessTo(communeId);
         Instant now = Instant.now(clock);
         // « Aujourd'hui » au sens de l'exploitation : la journee en cours, pas les 24 dernieres
         // heures. Un passage de 23 h et un de 1 h du matin appartiennent a deux tournees.

@@ -41,10 +41,16 @@ class CollectionRouteServiceImplTest {
     @Mock
     private sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository;
 
+    /** Ces cas portent sur le tri, pas sur l'autorisation : le garde laisse passer. */
+    private final TerritorialAccessGuard accessGuard = new TerritorialAccessGuard(null, null) {
+        @Override public void requireAccessTo(java.util.UUID communeId) { }
+        @Override public boolean isAdministration() { return true; }
+    };
+
     private CollectionRouteServiceImpl service() {
         // Anti-famine desactive (age maximal tres eleve) : ces cas-ci verifient le tri par urgence
         // et par anciennete, sans que le rattrapage des delaisses ne s'en mele.
-        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository,
+        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository, accessGuard,
                 Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650);
     }
 

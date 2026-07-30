@@ -43,6 +43,25 @@ public class IdentityApiAdapter implements CurrentUserProvider, UserDirectory {
     }
 
     @Override
+    public boolean currentUserHasAnyRole(String... roles) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        var portees = authentication.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .toList();
+        for (String role : roles) {
+            // `UserEntity.getAuthorities()` pose deja le prefixe ROLE_ ; on accepte les deux
+            // ecritures pour que l'appelant n'ait pas a connaitre cette convention.
+            if (portees.contains("ROLE_" + role) || portees.contains(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public Optional<String> emailOf(UUID userId) {
         return userRepository.findById(userId).map(UserEntity::getUserEmail);
     }

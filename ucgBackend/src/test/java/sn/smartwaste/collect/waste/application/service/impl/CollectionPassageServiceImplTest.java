@@ -63,10 +63,17 @@ class CollectionPassageServiceImplTest {
     @Mock private AlertRepository alertRepository;
     @Mock private CollectionPassageRepository passageRepository;
     @Mock private CurrentUserProvider currentUserProvider;
+    /** Ces cas portent sur le comportement metier ; l'autorisation est verifiee separement
+     *  (CollectionPassageAuthorizationTest). */
+    private final TerritorialAccessGuard accessGuard = new TerritorialAccessGuard(null, null) {
+        @Override public void requireAccessTo(java.util.UUID communeId) { }
+        @Override public boolean isAdministration() { return true; }
+    };
 
     private CollectionPassageServiceImpl service() {
         return new CollectionPassageServiceImpl(depotoirRepository, alertRepository,
-                passageRepository, currentUserProvider, Clock.fixed(NOW, ZoneId.of("UTC")));
+                passageRepository, currentUserProvider, accessGuard,
+                Clock.fixed(NOW, ZoneId.of("UTC")));
     }
 
     private DepotoirEntity point(Integer fill) {

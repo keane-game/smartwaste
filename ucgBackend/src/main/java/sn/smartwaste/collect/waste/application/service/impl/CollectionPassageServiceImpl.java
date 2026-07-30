@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.access.AccessDeniedException;
 import sn.smartwaste.collect.identity.application.api.CurrentUserProvider;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.application.service.CollectionPassageService;
@@ -53,17 +54,20 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
     private final AlertRepository alertRepository;
     private final CollectionPassageRepository passageRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final TerritorialAccessGuard accessGuard;
     private final Clock clock;
 
     public CollectionPassageServiceImpl(DepotoirRepository depotoirRepository,
                                         AlertRepository alertRepository,
                                         CollectionPassageRepository passageRepository,
                                         CurrentUserProvider currentUserProvider,
+                                        TerritorialAccessGuard accessGuard,
                                         Clock clock) {
         this.depotoirRepository = depotoirRepository;
         this.alertRepository = alertRepository;
         this.passageRepository = passageRepository;
         this.currentUserProvider = currentUserProvider;
+        this.accessGuard = accessGuard;
         this.clock = clock;
     }
 
@@ -71,6 +75,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
     @Transactional
     public void markCollected(Long depotoirId) {
         DepotoirEntity depotoir = require(depotoirId);
+        requireTerritorialAccess(depotoir);
         Instant now = Instant.now(clock);
 
         depotoir.setFillLevelPercent(0);
@@ -88,7 +93,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
     @Override
     @Transactional
     public void markInaccessible(Long depotoirId, String reason) {
-        require(depotoirId);
+        requireTerritorialAccess(require(depotoirId));
         Instant now = Instant.now(clock);
         // Rien n'est vidé, rien n'est refermé : un obstacle n'est pas une collecte. Le point
         // reparaîtra dans la tournée du lendemain, ce qui est exactement l'intention.
@@ -125,6 +130,27 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
         passage.setReason(reason);
         passage.setOccurredAt(now);
         passageRepository.save(passage);
+    }
+
+    /**
+     * Un agent n'intervient que sur les communes qui lui sont affectees.
+     *
+     * <p><b>Cette verification a d'abord manque.</b> L'affectation territoriale a ete creee avec ce
+     * lot, puis laissee inerte : l'autorisation s'arretait au role, si bien que n'importe quel
+     * agent pouvait declarer collecte n'importe lequel des 71 points. Or une remise a zero du
+     * niveau referme l'alerte et sort le point de la tournee — de quoi faire disparaitre un
+     * debordement reel depuis un compte etranger au terrain concerne. C'est le travers que ce
+     * depot connait deja : des regles d'autorisation declarees que rien n'applique.
+     *
+     * <p>L'administration n'est pas bornee : elle supervise les 12 communes, et lui imposer une
+     * affectation la bloquerait sur son propre outil.
+     *
+     * <p>Un point <b>sans commune</b> — 15 des 71 importes, faute de libelles concordants — n'est
+     * couvert par personne : il reste reserve a l'administration. L'ouvrir a tous rouvrirait le
+     * trou par la porte de derriere.
+     */
+    private void requireTerritorialAccess(DepotoirEntity depotoir) {
+        accessGuard.requireAccessTo(depotoir.getCommuneId());
     }
 
     private DepotoirEntity require(Long depotoirId) {

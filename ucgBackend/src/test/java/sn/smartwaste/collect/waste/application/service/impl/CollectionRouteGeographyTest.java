@@ -53,8 +53,14 @@ class CollectionRouteGeographyTest {
     @Mock
     private sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository;
 
+    /** Ces cas portent sur le tri, pas sur l'autorisation : le garde laisse passer. */
+    private final TerritorialAccessGuard accessGuard = new TerritorialAccessGuard(null, null) {
+        @Override public void requireAccessTo(java.util.UUID communeId) { }
+        @Override public boolean isAdministration() { return true; }
+    };
+
     private CollectionRouteServiceImpl service() {
-        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository,
+        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository, accessGuard,
                 Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 72);
     }
 
