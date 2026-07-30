@@ -50,8 +50,11 @@ class CollectionRouteGeographyTest {
     @Mock
     private DepotoirRepository depotoirRepository;
 
+    @Mock
+    private sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository;
+
     private CollectionRouteServiceImpl service() {
-        return new CollectionRouteServiceImpl(depotoirRepository,
+        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository,
                 Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 72);
     }
 

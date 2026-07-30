@@ -38,10 +38,13 @@ class CollectionRouteServiceImplTest {
     @Mock
     private DepotoirRepository depotoirRepository;
 
+    @Mock
+    private sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository;
+
     private CollectionRouteServiceImpl service() {
         // Anti-famine desactive (age maximal tres eleve) : ces cas-ci verifient le tri par urgence
         // et par anciennete, sans que le rattrapage des delaisses ne s'en mele.
-        return new CollectionRouteServiceImpl(depotoirRepository,
+        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository,
                 Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650);
     }
 

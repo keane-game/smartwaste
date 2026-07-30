@@ -21,6 +21,14 @@ public interface CollectionRouteService {
     List<RouteStop> planForCommune(UUID communeId);
 
     /**
+     * Avancement de la tournee du jour sur une commune (G1).
+     *
+     * <p>Rendu possible par la declaration des passages : sans elle, aucun denominateur n'avait de
+     * numerateur.
+     */
+    CollectionPassageService.Completion completionForCommune(UUID communeId);
+
+    /**
      * Un arrêt de tournée.
      *
      * @param priority         urgence calculée, la clé du tri

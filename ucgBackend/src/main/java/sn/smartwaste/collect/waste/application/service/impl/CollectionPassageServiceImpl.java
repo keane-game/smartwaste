@@ -1,0 +1,144 @@
+package sn.smartwaste.collect.waste.application.service.impl;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sn.smartwaste.collect.identity.application.api.CurrentUserProvider;
+import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.waste.application.service.CollectionPassageService;
+import sn.smartwaste.collect.waste.domain.model.AlertEntity;
+import sn.smartwaste.collect.waste.domain.model.CollectionPassage;
+import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
+import sn.smartwaste.collect.waste.domain.model.PassageOutcome;
+import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
+import sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository;
+import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
+
+/**
+ * Enregistre ce qu'un agent a fait sur un point de collecte (G1 du backlog).
+ *
+ * <p><b>Le maillon qui manquait.</b> La boucle métier est « détecter → alerter → collecter →
+ * constater ». Les trois premiers temps fonctionnaient depuis le 2026-07-30 ; le quatrième
+ * n'existait pas. Conséquences en chaîne : le niveau ne retombait que si un capteur le disait — or
+ * 71 points sur 71 n'en ont pas —, l'alerte restait ouverte indéfiniment, la tournée reproposait le
+ * point, et aucun indicateur d'efficacité n'était calculable.
+ *
+ * <h2>Deux décisions, explicites parce qu'elles se contrediraient en silence</h2>
+ *
+ * <p><b>1. Un passage vaut information sur l'état, au même titre qu'une mesure.</b> Il rafraîchit
+ * donc {@code lastMeasuredAt}. Sans cela, un point vidé le matin retomberait en
+ * {@code ETAT_INCONNU} après 24 h et remonterait en tête de tournée : les agents reverraient chaque
+ * jour les points qu'ils viennent de vider. <b>Le capteur garde le dernier mot</b> — une mesure
+ * postérieure écrase la déclaration, {@code FillLevelProjector} ignorant déjà toute mesure
+ * antérieure au dernier état connu. L'agent dit ce qu'il a fait, le capteur dit ce qui est.
+ *
+ * <p><b>2. Une alerte de maintenance survit à la collecte.</b> Vider un bac ne répare pas le
+ * capteur qui l'observe. Refermer cette alerte-là ferait disparaître un problème non résolu et
+ * laisserait le point en angle mort silencieux.
+ */
+@Service
+public class CollectionPassageServiceImpl implements CollectionPassageService {
+
+    private static final Logger log = LoggerFactory.getLogger(CollectionPassageServiceImpl.class);
+
+    private final DepotoirRepository depotoirRepository;
+    private final AlertRepository alertRepository;
+    private final CollectionPassageRepository passageRepository;
+    private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
+
+    public CollectionPassageServiceImpl(DepotoirRepository depotoirRepository,
+                                        AlertRepository alertRepository,
+                                        CollectionPassageRepository passageRepository,
+                                        CurrentUserProvider currentUserProvider,
+                                        Clock clock) {
+        this.depotoirRepository = depotoirRepository;
+        this.alertRepository = alertRepository;
+        this.passageRepository = passageRepository;
+        this.currentUserProvider = currentUserProvider;
+        this.clock = clock;
+    }
+
+    @Override
+    @Transactional
+    public void markCollected(Long depotoirId) {
+        DepotoirEntity depotoir = require(depotoirId);
+        Instant now = Instant.now(clock);
+
+        depotoir.setFillLevelPercent(0);
+        depotoir.setLastCollectedAt(now);
+        // Cf. décision 1 : un passage est une information sur l'état, pas seulement un acte.
+        depotoir.setLastMeasuredAt(now);
+        depotoirRepository.save(depotoir);
+
+        int refermees = resolveCollectionAlerts(depotoir, now);
+        record(depotoirId, PassageOutcome.COLLECTED, null, now);
+
+        log.info("Point {} collecte — {} alerte(s) refermee(s)", depotoirId, refermees);
+    }
+
+    @Override
+    @Transactional
+    public void markInaccessible(Long depotoirId, String reason) {
+        require(depotoirId);
+        Instant now = Instant.now(clock);
+        // Rien n'est vidé, rien n'est refermé : un obstacle n'est pas une collecte. Le point
+        // reparaîtra dans la tournée du lendemain, ce qui est exactement l'intention.
+        record(depotoirId, PassageOutcome.INACCESSIBLE, reason, now);
+        log.info("Point {} inaccessible : {}", depotoirId, reason);
+    }
+
+    /**
+     * Referme les alertes de collecte du point — et <b>seulement</b> celles-là.
+     *
+     * @return le nombre d'alertes refermées
+     */
+    private int resolveCollectionAlerts(DepotoirEntity depotoir, Instant now) {
+        int refermees = 0;
+        for (AlertEntity alert : alertRepository.findByDepotoirIdAndResolvedAtIsNull(
+                depotoir.getDepotoirId())) {
+            if (SensorSilenceProjector.OBJET_SILENCE.equals(alert.getObject())) {
+                // Cf. décision 2 : vider un bac ne répare pas le capteur.
+                continue;
+            }
+            alert.setResolvedAt(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
+            alert.setResolvedBy(currentUser() == null ? "agent" : currentUser().toString());
+            alertRepository.save(alert);
+            refermees++;
+        }
+        return refermees;
+    }
+
+    private void record(Long depotoirId, PassageOutcome outcome, String reason, Instant now) {
+        var passage = new CollectionPassage();
+        passage.setDepotoirId(depotoirId);
+        passage.setAgentId(currentUser());
+        passage.setOutcome(outcome);
+        passage.setReason(reason);
+        passage.setOccurredAt(now);
+        passageRepository.save(passage);
+    }
+
+    private DepotoirEntity require(Long depotoirId) {
+        return depotoirRepository.findById(depotoirId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Point de collecte inconnu : " + depotoirId));
+    }
+
+    /** L'agent courant, {@code null} si l'appel ne vient pas d'un compte (tâche planifiée). */
+    private UUID currentUser() {
+        try {
+            return currentUserProvider.requireCurrentUserId();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+}

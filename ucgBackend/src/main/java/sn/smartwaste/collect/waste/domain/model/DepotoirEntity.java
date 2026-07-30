@@ -75,6 +75,13 @@ public class DepotoirEntity extends AbstractAuditingEntity<Long> {
     @Column(name = "lastHumidityPercent")
     Double lastHumidityPercent;
 
+    /**
+     * Dernier passage d'agent constate (G1). Distinct de {@code lastMeasuredAt} : l'un dit ce qui a
+     * ete FAIT, l'autre ce qui a ete OBSERVE. Un point peut etre mesure sans etre collecte.
+     */
+    @Column(name = "lastCollectedAt")
+    java.time.Instant lastCollectedAt;
+
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
     @JsonIgnore

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import sn.smartwaste.collect.waste.domain.model.GeoDistance;
+import sn.smartwaste.collect.waste.domain.model.CollectionPassage;
+import sn.smartwaste.collect.waste.domain.model.PassageOutcome;
+import sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository;
+import sn.smartwaste.collect.waste.application.service.CollectionPassageService;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,12 +54,16 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
     /** Au-dela de cet age d'information, un point repasse devant malgre la geographie. */
     private final Duration maxStaleness;
 
+    private final CollectionPassageRepository passageRepository;
+
     public CollectionRouteServiceImpl(DepotoirRepository depotoirRepository,
+                                      CollectionPassageRepository passageRepository,
                                       Clock clock,
                                       @Value("${sonaged.alerting.fill-threshold-percent:80}") int fillThresholdPercent,
                                       @Value("${sonaged.routing.measurement-validity-hours:24}") long validityHours,
                                       @Value("${sonaged.routing.max-staleness-hours:72}") long maxStalenessHours) {
         this.depotoirRepository = depotoirRepository;
+        this.passageRepository = passageRepository;
         this.clock = clock;
         this.fillThresholdPercent = fillThresholdPercent;
         this.measurementValidity = Duration.ofHours(validityHours);
@@ -84,6 +92,33 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
             depuis = chainByProximity(tranche, depuis, now, plan);
         }
         return List.copyOf(plan);
+    }
+
+    @Override
+    public CollectionPassageService.Completion completionForCommune(UUID communeId) {
+        Instant now = Instant.now(clock);
+        // « Aujourd'hui » au sens de l'exploitation : la journee en cours, pas les 24 dernieres
+        // heures. Un passage de 23 h et un de 1 h du matin appartiennent a deux tournees.
+        Instant debutDeJournee = now.atZone(clock.getZone()).toLocalDate()
+                .atStartOfDay(clock.getZone()).toInstant();
+
+        List<Long> points = depotoirRepository
+                .findByCommuneIdAndDeletionStatus(communeId, DeletionStatus.ACTIVE).stream()
+                .map(DepotoirEntity::getDepotoirId)
+                .toList();
+        if (points.isEmpty()) {
+            return new CollectionPassageService.Completion(0, 0, 0);
+        }
+
+        var passages = passageRepository.findByDepotoirIdInAndOccurredAtBetween(
+                points, debutDeJournee, now);
+        // Un point visite deux fois ne compte qu'une : c'est un taux de couverture, pas un
+        // compteur d'actes.
+        long desservis = passages.stream().map(CollectionPassage::getDepotoirId).distinct().count();
+        long collectes = passages.stream()
+                .filter(p -> p.getOutcome() == PassageOutcome.COLLECTED)
+                .map(CollectionPassage::getDepotoirId).distinct().count();
+        return new CollectionPassageService.Completion(points.size(), desservis, collectes);
     }
 
     /**

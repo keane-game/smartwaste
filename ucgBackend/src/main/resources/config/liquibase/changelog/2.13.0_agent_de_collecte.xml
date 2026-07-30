@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Lot 2 du backlog (G1) — l'acteur manquant.
+
+      Le memoire definit TROIS acteurs (§3.1.5.1) : administrateur, agent de collecte, citoyen.
+      Les roles semes n'en connaissaient que deux, et rien ne permettait d'enregistrer qu'un point
+      avait ete collecte. La boucle « detecter -> alerter -> COLLECTER -> constater » s'arretait au
+      troisieme maillon : le niveau de remplissage ne retombait que si un capteur le disait, alors
+      que 71 points sur 71 n'en ont pas.
+    -->
+
+    <changeSet author="claude" id="2.13.0-1-seed-role-agent">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM authority WHERE name = 'AGENT'</sqlCheck>
+        </preConditions>
+        <comment>Le troisieme acteur du memoire, absent des roles semes.</comment>
+        <!-- Identifiant fixe de forme UUID v7, comme les trois roles de 2.1.0-7. -->
+        <sql>
+            INSERT INTO authority (authorityid, name, description, createdby, lastmodifiedby,
+                                   createddate, lastmodifieddate, archived, deletionstatus)
+            VALUES ('01983c4f-0000-7000-8000-000000000004', 'AGENT',
+                    'Agent de collecte : consulte sa tournee et declare ses passages',
+                    'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE');
+
+            INSERT INTO authoritypermission (authorityid, permission) VALUES
+              ('01983c4f-0000-7000-8000-000000000004', 'ACCESS_MY_ACTIVITIES');
+        </sql>
+        <rollback>
+            DELETE FROM authoritypermission WHERE authorityid = '01983c4f-0000-7000-8000-000000000004';
+            DELETE FROM authority WHERE authorityid = '01983c4f-0000-7000-8000-000000000004';
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.13.0-2-agent-assignment">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="agentassignment"/></not>
+        </preConditions>
+        <comment>Territoire couvert par un agent : sans cela tout agent voit les 12 communes.</comment>
+        <createTable tableName="agentassignment">
+            <column name="assignmentid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_agentassignment"/>
+            </column>
+            <column name="userid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Reference CROSS-CONTEXTE vers le referentiel territorial : par identifiant, sans
+                 cle etrangere (ADR-0012). -->
+            <column name="communeid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_agentassignment_user" tableName="agentassignment">
+            <column name="userid"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="agentassignment"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.13.0-3-collection-passage">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="collectionpassage"/></not>
+        </preConditions>
+        <comment>Le maillon manquant : la trace de ce qui a ete reellement fait sur le terrain.</comment>
+        <createTable tableName="collectionpassage">
+            <column name="passageid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_collectionpassage"/>
+            </column>
+            <column name="depotoirid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <!-- L'agent, par identifiant : le contexte « Identite » lui appartient (ADR-0012). -->
+            <column name="agentid" type="uuid"/>
+            <!-- COLLECTED ou INACCESSIBLE : un obstacle n'est pas une collecte, et les confondre
+                 fausserait tout taux de realisation. -->
+            <column name="outcome" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(255)"/>
+            <column name="occurredat" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_passage_depotoir_date" tableName="collectionpassage">
+            <column name="depotoirid"/>
+            <column name="occurredat"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="collectionpassage"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.13.0-4-depotoir-last-collected">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="depotoir" columnName="lastcollectedat"/></not>
+        </preConditions>
+        <comment>Dernier passage constate sur le point, lisible sans jointure.</comment>
+        <addColumn tableName="depotoir">
+            <column name="lastcollectedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="depotoir" columnName="lastcollectedat"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
