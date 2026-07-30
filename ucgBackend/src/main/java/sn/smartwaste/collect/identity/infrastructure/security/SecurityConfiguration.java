@@ -155,6 +155,26 @@ public class SecurityConfiguration{
                                                 // de panne devient un 403 visible en développement plutôt
                                                 // qu'un trou silencieux.
                                                 .requestMatchers(POST, "/data/**").hasAnyRole(ADMINISTRATION)
+                                                // L'agent de collecte déclare ses passages : deux
+                                                // écritures, nommées une par une, AVANT la règle
+                                                // générale ci-dessous qui les refuserait.
+                                                //
+                                                // Le `@PreAuthorize` posé sur ces méthodes ne
+                                                // suffisait pas : la chaîne de filtres tranche
+                                                // avant la sécurité de méthode, si bien que l'agent
+                                                // recevait 403 sur SA PROPRE commune. Aucun test
+                                                // unitaire ne pouvait le voir — le service et son
+                                                // annotation étaient justes, c'est l'ordre des deux
+                                                // mécanismes qui ne l'était pas. Trouvé en exerçant
+                                                // un vrai compte AGENT contre PostgreSQL.
+                                                //
+                                                // Le bornage au territoire, lui, reste applicatif
+                                                // (`TerritorialAccessGuard`) : une URL ne dit pas
+                                                // quelle commune porte le point visé.
+                                                .requestMatchers(POST,
+                                                        "/v1/collection-routes/stops/*/collected",
+                                                        "/v1/collection-routes/stops/*/inaccessible")
+                                                        .hasAnyRole("AGENT", "ADMIN", "SUPER_ADMIN")
                                                 .requestMatchers(POST, "/v1/**").hasAnyRole(ADMINISTRATION)
                                                 .requestMatchers(PUT, "/v1/**").hasAnyRole(ADMINISTRATION)
                                                 .requestMatchers(PATCH, "/v1/**").hasAnyRole(ADMINISTRATION)

@@ -159,6 +159,35 @@ class AdministrationAuthorizationTest {
     }
 
     @Test
+    @WithMockUser(roles = "AGENT")
+    @DisplayName("l'agent de collecte peut declarer ses passages")
+    void collectionAgentMayDeclarePassages() throws Exception {
+        // Le defaut ferme ici : `@PreAuthorize` autorisait bien l'agent sur ces deux methodes, mais
+        // la chaine de filtres tranche AVANT la securite de methode, et la regle generale
+        // « POST /v1/** reserve a l'administration » le refusait — sur sa propre commune. Aucun
+        // test unitaire ne pouvait le voir : le service et son annotation etaient justes, c'est
+        // l'ordre des deux mecanismes qui ne l'etait pas.
+        assertNotForbidden(post("/v1/collection-routes/stops/1/collected").with(csrf()));
+        assertNotForbidden(post("/v1/collection-routes/stops/1/inaccessible").with(csrf())
+                .contentType("application/json").content("{\"reason\":\"voie barree\"}"));
+    }
+
+    @Test
+    @WithMockUser(roles = "AGENT")
+    @DisplayName("l'agent reste tenu a l'ecart du reste de l'ecriture")
+    void collectionAgentStaysOutOfTheRest() throws Exception {
+        // L'ouverture doit rester limitee aux deux chemins nommes : un agent n'administre pas le
+        // referentiel, ne cree pas de comptes et n'enrole pas d'equipements.
+        mockMvc.perform(post("/v1/depotoirs").with(csrf())
+                        .contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/v1/devices/sensors").with(csrf())
+                        .contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/v1/users/s")).andExpect(status().isForbidden());
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("l'administration accède à ce dont elle a la charge")
     void administrationIsNotLockedOut() throws Exception {
