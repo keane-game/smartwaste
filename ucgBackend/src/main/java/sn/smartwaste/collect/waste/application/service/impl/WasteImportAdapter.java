@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sn.smartwaste.collect.shared.domain.model.ImportedFeature;
+import sn.smartwaste.collect.territory.application.api.TerritoryImportPort;
 import sn.smartwaste.collect.waste.application.api.WasteImportPort;
 import sn.smartwaste.collect.waste.domain.model.CircuitBalayageEntity;
 import sn.smartwaste.collect.waste.domain.model.CircuitCollectEntity;
@@ -25,8 +26,13 @@ import sn.smartwaste.collect.waste.domain.repository.TypeDepotoirRepository;
  * désigne un type de point de collecte, que {@code shift} est une plage de balayage, qu'un type
  * inconnu se crée à la volée. Seul ce contexte peut en décider.
  *
- * <p>La géométrie des circuits et des points de collecte n'est <b>pas</b> reconstruite ici : elle
- * appartient au référentiel territorial, et l'import ne la posait déjà pas sur ces entités.
+ * <p><b>La géométrie est posée ici, mais construite ailleurs</b> (ADR-0016). Ce commentaire disait
+ * l'inverse — « elle n'est pas reconstruite ici, elle appartient au référentiel territorial » — et
+ * la conséquence n'est apparue qu'au premier import réel : dépotoirs 0/71, circuits de collecte
+ * 0/52, circuits de balayage 0/156 sans la moindre coordonnée, quand communes et quartiers étaient
+ * à 12/12 et 357/357. La carte ne renvoyait rien et aucune tournée ne pouvait être ordonnée
+ * géographiquement. La construction reste au référentiel territorial, à qui ce modèle appartient
+ * ({@code TerritoryImportPort.newGeometry}) ; ce contexte se contente de l'attacher à ses entités.
  */
 @Service
 @Transactional
@@ -38,15 +44,19 @@ public class WasteImportAdapter implements WasteImportPort {
     private final CircuitBalayageRepository circuitBalayageRepository;
     private final DepotoirRepository depotoirRepository;
     private final TypeDepotoirRepository typeDepotoirRepository;
+    /** ADR-0016 : la construction de géométrie appartient au référentiel territorial. */
+    private final TerritoryImportPort territory;
 
     public WasteImportAdapter(CircuitCollectRepository circuitCollectRepository,
                               CircuitBalayageRepository circuitBalayageRepository,
                               DepotoirRepository depotoirRepository,
-                              TypeDepotoirRepository typeDepotoirRepository) {
+                              TypeDepotoirRepository typeDepotoirRepository,
+                              TerritoryImportPort territory) {
         this.circuitCollectRepository = circuitCollectRepository;
         this.circuitBalayageRepository = circuitBalayageRepository;
         this.depotoirRepository = depotoirRepository;
         this.typeDepotoirRepository = typeDepotoirRepository;
+        this.territory = territory;
     }
 
     @Override
@@ -69,6 +79,7 @@ public class WasteImportAdapter implements WasteImportPort {
         circuit.setCommuneId(communeId);
         stamp(circuit::setCreatedBy, circuit::setLastModifiedBy,
               circuit::setCreatedDate, circuit::setLastModifiedDate, circuit::setArchived);
+        circuit.setGeometry(territory.newGeometry(feature));
         circuitCollectRepository.saveAndFlush(circuit);
     }
 
@@ -82,6 +93,7 @@ public class WasteImportAdapter implements WasteImportPort {
         circuit.setCommuneId(communeId);
         stamp(circuit::setCreatedBy, circuit::setLastModifiedBy,
               circuit::setCreatedDate, circuit::setLastModifiedDate, circuit::setArchived);
+        circuit.setGeometry(territory.newGeometry(feature));
         circuitBalayageRepository.saveAndFlush(circuit);
     }
 
@@ -93,6 +105,10 @@ public class WasteImportAdapter implements WasteImportPort {
         depotoir.setTypeDepotoir(resolveOrCreateType(feature.text("Type_de_Mo")));
         stamp(depotoir::setCreatedBy, depotoir::setLastModifiedBy,
               depotoir::setCreatedDate, depotoir::setLastModifiedDate, depotoir::setArchived);
+        // ADR-0016 : un point de collecte sans position n'est pas supervisable — c'est la donnée
+        // qui fait de lui un point. Son absence rendait la carte vide et interdisait toute
+        // tournée ordonnée géographiquement.
+        depotoir.setGeometry(territory.newGeometry(feature));
         depotoirRepository.saveAndFlush(depotoir);
     }
 

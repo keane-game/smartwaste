@@ -44,6 +44,7 @@ class WasteImportAdapterTypeTest {
     @Mock private CircuitBalayageRepository circuitBalayageRepository;
     @Mock private DepotoirRepository depotoirRepository;
     @Mock private TypeDepotoirRepository typeDepotoirRepository;
+    @Mock private sn.smartwaste.collect.territory.application.api.TerritoryImportPort territory;
 
     @Test
     @DisplayName("un type absent du référentiel est enregistré, pas seulement instancié")
@@ -73,7 +74,7 @@ class WasteImportAdapterTypeTest {
 
     private WasteImportAdapter adapter() {
         return new WasteImportAdapter(circuitCollectRepository, circuitBalayageRepository,
-                depotoirRepository, typeDepotoirRepository);
+                depotoirRepository, typeDepotoirRepository, territory);
     }
 
     private ImportedFeature feature(String type) {

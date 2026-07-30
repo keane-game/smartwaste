@@ -178,6 +178,18 @@ public class TerritoryImportAdapter implements TerritoryImportPort {
         return candidates.getFirst();
     }
 
+    /**
+     * Publie la construction de géométrie pour les autres contextes (ADR-0016).
+     *
+     * <p>Le contexte « déchets » pose désormais une géométrie sur ses dépotoirs et ses circuits ;
+     * il l'obtient d'ici plutôt que de réécrire chez lui la même construction, ce qui ferait
+     * diverger deux définitions du même objet.
+     */
+    @Override
+    public GeometryEntity newGeometry(ImportedFeature feature) {
+        return toGeometry(feature);
+    }
+
     private GeometryEntity toGeometry(ImportedFeature feature) {
         var shape = feature.geometry();
         if (shape == null) {
