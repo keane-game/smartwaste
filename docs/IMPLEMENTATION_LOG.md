@@ -29,6 +29,48 @@
 
 ## Détail
 
+### 🏁 La boucle métier fonctionne : carte, alerte automatique, tournée optimisée (2026-07-30)
+
+Décisions : [ADR-0016](adr/0016-geometrie-des-entites-dechets.md), [ADR-0017](adr/0017-ordre-de-passage-geographique.md).
+Fait suite à la mise en service (entrée ci-dessous), qui avait laissé B5 en orange.
+
+**A — Les entités « déchets » n'avaient aucune position.** `depotoir 0/71`, `circuitcollect 0/52`,
+`circuitbalayage 0/156`, quand `commune` et `quartier` étaient à 12/12 et 357/357. Intention écrite
+dans `WasteImportAdapter` (« la géométrie appartient au référentiel territorial ») dont la
+conséquence n'était jamais apparue, l'import n'ayant jamais tourné : carte vide, circuits non
+traçables, et aucune tournée ordonnable géographiquement. Le référentiel territorial publie
+désormais une fabrique (`TerritoryImportPort.newGeometry`) ; les trois entités l'utilisent.
+**Après réimport : 71/71, 52/52, 156/156.** `GET /v1/maps/depotoirs` rend 71 points
+(ex. *Ecole dalifort*, `14.7413, -17.4195`) au lieu de `[]`.
+
+**B — La boucle « détecter → alerter » n'avait jamais tourné.** `measurement=0`, `sensor=0`,
+`alert=0`. Exercée de bout en bout contre PostgreSQL : enrôlement d'un capteur
+(`POST /v1/devices/sensors` → 201, clé d'API rendue), mesure à 92 %
+(`POST /v1/measurements`, en-tête `X-Device-Key` → 201), puis vérification en base — `depotoir 73 :
+fill=92 temp=34.5 hum=61`, et **une alerte créée** : `WARNING | Point de collecte plein | Niveau de
+remplissage 92% (seuil 80%)`. Diffusion temps réel confirmée en s'abonnant *avant* d'émettre :
+`event:alert` reçu sur `/v1/alerts/stream` avec `"source":"THRESHOLD"`, suivi du heartbeat.
+Aucun code n'a été nécessaire — la chaîne était juste, elle n'avait jamais été parcourue.
+
+**C — La « tournée » n'était pas une tournée.** Le service triait sur l'urgence puis l'ancienneté,
+sans aucune position (`CollectionRouteServiceImpl:64`) : une liste de priorités, pas un parcours.
+Ajout du chaînage par plus proche voisin *à l'intérieur* de chaque niveau d'urgence, l'urgence
+gardant la priorité absolue. Sur les 24 points réels de Mbao : **35,10 km → 16,55 km, soit −53 %**.
+
+**Défaut trouvé en exploitant les données réelles, invisible en test unitaire.** Le garde-fou
+anti-famine que j'avais posé rattrapait les points « trop longtemps ignorés » — or l'ancienneté
+conventionnelle d'un point *jamais mesuré* vaut « depuis toujours », donc dépasse forcément le
+seuil. Les 24 points de Mbao n'ayant jamais été mesurés, **tous** basculaient dans le rattrapage et
+le chaînage ne s'exécutait jamais : la tournée sortait à 35,10 km, exactement comme sans tri. Le
+rattrapage ne vise désormais que les points réellement mesurés il y a longtemps. La famine ne peut
+en pratique s'installer que dans `ETAT_INCONNU`, seule tranche où tous les points sont périmés.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-07-30 | **A** Géométrie des entités « déchets » | `TerritoryImportPort`, `TerritoryImportAdapter`, `WasteImportAdapter` | ✅ 71/71, 52/52, 156/156 | Le port rend une **entité** : prolonge d'un cran la concession `@NamedInterface("repositories")`, à revoir avec elle. `nullable=false` sur `Depotoir.geometry` reste non tenu par le schéma |
+| 2026-07-30 | **B** Chaîne IoT de bout en bout | — (aucun code) | ✅ alerte créée + diffusée | Capteurs de test `CAPTEUR-PIKINE-001/002` sur dépôts 73 et 74 ; clés d'API rendues une seule fois |
+| 2026-07-30 | **C** Ordre de passage géographique | `GeoDistance`, `CollectionRouteService(+Impl)` | ✅ −53 % sur Mbao | `RouteStop` gagne `latitude`/`longitude` → **signature modifiée**, clients à adapter. Distance à vol d'oiseau : un canal ou une voie ferrée n'est pas vu. Point de départ = le plus ancien, faute de mieux ; `vehicle.lastlatitude` existe et rendrait le raffinement facile |
+
 ### 🏁 Mise en service : le système contient enfin des données et un compte (2026-07-30)
 
 Plan : `PLAN_MISE_EN_SERVICE.md` (B1→B5). Décisions : ADR-0014, ADR-0015.
