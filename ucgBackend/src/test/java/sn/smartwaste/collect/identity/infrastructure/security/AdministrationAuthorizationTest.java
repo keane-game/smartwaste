@@ -144,6 +144,21 @@ class AdministrationAuthorizationTest {
     }
 
     @Test
+    @WithAnonymousUser
+    @DisplayName("la documentation reste consultable par sa porte d'entrée réelle")
+    void swaggerEntryPointStaysReachable() throws Exception {
+        // `/swagger-ui.html` n'est pas un fichier de `/swagger-ui/` : c'est le chemin que springdoc
+        // expose par défaut, et qui redirige vers `/swagger-ui/index.html`. Le motif `/swagger-ui/**`
+        // ne le couvrait pas, si bien que la redirection était refusée en 403 avant d'avoir lieu :
+        // la documentation n'était atteignable qu'en devinant l'URL d'arrivée. Les deux chemins sont
+        // vérifiés ici, faute de quoi la même distinction se reperdra.
+        assertNotForbidden(get("/swagger-ui.html"));
+        assertNotForbidden(get("/swagger-ui/index.html"));
+        assertNotForbidden(get("/sonaged-docs"));
+        assertNotForbidden(get("/sonaged-docs/swagger-config"));
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("l'administration accède à ce dont elle a la charge")
     void administrationIsNotLockedOut() throws Exception {

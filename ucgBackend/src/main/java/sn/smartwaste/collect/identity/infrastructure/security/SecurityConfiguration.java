@@ -76,7 +76,15 @@ public class SecurityConfiguration{
                         .authorizeHttpRequests(
                                 authorize ->
                                         authorize
-                                                .requestMatchers("/swagger-ui/**", "/sonaged-docs/**", "/error", "/").permitAll()
+                                                // `/swagger-ui.html` est listé À PART de `/swagger-ui/**` : c'est un
+                                                // chemin distinct, pas un fichier du répertoire. springdoc l'expose
+                                                // comme porte d'entrée (valeur par défaut de
+                                                // `springdoc.swagger-ui.path`) et le redirige vers
+                                                // `/swagger-ui/index.html`. Le motif `/swagger-ui/**` ne le couvre
+                                                // donc pas, et la redirection était refusée en 403 avant d'avoir lieu
+                                                // — l'UI n'était atteignable qu'en visant `/swagger-ui/index.html`.
+                                                .requestMatchers("/swagger-ui.html", "/swagger-ui/**",
+                                                        "/sonaged-docs/**", "/error", "/").permitAll()
                                                 .requestMatchers(POST,"/auth/").permitAll()
                                                 .requestMatchers(POST,"/auth/**").permitAll()
                                                 // 🔴 `/data/**` était ouvert TOUTES MÉTHODES CONFONDUES.
