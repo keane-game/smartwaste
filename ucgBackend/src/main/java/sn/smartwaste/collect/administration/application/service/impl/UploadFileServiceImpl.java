@@ -100,6 +100,8 @@ public class UploadFileServiceImpl implements UploadFileService {
         // Le dédoublonnage doit porter sur l'ENSEMBLE des fichiers, pas sur chacun : les 7 exports
         // se recouvrent (132 entrées pour 71 positions distinctes). D'où l'état partagé, local à
         // l'appel — un champ d'instance fuirait d'un import à l'autre.
+        // Les contours sont lus UNE fois : les recharger par point rendait l'import interminable.
+        var contours = territory.communeBoundaries();
         var dejaVues = new HashSet<String>();
         int importes = 0;
         int doublons = 0;
@@ -111,7 +113,7 @@ public class UploadFileServiceImpl implements UploadFileService {
                     doublons++;
                     continue;
                 }
-                UUID communeId = territory.findCommuneIdByName(feature.text("Commune")).orElse(null);
+                UUID communeId = resolveCommune(feature, "Commune", contours);
                 if (communeId == null) {
                     sansCommune++;
                 }
@@ -126,6 +128,50 @@ public class UploadFileServiceImpl implements UploadFileService {
                 .formatted(importes, doublons, sansCommune);
         log.info("Import des points de collecte : {}", rapport);
         return rapport;
+    }
+
+    /**
+     * Rattache une entité à sa commune — <b>par sa position d'abord</b> (ADR-0018).
+     *
+     * <p>Le rapprochement par libellé était inexploitable : sur les 71 points réels, il donnait
+     * 31 rattachements certains, <b>25 tirés au hasard</b> parmi plusieurs candidats (« Pikine »
+     * correspond à trois communes du référentiel) et 15 sans rattachement. Les 25 étaient les
+     * pires : invisibles et faux, ils corrompaient la tournée et le rapport de deux communes à la
+     * fois. La position, elle, ne se discute pas — 69 des 71 points tombent dans exactement une
+     * commune.
+     *
+     * <p>Le nom reste le repli pour les entités sans géométrie exploitable, et ne tranche plus
+     * lorsqu'il est ambigu.
+     */
+    private UUID resolveCommune(ImportedFeature feature, String communeAttribute,
+                                List<TerritoryImportPort.CommuneBoundary> contours) {
+        var position = firstPointOf(feature);
+        if (position != null) {
+            var dedans = contours.stream()
+                    .filter(c -> c.contains(position[0], position[1]))
+                    .toList();
+            // Une position n'appartient qu'a une commune. Plusieurs reponses signalent des contours
+            // qui se chevauchent : mieux vaut ne rien affirmer que trancher au hasard — c'est
+            // precisement le defaut que ce rattachement remplace.
+            if (dedans.size() == 1) {
+                return dedans.getFirst().communeId();
+            }
+        }
+        return territory.findCommuneIdByName(feature.text(communeAttribute)).orElse(null);
+    }
+
+    /** Première position de l'entité, en WGS84 ; {@code null} si elle n'en porte aucune. */
+    private double[] firstPointOf(ImportedFeature feature) {
+        if (feature.geometry() == null || feature.geometry().points().isEmpty()) {
+            return null;
+        }
+        var point = feature.geometry().points().getFirst();
+        try {
+            return new double[] { Double.parseDouble(point.latitude()),
+                                  Double.parseDouble(point.longitude()) };
+        } catch (NumberFormatException | NullPointerException e) {
+            return null;
+        }
     }
 
     /**
@@ -199,6 +245,8 @@ public class UploadFileServiceImpl implements UploadFileService {
             return EMPTY;
         }
         try {
+            var contours = communeAttribute == null ? List.<TerritoryImportPort.CommuneBoundary>of()
+                    : territory.communeBoundaries();
             var jsonArray = new JSONArray(readContent(file.getInputStream()));
             int imported = 0;
 
@@ -220,11 +268,8 @@ public class UploadFileServiceImpl implements UploadFileService {
                     var imported$ = new ImportedFeature(attributes,
                             toShape(shapeHeader, feature.getJSONObject("geometry")));
 
-                    UUID communeId = null;
-                    if (communeAttribute != null) {
-                        communeId = territory.findCommuneIdByName(imported$.text(communeAttribute))
-                                .orElse(null);
-                    }
+                    UUID communeId = communeAttribute == null ? null
+                            : resolveCommune(imported$, communeAttribute, contours);
                     sink.accept(imported$, communeId);
                     imported++;
                 }

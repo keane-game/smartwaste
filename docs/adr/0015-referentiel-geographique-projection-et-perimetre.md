@@ -78,9 +78,22 @@ Les 6 fichiers de points non consommés portent **le même schéma d'attributs**
 
 `MoblierUrbainEntity` **n'est pas retenu** comme cible. Son CRUD complet (dto, mapper, service, repository, contrôleur) reste une coquille vide : les données réelles disent « point de collecte typé », ce que `Depotoir` + `TypeDepotoir` représentent déjà. Statuer sur le retrait de `MoblierUrbain` relève d'une suppression de code — **validation explicite requise**, hors de cet ADR.
 
-### 4. Rapprochement des communes par nom normalisé
+### 4. Rapprochement des communes par nom normalisé — ⛔ **remplacé par [ADR-0018](0018-rattachement-territorial-par-la-geometrie.md)**
 
-La correspondance de commune se fait sur un nom **normalisé** (casse repliée, accents retirés, espaces réduits) plutôt que sur l'égalité stricte. Les points dont la commune reste introuvable sont importés **sans commune** et **comptés dans le rapport d'import**, jamais rejetés en silence.
+> **Correction du 2026-08-04.** Cette section prescrivait un rapprochement sur un nom **normalisé**
+> (casse repliée, accents retirés, espaces réduits). Elle n'a jamais été implémentée — et en la
+> mesurant avant de le faire, il est apparu qu'elle **n'aurait rien réglé** : les écarts entre les
+> fichiers et le référentiel ne sont ni de casse ni d'accent, mais d'orthographe
+> (`Dalifort`/`daliford`, `Diamagueune`/`diamaguene`, `Guinaw rails`/`guinaw rail nord`).
+>
+> Pire, la correspondance partielle en place retenait « la première » commune candidate : sur les
+> 71 points réels, **25 étaient rattachés à un territoire tiré au sort** parmi plusieurs. Un point
+> sans commune est visiblement absent ; un point rattaché au hasard est invisiblement faux.
+>
+> L'ADR-0018 tranche par la **position** et non par le libellé : 70 points sur 71 rattachés, sans
+> ambiguïté.
+
+Ce qui reste valable de cette section : les points dont la commune reste introuvable sont importés **sans commune** et **comptés dans le rapport d'import**, jamais rejetés en silence.
 
 ## Conséquences
 

@@ -29,6 +29,52 @@
 
 ## Détail
 
+### 🔴 35 % des points étaient rattachés à une commune tirée au sort (2026-08-04)
+
+Décision : [ADR-0018](adr/0018-rattachement-territorial-par-la-geometrie.md), qui **remplace
+ADR-0015 §4**.
+
+**Comment c'est venu.** En relisant ADR-0015 avant d'attaquer le lot suivant, j'ai constaté que son
+§4 — « rapprochement des communes par nom normalisé » — n'avait **jamais été implémenté**. En le
+mesurant avant de l'écrire, il est apparu qu'il **n'aurait rien réglé** : les écarts ne sont ni de
+casse ni d'accent, mais d'orthographe (`Dalifort`/`daliford`, `Diamagueune`/`diamaguene`,
+`Guinaw rails`/`guinaw rail nord`).
+
+**Ce que la mesure a révélé, et qui était pire.** La correspondance partielle retenait « la
+première » commune candidate, avec un simple avertissement au journal. Or `Pikine` correspond à
+trois communes du référentiel, `Thiaroye` à trois, `Guinaw rail` à deux :
+
+| | Points sur 71 |
+|---|---|
+| Rattachement certain | 31 |
+| **Rattachement arbitraire** | **25** |
+| Aucun rattachement | 15 |
+
+Les 25 sont plus graves que les 15 : un point sans commune est *visiblement* absent des tournées et
+des rapports, un point rattaché au hasard est *invisiblement faux* et corrompt deux communes à la
+fois. Les tournées, taux de réalisation et rapports d'efficacité livrés les jours précédents
+reposaient donc, pour 35 % des points, sur un tirage au sort.
+
+**La correction.** La commune se détermine par la **position** (lancer de rayon sur les contours),
+le libellé n'étant qu'un repli qui ne tranche plus entre plusieurs candidats. Ce n'était possible
+qu'après l'ADR-0016, qui a donné une position aux points.
+
+**Défaut de conception rencontré en chemin.** La première version publiait
+`findCommuneIdAt(lat, lon)` : élégante, elle rechargeait les 12 communes et leurs coordonnées **par
+entité** — une vingtaine de requêtes × 279 entités. L'import ne terminait plus, il a fallu
+l'interrompre. Les contours se lisent désormais **une fois** et l'appelant garde l'instantané, ce
+qui évite aussi un cache de singleton qui se périmerait en silence.
+
+**Mesuré après réimport** : `depotoir 70/71` rattachés (contre 56 dont 25 arbitraires),
+`circuitcollect 52/52`, `circuitbalayage 146/156`. `guinaw rail nord` (7 points) et `guinaw rail
+sud` (4) sont enfin **distingués** ; `daliford` récupère ses 11 points, invisibles jusque-là.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-04 | **ADR-0018** Rattachement par la position | `PolygonContainment`, `TerritoryImportPort(+Adapter)`, `UploadFileServiceImpl` | ✅ 70/71 vérifié en base | Le point de départ situe un circuit : un tracé traversant deux communes est rattaché à celle de son premier point — acceptable pour l'administratif, discutable pour un calcul de charge. 10 circuits de balayage restent non rattachés (repli par libellé) |
+| 2026-08-04 | Correction d'ADR-0015 §4 | `docs/adr/0015-*.md` | ✅ | La décision d'origine est conservée, barrée et expliquée — pas effacée |
+
+
 ### Lot 4 du backlog — rapports d'efficacité, et deux défauts trouvés en chemin (2026-08-04)
 
 Écart **G5** de `BACKLOG_FONCTIONNEL.md`. Rendu calculable par le lot 2 : sans passage enregistré,

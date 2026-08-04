@@ -32,9 +32,10 @@ Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` 
 | [0012](0012-decouplage-entites-references-par-id.md) | Références par identifiant entre contextes | ✅ **Implémenté** | P1 |
 | [0013](0013-architecture-ddd-smartwaste.md) | Architecture DDD `sn.smartwaste.collect` (8 contextes) | 🟢 **En cours, très avancé** | structurant |
 | [0014](0014-amorcage-du-systeme.md) | Amorçage : racine territoriale semée · compte d'administration par l'environnement | 🔵 **Proposé** | P0 |
-| [0015](0015-referentiel-geographique-projection-et-perimetre.md) | Référentiel géographique : reprojection UTM→WGS84, dédoublonnage, périmètre des fichiers | ✅ **Implémenté** — 71 points, 0 hors emprise | P0 |
+| [0015](0015-referentiel-geographique-projection-et-perimetre.md) | Référentiel géographique : reprojection UTM→WGS84, dédoublonnage, périmètre | ✅ **Implémenté** — ⚠️ §4 remplacé par 0018 | P0 |
 | [0016](0016-geometrie-des-entites-dechets.md) | Géométrie des entités « déchets » : posée par elles, construite par le territoire | ✅ **Implémenté** — 71/71, 52/52, 156/156 | P0 |
 | [0017](0017-ordre-de-passage-geographique.md) | Ordre de passage : l'urgence découpe, la géographie ordonne | ✅ **Implémenté** | P1 |
+| [0018](0018-rattachement-territorial-par-la-geometrie.md) | Commune d'un point : par la position, non par le libellé — ⛔ remplace 0015 §4 | ✅ **Implémenté** — 70/71 rattachés | P0 |
 
 ## Décisions structurantes prises **hors ADR**
 

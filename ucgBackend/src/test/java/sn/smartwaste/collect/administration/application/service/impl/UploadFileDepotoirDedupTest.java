@@ -120,5 +120,6 @@ class UploadFileDepotoirDedupTest {
         @Override public long countQuartiers() { return 0; }
         @Override public sn.smartwaste.collect.territory.domain.model.GeometryEntity
                 newGeometry(ImportedFeature feature) { return null; }
+        @Override public List<CommuneBoundary> communeBoundaries() { return List.of(); }
     }
 }

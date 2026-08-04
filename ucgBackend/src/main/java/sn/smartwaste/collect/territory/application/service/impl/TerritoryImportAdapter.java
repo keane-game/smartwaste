@@ -156,9 +156,36 @@ public class TerritoryImportAdapter implements TerritoryImportPort {
         return quartierRepository.count();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<CommuneBoundary> communeBoundaries() {
+        return communeRepository.findAll().stream()
+                .filter(c -> c.getDeletionStatus() != sn.smartwaste.collect.shared.domain.model
+                        .DeletionStatus.PENDING_DELETION)
+                .map(this::toBoundary)
+                .filter(b -> !b.ring().isEmpty())
+                .toList();
+    }
+
+    private CommuneBoundary toBoundary(CommuneEntity commune) {
+        var ring = new ArrayList<double[]>();
+        var geometry = commune.getGeometry();
+        if (geometry != null && geometry.getCoordinates() != null) {
+            for (var c : geometry.getCoordinates()) {
+                try {
+                    ring.add(new double[] { Double.parseDouble(c.getLongitude()),
+                                            Double.parseDouble(c.getLatitude()) });
+                } catch (NumberFormatException | NullPointerException ignored) {
+                    // Une coordonnee illisible ne doit pas emporter tout le contour.
+                }
+            }
+        }
+        return new CommuneBoundary(commune.getCommuneId(), ring);
+    }
+
     /**
-     * Résolution tolérante : égalité stricte, puis correspondance partielle. Les noms des fichiers
-     * source ne coïncident pas toujours exactement avec ceux du référentiel.
+     * Résolution par libellé : égalité stricte, puis correspondance partielle <b>si elle est
+     * unique</b>. Repli du rattachement par position (ADR-0018), pour les entités sans géométrie.
      */
     private CommuneEntity resolveCommune(String name) {
         if (name == null || name.isBlank()) {
@@ -173,7 +200,12 @@ public class TerritoryImportAdapter implements TerritoryImportPort {
             return null;
         }
         if (candidates.size() > 1) {
-            log.warn("Plusieurs communes correspondent a « {} » : la premiere est retenue", name);
+            // On ne tranche plus au hasard. « Pikine » correspond a trois communes du referentiel,
+            // et retenir la premiere rattachait 25 des 71 points a un territoire arbitraire —
+            // invisible, et faux pour deux communes a la fois. Sans certitude, pas de rattachement.
+            log.warn("Nom de commune ambigu (« {} ») : {} candidats, aucun rattachement", 
+                    name, candidates.size());
+            return null;
         }
         return candidates.getFirst();
     }

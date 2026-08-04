@@ -52,6 +52,35 @@ public interface TerritoryImportPort {
      */
     Optional<UUID> findCommuneIdByName(String name);
 
+    /**
+     * Contours des communes, en une seule lecture (ADR-0018).
+     *
+     * <p><b>Pourquoi un instantané et non une résolution point par point.</b> Une première version
+     * publiait {@code findCommuneIdAt(lat, lon)} : élégante à l'appel, elle rechargeait les
+     * 12 communes, leur géométrie et leurs coordonnées <b>pour chaque entité importée</b>, soit
+     * une vingtaine de requêtes multipliées par 279 entités. L'import ne terminait plus. Les
+     * contours ne changent pas pendant un import : ils se lisent une fois.
+     *
+     * <p>Rendre l'instantané au lieu de le mémoriser dans ce service évite un cache de singleton
+     * qui se périmerait silencieusement à la première modification de commune.
+     */
+    java.util.List<CommuneBoundary> communeBoundaries();
+
+    /**
+     * Le contour d'une commune, réduit à ce qu'il faut pour situer un point.
+     *
+     * <p>Ne transporte aucune entité : {@code ring} est une suite de {@code [longitude, latitude]}
+     * en WGS84.
+     */
+    record CommuneBoundary(UUID communeId, java.util.List<double[]> ring) {
+
+        /** Vrai si ce point tombe à l'intérieur du contour. */
+        public boolean contains(double latitude, double longitude) {
+            return sn.smartwaste.collect.territory.domain.model.PolygonContainment
+                    .contains(ring, longitude, latitude);
+        }
+    }
+
     // ---------- Compteurs « déjà importé ? » ----------
 
     long countDepartments();
