@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.identity.application.dto.Authentification;
 import sn.smartwaste.collect.identity.application.dto.User;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
@@ -48,6 +49,27 @@ public class AuthServiceImpl implements AuthService {
     private AuthorityRepository authorityRepository;
     private SessionService sessionService;
 
+    /**
+     * Inscription d'un citoyen — <b>atomique</b> : compte, code d'activation et envoi du courriel
+     * réussissent ensemble ou pas du tout.
+     *
+     * <p><b>Ce que {@code @Transactional} ferme ici.</b> La méthode enregistrait le compte, puis
+     * publiait l'événement d'activation, écouté <i>synchronement</i> par l'envoi de courriel.
+     * Serveur SMTP absent — son état par défaut, {@code smtp4dev} n'étant pas démarré —
+     * l'exception remontait à l'appelant : <b>compte créé en base, 500 rendu au client</b>. Le
+     * citoyen croyait avoir échoué, recommençait, et s'entendait répondre « Votre email est déjà
+     * utilisé » : il ne pouvait ni entrer (compte non activé) ni se réinscrire, et aucun endpoint
+     * ne renvoie le code. Il était bloqué sans recours.
+     *
+     * <p>Annuler vaut mieux qu'un demi-succès : un compte dont le code n'est jamais parvenu est une
+     * adresse rendue inutilisable, alors qu'un état propre laisse la tentative suivante aboutir.
+     *
+     * <p>Effet de bord assumé : la méthode reposait jusqu'ici sur l'{@code open-session-in-view}
+     * de la couche web pour résoudre les collections paresseuses du rôle. Hors requête HTTP —
+     * appel direct, tâche planifiée, test — elle levait {@code LazyInitializationException}. Une
+     * transaction explicite ne dépend plus de la façon dont on l'appelle.
+     */
+    @Transactional
     public void register(User user) {
 
         if(!user.getUserEmail().contains("@")) {
@@ -89,6 +111,8 @@ public class AuthServiceImpl implements AuthService {
         userToCreate.setAuthority(defaultRegistrationAuthority());
 
         var userEntity = this.userRepository.save(userToCreate);
+        // Dans la MEME transaction que la creation du compte (cf. javadoc de la methode) : si le
+        // code d'activation ne part pas, le compte ne doit pas subsister.
         this.validationService.registerUserCode(userEntity);
     }
 
