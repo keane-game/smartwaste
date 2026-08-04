@@ -136,7 +136,11 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
         // Trie du plus ancien contact au plus recent : le parc se lit par ce qui ne va pas.
         // `nullsFirst` place en tete les capteurs qui n'ont JAMAIS emis — une installation qui n'a
         // jamais parle est le premier cas a regarder, et il ne declenche aucune alerte (G7).
-        return sensorRepository.findAll().stream()
+        var capteurs = sensorRepository.findAll();
+        // UNE lecture pour tout le parc : la version precedente interrogeait `waste` par capteur.
+        var pointsExistants = waste.existingCollectionPoints(
+                capteurs.stream().map(Sensor::getDepotoirId).toList());
+        return capteurs.stream()
                 .sorted(java.util.Comparator.comparing(Sensor::getLastSeenAt,
                         java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
                 .map(s -> new DeviceSummary(s.getSensorId(), s.getDeviceCode(),
@@ -144,7 +148,7 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
                         s.getSilenceReportedAt(),
                         // Rattrape ce que la porte d'entree ne peut pas voir : un capteur valide a
                         // l'enrolement devient orphelin au reimport suivant.
-                        !waste.collectionPointExists(s.getDepotoirId())))
+                        !pointsExistants.contains(s.getDepotoirId())))
                 .toList();
     }
 

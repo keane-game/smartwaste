@@ -29,6 +29,42 @@
 
 ## Détail
 
+### Revue de la session — trois défauts corrigés, un noté (2026-08-04)
+
+Revue des 14 commits de la journée (86 fichiers, ~5 700 lignes). Les quatre constats portent
+**tous sur du code écrit ce jour-là**, aucun sur l'existant.
+
+**1. N+1 réintroduit** (`DeviceProvisioningServiceImpl`). La liste du parc appelait
+`collectionPointExists` **dans le `map`**, soit une requête par capteur. C'est le motif corrigé le
+matin même pour les contours de communes, et réintroduit deux commits plus tard : invisible à deux
+capteurs, autant de requêtes que d'équipements dès que le parc sera instrumenté. `waste` publie
+désormais une lecture groupée, et un test vérifie qu'elle est appelée **une seule fois**.
+
+**2. Le journal perdait les alertes qui enjambent la fenêtre** (`WasteReadModelAdapter`). Le filtre
+portait sur la seule date de levée. Une alerte levée il y a 40 jours et **résolue il y a 5 jours**
+était absente du journal sur 30 jours — sa levée *et* sa résolution. Ce sont précisément les
+problèmes de longue durée qu'un superviseur consulte. La requête était juste pour le **rapport**
+(compter ce qui s'est produit dans le mois) ; je l'avais réutilisée pour le **journal**, dont le
+critère est autre. Requête dédiée : une alerte est retenue si sa levée **ou** sa résolution touche
+la période, et seuls les temps réellement compris dedans sont rapportés.
+
+**3. Toutes les mesures chargées puis filtrées en mémoire** (`IngestionMetricsAdapter`). Un capteur
+émettant au quart d'heure produit ~35 000 lignes par an, toutes chargées pour en afficher trente
+jours. Sans effet aujourd'hui, bloquant dès le déploiement des capteurs — la raison d'être du
+produit. Le filtre est passé dans la requête.
+
+**4. ⚠️ Noté, non corrigé — les contours multi-anneaux sont aplatis.** `UploadFileServiceImpl:322`
+concatène **tous** les anneaux d'un polygone en une seule liste, et `PolygonContainment` la traite
+comme un contour unique. Une commune avec une île ou une enclave donnerait un rattachement faux, en
+silence. **Vérifié : les 12 communes de Pikine ont exactement un anneau chacune** — le défaut est
+donc inerte. Ce sont les données qui nous sauvent, pas la conception. Corriger demanderait de
+préserver la notion d'anneau dans `GeometryEntity`, dont la liste de coordonnées est plate.
+
+**Vérifié contre PostgreSQL** pour le correctif 2, en antidatant une alerte du point 215 (levée le
+25/06, résolue le 30/07) : le journal sur 30 jours rend bien `ALERTE_RESOLUE` au 30/07, et ne date
+pas la levée, hors période. Le parc rend 3 capteurs dont 2 orphelins, en une requête.
+
+
 ### Lot 6 partiel — le journal d'un point de collecte (2026-08-04)
 
 Écart **G8** du backlog. Le plan le disait bloqué par une décision sur `HistoryEntity` ; il ne

@@ -34,4 +34,22 @@ public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long>
             java.util.List<Long> depotoirIds,
             java.time.LocalDateTime from,
             java.time.LocalDateTime to);
+
+    /**
+     * Alertes d'un point <b>qui touchent</b> la période — levées dedans, ou refermées dedans (G8).
+     *
+     * <p>Distincte de la précédente, et pour une bonne raison. Un <b>rapport</b> mensuel compte ce
+     * qui s'est <i>produit</i> ce mois-là, donc filtre sur la levée. Un <b>journal</b> montre ce qui
+     * s'est passé pendant la fenêtre : une alerte levée il y a quarante jours et refermée il y a
+     * cinq jours en fait partie. Réutiliser la requête du rapport faisait disparaître du journal
+     * exactement les problèmes de longue durée — ceux qu'on y consulte.
+     */
+    @org.springframework.data.jpa.repository.Query(
+            "select a from AlertEntity a where a.depotoirId = :depotoirId "
+            + "and ((a.createdDate >= :from and a.createdDate < :to) "
+            +      "or (a.resolvedAt >= :from and a.resolvedAt < :to))")
+    java.util.List<AlertEntity> findTouchingPeriod(
+            @org.springframework.data.repository.query.Param("depotoirId") Long depotoirId,
+            @org.springframework.data.repository.query.Param("from") java.time.LocalDateTime from,
+            @org.springframework.data.repository.query.Param("to") java.time.LocalDateTime to);
 }

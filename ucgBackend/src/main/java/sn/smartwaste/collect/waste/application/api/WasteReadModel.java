@@ -34,6 +34,16 @@ public interface WasteReadModel {
     boolean collectionPointExists(Long depotoirId);
 
     /**
+     * Parmi ces identifiants, ceux qui désignent un point de collecte existant.
+     *
+     * <p>Publié pour éviter un N+1 : la liste du parc interrogeait
+     * {@link #collectionPointExists(Long)} <b>par capteur</b>. Invisible à deux capteurs, ce sont
+     * autant de requêtes que d'équipements dès que le parc sera instrumenté — le même défaut que
+     * celui corrigé pour les contours de communes, et réintroduit ici.
+     */
+    java.util.Set<Long> existingCollectionPoints(java.util.Collection<Long> depotoirIds);
+
+    /**
      * Ce qui est arrivé à un point de collecte : alertes levées ou refermées, passages d'agent (G8).
      *
      * <p>L'autre moitié de son histoire — les mesures — vient du contexte IoT. Ce contexte aplatit

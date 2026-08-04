@@ -58,8 +58,9 @@ public class IngestionMetricsAdapter implements IngestionMetrics {
     @Transactional(readOnly = true)
     public List<RecordedMeasurement> measurementsFor(Long depotoirId, java.time.Instant from,
                                                      java.time.Instant to) {
-        return measurementRepository.findByDepotoirIdOrderByMeasuredAtDesc(depotoirId).stream()
-                .filter(m -> !m.getMeasuredAt().isBefore(from) && m.getMeasuredAt().isBefore(to))
+        return measurementRepository
+                .findByDepotoirIdAndMeasuredAtBetweenOrderByMeasuredAtDesc(depotoirId, from, to)
+                .stream()
                 .map(m -> new RecordedMeasurement(m.getMeasuredAt(), m.getFillLevelPercent(),
                         m.getTemperatureCelsius(), m.getHumidityPercent(),
                         m.getSource() == null ? null : m.getSource().name()))

@@ -79,6 +79,18 @@ public class WasteReadModelAdapter implements WasteReadModel {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public java.util.Set<Long> existingCollectionPoints(java.util.Collection<Long> depotoirIds) {
+        var connus = depotoirIds.stream().filter(java.util.Objects::nonNull).distinct().toList();
+        if (connus.isEmpty()) {
+            return java.util.Set.of();
+        }
+        return depotoirRepository.findAllById(connus).stream()
+                .map(sn.smartwaste.collect.waste.domain.model.DepotoirEntity::getDepotoirId)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    @Override
     public long countStreetFurniture() {
         return moblierUrbainRepository.count();
     }
@@ -150,14 +162,21 @@ public class WasteReadModelAdapter implements WasteReadModel {
         var events = new java.util.ArrayList<PointEvent>();
         var zone = java.time.ZoneId.systemDefault();
 
-        for (var alert : alertRepository.findByDepotoirIdInAndCreatedDateBetween(
-                List.of(depotoirId), java.time.LocalDateTime.ofInstant(from, zone),
-                java.time.LocalDateTime.ofInstant(to, zone))) {
-            events.add(new PointEvent(alert.getCreatedDate().atZone(zone).toInstant(),
-                    "ALERTE_LEVEE", alert.getObject(), alert.getMessage()));
+        var debut = java.time.LocalDateTime.ofInstant(from, zone);
+        var fin = java.time.LocalDateTime.ofInstant(to, zone);
+        for (var alert : alertRepository.findTouchingPeriod(depotoirId, debut, fin)) {
+            // Une alerte peut n'avoir qu'un de ses deux temps dans la fenetre : on ne
+            // rapporte que ceux qui s'y sont reellement produits, sinon le journal daterait
+            // un fait hors periode.
+            if (!alert.getCreatedDate().isBefore(debut) && alert.getCreatedDate().isBefore(fin)) {
+                events.add(new PointEvent(alert.getCreatedDate().atZone(zone).toInstant(),
+                        "ALERTE_LEVEE", alert.getObject(), alert.getMessage()));
+            }
             // La resolution est un fait distinct, et souvent le plus interessant : c'est lui qui
             // dit combien de temps le probleme a dure.
-            if (alert.getResolvedAt() != null) {
+            if (alert.getResolvedAt() != null
+                    && !alert.getResolvedAt().isBefore(debut)
+                    && alert.getResolvedAt().isBefore(fin)) {
                 events.add(new PointEvent(alert.getResolvedAt().atZone(zone).toInstant(),
                         "ALERTE_RESOLUE", alert.getObject(), alert.getResolvedBy()));
             }

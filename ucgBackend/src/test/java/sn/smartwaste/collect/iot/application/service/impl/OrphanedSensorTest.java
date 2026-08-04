@@ -100,12 +100,27 @@ class OrphanedSensorTest {
         // liste du parc peut le rattraper — la porte d'entree ne suffit pas.
         lenient().when(sensorRepository.findAll())
                 .thenReturn(List.of(sensor(POINT), sensor(999L)));
-        when(waste.collectionPointExists(POINT)).thenReturn(true);
-        when(waste.collectionPointExists(999L)).thenReturn(false);
+        when(waste.existingCollectionPoints(any())).thenReturn(java.util.Set.of(POINT));
 
         var parc = service().listSensors();
 
         assertThat(parc).hasSize(2);
         assertThat(parc.stream().filter(d -> d.orphaned()).count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("le parc interroge les points une seule fois, pas une par capteur")
+    void listingAsksOnceForTheWholeFleet() {
+        // Defaut releve en revue : la premiere version appelait collectionPointExists DANS le map,
+        // soit une requete par capteur. C'est le meme N+1 que celui corrige le matin meme pour les
+        // contours de communes, reintroduit deux commits plus tard. Invisible a 2 capteurs, ce sont
+        // 71 requetes par affichage quand le parc sera instrumente.
+        lenient().when(sensorRepository.findAll())
+                .thenReturn(List.of(sensor(1L), sensor(2L), sensor(3L), sensor(4L)));
+        when(waste.existingCollectionPoints(any())).thenReturn(java.util.Set.of(1L, 2L));
+
+        service().listSensors();
+
+        verify(waste, org.mockito.Mockito.times(1)).existingCollectionPoints(any());
     }
 }
