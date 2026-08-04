@@ -33,6 +33,24 @@ public interface WasteReadModel {
      */
     boolean collectionPointExists(Long depotoirId);
 
+    /**
+     * Ce qui est arrivé à un point de collecte : alertes levées ou refermées, passages d'agent (G8).
+     *
+     * <p>L'autre moitié de son histoire — les mesures — vient du contexte IoT. Ce contexte aplatit
+     * ses propres événements plutôt que d'exposer alertes et passages : l'appelant compose un
+     * journal, il n'a pas à connaître deux modèles.
+     */
+    List<PointEvent> pointEvents(Long depotoirId, java.time.Instant from, java.time.Instant to);
+
+    /**
+     * Un fait daté concernant le point.
+     *
+     * @param kind   {@code ALERTE_LEVEE}, {@code ALERTE_RESOLUE}, {@code COLLECTE} ou
+     *               {@code INACCESSIBLE}
+     * @param detail motif ou message, {@code null} s'il n'y en a pas
+     */
+    record PointEvent(java.time.Instant at, String kind, String label, String detail) { }
+
     /** Nombre total de mobiliers urbains (bennes). */
     long countStreetFurniture();
 

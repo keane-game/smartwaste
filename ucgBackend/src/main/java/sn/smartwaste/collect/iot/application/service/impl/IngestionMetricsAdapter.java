@@ -54,4 +54,15 @@ public class IngestionMetricsAdapter implements IngestionMetrics {
                 .map(s -> new SilentSensor(s.getDeviceCode(), s.getDepotoirId(), s.getLastSeenAt()))
                 .toList();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<RecordedMeasurement> measurementsFor(Long depotoirId, java.time.Instant from,
+                                                     java.time.Instant to) {
+        return measurementRepository.findByDepotoirIdOrderByMeasuredAtDesc(depotoirId).stream()
+                .filter(m -> !m.getMeasuredAt().isBefore(from) && m.getMeasuredAt().isBefore(to))
+                .map(m -> new RecordedMeasurement(m.getMeasuredAt(), m.getFillLevelPercent(),
+                        m.getTemperatureCelsius(), m.getHumidityPercent(),
+                        m.getSource() == null ? null : m.getSource().name()))
+                .toList();
+    }
 }

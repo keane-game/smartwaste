@@ -54,6 +54,8 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
     private final AlertRepository alertRepository;
     private final CollectionPassageRepository passageRepository;
     private final CurrentUserProvider currentUserProvider;
+    /** Pour nommer l'agent dans l'alerte refermee : un UUID ne renseigne personne. */
+    private final sn.smartwaste.collect.identity.application.api.UserDirectory userDirectory;
     private final TerritorialAccessGuard accessGuard;
     private final Clock clock;
 
@@ -61,12 +63,14 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
                                         AlertRepository alertRepository,
                                         CollectionPassageRepository passageRepository,
                                         CurrentUserProvider currentUserProvider,
+                                        sn.smartwaste.collect.identity.application.api.UserDirectory userDirectory,
                                         TerritorialAccessGuard accessGuard,
                                         Clock clock) {
         this.depotoirRepository = depotoirRepository;
         this.alertRepository = alertRepository;
         this.passageRepository = passageRepository;
         this.currentUserProvider = currentUserProvider;
+        this.userDirectory = userDirectory;
         this.accessGuard = accessGuard;
         this.clock = clock;
     }
@@ -115,11 +119,27 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
                 continue;
             }
             alert.setResolvedAt(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
-            alert.setResolvedBy(currentUser() == null ? "agent" : currentUser().toString());
+            alert.setResolvedBy(agentLabel());
             alertRepository.save(alert);
             refermees++;
         }
         return refermees;
+    }
+
+    /**
+     * Nom lisible de l'agent, pour l'alerte refermée.
+     *
+     * <p>Stockait l'{@code UUID} : le journal d'un point affichait
+     * « ALERTE_RESOLUE … 019fb3cc-75dc-7ef1-… », que personne ne peut lire. Même travers que
+     * « commune 019fb3cc… » dans les rapports. Un annuaire muet — compte supprimé — ne doit pas
+     * empêcher la collecte d'aboutir : on retombe sur un libellé générique.
+     */
+    private String agentLabel() {
+        UUID agent = currentUser();
+        if (agent == null) {
+            return "agent";
+        }
+        return userDirectory.emailOf(agent).orElseGet(agent::toString);
     }
 
     private void record(Long depotoirId, PassageOutcome outcome, String reason, Instant now) {

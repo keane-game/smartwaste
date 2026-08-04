@@ -37,6 +37,7 @@ public class WasteReadModelAdapter implements WasteReadModel {
     private final CircuitCollectRepository circuitCollectRepository;
     private final CircuitBalayageRepository circuitBalayageRepository;
     private final AlertRepository alertRepository;
+    private final sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository;
     private final DepotoirService depotoirService;
     private final CollectionScheduleRepository collectionScheduleRepository;
     private final VehicleRepository vehicleRepository;
@@ -49,6 +50,7 @@ public class WasteReadModelAdapter implements WasteReadModel {
                                  CircuitCollectRepository circuitCollectRepository,
                                  CircuitBalayageRepository circuitBalayageRepository,
                                  AlertRepository alertRepository,
+                                 sn.smartwaste.collect.waste.domain.repository.CollectionPassageRepository passageRepository,
                                  DepotoirService depotoirService,
                                  CollectionScheduleRepository collectionScheduleRepository,
                                  VehicleRepository vehicleRepository,
@@ -58,6 +60,7 @@ public class WasteReadModelAdapter implements WasteReadModel {
         this.circuitCollectRepository = circuitCollectRepository;
         this.circuitBalayageRepository = circuitBalayageRepository;
         this.alertRepository = alertRepository;
+        this.passageRepository = passageRepository;
         this.depotoirService = depotoirService;
         this.collectionScheduleRepository = collectionScheduleRepository;
         this.vehicleRepository = vehicleRepository;
@@ -139,5 +142,36 @@ public class WasteReadModelAdapter implements WasteReadModel {
                 .map(v -> new VehicleOnMap(v.getVehicleId(), v.getRegistration(), v.getLabel(),
                         v.getLastLatitude(), v.getLastLongitude(), v.getLastPositionAt()))
                 .toList();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<PointEvent> pointEvents(Long depotoirId, java.time.Instant from,
+                                        java.time.Instant to) {
+        var events = new java.util.ArrayList<PointEvent>();
+        var zone = java.time.ZoneId.systemDefault();
+
+        for (var alert : alertRepository.findByDepotoirIdInAndCreatedDateBetween(
+                List.of(depotoirId), java.time.LocalDateTime.ofInstant(from, zone),
+                java.time.LocalDateTime.ofInstant(to, zone))) {
+            events.add(new PointEvent(alert.getCreatedDate().atZone(zone).toInstant(),
+                    "ALERTE_LEVEE", alert.getObject(), alert.getMessage()));
+            // La resolution est un fait distinct, et souvent le plus interessant : c'est lui qui
+            // dit combien de temps le probleme a dure.
+            if (alert.getResolvedAt() != null) {
+                events.add(new PointEvent(alert.getResolvedAt().atZone(zone).toInstant(),
+                        "ALERTE_RESOLUE", alert.getObject(), alert.getResolvedBy()));
+            }
+        }
+
+        for (var passage : passageRepository.findByDepotoirIdInAndOccurredAtBetween(
+                List.of(depotoirId), from, to)) {
+            boolean collecte = passage.getOutcome()
+                    == sn.smartwaste.collect.waste.domain.model.PassageOutcome.COLLECTED;
+            events.add(new PointEvent(passage.getOccurredAt(),
+                    collecte ? "COLLECTE" : "INACCESSIBLE",
+                    collecte ? "Point collecte" : "Point inaccessible",
+                    passage.getReason()));
+        }
+        return List.copyOf(events);
     }
 }

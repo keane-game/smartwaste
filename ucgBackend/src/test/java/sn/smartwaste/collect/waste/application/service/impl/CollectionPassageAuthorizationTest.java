@@ -59,6 +59,7 @@ class CollectionPassageAuthorizationTest {
     private CollectionPassageServiceImpl service() {
         return new CollectionPassageServiceImpl(depotoirRepository, alertRepository,
                 passageRepository, currentUserProvider,
+                org.mockito.Mockito.mock(sn.smartwaste.collect.identity.application.api.UserDirectory.class),
                 new TerritorialAccessGuard(currentUserProvider, agentDirectory),
                 Clock.fixed(NOW, ZoneId.of("UTC")));
     }

@@ -29,6 +29,19 @@ public interface IngestionMetrics {
      */
     List<SilentSensor> silentSensors(Instant since);
 
+    /**
+     * Mesures reçues pour un point de collecte, de la plus récente à la plus ancienne (G8).
+     *
+     * <p>Publié pour le journal d'un point : c'est la moitié de son histoire, l'autre venant du
+     * contexte « Déchets » (alertes et passages). Aucune entité ne franchit la frontière.
+     */
+    List<RecordedMeasurement> measurementsFor(Long depotoirId, Instant from, Instant to);
+
+    /** Une mesure, réduite à ce qu'un journal affiche. */
+    record RecordedMeasurement(Instant measuredAt, Integer fillLevelPercent,
+                               Double temperatureCelsius, Double humidityPercent,
+                               String source) { }
+
     /** @param lastSeenAt {@code null} si le capteur n'a jamais émis depuis son enrôlement */
     record SilentSensor(String deviceCode, Long depotoirId, Instant lastSeenAt) { }
 }

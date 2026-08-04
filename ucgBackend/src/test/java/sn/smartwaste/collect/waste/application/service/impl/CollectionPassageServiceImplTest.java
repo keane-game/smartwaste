@@ -63,6 +63,7 @@ class CollectionPassageServiceImplTest {
     @Mock private AlertRepository alertRepository;
     @Mock private CollectionPassageRepository passageRepository;
     @Mock private CurrentUserProvider currentUserProvider;
+    @Mock private sn.smartwaste.collect.identity.application.api.UserDirectory userDirectory;
     /** Ces cas portent sur le comportement metier ; l'autorisation est verifiee separement
      *  (CollectionPassageAuthorizationTest). */
     private final TerritorialAccessGuard accessGuard = new TerritorialAccessGuard(null, null) {
@@ -72,7 +73,7 @@ class CollectionPassageServiceImplTest {
 
     private CollectionPassageServiceImpl service() {
         return new CollectionPassageServiceImpl(depotoirRepository, alertRepository,
-                passageRepository, currentUserProvider, accessGuard,
+                passageRepository, currentUserProvider, userDirectory, accessGuard,
                 Clock.fixed(NOW, ZoneId.of("UTC")));
     }
 
@@ -132,6 +133,39 @@ class CollectionPassageServiceImplTest {
 
         assertThat(debordement.getResolvedAt()).isNotNull();
         verify(alertRepository).save(debordement);
+    }
+
+    @Test
+    @DisplayName("l'alerte refermee nomme l'agent, pas son identifiant technique")
+    void resolvedAlertNamesTheAgent() {
+        // Constate dans le journal d'un point reel : « ALERTE_RESOLUE ... 019fb3cc-75dc-7ef1-... ».
+        // Un superviseur y lisait un UUID. Meme travers que « commune 019fb3cc… », corrige pour les
+        // rapports : un libelle que personne ne peut lire ne renseigne personne.
+        point(92);
+        when(userDirectory.emailOf(AGENT)).thenReturn(Optional.of("agent.mbao@sonaged.sn"));
+        var debordement = openAlert("Point de collecte plein");
+        when(alertRepository.findByDepotoirIdAndResolvedAtIsNull(POINT))
+                .thenReturn(List.of(debordement));
+
+        service().markCollected(POINT);
+
+        assertThat(debordement.getResolvedBy()).isEqualTo("agent.mbao@sonaged.sn");
+    }
+
+    @Test
+    @DisplayName("un agent sans adresse connue ne bloque pas la collecte")
+    void unknownAgentStillResolves() {
+        // L'annuaire peut ne rien rendre (compte supprime) : la collecte doit aboutir quand meme.
+        point(92);
+        when(userDirectory.emailOf(AGENT)).thenReturn(Optional.empty());
+        var debordement = openAlert("Point de collecte plein");
+        when(alertRepository.findByDepotoirIdAndResolvedAtIsNull(POINT))
+                .thenReturn(List.of(debordement));
+
+        service().markCollected(POINT);
+
+        assertThat(debordement.getResolvedAt()).isNotNull();
+        assertThat(debordement.getResolvedBy()).isNotBlank();
     }
 
     @Test

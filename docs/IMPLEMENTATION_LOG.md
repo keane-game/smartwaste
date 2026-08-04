@@ -29,6 +29,49 @@
 
 ## Détail
 
+### Lot 6 partiel — le journal d'un point de collecte (2026-08-04)
+
+Écart **G8** du backlog. Le plan le disait bloqué par une décision sur `HistoryEntity` ; il ne
+l'était pas vraiment.
+
+**Pourquoi ce n'était pas bloqué.** Un journal est une **lecture** sur des données déjà écrites par
+les lots 1 et 2, dans trois tables qui existent. Il n'exige ni entité nouvelle ni suppression. La
+coquille vide `HistoryEntity` et son sort restent une question ouverte — il n'y avait pas lieu de la
+trancher pour livrer ceci.
+
+**Ce qui manquait.** La boucle produit des faits — mesures, alertes, passages — mais rien ne
+permettait de les lire **pour un point donné**. Un superviseur qui se demande « pourquoi ce point
+déborde-t-il toutes les semaines ? » n'avait que le niveau courant.
+
+**La composition.** Le contexte IoT connaît les mesures, le contexte « Déchets » les alertes et les
+passages ; chacun publie les siens, `analytics` les entrelace. Lus séparément ces faits ne racontent
+rien ; entrelacés, ils disent « le bac s'est rempli, l'alerte est partie, l'agent est passé ».
+
+**Vérifié contre PostgreSQL** en construisant une histoire réelle sur le point 215 :
+
+```
+MESURE          Niveau 45%                31,0 °C, 55 % d'humidite
+MESURE          Niveau 93%                35,2 °C
+ALERTE_LEVEE    Point de collecte plein   Niveau de remplissage 93% (seuil 80%)
+ALERTE_RESOLUE  Point de collecte plein   admin@sonaged.sn
+COLLECTE        Point collecte
+```
+
+La seconde mesure ne porte pas d'humidité parce qu'aucune n'a été transmise : afficher « 0 % »
+serait une mesure inventée, qu'un superviseur lirait comme une anomalie.
+
+**Défaut trouvé grâce à ce journal.** La première lecture affichait
+`ALERTE_RESOLUE … 019fb3cc-75dc-7ef1-…` : `resolvedBy` stockait l'**UUID** de l'agent. Même travers
+que « commune 019fb3cc… », corrigé pour les rapports — un libellé que personne ne peut lire ne
+renseigne personne. L'alerte nomme désormais l'agent par son adresse, via l'annuaire publié par
+`identity`, avec repli si le compte a disparu.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-04 | **G8** Journal d'un point | `IngestionMetrics`, `WasteReadModel`, `PointJournalService(+Impl)`, `PointJournalController` | ✅ vérifié en base | `HistoryEntity` reste une coquille vide — décision non tranchée, et volontairement pas nécessaire ici |
+| 2026-08-04 | Correctif — l'alerte refermée nommait un UUID | `CollectionPassageServiceImpl` | ✅ vérifié (`admin@sonaged.sn`) | Trouvé en lisant le journal d'un point réel |
+
+
 ### 🔴 Un réimport du référentiel rendait tous les capteurs muets, en silence (2026-08-04)
 
 **Comment c'est venu.** Après le réimport de l'ADR-0018, j'ai vérifié ce que devenaient les capteurs.
