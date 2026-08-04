@@ -18,14 +18,29 @@ import sn.smartwaste.collect.territory.application.service.DepartmentService;
 @Transactional(readOnly = true)
 public class TerritoryReadModelAdapter implements TerritoryReadModel {
 
+    private final sn.smartwaste.collect.territory.domain.repository.CommuneRepository communeRepository;
+
     private final DepartmentService departmentService;
 
-    public TerritoryReadModelAdapter(DepartmentService departmentService) {
+    public TerritoryReadModelAdapter(DepartmentService departmentService,
+            sn.smartwaste.collect.territory.domain.repository.CommuneRepository communeRepository) {
+        this.communeRepository = communeRepository;
         this.departmentService = departmentService;
     }
 
     @Override
     public DepartmentMaps firstDepartmentForMap() {
         return departmentService.getFirstDepartment();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public String communeNameOf(java.util.UUID communeId) {
+        if (communeId == null) {
+            return null;
+        }
+        return communeRepository.findById(communeId)
+                .map(sn.smartwaste.collect.territory.domain.model.CommuneEntity::getName)
+                .orElse(null);
     }
 }

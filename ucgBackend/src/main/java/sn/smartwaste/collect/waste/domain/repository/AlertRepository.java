@@ -22,4 +22,16 @@ public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long>
 
     /** Toutes les alertes ouvertes d'un point, quel qu'en soit l'objet. */
     java.util.List<AlertEntity> findByDepotoirIdAndResolvedAtIsNull(Long depotoirId);
+
+    /**
+     * Alertes levées sur un ensemble de points pendant une période (G5).
+     *
+     * <p>Le filtre porte sur la <b>date de levée</b> et non sur la résolution : un rapport
+     * mensuel doit compter ce qui s'est produit ce mois-là, y compris ce qui n'est pas encore
+     * refermé — sinon les périodes difficiles paraîtraient les plus calmes.
+     */
+    java.util.List<AlertEntity> findByDepotoirIdInAndCreatedDateBetween(
+            java.util.List<Long> depotoirIds,
+            java.time.LocalDateTime from,
+            java.time.LocalDateTime to);
 }

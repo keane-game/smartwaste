@@ -29,6 +29,52 @@
 
 ## Détail
 
+### Lot 4 du backlog — rapports d'efficacité, et deux défauts trouvés en chemin (2026-08-04)
+
+Écart **G5** de `BACKLOG_FONCTIONNEL.md`. Rendu calculable par le lot 2 : sans passage enregistré,
+il n'existe ni délai entre l'alerte et le vidage, ni numérateur au taux de réalisation.
+
+**Ce qui manquait.** `/v1/supervision/stats` ne donne que des compteurs **instantanés** : rien n'y
+disait si la situation s'améliorait d'un mois sur l'autre. Le cas d'utilisation « générer des
+rapports de performance pour surveiller l'efficacité du système » (mémoire §3.1.6.1) restait sans
+réponse.
+
+**Où vit le calcul.** Dans le contexte « Déchets », qui possède les alertes et les passages. Faire
+remonter ces lignes vers `analytics` pour qu'il les additionne traverserait une frontière que
+`modules.verify()` refuse, et transporterait des milliers d'objets là où quelques nombres
+suffisent. `analytics` compose et présente.
+
+**Trois choix qui évitent un chiffre mensonger** — chacun tenu par un test :
+- aucune alerte résolue ne donne **pas** un délai de zéro, qui se lirait comme une réactivité
+  parfaite, mais l'absence de valeur (`null`, et « non renseigne » en CSV) ;
+- les alertes « Capteur muet » sont **exclues** du délai : elles mesurent la réactivité de la
+  maintenance, et les mélanger produirait une moyenne qui ne décrit ni l'une ni l'autre ;
+- un point visité deux fois ne compte qu'une : c'est une couverture de territoire, pas un compteur
+  d'actes.
+
+**Deux défauts trouvés en chemin.**
+- `modules.verify()` a refusé une première version qui lisait `CommuneEntity` depuis `analytics`.
+  Le *repository* est concédé, l'*entité* ne l'est pas — `DashboardServiceImpl` n'en lisait que des
+  scalaires. Corrigé par un port publié (`TerritoryReadModel.communeNameOf`) plutôt qu'en
+  élargissant la concession : c'est la direction que le `package-info` de `territory` annonce.
+- Le fourre-tout `@ExceptionHandler(Exception.class)` aplatissait `ResponseStatusException` en 500.
+  **29 statuts délibérés, dans 11 classes**, étaient perdus. Un capteur dont la clé est refusée
+  recevait 500 : il ne pouvait pas distinguer « ma clé est mauvaise » de « le serveur est tombé »,
+  et réessayait indéfiniment. Troisième fois que ce fourre-tout masque un statut — jeton expiré
+  (ADR-0003), refus d'autorisation — chacun corrigé séparément ; celui-ci ferme la famille.
+
+**Mesuré contre PostgreSQL**, rapport global sur 30 jours : `alertsRaised=2`, `alertsResolved=1`,
+`averageResolutionHours=1.70`, `stops=71`, `served=3`, `collected=2`, `inaccessible=1`, et les
+points chroniques nommés. Les 3 alertes « Capteur muet » présentes en base sont bien exclues du
+délai. Période inversée → **400** avec message clair ; capteur sans clé → **401**.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-04 | **G5** Rapports d'efficacité (période + territoire, CSV) | `waste/.../CollectionPerformance(+Adapter)`, `analytics/.../PerformanceReportService(+Impl)`, `PerformanceReportController`, `AlertRepository` | ✅ vérifié en base | Agrégation **en mémoire** : 24 points par commune au maximum, volume modeste. Si le parc grandissait d'un ordre de grandeur, remplacer les trois lectures par des agrégats SQL — l'interface publiée ne changerait pas. Comparaison de deux périodes = deux appels, volontairement |
+| 2026-08-04 | Port `TerritoryReadModel.communeNameOf` | `TerritoryReadModel`, `TerritoryReadModelAdapter` | ✅ testé | Premier pas de plus hors de la concession `@NamedInterface("repositories")` |
+| 2026-08-04 | Correctif — `ResponseStatusException` aplati en 500 | `GlobalControllerExceptionHandler` | ✅ vérifié en base | Touche **tout** le projet : 29 statuts délibérés dans 11 classes rendaient 500 |
+
+
 ### 🏁 La boucle métier fonctionne : carte, alerte automatique, tournée optimisée (2026-07-30)
 
 Décisions : [ADR-0016](adr/0016-geometrie-des-entites-dechets.md), [ADR-0017](adr/0017-ordre-de-passage-geographique.md).

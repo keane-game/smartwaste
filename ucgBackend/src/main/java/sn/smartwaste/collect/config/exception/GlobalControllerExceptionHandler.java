@@ -148,6 +148,34 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    /**
+     * Statut choisi delibrement par un controleur — <b>respecte</b>, et non aplati en 500.
+     *
+     * <p>{@code ResponseStatusException} est l'idiome par lequel un controleur dit « je sais
+     * exactement quel statut rendre ». Le fourre-tout ci-dessous le capturait aussi : les
+     * <b>29</b> statuts deliberes du projet, repartis dans 11 classes, etaient tous rendus en 500
+     * — requete malformee, conflit, cle de capteur invalide, ressource absente.
+     *
+     * <p>Un capteur dont la cle est refusee recevait donc 500 : il ne pouvait pas distinguer « ma
+     * cle est mauvaise » de « le serveur est tombe », et reessayait indefiniment. Cote
+     * exploitation, chaque requete client malformee apparaissait comme un incident serveur.
+     *
+     * <p>C'est la troisieme fois que ce fourre-tout masque un statut — jeton expire (ADR-0003),
+     * refus d'autorisation ci-dessus — chacun corrige separement. Celui-ci ferme la famille.
+     */
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public org.springframework.http.ResponseEntity<Error> deliberateStatus(
+            org.springframework.web.server.ResponseStatusException e) {
+        // `warn` et non `error` : une requete malformee n'est pas un incident.
+        logger.warn("Requete refusee ({}) : {}", e.getStatusCode(), e.getReason());
+
+        Error error = new Error();
+        error.setCode(e.getStatusCode().value());
+        error.setMessage(e.getReason() == null ? e.getMessage() : e.getReason());
+
+        return org.springframework.http.ResponseEntity.status(e.getStatusCode()).body(error);
+    }
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Error internalError(Exception e) {
