@@ -29,6 +29,40 @@
 
 ## Détail
 
+### P2-2 — Intégration continue, et la première migration depuis zéro (2026-08-05)
+
+**Ce qui manquait.** Aucun workflow : les 228 tests ne s'exécutaient que sur le poste de
+développement. Deux d'entre eux ne valent que contre une vraie base — celui qui confronte les
+entités au schéma Liquibase a trouvé les quatre colonnes qui empêchaient l'application de démarrer,
+et il **se met en sommeil** sans PostgreSQL. Une CI sans base l'aurait laissé muet.
+
+**Ce que la CI vérifie, et que personne n'avait vérifié.** Le conteneur PostgreSQL démarre
+**vierge** à chaque exécution : les changelogs sont donc appliqués **depuis zéro**. La base de
+développement, elle, a été migrée par accumulation depuis des mois et ne dit rien de ce chemin.
+Vérifié en local sur une base jetable avant d'écrire le workflow : **126 changesets, 36 tables**,
+rôles et seuil semés, et `ddl-auto: validate` accepte le schéma produit. C'est la première fois.
+
+**Choix de conception.** Le schéma est appliqué en lançant **le jar**, comme en production, et non
+par le plugin Maven : c'est ce chemin qui fait foi, et c'est lui qu'on veut voir échouer s'il casse.
+Le jar est construit avant les tests — `mvn test` seul ne dit pas si l'assemblage aboutit. Le
+processus est tué par son PID via un `trap`, et non par `pkill` sur un motif qui raterait le JVM
+forké ou emporterait autre chose.
+
+**Trouvé en chemin : un second secret versionné.** `config/liquibase/liquibase.properties` portait
+`password=keane` — le mot de passe réel de la base de développement (ADR-0002) — et pointait une
+base `sonaged` qui n'existe plus, de sorte que toute commande le lisant échouait déjà. Les
+paramètres de connexion passent désormais en ligne de commande.
+
+**Validé en rejouant la séquence complète en local** : base vierge → jar → 36 tables → `mvn test`
+avec les mêmes variables → **228 tests, 0 échec**, et le test de schéma s'exécute au lieu de se
+mettre en sommeil.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-05 | **P2-2** Intégration continue (build, migration depuis zéro, tests) | `.github/workflows/backend.yml` | ✅ séquence validée en local | ⚠️ **Jamais exécutée sur GitHub** — la branche n'est pas poussée. Le mot de passe du conteneur est en clair : c'est une base jetable détruite avec le job, pas un secret |
+| 2026-08-05 | Secret versionné retiré de `liquibase.properties` | `config/liquibase/liquibase.properties` | ✅ | Reste dans l'historique Git — la purge d'ADR-0002 §5 n'est toujours pas faite |
+
+
 ### Revue de la session — trois défauts corrigés, un noté (2026-08-04)
 
 Revue des 14 commits de la journée (86 fichiers, ~5 700 lignes). Les quatre constats portent

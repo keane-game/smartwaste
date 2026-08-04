@@ -1,0 +1,108 @@
+name: Backend
+
+# Les 228 tests ne s'exécutaient que sur le poste de développement (P2-2 : « aucune CI »). Or deux
+# d'entre eux ne valent que contre une vraie base — celui qui confronte les entités au schéma
+# Liquibase a trouvé les quatre colonnes manquantes qui empêchaient l'application de démarrer, et il
+# se met en sommeil sans PostgreSQL. Cette CI lui en fournit une.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compilation et tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ucgBackend
+
+    services:
+      postgres:
+        # Base VIERGE à chaque exécution : les changelogs sont donc appliqués depuis zéro, ce qui
+        # n'avait jamais été vérifié avant le 2026-08-05 (126 changesets, 36 tables). Une base de
+        # développement migrée par accumulation ne dit rien de ce chemin-là.
+        image: postgres:17
+        env:
+          POSTGRES_DB: smartwaste
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-postgres-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/smartwaste
+      DB_USERNAME: postgres
+      # Mot de passe d'un conteneur jetable, détruit avec le job : ce n'est pas un secret, et le
+      # coder ici évite de faire dépendre la CI d'un réglage manuel du dépôt.
+      DB_PASSWORD: ci-postgres-password
+      # L'amorçage du compte d'administration reste inerte : aucune identité n'est fournie, et
+      # `AdminBootstrapRunner` n'invente pas de mot de passe par défaut (ADR-0014).
+      ADMIN_BOOTSTRAP_ENABLED: 'false'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Construire le jar
+        # Construit avant les tests : `mvn test` seul ne dit pas si l'assemblage aboutit, et c'est
+        # ce jar qui sert ensuite a appliquer le schema.
+        run: ./mvnw -B -DskipTests package
+
+      - name: Appliquer le schema depuis zero
+        # Par le MEME chemin qu'en production — Spring Boot au demarrage — et non par le plugin
+        # Maven : c'est ce chemin qui fait foi, et c'est lui qu'on veut voir echouer s'il casse.
+        # `ddl-auto: validate` confronte alors les entites au schema qu'il vient de creer.
+        run: |
+          set -euo pipefail
+          java -jar target/*.jar --server.port=8099 > migration.log 2>&1 &
+          APP_PID=$!
+          # Le jar est un processus a nous : on le tue par son PID, sans `pkill` sur un motif qui
+          # pourrait rater le JVM forke ou emporter autre chose.
+          trap 'kill "$APP_PID" 2>/dev/null || true' EXIT
+
+          for _ in $(seq 1 90); do
+            if grep -q "Started SonagedApplication" migration.log; then break; fi
+            if grep -qE "APPLICATION FAILED|Migration failed" migration.log; then break; fi
+            if ! kill -0 "$APP_PID" 2>/dev/null; then break; fi
+            sleep 2
+          done
+
+          if ! grep -q "Started SonagedApplication" migration.log; then
+            echo "::error::Le schema n'a pas pu etre applique depuis une base vierge"
+            tail -80 migration.log
+            exit 1
+          fi
+          echo "Schema applique depuis zero, et valide par ddl-auto=validate."
+
+      - name: Tests
+        # Le test de correspondance entites <-> schema trouve ici la base qu'il exige ; sans elle il
+        # se serait mis en sommeil, et c'est justement le garde-fou le plus utile du projet.
+        run: ./mvnw -B test
+
+      - name: Rapports de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-surefire
+          path: ucgBackend/target/surefire-reports/
+          retention-days: 7
+
+      - name: Journal de migration en cas d'echec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journal-migration
+          path: ucgBackend/migration.log
+          retention-days: 7
