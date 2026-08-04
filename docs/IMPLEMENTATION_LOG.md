@@ -29,6 +29,42 @@
 
 ## Détail
 
+### 🔴 Un réimport du référentiel rendait tous les capteurs muets, en silence (2026-08-04)
+
+**Comment c'est venu.** Après le réimport de l'ADR-0018, j'ai vérifié ce que devenaient les capteurs.
+Le réimport supprime puis recrée les points de collecte, qui reçoivent de **nouveaux
+identifiants** (la plage est passée de 73-… à 215-285). Les capteurs, eux, référencent l'ancien —
+par identifiant et sans clé étrangère, comme l'impose l'ADR-0012 pour une référence cross-contexte.
+**Les deux capteurs enrôlés pointaient vers le vide.**
+
+**Pourquoi c'est grave : le système ne dit rien.** La mesure est authentifiée, acceptée (**201**) et
+stockée ; `FillLevelProjector` ne trouve pas le point, journalise un avertissement et s'arrête.
+Aucun niveau mis à jour, aucun seuil évalué, aucune alerte levée. Pendant ce temps `lastSeenAt` est
+rafraîchi à chaque mesure, si bien que la surveillance du silence (G7) considère le capteur
+**vivant**. Le capteur croit émettre, le point paraît dépourvu de capteur, et personne n'apprend
+rien.
+
+**Ce que le contexte IoT ne pouvait pas voir.** `iot` n'a aucune visibilité sur `waste` — vérifié :
+zéro import. L'enrôlement ne contrôlait que `depotoirId != null`. Seul `waste`, qui possède les
+points, peut dire si un identifiant existe : il le publie désormais
+(`WasteReadModel.collectionPointExists`).
+
+**Deux garde-fous, parce qu'un seul ne suffit pas.** L'enrôlement refuse un point inexistant — cela
+ferme la porte d'entrée. Mais un capteur valide à l'enrôlement devient orphelin au réimport
+suivant : le parc (`GET /v1/devices/sensors`) porte donc un drapeau `orphaned`.
+
+**Vérifié contre PostgreSQL** : les deux capteurs réels ressortent `orphaned=true`, et
+`POST /v1/devices/sensors` sur un point inexistant rend **400** avec le motif.
+
+**Trouvé au passage.** Le test « un code d'équipement déjà pris est refusé » passait désormais **pour
+la mauvaise raison** : ma vérification s'exécutant en amont, le contrôle d'unicité n'était plus
+atteint et le cas restait vert. Il vérifie maintenant le *motif*, pas seulement le type d'exception.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-04 | Capteurs orphelins : refus à l'enrôlement + drapeau au parc | `WasteReadModel(+Adapter)`, `DeviceProvisioningService(+Impl)` | ✅ vérifié en base | ⚠️ **Le fond n'est pas traité** : un réimport régénère les identifiants des points. Les capteurs existants doivent être réenrôlés. La correction de fond — un import qui met à jour au lieu de recréer, sur la clé naturelle (position, type) — reste à décider |
+
+
 ### 🔴 35 % des points étaient rattachés à une commune tirée au sort (2026-08-04)
 
 Décision : [ADR-0018](adr/0018-rattachement-territorial-par-la-geometrie.md), qui **remplace

@@ -39,10 +39,15 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
     private final SensorRepository sensorRepository;
     private final VehicleTrackerRepository trackerRepository;
 
+    /** Seul {@code waste} sait si un point de collecte existe : ce contexte ne le voit pas. */
+    private final sn.smartwaste.collect.waste.application.api.WasteReadModel waste;
+
     public DeviceProvisioningServiceImpl(SensorRepository sensorRepository,
-                                         VehicleTrackerRepository trackerRepository) {
+                                         VehicleTrackerRepository trackerRepository,
+                                         sn.smartwaste.collect.waste.application.api.WasteReadModel waste) {
         this.sensorRepository = sensorRepository;
         this.trackerRepository = trackerRepository;
+        this.waste = waste;
     }
 
     @Override
@@ -50,6 +55,12 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
         requireCode(deviceCode);
         if (depotoirId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le point de collecte est obligatoire");
+        }
+        // Fermer la porte a l'entree : sans cela, une faute de frappe dans l'identifiant produit un
+        // capteur qui emettra dans le vide, la mesure etant acceptee puis ignoree a la projection.
+        if (!waste.collectionPointExists(depotoirId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Point de collecte inconnu : " + depotoirId);
         }
         sensorRepository.findByDeviceCode(deviceCode).ifPresent(existing -> {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -130,7 +141,10 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
                         java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
                 .map(s -> new DeviceSummary(s.getSensorId(), s.getDeviceCode(),
                         String.valueOf(s.getDepotoirId()), s.isActive(), s.getLastSeenAt(),
-                        s.getSilenceReportedAt()))
+                        s.getSilenceReportedAt(),
+                        // Rattrape ce que la porte d'entree ne peut pas voir : un capteur valide a
+                        // l'enrolement devient orphelin au reimport suivant.
+                        !waste.collectionPointExists(s.getDepotoirId())))
                 .toList();
     }
 
@@ -139,7 +153,8 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
     public List<DeviceSummary> listVehicleTrackers() {
         return trackerRepository.findAll().stream()
                 .map(t -> new DeviceSummary(t.getTrackerId(), t.getDeviceCode(),
-                        String.valueOf(t.getVehicleId()), t.isActive(), t.getLastSeenAt(), null))
+                        String.valueOf(t.getVehicleId()), t.isActive(), t.getLastSeenAt(),
+                        null, false))
                 .toList();
     }
 

@@ -49,11 +49,16 @@ class DeviceProvisioningServiceImplTest {
     private SensorRepository sensorRepository;
     @Mock
     private VehicleTrackerRepository trackerRepository;
+    /** Ces cas portent sur les cles et l'unicite ; l'existence du point est verifiee ailleurs
+     *  (OrphanedSensorTest). On se place donc dans le cas nominal : le point existe. */
+    @Mock
+    private sn.smartwaste.collect.waste.application.api.WasteReadModel waste;
 
     @InjectMocks
     private DeviceProvisioningServiceImpl service;
 
     private void sensorSavesEcho() {
+        lenient().when(waste.collectionPointExists(any())).thenReturn(true);
         lenient().when(sensorRepository.findByDeviceCode(any())).thenReturn(Optional.empty());
         lenient().when(sensorRepository.save(any(Sensor.class))).thenAnswer(i -> {
             Sensor s = i.getArgument(0);
@@ -121,10 +126,15 @@ class DeviceProvisioningServiceImplTest {
     @Test
     @DisplayName("un code d'équipement déjà pris est refusé")
     void duplicateDeviceCodeIsRejected() {
+        when(waste.collectionPointExists(1L)).thenReturn(true);
         when(sensorRepository.findByDeviceCode("ESP-001")).thenReturn(Optional.of(new Sensor()));
 
+        // Le motif est verifie, pas seulement le type : sans cela le cas passait au vert alors que
+        // le controle d'unicite n'etait meme plus atteint — la verification d'existence du point,
+        // ajoutee en amont, echouait la premiere sur un mock non stube.
         assertThatThrownBy(() -> service.enrollSensor("ESP-001", 1L))
-                .isInstanceOf(ResponseStatusException.class);
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("porte deja le code");
         verify(sensorRepository, never()).save(any());
     }
 

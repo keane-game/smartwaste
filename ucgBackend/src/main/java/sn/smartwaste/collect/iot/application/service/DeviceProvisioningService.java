@@ -48,7 +48,13 @@ public interface DeviceProvisioningService {
      * @param silenceReportedAt non {@code null} si un silence a ete signale et n'est pas leve (G7).
      *                          C'est ce qui distingue « pas encore installe » de « tombe en panne ».
      */
+    /**
+     * @param orphaned le point de collecte visé n'existe plus — un réimport du référentiel les
+     *                 recrée avec de nouveaux identifiants, et le capteur émet alors dans le vide
+     *                 sans que rien ne proteste
+     */
     record DeviceSummary(UUID deviceId, String deviceCode, String target,
                          boolean active, java.time.Instant lastSeenAt,
-                         java.time.Instant silenceReportedAt) { }
+                         java.time.Instant silenceReportedAt,
+                         boolean orphaned) { }
 }

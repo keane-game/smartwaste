@@ -22,6 +22,17 @@ public interface WasteReadModel {
     /** Nombre total de points de collecte (dépotoirs). */
     long countCollectionPoints();
 
+    /**
+     * Ce point de collecte existe-t-il encore ?
+     *
+     * <p>Publié parce que les capteurs le référencent <b>par identifiant, sans clé étrangère</b>
+     * (ADR-0012) : le contexte IoT ne peut donc pas le vérifier lui-même. Or un réimport du
+     * référentiel recrée les points avec de nouveaux identifiants et laisse tous les capteurs
+     * pointer vers le vide — en silence, puisque la mesure est acceptée et seulement ignorée à la
+     * projection.
+     */
+    boolean collectionPointExists(Long depotoirId);
+
     /** Nombre total de mobiliers urbains (bennes). */
     long countStreetFurniture();
 

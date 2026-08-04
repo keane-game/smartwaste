@@ -70,6 +70,12 @@ public class WasteReadModelAdapter implements WasteReadModel {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean collectionPointExists(Long depotoirId) {
+        return depotoirId != null && depotoirRepository.existsById(depotoirId);
+    }
+
+    @Override
     public long countStreetFurniture() {
         return moblierUrbainRepository.count();
     }
