@@ -85,6 +85,19 @@ public class SecurityConfiguration{
                                                 // — l'UI n'était atteignable qu'en visant `/swagger-ui/index.html`.
                                                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**",
                                                         "/sonaged-docs/**", "/error", "/").permitAll()
+                                                // Sonde de disponibilité (ADR-0019). Ouverte parce qu'un
+                                                // orchestrateur interroge le conteneur AVANT que quiconque
+                                                // puisse s'authentifier — le compte d'amorçage n'existe pas
+                                                // encore quand la première sonde part.
+                                                //
+                                                // `/actuator/health` SEUL, jamais `/actuator/**` : les autres
+                                                // points d'Actuator publient la configuration, les variables
+                                                // d'environnement et les beans — c'est-à-dire l'inventaire
+                                                // exact d'où chercher les secrets. `show-details: never`
+                                                // (application.yml) réduit en outre la réponse à UP/DOWN :
+                                                // le détail nommerait la base et son état.
+                                                .requestMatchers(GET, "/actuator/health",
+                                                        "/actuator/health/**").permitAll()
                                                 .requestMatchers(POST,"/auth/").permitAll()
                                                 .requestMatchers(POST,"/auth/**").permitAll()
                                                 // 🔴 `/data/**` était ouvert TOUTES MÉTHODES CONFONDUES.

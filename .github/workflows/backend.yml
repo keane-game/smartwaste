@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ucgBackend
+        working-directory: backend-api
 
     services:
       postgres:
@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rapports-surefire
-          path: ucgBackend/target/surefire-reports/
+          path: backend-api/target/surefire-reports/
           retention-days: 7
 
       - name: Journal de migration en cas d'echec
@@ -104,5 +104,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: journal-migration
-          path: ucgBackend/migration.log
+          path: backend-api/migration.log
           retention-days: 7

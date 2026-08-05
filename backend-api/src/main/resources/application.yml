@@ -217,5 +217,30 @@ management:
   endpoints:
     web:
       exposure:
-        # À restreindre avant toute mise en production (expose tous les endpoints Actuator).
-        include: ${ACTUATOR_EXPOSE:health,info}
+        # `health` seul par défaut. `info` a été retiré : springdoc y publie la version et le nom
+        # du projet, et l'endpoint est atteignable sans jeton dès lors qu'on l'expose.
+        # Élargir uniquement par variable d'environnement, et jamais en production ouverte.
+        include: ${ACTUATOR_EXPOSE:health}
+  endpoint:
+    health:
+      # UP/DOWN, rien d'autre. Le détail nomme les composants (base, disque, courrier) et leur
+      # état : c'est une carte de la panne offerte à qui la provoque. L'orchestrateur n'a besoin
+      # que du verdict.
+      show-details: ${ACTUATOR_HEALTH_DETAILS:never}
+      probes:
+        # Sépare « le processus vit » (liveness) de « il peut servir » (readiness). Pendant les
+        # 126 changesets Liquibase du démarrage, le port écoute déjà mais rien n'est servable :
+        # sans readiness, un orchestrateur enverrait du trafic dans ce trou.
+        enabled: true
+  health:
+    mail:
+      # Désactivé DÉLIBÉRÉMENT, et pas seulement parce que ce contributeur fait échouer le
+      # chargement du contexte quand aucun `JavaMailSender` n'est configuré
+      # (`'beans' must not be empty`, RegisterAtomicityTest).
+      #
+      # La raison de fond : la santé rapportée ici décide des redémarrages. Or l'indisponibilité
+      # du SMTP n'empêche pas l'API de servir les alertes, les tournées et les cartes — elle
+      # n'empêche que l'envoi des codes d'activation. Laisser ce contributeur actif ferait
+      # déclarer DOWN, puis redémarrer en boucle, une application parfaitement capable de
+      # travailler, à cause d'une dépendance accessoire.
+      enabled: false

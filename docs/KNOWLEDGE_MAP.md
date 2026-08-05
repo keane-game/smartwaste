@@ -40,7 +40,7 @@ premier axe d'amélioration (§9).
 | `docs/keycloak-migration.md` | Blueprint P0-A, non exécuté | 🟢 cohérent, non appliqué |
 | `docs/adr/README.md` | Index des 13 ADR | 🟠 statuts faux (§8.5) |
 | `docs/adr/0001…0013` | 13 décisions d'architecture | voir §3 |
-| `ucgBackend/endpoint.md` | Liste des endpoints, régénérée en P2-4 | 🟠 re-périmé depuis (§8.6) |
+| `backend-api/endpoint.md` | Liste des endpoints, régénérée en P2-4 | 🟠 re-périmé depuis (§8.6) |
 
 ### 1.3 Sources métier (racine) — **la vraie spécification**
 | Document | Contenu |
@@ -58,7 +58,7 @@ premier axe d'amélioration (§9).
 `pp_pnr_pp-pnr`, `ppef_cp`, `CAISSES POLYBENNE`, `pre_collecte`.
 
 ### 1.5 Code et configuration lus comme documentation
-`ucgBackend/pom.xml`, `application.yml`, `application-keycloak.properties`, `docker-compose.yml`
+`backend-api/pom.xml`, `application.yml`, `application-keycloak.properties`, `docker-compose.yml`
 (smtp4dev + MinIO), `schema.sql` (⚠️ `DROP DATABASE`, neutralisé), `config/liquibase/master.xml`
 + 8 changelogs, `.gitignore`, `.env.example`, `angular|sonaged_web|ucgFrontend/package.json`,
 `mobileFlutter/pubspec.yaml`, `.claude/skills/`.
@@ -229,7 +229,9 @@ seuil, ni `fillLevel` sur `Depotoir`.
 | Rapports de performance | Cas d'usage administrateur | ❌ |
 | `GET /v1/me` | `architecture-cible` | ❌ |
 | Keycloak (SSO/MFA/reset) | ADR-0011 | ❌ blueprint seul |
-| CI/CD, Dockerfile applicatif, conteneur PostgreSQL | P2-2 | ❌ |
+| CI/CD | P2-2 | ✅ validé en local, jamais exécuté sur GitHub (branche non poussée) |
+| Dockerfile applicatif | P2-2 | ✅ (`backend-api/Dockerfile`, multi-étage, Actuator `/actuator/health` seul ouvert) |
+| Conteneur PostgreSQL en dev | P2-2 | ❌ (`docker-compose.yml` ne fournit que smtp4dev et MinIO ; Postgres reste une install locale sur `:5433`) |
 
 ### 7.3 Rôles métier non modélisés
 Le mémoire définit **3 acteurs** (Administrateur, **Agent de collecte**, **Citoyen**) et le terrain en

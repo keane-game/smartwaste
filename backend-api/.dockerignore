@@ -1,0 +1,26 @@
+# Ce qui ne doit pas entrer dans le contexte de construction.
+#
+# Le contexte est envoyé au démon Docker AVANT la première instruction : tout ce qui est listé
+# ici est exclu de ce transfert. `target/` pèse plusieurs centaines de Mo et serait de toute
+# façon recompilé dans l'étage de construction.
+
+target/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+Dockerfile
+.dockerignore
+README.md
+docs/
+
+# Ne jamais embarquer de configuration locale dans une image : elle y resterait lisible par
+# quiconque récupère l'image, et survivrait à toute rotation de secret.
+.env
+*.env
+application-local.yml
+application-local.properties

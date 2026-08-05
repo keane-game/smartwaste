@@ -13,10 +13,8 @@ déclencher des alertes, optimiser les tournées et visualiser le tout sur une c
 
 | Dossier | Stack | Rôle |
 |---|---|---|
-| `ucgBackend/` | Java 21, Spring Boot 3.5.3, Maven | API REST (`sonaged.collecte.master`) — **le** backend |
-| `angular/` | Angular 17 | Frontend web **principal** |
-| `sonaged_web/` | Angular | Second frontend, quasi-doublon (choix canonique non tranché) |
-| `ucgFrontend/` | Angular 16 | Scaffold **mort** — ne rien y construire |
+| `backend-api/` | Java 21, Spring Boot 3.5.3, Maven | API REST (`sonaged.collecte.master`) — **le** backend |
+| `sonaged_web/` | Angular 17.3 | **Le** frontend web (consolidation du 2026-08-05 : `angular/` et `ucgFrontend/` supprimés, cf. ADR-0006 et `docs/FRONTEND_AUDIT.md`) |
 | `mobileFlutter/` | Flutter 3 | Application mobile |
 | `datas/` | GeoJSON | Données géo de Pikine (quartiers, circuits, dépotoirs, bacs) |
 
@@ -30,13 +28,13 @@ déclencher des alertes, optimiser les tournées et visualiser le tout sur une c
 
 ### Backend
 ```bash
-cd ucgBackend
+cd backend-api
 cp .env.example .env          # renseigner DB_PASSWORD, MAIL_*, MINIO_*
 ./mvnw spring-boot:run        # API sur http://localhost:8089
 ```
 - Swagger UI : <http://localhost:8089/swagger-ui> — OpenAPI : `/sonaged-docs`
-- Liste des endpoints : [`ucgBackend/endpoint.md`](ucgBackend/endpoint.md)
-- Services annexes : `docker compose -f ucgBackend/src/main/resources/docker-compose.yml up`
+- Liste des endpoints : [`backend-api/endpoint.md`](backend-api/endpoint.md)
+- Services annexes : `docker compose -f backend-api/src/main/resources/docker-compose.yml up`
   (MinIO sur 9000/9001, smtp4dev)
 
 ```bash
@@ -66,10 +64,11 @@ flutter run -t lib/core/main_dev.dart
 avec `dto` + mappers MapStruct (motif d'instance statique : `XxxMapper.UMP.asModel(dto)` —
 ne pas les injecter). Sécurité : JWT maison (`security/`), sujet = e-mail de l'utilisateur.
 
-**Frontend** : les écrans CRUD des ressources de référence sont générés à partir d'un registre
-déclaratif (`angular/src/app/shares/crud/entity-config.ts`) rendu par des composants génériques
-`EntityListComponent` / `EntityFormComponent`. Ajouter une ressource = ajouter une entrée au
-registre plus une route.
+**Frontend** : un écran par ressource sous `sonaged_web/src/app/pages/`. Les chemins d'API sont
+centralisés dans `src/app/shared/constants/api-endpoints.ts` — s'en servir plutôt que d'écrire
+une URL en dur : onze composants avaient codé des chemins au singulier que le backend n'expose
+pas. Trois bases d'URL cohabitent (`apiUrl` = `/v1`, `authUrl` = `/auth`, `dataUrl` = `/data`),
+et `/avis` est monté à la racine du serveur.
 
 **Décisions d'architecture** : [`docs/adr/`](docs/adr/) (**13 ADR**, avec leur statut réel) — cible
 **architecture DDD en 8 contextes bornés** ([ADR-0013](docs/adr/0013-architecture-ddd-smartwaste.md),
@@ -87,10 +86,10 @@ ce qui a été fait, pourquoi, et ce qui reste à vérifier.
 
 ### Schéma de base
 Le schéma appartient **exclusivement à Liquibase**
-(`ucgBackend/src/main/resources/config/liquibase/master.xml`) ; Hibernate est en
+(`backend-api/src/main/resources/config/liquibase/master.xml`) ; Hibernate est en
 `ddl-auto=validate`. **Ne pas** repasser en `update`/`create`.
 
-> ⚠️ `ucgBackend/src/main/resources/schema.sql` commence par `DROP DATABASE`. Il est
+> ⚠️ `backend-api/src/main/resources/schema.sql` commence par `DROP DATABASE`. Il est
 > neutralisé (`spring.sql.init.mode: never`) et ne doit **jamais** être réactivé.
 
 ## Points sensibles connus
@@ -101,7 +100,8 @@ Le schéma appartient **exclusivement à Liquibase**
 - **Couverture de tests quasi nulle** sur la logique métier (soft-delete, MinIO, import
   GeoJSON, alertes) : le compilateur est aujourd'hui le principal filet de sécurité.
 - **Règle de travail du projet** : aucun refactoring majeur ni aucune suppression
-  (par ex. retirer `ucgFrontend`) **sans validation explicite**.
+  **sans validation explicite**. (La consolidation des fronts du 2026-08-05 a été validée
+  explicitement ; elle est faite.)
 
 ## Licence
 Projet académique (mémoire de master). Aucune licence publique définie.

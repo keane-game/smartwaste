@@ -18,7 +18,7 @@ Keycloak (JWKS). Comptes, mots de passe, activation e-mail, MFA, reset → gér�
 - Lancer Keycloak (Docker) et créer un realm `sonaged`.
 - Clients : `sonaged-web` (public, Authorization Code + PKCE), `sonaged-mobile` (public, PKCE).
 - Rôles de realm : `ADMIN`, `SUPERVISEUR`, `AGENT`, `CITOYEN` (mapper depuis l'enum `Permission` existant).
-- Exporter le realm et le versionner (`ucgBackend/src/main/resources/keycloak/realm-sonaged.json`).
+- Exporter le realm et le versionner (`backend-api/src/main/resources/keycloak/realm-sonaged.json`).
 
 ## 🔧 2. Dépendance (fait)
 `spring-boot-starter-oauth2-resource-server` ajoutée au `pom.xml` (inerte sans issuer-uri).

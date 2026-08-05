@@ -95,6 +95,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+		<!-- Actuator : ajouté pour le déploiement conteneurisé (ADR-0019).
+		     `application.yml` configurait déjà `management.endpoints.web.exposure.include`
+		     depuis l'origine, mais la dépendance n'était pas au classpath : ce bloc était donc
+		     inerte et l'application n'exposait AUCUN point de santé. Sans lui, un orchestrateur
+		     ne peut pas distinguer « le port écoute » de « l'application est prête à servir » —
+		     or Liquibase joue 126 changesets au démarrage, pendant lesquels le port écoute déjà.
+		     Seul `/actuator/health` est ouvert (voir SecurityConfiguration). -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

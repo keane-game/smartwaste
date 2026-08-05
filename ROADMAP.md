@@ -87,12 +87,15 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Complexité** : M · **ADR-0005**.
 - **minio**: utlise minio pour le stock de images et fichier et garder le filename en db
 
-### P1-4 · Aligner et consolider les frontends
-- **Objectif** : un seul front web canonique (recommandé : `angular/`).
-- **Justification** : `angular` + `sonaged_web` (doublon) + `ucgFrontend` (mort) → triple maintenance (R7) ; URL API Angular incorrecte (`/api` vs `/v1`).
-- **Fichiers** : `angular/src/environments/*`, décision de sort de `sonaged_web/` et `ucgFrontend/`.
-- **Impact** : suppression de dépôts → **validation requise avant retrait**.
-- **Complexité** : M · **ADR-0006**.
+### P1-4 · Aligner et consolider les frontends — ✅ **FAIT le 2026-08-05**
+- **Résultat** : `sonaged_web/` est le front unique. `angular/` et `ucgFrontend/` supprimés
+  (1 054 fichiers suivis). La décision d'ADR-0006 a été **inversée** : l'arbitrage s'est fait sur
+  ce qui est coûteux à refaire (pile SIG Leaflet/proj4 + i18n) plutôt que sur la complétude
+  fonctionnelle, la fraîcheur de l'API d'`angular/` ayant été récupérée avant suppression.
+- **Reste à faire** : les défauts ouverts de `sonaged_web` sont listés dans
+  `docs/FRONTEND_AUDIT.md` §5.2 — gardes de routes, chemins d'API au singulier, environnements
+  de production, identifiants typés `number`.
+- **ADR-0006** (statut : exécuté, décision inversée) · **`docs/FRONTEND_AUDIT.md`**.
 
 ### P1-5 · Import automatisé des GeoJSON
 - **Objectif** : charger `datas/*.json` (quartiers, circuits, dépotoirs) en base.
@@ -129,7 +132,7 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 ### P2-2 · Tests automatisés + CI/CD
 - **Objectif** : couvrir services critiques (auth, seuils, alertes) + pipeline.
 - **Justification** : ~2 tests aujourd'hui ; aucune CI.
-- **Fichiers** : `ucgBackend/src/test/**`, `.github/workflows/*`.
+- **Fichiers** : `backend-api/src/test/**`, `.github/workflows/*`.
 - **Impact** : non-régression.
 - **Complexité** : L.
 

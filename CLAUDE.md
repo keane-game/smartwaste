@@ -19,10 +19,8 @@ Functional specification lives in the French `.txt`/`.docx`/`.pdf` at the root (
 
 | Path | Stack | Role |
 |---|---|---|
-| `ucgBackend/` | Java 21, Spring Boot 3.5.3, Maven | REST API — the single backend. **Two roots during the ADR-0013 migration**: `sn.smartwaste.collect` (target, DDD) and `sonaged.collecte.master` (legacy remnant) |
-| `angular/` | Angular 17 | **Primary** web frontend (164 `.ts`, ~9.9k lines) |
-| `sonaged_web/` | Angular 17.3 | Second web frontend — **larger and more modern** than `angular/` (196 `.ts`, ~16.9k lines, standalone components). ADR-0006 assumes the opposite; do not act on it before re-checking |
-| `ucgFrontend/` | Angular 16 | **Dead** legacy scaffold — do not build on it |
+| `backend-api/` | Java 21, Spring Boot 3.5.3, Maven | REST API — the single backend (renamed from `ucgBackend/` 2026-08-06, not yet re-`git mv`'d — see `docs/IMPLEMENTATION_LOG.md`). **Two roots during the ADR-0013 migration**: `sn.smartwaste.collect` (target, DDD) and `sonaged.collecte.master` (legacy remnant) |
+| `sonaged_web/` | Angular 17.3 | **The** web frontend — sole survivor of the 2026-08-05 consolidation (199 `.ts`, ~17.4k lines). Mostly NgModules (44) with a standalone bootstrap; only 16 files are `standalone: true`. `angular/` and `ucgFrontend/` were deleted — see ADR-0006 (decision **inverted**, `sonaged_web/` kept) and `docs/FRONTEND_AUDIT.md` |
 | `mobileFlutter/` | Flutter 3 (Dart >=3.1.5) | Mobile app |
 | `datas/` | GeoJSON | **13 files** of real Pikine geo data (quartiers, communes, circuits, dépotoirs, bacs de rue, points propres, caisses polybennes, pré-collecte). Importable via `POST /v1/admin/import/geojson` |
 
@@ -30,7 +28,7 @@ Naming is inconsistent: repo/dirs say `ucg`, code/brand says `sonaged`.
 
 ## Commands
 
-### Backend (`ucgBackend/`)
+### Backend (`backend-api/`)
 ```bash
 ./mvnw spring-boot:run                      # run API on :8089
 ./mvnw clean package                        # build jar
@@ -40,7 +38,7 @@ Naming is inconsistent: repo/dirs say `ucg`, code/brand says `sonaged`.
 ```
 Requires PostgreSQL at `localhost:5433`, db `sonaged` (see `src/main/resources/application.yml` — `application.properties` no longer exists). Dev services: `docker compose -f src/main/resources/docker-compose.yml up` (smtp4dev **and MinIO**). Swagger UI at `/swagger-ui`, OpenAPI JSON at `/sonaged-docs`.
 
-### Web (`angular/`, same scripts in `sonaged_web/`)
+### Web (`sonaged_web/`)
 ```bash
 npm install
 npm start          # ng serve on :4200
@@ -88,10 +86,14 @@ Circular references are **forbidden** (`spring.main.allow-circular-references=fa
 
 **API conventions**: base `/v1/**`, auth `/auth/**`, maps `/v1/maps/**`. Note `AlertController` uses quirky path suffixes (`@GetMapping("s")`, `@PostMapping("s")` under `/v1/alerts`). Schema belongs **exclusively to Liquibase** (`config/liquibase/master.xml`); Hibernate is `ddl-auto=validate`. Never switch back to `update`/`create`. Every entity change needs a changeset.
 
-⚠️ **Note (corrected 2026-07-30)**: the "full list" endpoints are declared `@GetMapping("s")` under e.g. `@RequestMapping("/v1/users")`, which reads like `/v1/userss` — **it is not**. Spring's `PathPattern.combine` inserts a separator, so the real path is **`/v1/users/s`** (verified: `GET /v1/users/s` returns 200, `GET /v1/userss` returns "No static resource"). Only five resources have it: `alerts`, `communes`, `depotoirs`, `quartiers`, `users` — everything else lists on its plain path. `angular/` used to call `/v1/communess`, `/v1/depotoirss`… so every "list all" screen 404'd; **fixed 2026-07-30**.
+⚠️ **Note (corrected 2026-07-30)**: the "full list" endpoints are declared `@GetMapping("s")` under e.g. `@RequestMapping("/v1/users")`, which reads like `/v1/userss` — **it is not**. Spring's `PathPattern.combine` inserts a separator, so the real path is **`/v1/users/s`** (verified: `GET /v1/users/s` returns 200, `GET /v1/userss` returns "No static resource"). Only five resources have it: `alerts`, `communes`, `depotoirs`, `quartiers`, `users` — everything else lists on its plain path. Note the plain path on those five requires **mandatory** `page` and `size` params (no defaults), so calling it bare returns **400**, not 404. The corrected paths are recorded in `sonaged_web/src/app/shared/constants/api-endpoints.ts`.
 
-### Frontend — Angular (`angular/`)
-Feature areas: `core/` (login, guards, interceptors incl. `jwt.interceptor`, cross-cutting services), `entity/` (CRUD screens generated from the declarative registry `shares/crud/entity-config.ts`), `shares/` (layout/header/sidebar/footer), `pages/general/` (mostly empty), `services/` (generic `shared.service` is the real API client; `services/user.service.ts` is an empty stub). Backend URL comes from `src/environments/environment*.ts`.
+### Frontend — Angular (`sonaged_web/`)
+Feature areas: `core/` (login, password, guards, interceptors, cross-cutting services), `pages/` (one folder per resource: alert, commune, depotoir, quartier, users, maps, dashboard, avis…), `shared/` (components, constants, materials), `services/` (generic `shared.service` is the real API client). Bootstrap is standalone (`app.config.ts`), routing in `app.routes.ts`, but most screens are still NgModules. Stack: Bootstrap 5 + Material 17.3 + SweetAlert, Leaflet + proj4 + esri-leaflet for GIS, ngx-translate for i18n. Backend URLs come from `src/environments/environment*.ts` — note there are **three** bases: `apiUrl` (`/v1`), `authUrl` (`/auth`), `dataUrl` (`/data`).
+
+**Endpoint paths live in `src/app/shared/constants/api-endpoints.ts`** — use that registry rather than writing paths inline. Eleven components used to hardcode singular paths (`/commune`, `/user`…) that the backend never exposed.
+
+⚠️ Known open defects (full list: `docs/FRONTEND_AUDIT.md` §5.2): no route is guarded (`canActivate` is commented out in `app.routes.ts`), `environment.prod.ts` is never substituted and is missing `authUrl`/`dataUrl`, ids are typed `number` while the backend uses UUID v7, and the 55 spec files are untouched CLI stubs.
 
 ### Mobile — Flutter (`mobileFlutter/lib/`)
 Feature-first clean architecture: `features/<name>/{data,domain,presentation}`, shared code in `shared/`. State via **Riverpod**, immutable models via **freezed** (regen with build_runner), routing via **go_router** (`routes/app_router.dart` + generated `app_router.g.dart`), networking via **dio** (`shared/data/remote/dio_network_service.dart`). Flavors: `lib/core/main_dev.dart` / `main_staging.dart`. API base in `lib/configs/app_configs.dart`. Contains leftover tutorial-template code (spoonacular, `product_model`) — ignore it.
@@ -106,4 +108,4 @@ Feature-first clean architecture: `features/<name>/{data,domain,presentation}`, 
 - `HistoryEntity` is a hollow stub (one `@Id`) dragging a DTO, mapper, repository, service and controller.
 - ⚠️ `src/main/resources/schema.sql` begins with `DROP DATABASE`. It is neutralised (`spring.sql.init.mode: never`) and must never be re-enabled.
 - The Liquibase changelogs `2.0.0` and `2.1.0` are **destructive** (BIGINT → uuid): they purge the referential and all accounts. Assumed — the dev database is disposable.
-- Per the project's working agreement: **do not start a major refactor or deletion (e.g. removing the dead `ucgFrontend`) without explicit validation.**
+- Per the project's working agreement: **do not start a major refactor or deletion without explicit validation.** (The frontend consolidation of 2026-08-05 was validated explicitly and is done.)
