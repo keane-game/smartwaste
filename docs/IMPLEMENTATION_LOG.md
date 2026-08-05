@@ -29,6 +29,50 @@
 
 ## Détail
 
+### L'ordre des points d'un contour n'était garanti par rien (2026-08-05)
+
+**Point de départ.** En cherchant pourquoi 10 circuits de balayage restaient sans commune, j'ai
+exporté leurs points et les contours des communes pour les confronter hors application. Deux
+circuits semblaient avoir leur premier point **dans** une commune sans y être rattachés — ce qui
+contredisait l'implémentation.
+
+**Ce que cela a révélé.** `GeometryEntity.coordinates` est un `@OneToMany` **sans ordre déclaré** :
+la relecture rendait les points dans l'ordre que la base voulait bien donner. Or pour un polygone,
+l'ordre **est** la forme — les mêmes sommets relus autrement décrivent une autre figure, sans lever
+la moindre erreur. Le rattachement territorial devenait faux en silence. PostgreSQL rend souvent
+l'ordre d'insertion, ce qui a suffi à faire fonctionner 69 rattachements sur 71 : coïncidence de
+plan d'exécution, pas garantie.
+
+**Premier correctif, faux et pire que le défaut.** J'ai posé `@OrderBy("coordinateId")`, en
+m'appuyant sur le fait que les identifiants sont des UUID v7, ordonnés dans le temps. Mais leur
+horodatage a la granularité de la **milliseconde** (`System.currentTimeMillis()`), et les centaines
+de points d'un contour sont insérés dans la même : ils ne sont départagés que par des bits
+aléatoires. Le tri devenait délibérément aléatoire. **Mesuré : le rattachement des points de
+collecte est tombé de 70/71 à 52/71.** C'est la base réelle qui l'a montré, aucun test ne l'aurait
+fait.
+
+**Correctif retenu.** `@OrderColumn` — une position **écrite en base** — plus un changeset qui
+crée la colonne et rétablit l'ordre d'insertion des lignes existantes tant qu'il est encore
+lisible. Après réimport : **53 041 coordonnées, toutes positionnées**.
+
+**Honnêteté sur le point de départ.** Les deux circuits qui avaient déclenché l'enquête ne sont
+toujours pas rattachés, et ils ne devaient pas l'être : mon analyse hors application lisait
+elle-même les contours dans un ordre non garanti. La piste était fausse — le défaut qu'elle a
+mis au jour ne l'est pas.
+
+**Résultat inchangé, fragilité supprimée** : 70/71, 52/52, 146/156, comme avant. L'accident tenait ;
+il ne tient plus par accident.
+
+**Angle mort constaté** : `LiquibaseSchemaMatchesEntitiesTest` ne voit **pas** les colonnes
+d'`@OrderColumn` — le métamodèle Hibernate ne les expose pas parmi les colonnes de table. Il n'aurait
+pas signalé l'absence de `ringposition`.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-05 | Ordre des contours garanti (`@OrderColumn` + changeset 2.14.0) | `GeometryEntity`, `2.14.0_ordre_des_contours.xml` | ✅ 53 041 coordonnées positionnées | Le test de schéma ne couvre pas les colonnes `@OrderColumn` : cette classe de manque reste invisible |
+| 2026-08-05 | Les 10 circuits de balayage sans commune | — | ⚠️ inchangé | Leur premier point tombe hors de toute commune. Situer une **ligne** par son premier point est la limite documentée d'ADR-0018 ; un point médian ou majoritaire serait plus juste |
+
+
 ### P2-2 — Intégration continue, et la première migration depuis zéro (2026-08-05)
 
 **Ce qui manquait.** Aucun workflow : les 228 tests ne s'exécutaient que sur le poste de

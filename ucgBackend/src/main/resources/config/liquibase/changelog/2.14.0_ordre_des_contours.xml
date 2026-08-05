@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      L'ordre des points d'un contour EST sa forme (ADR-0018).
+
+      `GeometryEntity.coordinates` etait un @OneToMany sans ordre : la relecture rendait les points
+      dans l'ordre que la base voulait bien donner. PostgreSQL rend souvent l'ordre d'insertion, ce
+      qui a suffi a faire fonctionner 69 rattachements sur 71 — coincidence de plan d'execution,
+      pas garantie. Un polygone melange ne leve aucune erreur : il decrit une AUTRE forme, et le
+      rattachement territorial devient faux en silence.
+
+      Premier correctif tente : @OrderBy("coordinateId"). FAUX, et pire que le defaut. Les
+      identifiants sont des UUID v7, dont l'horodatage a la granularite de la MILLISECONDE
+      (`System.currentTimeMillis()`) : les centaines de points d'un contour, inseres dans la meme
+      milliseconde, ne sont departages que par des bits aleatoires. Le tri devenait donc
+      deliberement aleatoire — le rattachement des points de collecte est tombe de 70/71 a 52/71.
+
+      Seule une position PERSISTEE dit l'ordre. C'est ce que fait @OrderColumn.
+    -->
+
+    <changeSet author="claude" id="2.14.0-1-ring-position">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="coordinate" columnName="ringposition"/></not>
+        </preConditions>
+        <comment>Position d'un point dans son contour, gérée par @OrderColumn.</comment>
+        <addColumn tableName="coordinate">
+            <column name="ringposition" type="INT"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="coordinate" columnName="ringposition"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="claude" id="2.14.0-2-backfill-ring-position">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM coordinate WHERE ringposition IS NOT NULL</sqlCheck>
+        </preConditions>
+        <comment>Ordre d'insertion des points existants, avant que l'information ne soit perdue.</comment>
+        <!-- Les lignes deja en base n'ont pas de position. On reprend l'ordre d'insertion tel que
+             la base le rend encore — c'est exactement ce dont dependait le code jusqu'ici, et la
+             derniere occasion de le figer. Une reimportation le recalculerait de toute facon. -->
+        <sql>
+            UPDATE coordinate c
+            SET ringposition = ordre.rang
+            FROM (SELECT coordinateid,
+                         row_number() OVER (PARTITION BY geometryid ORDER BY ctid) - 1 AS rang
+                  FROM coordinate) AS ordre
+            WHERE c.coordinateid = ordre.coordinateid;
+        </sql>
+        <rollback>
+            UPDATE coordinate SET ringposition = NULL;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

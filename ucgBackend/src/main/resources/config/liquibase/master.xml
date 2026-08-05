@@ -23,4 +23,5 @@
     <include file="config/liquibase/changelog/2.11.0_seed_region_racine.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.12.0_alerte_resolue_et_sante_capteur.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.13.0_agent_de_collecte.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.14.0_ordre_des_contours.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>
