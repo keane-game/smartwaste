@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      G2 du backlog — le citoyen ne recevait rien hors application ouverte.
+
+      La seule diffusion etait SSE : une connexion HTTP maintenue, avec jeton. Cela convient a un
+      poste de supervision, pas a un telephone. Le rappel « sortez vos ordures » et les changements
+      d'etat d'un signalement n'atteignaient donc jamais quelqu'un dont l'application est fermee,
+      c'est-a-dire presque toujours.
+
+      Un appareil, pas un compte : la meme personne peut avoir un telephone et une tablette, et
+      chacun porte son propre jeton.
+    -->
+
+    <changeSet author="claude" id="2.15.0-1-device-token">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="devicetoken"/></not>
+        </preConditions>
+        <comment>Jeton de notification d'un appareil, rattache a un compte.</comment>
+        <createTable tableName="devicetoken">
+            <column name="tokenid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_devicetoken"/>
+            </column>
+            <!-- Reference cross-contexte vers l'identite : par identifiant (ADR-0012). -->
+            <column name="userid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Le jeton du fournisseur. Unique : un meme appareil reinscrit ne doit pas recevoir
+                 deux fois la meme notification. -->
+            <column name="token" type="VARCHAR(512)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_devicetoken_token"/>
+            </column>
+            <column name="platform" type="VARCHAR(20)"/>
+            <column name="lastusedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_devicetoken_user" tableName="devicetoken">
+            <column name="userid"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="devicetoken"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

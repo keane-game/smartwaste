@@ -48,6 +48,11 @@ class CollectionReminderSchedulerTest {
     private WasteReadModel wasteReadModel;
     @Mock
     private CollectionSubscriptionRepository subscriptionRepository;
+
+    /** G2 : le rappel part aussi vers les appareils. Le comportement du canal est
+     *  verifie separement (PushNotificationServiceImplTest). */
+    @Mock
+    private sn.smartwaste.collect.platform.application.service.PushNotificationService pushNotificationService;
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -59,7 +64,7 @@ class CollectionReminderSchedulerTest {
     }
 
     private CollectionReminderScheduler schedulerAt(String time) {
-        return new CollectionReminderScheduler(wasteReadModel, subscriptionRepository,
+        return new CollectionReminderScheduler(wasteReadModel, subscriptionRepository, pushNotificationService,
                 notificationService, userDirectory, clockAt(time), LEAD_MINUTES);
     }
 

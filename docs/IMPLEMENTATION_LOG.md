@@ -29,6 +29,42 @@
 
 ## Détail
 
+### G2 — le citoyen peut enfin être joint hors application ouverte (2026-08-05)
+
+La seule diffusion était **SSE** : une connexion HTTP maintenue, avec jeton. Cela convient à un
+poste de supervision, pas à un téléphone. Le rappel « sortez vos ordures » et les changements
+d'état d'un signalement existaient côté serveur et n'atteignaient jamais quelqu'un dont
+l'application est fermée — c'est-à-dire presque toujours.
+
+**Un appareil, pas un compte.** La même personne peut avoir un téléphone et une tablette ; chacun
+porte son jeton, et chacun se révoque séparément.
+
+**Deux règles décident si la fonction est utilisable**, davantage que l'envoi lui-même :
+- un envoi qui échoue n'interrompt **rien** — un jeton périmé ne peut pas faire rater le rappel de
+  tout un quartier ;
+- un jeton que le fournisseur déclare **invalide** est révoqué, un **échec temporaire** ne l'est
+  pas. Confondre « cet appareil a disparu » et « le réseau est tombé » désabonnerait des citoyens à
+  la première panne ; ne jamais révoquer remplirait la file d'appareils désinstallés jusqu'à rendre
+  le taux d'échec illisible.
+
+**Le transport est un port.** Aucun compte Firebase n'est configuré, et la clé Google du projet est
+dans l'historique Git sans avoir été rotée (ADR-0002 §4-5) : brancher un vrai fournisseur relève
+d'une décision d'exploitation, pas du code. `LoggingPushTransport` prend la place par défaut — la
+chaîne complète (abonnement, déclenchement, sélection des appareils, révocation) fonctionne et
+s'observe ; seule la dernière poignée de main manque.
+
+**L'identité vient du jeton, jamais du corps de la requête** — la leçon de `/auth/register`, où le
+rôle arrivait du client et permettait de s'inscrire administrateur.
+
+**Vérifié contre PostgreSQL** : enregistrement 204 ; réenregistrement du même jeton 204 avec
+**un seul** appareil en base (idempotent) ; jeton absent 400 ; sans authentification 403 ;
+révocation 204, puis `actifs=0 revoques=1`.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-05 | **G2** Notifications poussées : appareils, canal, révocation | `DeviceToken(+Repository)`, `PushTransport`, `LoggingPushTransport`, `PushNotificationService(+Impl)`, `DeviceTokenController`, `CollectionReminderScheduler`, changelog `2.15.0` | ✅ vérifié en base | ⚠️ **Rien ne part réellement** tant qu'aucun transport FCM n'est branché — le journal dit ce qui serait parti. Le rappel de collecte pousse désormais ; le changement d'état d'un signalement n'est pas encore branché |
+
+
 ### Vérification de bout en bout après le changement d'ordonnancement (2026-08-05)
 
 Le passage à `@OrderColumn` a entraîné un réimport complet du référentiel. Rien ne garantissait que

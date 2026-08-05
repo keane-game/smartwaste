@@ -41,6 +41,7 @@ public class CollectionReminderScheduler {
 
     private final WasteReadModel wasteReadModel;
     private final CollectionSubscriptionRepository subscriptionRepository;
+    private final sn.smartwaste.collect.platform.application.service.PushNotificationService pushNotificationService;
     private final NotificationService notificationService;
     private final UserDirectory userDirectory;
     private final Clock clock;
@@ -52,12 +53,14 @@ public class CollectionReminderScheduler {
 
     public CollectionReminderScheduler(WasteReadModel wasteReadModel,
                                        CollectionSubscriptionRepository subscriptionRepository,
+                                       sn.smartwaste.collect.platform.application.service.PushNotificationService pushNotificationService,
                                        NotificationService notificationService,
                                        UserDirectory userDirectory,
                                        Clock clock,
                                        @Value("${sonaged.collection.reminder.lead-minutes:90}") int leadTimeMinutes) {
         this.wasteReadModel = wasteReadModel;
         this.subscriptionRepository = subscriptionRepository;
+        this.pushNotificationService = pushNotificationService;
         this.notificationService = notificationService;
         this.userDirectory = userDirectory;
         this.clock = clock;
@@ -93,9 +96,17 @@ public class CollectionReminderScheduler {
             // n'a plus d'adresse — on s'abstient plutôt que d'échouer.
             subscribers.forEach(s -> userDirectory.emailOf(s.getUserId())
                     .ifPresent(email -> notificationService.sendCollectionReminder(email, passage)));
+
+            // G2 : le courriel ne suffit pas. Le rappel doit atteindre un telephone dont
+            // l'application est fermee — c'est-a-dire le cas normal.
+            int appareils = pushNotificationService.notify(
+                    subscribers.stream().map(s -> s.getUserId()).toList(),
+                    "Sortez vos ordures",
+                    "Le camion passera dans votre quartier a " + passage + ".");
             if (!subscribers.isEmpty()) {
-                log.info("Rappel de collecte : {} habitant(s) prevenu(s) pour le quartier {} a {}",
-                        subscribers.size(), collection.quartierId(), passage);
+                log.info("Rappel de collecte : {} habitant(s) prevenu(s) ({} appareil(s) joint(s)) "
+                        + "pour le quartier {} a {}",
+                        subscribers.size(), appareils, collection.quartierId(), passage);
             }
         }
     }

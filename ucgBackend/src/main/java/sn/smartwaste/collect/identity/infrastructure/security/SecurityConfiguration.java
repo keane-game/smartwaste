@@ -154,6 +154,12 @@ public class SecurityConfiguration{
                                                 // `/v1` est fermé tant que personne ne l'ouvre, et le mode
                                                 // de panne devient un 403 visible en développement plutôt
                                                 // qu'un trou silencieux.
+                                                // G2 : un citoyen enregistre son propre appareil.
+                                                // Ecriture sous /v1, donc nommee avant la regle
+                                                // generale qui la refuserait — l'identite vient du
+                                                // jeton, jamais du corps de la requete.
+                                                .requestMatchers(POST, "/v1/device-tokens").authenticated()
+                                                .requestMatchers(DELETE, "/v1/device-tokens").authenticated()
                                                 .requestMatchers(POST, "/data/**").hasAnyRole(ADMINISTRATION)
                                                 // L'agent de collecte déclare ses passages : deux
                                                 // écritures, nommées une par une, AVANT la règle
