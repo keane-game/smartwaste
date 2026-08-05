@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
 import sn.smartwaste.collect.identity.application.service.AuthorityService;
 
@@ -19,6 +20,18 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/v1/authorities")
+// La gestion des roles est gouvernee par une PERMISSION, non par un nom de role.
+//
+// C'est le premier endroit ou le modele role->permissions, present en base depuis l'origine,
+// decide reellement de quelque chose : les lignes de `authoritypermission` n'atteignaient pas le
+// contexte de securite, et les seules regles qui les mentionnaient — AuthorityRules, UserRules —
+// sont celles que rien n'applique.
+//
+// Comportement inchange : MANAGE_ROLE est seme sur ADMIN et SUPER_ADMIN. Ce qui change, c'est
+// qu'un administrateur peut desormais retirer cette permission a un role sans toucher au code,
+// et que la question « ADMIN doit-il pouvoir se hisser SUPER_ADMIN ? » (CLAUDE.md) devient une
+// decision de donnees plutot qu'une livraison.
+@PreAuthorize("hasAuthority('MANAGE_ROLE')")
 public class AuthorityController {
 
     private final AuthorityService authorityService;

@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.proxy.HibernateProxy;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -112,9 +113,48 @@ public class UserEntity extends  AbstractAuditingEntity<UUID> implements UserDet
     }
 
 
+    /**
+     * Ce que ce compte porte auprès de Spring Security : son <b>rôle</b>, et les
+     * <b>permissions</b> de ce rôle.
+     *
+     * <p><b>Ce que cela ferme.</b> Seul {@code ROLE_<nom>} était rendu : les permissions attachées
+     * au rôle n'atteignaient jamais le contexte de sécurité. Les lignes de
+     * {@code authoritypermission} étaient donc décoratives, et les seules règles qui les
+     * mentionnent — {@code AuthorityRules}, {@code UserRules} — sont précisément celles que rien
+     * n'applique. Toute décision se prenait sur le <i>nom</i> du rôle, si bien que changer qui peut
+     * faire quoi imposait de modifier du code, alors que le modèle rôle→permissions existait déjà
+     * en base pour l'éviter.
+     *
+     * <p><b>Le préfixe distingue deux choses différentes.</b> {@code ROLE_} dit ce qu'on <i>est</i>
+     * et répond à {@code hasRole} ; une permission nue dit ce qu'on <i>peut faire</i> et répond à
+     * {@code hasAuthority}. Les confondre effacerait la distinction.
+     *
+     * <p><b>Une collection non chargée vaut « aucune permission », jamais une erreur.</b>
+     * {@code AuthorityEntity.permissions} est en {@code LAZY} : hors session, y accéder lèverait
+     * {@code LazyInitializationException} et casserait l'authentification entière — le même piège
+     * que celui qui rendait {@code register} dépendant de l'open-session-in-view.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority ("ROLE_"+this.authority.getName()));
+        var authorities = new java.util.ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.authority.getName()));
+
+        try {
+            var permissions = this.authority.getPermissions();
+            if (permissions != null) {
+                permissions.stream()
+                        .filter(java.util.Objects::nonNull)
+                        .map(p -> new SimpleGrantedAuthority(p.name()))
+                        .forEach(authorities::add);
+            }
+        } catch (org.hibernate.LazyInitializationException e) {
+            // Compte lu hors session : le rôle suffit à authentifier. Refuser ici priverait
+            // l'appelant de toute identité pour une raison qui ne le concerne pas.
+            LoggerFactory.getLogger(UserEntity.class).debug(
+                    "Permissions non chargees pour le role {} : seul le role est expose",
+                    this.authority.getName());
+        }
+        return authorities;
     }
 
     @Override

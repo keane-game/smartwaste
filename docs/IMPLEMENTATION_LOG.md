@@ -29,6 +29,48 @@
 
 ## Détail
 
+### Les permissions étaient décoratives (2026-08-05)
+
+**Le défaut.** `UserEntity.getAuthorities()` ne rendait que `ROLE_<nom du rôle>`. Les
+**permissions** attachées au rôle n'atteignaient donc jamais le contexte de sécurité : les neuf
+lignes de `authoritypermission` en base ne décidaient de rien, et les seules règles qui les
+mentionnent — `AuthorityRules`, `UserRules` — sont précisément celles que rien n'applique
+(CLAUDE.md). Toute décision d'autorisation se prenait sur le *nom* du rôle, si bien que changer qui
+peut faire quoi imposait de modifier du code et de redéployer, alors que le modèle
+rôle→permissions existait en base depuis l'origine pour l'éviter.
+
+**Deux pièges traversés.**
+- `AuthorityEntity.permissions` est en `LAZY`, et `JwtFilter` s'exécute **avant**
+  l'open-session-in-view : sans transaction, la session se refermait entre le chargement du compte
+  et la lecture des autorités, et les permissions auraient disparu **en silence** — le compte
+  authentifié avec son seul rôle, et toute règle fondée sur une permission refusant l'accès sans
+  explication. `loadUserByUsername` est donc transactionnel et initialise la collection.
+- Une collection non chargée vaut « aucune permission », jamais une erreur : lever ici priverait
+  l'appelant de toute identité pour une raison qui ne le concerne pas.
+
+**Premier usage réel.** `/v1/authorities` est gouverné par `hasAuthority('MANAGE_ROLE')` et non par
+un nom de rôle. Comportement inchangé — la permission est semée sur `ADMIN` et `SUPER_ADMIN` — mais
+la question « `ADMIN` doit-il pouvoir se hisser `SUPER_ADMIN` ? », que `CLAUDE.md` pose depuis le
+début, devient une **décision de données** au lieu d'une livraison.
+
+**Vérifié contre PostgreSQL, en retirant la permission en base sans toucher au code :**
+
+| | |
+|---|---|
+| admin (a `MANAGE_ROLE`) | **200** |
+| agent (ne l'a pas) | **403** |
+| anonyme | **403** |
+| `SUPER_ADMIN` privé de `MANAGE_ROLE`, jeton neuf | **403** |
+
+Une première tentative de cette dernière preuve avait retiré la permission au rôle `ADMIN` alors
+que le compte de test est `SUPER_ADMIN` : elle rendait 200 et semblait infirmer le correctif. Le
+test était faux, pas le code. Permission restaurée après vérification.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-05 | Les permissions gouvernent réellement l'accès | `UserEntity`, `UserServiceImpl`, `AuthorityController` | ✅ vérifié en base | Un changement de permission ne prend effet qu'à la **reconnexion** : `JwtFilter` relit le compte, mais l'accès déjà émis reste valide jusqu'à expiration (15 min). Les `SecurityRule` inertes restent inertes — les supprimer demande une validation |
+
+
 ### G2 — le citoyen peut enfin être joint hors application ouverte (2026-08-05)
 
 La seule diffusion était **SSE** : une connexion HTTP maintenue, avec jeton. Cela convient à un

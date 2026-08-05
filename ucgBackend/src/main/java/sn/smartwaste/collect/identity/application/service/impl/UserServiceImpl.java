@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.identity.application.dto.User;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
@@ -126,11 +127,29 @@ public class UserServiceImpl  implements UserService {
         userRepository.delete(user);
     }
 
+    /**
+     * Charge le compte <b>et ses permissions</b> pour l'authentification.
+     *
+     * <p><b>Pourquoi la transaction est indispensable ici.</b> {@code AuthorityEntity.permissions}
+     * est en {@code LAZY}, et {@code JwtFilter} appelle cette méthode puis
+     * {@code getAuthorities()} — or un filtre s'exécute <b>avant</b> l'open-session-in-view de
+     * Spring. Sans transaction, la session se referme entre les deux et les permissions
+     * disparaissent en silence : le compte serait authentifié avec son seul rôle, et toute règle
+     * fondée sur une permission refuserait l'accès sans que rien ne l'explique.
+     *
+     * <p>La collection est donc initialisée explicitement, tant que la session est ouverte. Elle
+     * compte au plus quelques valeurs par rôle : le coût est celui d'une jointure, pas d'un N+1.
+     */
     @Override
+    @Transactional(readOnly = true)
     public UserEntity loadUserByUsername(String username) throws ResourceNotFoundException {
-        return this.userRepository
+        UserEntity user = this.userRepository
                 .findByUserEmail (username)
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
+        if (user.getAuthority() != null && user.getAuthority().getPermissions() != null) {
+            user.getAuthority().getPermissions().size();
+        }
+        return user;
     }
 
    /* public void inscription(Utilisateur utilisateur) {
