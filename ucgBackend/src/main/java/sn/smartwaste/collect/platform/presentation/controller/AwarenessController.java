@@ -46,7 +46,7 @@ public class AwarenessController {
                     fenetre de frequence est refuse (409).""")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('SEND_AWARENESS')")
     public MessageCree schedule(@RequestBody AwarenessRequest body) {
         if (body == null || body.title() == null || body.title().isBlank()
                 || body.body() == null || body.body().isBlank()) {

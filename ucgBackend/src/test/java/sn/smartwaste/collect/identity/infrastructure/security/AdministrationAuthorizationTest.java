@@ -159,8 +159,8 @@ class AdministrationAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(roles = "AGENT")
-    @DisplayName("l'agent de collecte peut declarer ses passages")
+    @WithMockUser(authorities = {"ROLE_AGENT", "DECLARE_COLLECTION"})
+    @DisplayName("celui qui porte DECLARE_COLLECTION peut declarer ses passages")
     void collectionAgentMayDeclarePassages() throws Exception {
         // Le defaut ferme ici : `@PreAuthorize` autorisait bien l'agent sur ces deux methodes, mais
         // la chaine de filtres tranche AVANT la securite de methode, et la regle generale
@@ -173,7 +173,22 @@ class AdministrationAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(roles = "AGENT")
+    @WithMockUser(authorities = "ROLE_AGENT")
+    @DisplayName("le role seul ne suffit plus : c'est la permission qui autorise")
+    void roleAloneNoLongerGrants() throws Exception {
+        // Le coeur du changement. L'autorisation exigeait `hasAnyRole('AGENT',…)` — une liste de
+        // roles figee dans le code. Elle se lit desormais dans les permissions du role, que
+        // l'administration modifie en base : retirer DECLARE_COLLECTION suffit a retirer le droit,
+        // sans livraison.
+        mockMvc.perform(post("/v1/collection-routes/stops/1/collected").with(csrf()))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/v1/collection-routes").param("communeId",
+                        "00000000-0000-0000-0000-000000000001"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_AGENT", "DECLARE_COLLECTION", "VIEW_COLLECTION_ROUTE"})
     @DisplayName("l'agent reste tenu a l'ecart du reste de l'ecriture")
     void collectionAgentStaysOutOfTheRest() throws Exception {
         // L'ouverture doit rester limitee aux deux chemins nommes : un agent n'administre pas le

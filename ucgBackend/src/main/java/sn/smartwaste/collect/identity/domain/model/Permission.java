@@ -41,7 +41,31 @@ public enum Permission {
     ACCESS_MYCOMPANY_USERS("ACCESS_MYCOMPANY_USERS"),
     ACCESS_STATISTICS_MYCOMPANY_TERMINAL("ACCESS_STATISTICS_MYCOMPANY_TERMINAL"),
     MANAGE_ROLES ("MANAGE_ROLES"),
-    ACCESS_RULES_PARAMETERS ("ACCESS_RULES_PARAMETERS");
+    ACCESS_RULES_PARAMETERS ("ACCESS_RULES_PARAMETERS"),
+
+    // =====================================================================================
+    // Permissions du domaine « gestion des dechets ».
+    //
+    // Toutes celles qui precedent viennent d'un AUTRE produit (com.worldline.tapandgo) :
+    // DISTRIBUTE_PRODUCT, VALIDATE_PAYMENT_MEAN, ACCESS_TERMINAL_INFO… Elles ne decrivent rien
+    // d'ici. L'agent de collecte portait ainsi ACCESS_MY_ACTIVITIES — un nom emprunte qui ne dit
+    // pas ce qu'il a le droit de faire, et qu'aucun lecteur du code ne peut relier a une tournee.
+    //
+    // Celles-ci nomment les actes reels du metier. Les etrangeres ne sont PAS supprimees ici :
+    // AuthorityRules et UserRules les referencent encore, et leur retrait est une suppression de
+    // code — validation requise (regle projet).
+    // =====================================================================================
+
+    /** Consulter la tournee d'une commune. */
+    VIEW_COLLECTION_ROUTE ("VIEW_COLLECTION_ROUTE"),
+    /** Declarer un point collecte ou inaccessible. */
+    DECLARE_COLLECTION ("DECLARE_COLLECTION"),
+    /** Lire les indicateurs, rapports et journaux de supervision. */
+    VIEW_SUPERVISION ("VIEW_SUPERVISION"),
+    /** Enroler et revoquer capteurs et traceurs. */
+    MANAGE_DEVICES ("MANAGE_DEVICES"),
+    /** Rediger et programmer un message de sensibilisation. */
+    SEND_AWARENESS ("SEND_AWARENESS");
 
 
     private String value;

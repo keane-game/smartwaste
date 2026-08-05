@@ -29,6 +29,39 @@
 
 ## Détail
 
+### L'agent porte enfin ses propres permissions (2026-08-05)
+
+Le rôle `AGENT` portait `ACCESS_MY_ACTIVITIES` — une valeur héritée d'un **autre produit**
+(`com.worldline.tapandgo`), comme la plupart des 35 valeurs de l'enum `Permission`
+(`DISTRIBUTE_PRODUCT`, `VALIDATE_PAYMENT_MEAN`, `ACCESS_TERMINAL_INFO`…). Un nom emprunté ne dit
+pas ce qu'un agent a le droit de faire, et personne ne peut le relier à une tournée.
+
+Cinq permissions nomment désormais les actes réels : `VIEW_COLLECTION_ROUTE`,
+`DECLARE_COLLECTION`, `VIEW_SUPERVISION`, `MANAGE_DEVICES`, `SEND_AWARENESS`. Les endpoints
+correspondants exigent la **permission** et non plus une liste de rôles figée dans le code.
+
+Les valeurs étrangères ne sont **pas** supprimées : `AuthorityRules` et `UserRules` les
+référencent, et leur retrait est une suppression de code — validation requise.
+
+**Vérifié contre PostgreSQL** avec un vrai compte agent :
+
+| | |
+|---|---|
+| tournée de sa commune | **200** |
+| avancement | **200** |
+| enrôler un capteur | **403** |
+| sensibilisation | **403** |
+| gérer les rôles | **403** |
+
+Un test vérifie en outre que **le rôle seul ne suffit plus** : un compte portant `ROLE_AGENT` sans
+`DECLARE_COLLECTION` est refusé. C'est le sens du changement — retirer une permission en base
+retire le droit, sans livraison.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-05 | Permissions du domaine, et agent borné à ses actes | `Permission`, `CollectionRouteController`, `DeviceProvisioningController`, `AwarenessController`, changelog `2.17.0` | ✅ vérifié en base | Les 30 permissions héritées du produit étranger restent dans l'enum |
+
+
 ### Les permissions étaient décoratives (2026-08-05)
 
 **Le défaut.** `UserEntity.getAuthorities()` ne rendait que `ROLE_<nom du rôle>`. Les

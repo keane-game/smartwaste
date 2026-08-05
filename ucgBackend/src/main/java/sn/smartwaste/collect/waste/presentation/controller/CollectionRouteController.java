@@ -34,7 +34,16 @@ import sn.smartwaste.collect.waste.application.service.CollectionRouteService.Ro
 @RequestMapping("/v1/collection-routes")
 public class CollectionRouteController {
 
-    private static final String EXPLOITATION = "hasAnyRole('AGENT','ADMIN','SUPER_ADMIN')";
+    /**
+     * Ce qu'il faut POUVOIR FAIRE, et non ce qu'il faut ÊTRE.
+     *
+     * <p>Ces méthodes exigeaient {@code hasAnyRole('AGENT','ADMIN','SUPER_ADMIN')} — une liste de
+     * rôles figée dans le code. Confier un remplacement à un profil qui n'existe pas encore
+     * imposait donc une livraison. Le droit se lit désormais dans les permissions du rôle, que
+     * l'administration modifie en base.
+     */
+    private static final String LIRE_TOURNEE = "hasAuthority('VIEW_COLLECTION_ROUTE')";
+    private static final String DECLARER_PASSAGE = "hasAuthority('DECLARE_COLLECTION')";
 
     private final CollectionRouteService routeService;
     private final CollectionPassageService passageService;
@@ -49,7 +58,7 @@ public class CollectionRouteController {
                description = "Priorise par urgence : debordement, puis etat inconnu, puis a "
                        + "surveiller. A urgence egale, l'ordre suit la geographie (ADR-0017).")
     @GetMapping
-    @PreAuthorize(EXPLOITATION)
+    @PreAuthorize(LIRE_TOURNEE)
     public List<RouteStop> planForCommune(@RequestParam("communeId") UUID communeId) {
         return routeService.planForCommune(communeId);
     }
@@ -60,7 +69,7 @@ public class CollectionRouteController {
                        + "repare pas le capteur qui l'observe.")
     @PostMapping("/stops/{depotoirId}/collected")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize(EXPLOITATION)
+    @PreAuthorize(DECLARER_PASSAGE)
     public void markCollected(@PathVariable("depotoirId") Long depotoirId) {
         passageService.markCollected(depotoirId);
     }
@@ -70,7 +79,7 @@ public class CollectionRouteController {
                        + "tournee du lendemain, avec son motif.")
     @PostMapping("/stops/{depotoirId}/inaccessible")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize(EXPLOITATION)
+    @PreAuthorize(DECLARER_PASSAGE)
     public void markInaccessible(@PathVariable("depotoirId") Long depotoirId,
                                  @RequestBody(required = false) InaccessibleReason body) {
         passageService.markInaccessible(depotoirId, body == null ? null : body.reason());
@@ -80,7 +89,7 @@ public class CollectionRouteController {
                description = "Points desservis sur points prevus. Un point inaccessible compte "
                        + "comme desservi — l'agent y est alle — mais pas comme collecte.")
     @GetMapping("/completion")
-    @PreAuthorize(EXPLOITATION)
+    @PreAuthorize(LIRE_TOURNEE)
     public CollectionPassageService.Completion completion(
             @RequestParam("communeId") UUID communeId) {
         return routeService.completionForCommune(communeId);

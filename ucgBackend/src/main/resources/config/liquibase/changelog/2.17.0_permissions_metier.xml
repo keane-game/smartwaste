@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Permissions du domaine « gestion des dechets ».
+
+      Le role AGENT portait ACCESS_MY_ACTIVITIES — une valeur heritee d'un AUTRE produit
+      (com.worldline.tapandgo), comme la plupart des 35 permissions de l'enum. Un nom emprunte ne
+      dit pas ce qu'un agent a le droit de faire, et personne ne peut le relier a une tournee.
+
+      Ces permissions n'ont pu devenir utiles qu'apres avoir ete rendues effectives : jusqu'ici
+      elles n'atteignaient pas le contexte de securite.
+    -->
+
+    <changeSet author="claude" id="2.17.0-1-permissions-metier">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM authoritypermission WHERE permission = 'DECLARE_COLLECTION'
+            </sqlCheck>
+        </preConditions>
+        <comment>Chaque role recoit les actes qu'il exerce reellement.</comment>
+        <sql>
+            -- L'agent : sa tournee, et ses passages. Rien d'autre.
+            INSERT INTO authoritypermission (authorityid, permission)
+            SELECT authorityid, p FROM authority,
+                   (VALUES ('VIEW_COLLECTION_ROUTE'), ('DECLARE_COLLECTION')) AS perms(p)
+            WHERE name = 'AGENT';
+
+            -- L'administration exerce les memes actes, plus les siens. Elle n'est pas bornee a un
+            -- territoire (TerritorialAccessGuard), mais elle a bien besoin du droit d'agir.
+            INSERT INTO authoritypermission (authorityid, permission)
+            SELECT authorityid, p FROM authority,
+                   (VALUES ('VIEW_COLLECTION_ROUTE'), ('DECLARE_COLLECTION'),
+                           ('VIEW_SUPERVISION'), ('MANAGE_DEVICES'), ('SEND_AWARENESS')) AS perms(p)
+            WHERE name IN ('ADMIN', 'SUPER_ADMIN');
+
+            -- ACCESS_MY_ACTIVITIES ne decrivait rien : l'agent ne la porte plus.
+            DELETE FROM authoritypermission
+            WHERE permission = 'ACCESS_MY_ACTIVITIES'
+              AND authorityid = (SELECT authorityid FROM authority WHERE name = 'AGENT');
+        </sql>
+        <rollback>
+            DELETE FROM authoritypermission WHERE permission IN
+                ('VIEW_COLLECTION_ROUTE','DECLARE_COLLECTION','VIEW_SUPERVISION',
+                 'MANAGE_DEVICES','SEND_AWARENESS');
+            INSERT INTO authoritypermission (authorityid, permission)
+            SELECT authorityid, 'ACCESS_MY_ACTIVITIES' FROM authority WHERE name = 'AGENT';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -31,7 +31,9 @@ import sn.smartwaste.collect.iot.application.service.DeviceProvisioningService;
  */
 @RestController
 @RequestMapping("/v1/devices")
-@PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+// Enroler un equipement est un ACTE, pas un statut : la permission le nomme, et l'administration
+// peut la confier a un profil technique sans qu'on livre du code.
+@PreAuthorize("hasAuthority('MANAGE_DEVICES')")
 public class DeviceProvisioningController {
 
     private final DeviceProvisioningService provisioningService;
