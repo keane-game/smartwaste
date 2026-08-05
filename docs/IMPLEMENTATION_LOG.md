@@ -29,6 +29,37 @@
 
 ## Détail
 
+### Vérification de bout en bout après le changement d'ordonnancement (2026-08-05)
+
+Le passage à `@OrderColumn` a entraîné un réimport complet du référentiel. Rien ne garantissait que
+la chaîne construite ces deux jours fonctionnait encore sur ces nouvelles données : elle a donc été
+réexercée entièrement, en une passe.
+
+| Étape | Résultat |
+|---|---|
+| Connexion administration | 200 |
+| Carte | **71 points**, `lat[14,7313 ; 14,7682]`, `lon[-17,4195 ; -17,2984]` — dans l'emprise de Pikine |
+| Enrôlement d'un capteur | 201 |
+| Mesure à 94 % | 201 |
+| Tournée (Mbao) | 23 arrêts, premier en `DEBORDEMENT` |
+| Collecte | 204 |
+| Journal du point | 4 entrées : mesure → alerte levée → alerte résolue (`admin@sonaged.sn`) → collecte |
+| Rapport d'efficacité | `mbao`, 1 alerte levée / 1 résolue, 1/23 desservis |
+
+**Un chiffre vérifié plutôt que cru.** Le rapport affichait un délai de résolution de `0.0 h`, ce qui
+ressemble au « zéro trompeur » proscrit à la conception. Contrôle en base : l'alerte a été levée à
+`02:11:35.911` et refermée à `02:11:36.395`, soit **0,48 s** — c'est une mesure vraie, pas un
+substitut d'absence. La distinction reste juste : `null` quand rien n'a été résolu, une valeur quand
+quelque chose l'a été.
+
+**Angle mort confirmé par horodatage.** Le changeset `2.14.0` a été appliqué à `02:00:44`, soit
+*après* l'exécution de `LiquibaseSchemaMatchesEntitiesTest`, qui était passé au vert alors que
+`ringposition` figurait dans l'entité et pas dans la base. Le test ne couvre donc pas les colonnes
+d'`@OrderColumn`.
+
+État final : 71 points de collecte, 1 capteur de test (`CAPTEUR-E2E`), 1 alerte résolue, 1 passage.
+
+
 ### L'ordre des points d'un contour n'était garanti par rien (2026-08-05)
 
 **Point de départ.** En cherchant pourquoi 10 circuits de balayage restaient sans commune, j'ai
