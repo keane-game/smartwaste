@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      G3 du backlog — messages de sensibilisation.
+
+      Le memoire les liste parmi les fonctionnalites du systeme (§3.1.5.2), et cite le manque de
+      sensibilisation comme CAUSE du probleme, pas seulement comme confort. Rien n'existait.
+
+      Le message est conserve apres l'envoi : un citoyen doit pouvoir relire ce qu'il a recu, et
+      l'administration doit pouvoir dire ce qu'elle a diffuse, quand, et a combien d'appareils.
+    -->
+
+    <changeSet author="claude" id="2.16.0-1-awareness-message">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="awarenessmessage"/></not>
+        </preConditions>
+        <comment>Message de sensibilisation, programmable et trace.</comment>
+        <createTable tableName="awarenessmessage">
+            <column name="messageid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_awarenessmessage"/>
+            </column>
+            <column name="title" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Reference cross-contexte vers le referentiel territorial (ADR-0012).
+                 NULL = tous les abonnes, quel que soit leur quartier. -->
+            <column name="quartierid" type="uuid"/>
+            <column name="scheduledat" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <!-- NULL tant que le message n'est pas parti : c'est ce qui le rend « du a envoyer ». -->
+            <column name="sentat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="recipientcount" type="INT"/>
+            <column name="authorid" type="uuid"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_awareness_due" tableName="awarenessmessage">
+            <column name="sentat"/>
+            <column name="scheduledat"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="awarenessmessage"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

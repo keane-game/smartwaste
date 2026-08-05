@@ -14,6 +14,9 @@ public interface CollectionSubscriptionRepository extends JpaRepository<Collecti
 
     List<CollectionSubscription> findByQuartierIdAndActiveTrue(UUID quartierId);
 
+    /** Tous les abonnements actifs — un message de sensibilisation sans quartier vise tout le monde. */
+    List<CollectionSubscription> findByActiveTrue();
+
     List<CollectionSubscription> findByUserIdAndActiveTrue(UUID userId);
 
     Optional<CollectionSubscription> findByUserIdAndQuartierId(UUID userId, UUID quartierId);

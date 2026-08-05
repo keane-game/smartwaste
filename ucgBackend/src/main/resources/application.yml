@@ -195,6 +195,12 @@ sonaged:
     # ce que la tournée traite bien, mais personne n'apprenait que le capteur était mort.
     silence-threshold-hours: ${IOT_SILENCE_THRESHOLD_HOURS:6}
     silence-check-cron: ${IOT_SILENCE_CHECK_CRON:0 */15 * * * *}
+  awareness:
+    # Messages de sensibilisation (G3). Le plafond protège le citoyen : une fonction de diffusion
+    # de masse est aussi une fonction de nuisance, et qui ne peut pas faire taire l'application la
+    # désinstalle — emportant aussi les rappels de collecte, qui eux sont utiles.
+    frequency-cap-hours: ${AWARENESS_FREQUENCY_CAP_HOURS:24}
+    dispatch-cron: ${AWARENESS_DISPATCH_CRON:0 */5 * * * *}
   alerts:
     # Diffusion temps réel des alertes (P2-1 / ADR-0007).
     stream:
