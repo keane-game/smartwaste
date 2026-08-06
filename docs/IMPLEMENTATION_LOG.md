@@ -1614,6 +1614,13 @@ La voie 2 est retenue, et traitée comme une tâche à part entière — la fair
 ## Découvertes à traiter (hors périmètre d'une itération)
 - **Double config** `application.properties` + `application.yml` (valeurs qui se chevauchent) → à fusionner (le `.properties` prime, source de confusion).
 - `schema.sql` + `spring.batch.initialize-schema=always` concurrencent Liquibase.
+- 🔴 **ADR-0019 §4 est inapplicable en l'état : cycle `iot ↔ waste`** (2026-08-06). Découvert en
+  tentant d'implémenter le seul gate d'éligibilité du Lot 8/G4 (`FillTrendEligibilityGate`,
+  dépendant de `iot.IngestionMetrics`, comme prescrit) : `SmartWasteModularityTests` échoue, `iot`
+  dépendant déjà de `waste` via `DeviceProvisioningServiceImpl` → `WasteReadModel` (validation d'un
+  `depotoirId` à l'enrôlement d'un capteur). Le gate n'a pas été livré ; le code a été retiré plutôt
+  que de le laisser casser le build. Détail et pistes non tranchées : « Complément (2026-08-06) »
+  dans `docs/adr/0019-remplissage-predictif-cadrage.md`.
 
 ## Prochaines tâches (selon ROADMAP, hors IoT)
 - **Suite ADR-0013** — migrer `waste` (le gros morceau : dépotoirs, circuits, alertes, mobilier, historique, images ; y reclasser `Image`, cf. point 3 de la liste P1-7b), puis statuer sur `UploadFileServiceImpl` / import GeoJSON, puis les read-models de carte (`DepotoirMaps`, `DepartmentMaps`). Restent ensuite `tenant` et `iot`, à créer.
