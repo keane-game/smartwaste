@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -28,5 +29,11 @@ public class DepotoirMaps {
     String typeGeo;
 
     List<Coordinate> coordinates;
+
+    /** {@code null} si jamais mesuré — un dépotoir sans capteur n'a pas de niveau à afficher. */
+    Integer fillLevelPercent;
+
+    /** Date de {@link #fillLevelPercent}, {@code null} dans les mêmes conditions. */
+    Instant lastMeasuredAt;
 
 }

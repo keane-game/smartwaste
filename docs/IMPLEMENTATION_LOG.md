@@ -29,6 +29,50 @@
 
 ## Détail
 
+### Le tableau de bord admin devient réellement un tableau de bord (2026-08-06)
+
+Le brief produit (priorité 1) demande un dashboard « impressionnant » — cartes, alertes,
+activité temps réel, état des bacs, statistiques. `dashboard.component.ts` savait déjà afficher
+des KPI et deux graphiques Chart.js réels (`/v1/supervision/stats`), mais sans carte, sans
+remplissage des bacs, et sans rien de temps réel malgré `AlertStreamService` (SSE) déjà
+opérationnel ailleurs (toasts de `LayoutComponent`). Aucune donnée simulée introduite ici — tout
+vient de endpoints existants, un seul champ backend a dû être exposé.
+
+**Backend (justifié, additif, sans nouveau port ni nouvelle dépendance de module)** :
+`DepotoirMaps` (`waste/application/api`) n'exposait pas `fillLevelPercent`/`lastMeasuredAt` — déjà
+présents sur `DepotoirEntity`, déjà utilisés par `ThresholdResolver`/`FillLevelProjector`, jamais
+remontés jusqu'à `GET /v1/maps/depotoirs`. Sans ce champ, aucune carte ne peut distinguer un bac
+qui déborde d'un bac qui vient d'être vidé. `DepotoirServiceImpl.getDepotoirMap()` les copie
+désormais sur le DTO ; testé par `DepotoirMapReadModelTest` (aucune assertion cassée, le null
+reste correctement rendu pour les points jamais mesurés).
+
+**Frontend** :
+- Nouveau `DashboardMapComponent` (`pages/dashboard/dashboard-map/`), standalone, distinct de
+  `MapsComponent` (`pages/maps/`) qui répond à une question différente (type d'actif) — celui-ci
+  répond à « où est le problème maintenant » : contour du département, bacs colorés par tranche de
+  remplissage (vert/orange/rouge/gris-jamais-mesuré), véhicules (sondés toutes les 30 s — pas de
+  flux SSE dédié côté backend, audit 2026-08 confirmé), alertes poussées en direct par
+  `AlertStreamService` et effacées après 2 min (un événement, pas un état durable).
+- `dashboard.component.ts`/`.html` : troisième graphique (bacs par tranche de remplissage,
+  `depotoirsByFillLevel`), carte signalements citoyens (`citizenReports`), fil d'activité réel
+  (remplace le bloc `Recent Activity` Lorem-ipsum déjà commenté — n'a jamais été décommenté) branché
+  sur `AlertStreamService.alerts`, borné à 8 entrées.
+- `DashboardComponent` est passé `standalone: true` explicite (+ `imports: [CommonModule,
+  DashboardMapComponent]`). Il fonctionnait déjà sans NgModule propriétaire ni flag explicite —
+  requête directe dans `app.routes.ts`, aucune autre référence trouvée dans le dépôt — ce qui
+  aurait dû échouer à la compilation ; ceci codifie ce qui tenait manifestement déjà de façon
+  implicite plutôt que de laisser filer l'ambiguïté. Le stub `dashboard.component.spec.ts` (jamais
+  entretenu, cf. `docs/FRONTEND_AUDIT.md` §6) est corrigé en conséquence (`declarations` →
+  `imports`), non exécuté ici (pas de Chrome dans cet environnement).
+
+- **Statut** : ✅ backend `./mvnw test` vert (248 tests, 1 ignoré) ; ✅ frontend `ng build` vert,
+  aucune régression. **Non vérifié** : rendu réel dans un navigateur (pas de session interactive
+  ici) — recommandé avant démonstration.
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-06 | Dashboard admin : carte vivante, remplissage, signalements, activité temps réel | `DepotoirMaps.java`, `DepotoirServiceImpl.java`, `maps.service.ts`, `dashboard.component.ts/html`, `dashboard-map/*` (nouveau) | ✅ build + tests verts, non vérifié à l'écran | Ouvrir `/dashboard` dans un navigateur avec une session ADMIN ; vérifier que la carte affiche des bacs colorés, que les véhicules apparaissent si `vehicletracker` a des positions récentes, et que déclencher une alerte la fait apparaître à la fois en toast et sur la carte |
+
 ### Les 13 règles `SecurityRule` mortes sont retirées (2026-08-06)
 
 `AuthorityRules` (8 règles) et `UserRules` (5 règles) déclaraient des `@Bean SecurityRule` dans

@@ -97,6 +97,8 @@ public class DepotoirServiceImpl implements DepotoirService {
             var type = d.getTypeDepotoir ();
             depotoirMap.setTypeDepot (type == null ? null : type.getName ());
             depotoirMap.setCoordinates (CoordinateMapper.CODMP.asListDto (geometry.getCoordinates () ));
+            depotoirMap.setFillLevelPercent (d.getFillLevelPercent ());
+            depotoirMap.setLastMeasuredAt (d.getLastMeasuredAt ());
             depotoirMaps.add (depotoirMap);
         });
         return depotoirMaps;
