@@ -29,6 +29,28 @@
 
 ## Détail
 
+### Les 13 règles `SecurityRule` mortes sont retirées (2026-08-06)
+
+`AuthorityRules` (8 règles) et `UserRules` (5 règles) déclaraient des `@Bean SecurityRule` dans
+`identity/infrastructure/security/rules/` — rien ne les collectait ni n'appelait leur
+`SecurityRule.configure(...)` : elles vivaient dans le contexte Spring sans jamais s'appliquer.
+L'autorisation réelle est ailleurs depuis toujours (`SecurityConfiguration.authorizeHttpRequests`
++ `@PreAuthorize`, cf. entrées du 2026-08-05). Recherché avant suppression : aucune autre classe ni
+aucun test n'instancie `SecurityRule`/`AuthorityRules`/`UserRules` — seuls des commentaires les
+mentionnaient (mis à jour en conséquence, cf. fichiers listés).
+
+**Non touché** : les valeurs de l'enum `Permission` que ces règles référençaient
+(`MANAGE_ROLE`, `ACCESS_ADMIN`, `USER_VIEW`). `MANAGE_ROLE` reste utilisée réellement
+(`@PreAuthorize`, `AuthorityController`) ; `ACCESS_ADMIN`/`USER_VIEW` n'ont plus aucun lecteur mais
+leur retrait est une décision séparée (règle du projet : suppression de code → validation), pas un
+effet de bord de celle-ci.
+
+- **Statut** : ✅ `./mvnw test` vert (248 tests, 1 ignoré).
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-06 | Suppression de `SecurityRule`, `AuthorityRules`, `UserRules` | fichiers supprimés + commentaires mis à jour dans `SecurityConfiguration`, `Permission`, `UserEntity`, `AuthorityController`, `UserAuthoritiesTest`, `AdministrationAuthorizationTest`, `AvisAuthorizationTest` | ✅ vérifié par la suite de tests | — |
+
 ### `allowCredentials(true)` retiré : le contrat CORS dit enfin « jeton uniquement » (2026-08-06)
 
 Signalé par la revue automatique du 2026-07-27 (P1-7b), laissé de côté car non exploitable en

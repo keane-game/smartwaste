@@ -14,8 +14,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p><b>Le défaut fermé ici.</b> {@code getAuthorities()} ne rendait que
  * {@code ROLE_<nom du rôle>} : les <b>permissions</b> attachées au rôle n'atteignaient jamais le
  * contexte de sécurité. Les neuf lignes de {@code authoritypermission} en base étaient donc
- * décoratives, et les seules règles qui les mentionnent
- * ({@code AuthorityRules}, {@code UserRules}) sont précisément celles que rien n'applique.
+ * décoratives, et les seules règles qui les mentionnaient
+ * ({@code AuthorityRules}, {@code UserRules}, retirées le 2026-08-06) étaient précisément celles
+ * que rien n'appliquait.
  *
  * <p>Toute décision d'autorisation se prenait donc sur le <i>nom</i> du rôle. Conséquence
  * pratique : changer qui peut faire quoi imposait de modifier du code et de redéployer, alors que

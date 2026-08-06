@@ -30,8 +30,8 @@ import static org.springframework.http.HttpMethod.PUT;
 @Configuration
 @EnableWebSecurity
 // Sans @EnableMethodSecurity, les annotations @PreAuthorize sont ignorees EN SILENCE : le code
-// paraitrait protege et ne le serait pas. C'est deja le defaut des beans SecurityRule de ce
-// module, qui declarent 13 regles d'autorisation que rien n'applique.
+// paraitrait protege et ne le serait pas. C'etait deja le defaut des 13 beans SecurityRule
+// (AuthorityRules/UserRules, retires) que rien n'appliquait jamais.
 @EnableMethodSecurity
 public class SecurityConfiguration{
 
@@ -138,7 +138,7 @@ public class SecurityConfiguration{
                                                 //  réimporter les GeoJSON, créer d'autres comptes ou vider
                                                 //  la corbeille. Les 13 règles de `AuthorityRules` /
                                                 //  `UserRules` donnaient l'illusion du contraire : rien ne
-                                                //  les applique.
+                                                //  les appliquait jamais — retirées (2026-08-06).
                                                 //
                                                 //  L'ordre compte : la première règle qui correspond gagne.
                                                 // =========================================================

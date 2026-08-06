@@ -24,8 +24,8 @@ import java.util.List;
 //
 // C'est le premier endroit ou le modele role->permissions, present en base depuis l'origine,
 // decide reellement de quelque chose : les lignes de `authoritypermission` n'atteignaient pas le
-// contexte de securite, et les seules regles qui les mentionnaient — AuthorityRules, UserRules —
-// sont celles que rien n'applique.
+// contexte de securite, et les seules regles qui les mentionnaient — AuthorityRules, UserRules,
+// retirees le 2026-08-06 — etaient celles que rien n'appliquait.
 //
 // Comportement inchange : MANAGE_ROLE est seme sur ADMIN et SUPER_ADMIN. Ce qui change, c'est
 // qu'un administrateur peut desormais retirer cette permission a un role sans toucher au code,

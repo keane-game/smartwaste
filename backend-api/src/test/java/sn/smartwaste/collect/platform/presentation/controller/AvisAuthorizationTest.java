@@ -23,9 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * pas déclaré. Un test unitaire sur le contrôleur passerait donc au vert avec ou sans protection.
  * Le seul moyen de vérifier que la règle s'applique vraiment est de traverser la chaîne de sécurité.
  *
- * <p>Ce n'est pas une précaution théorique : ce projet contient déjà treize règles d'autorisation
- * ({@code AuthorityRules}, {@code UserRules}) que rien n'applique, et qui donnent depuis le début
- * l'illusion d'un contrôle d'accès.
+ * <p>Ce n'est pas une précaution théorique : ce projet a longtemps contenu treize règles
+ * d'autorisation ({@code AuthorityRules}, {@code UserRules}, retirées le 2026-08-06) que rien
+ * n'appliquait, et qui donnaient depuis le début l'illusion d'un contrôle d'accès.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

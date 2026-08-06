@@ -25,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <i>tout compte authentifié pouvait tout faire</i>. Comme {@code /auth/register} est public, le
  * chemin complet était ouvert à n'importe qui — s'inscrire, activer son compte, puis écraser le
  * référentiel territorial, réimporter les GeoJSON, créer d'autres comptes ou fouiller la corbeille.
- * Les treize règles de {@code AuthorityRules} / {@code UserRules} donnaient l'illusion du contraire :
- * rien ne les applique.
+ * Les treize règles de {@code AuthorityRules} / {@code UserRules} (retirées le 2026-08-06)
+ * donnaient l'illusion du contraire : rien ne les appliquait jamais.
  *
  * <p><b>Pourquoi le contexte complet.</b> Une règle d'autorisation qui n'est pas câblée ne proteste
  * pas — c'est précisément le mode de panne de ce projet. Seule la traversée réelle de la chaîne de

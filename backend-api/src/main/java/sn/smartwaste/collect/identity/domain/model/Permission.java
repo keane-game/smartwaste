@@ -52,8 +52,10 @@ public enum Permission {
     // pas ce qu'il a le droit de faire, et qu'aucun lecteur du code ne peut relier a une tournee.
     //
     // Celles-ci nomment les actes reels du metier. Les etrangeres ne sont PAS supprimees ici :
-    // AuthorityRules et UserRules les referencent encore, et leur retrait est une suppression de
-    // code — validation requise (regle projet).
+    // leur retrait est une suppression de code — validation requise (regle projet), independamment
+    // du fait que plus rien ne les reference. AuthorityRules et UserRules (seuls lecteurs restants,
+    // avec MANAGE_ROLE) ont ete retires le 2026-08-06 : MANAGE_ROLE reste utilisee reellement
+    // (@PreAuthorize, AuthorityController) ; ACCESS_ADMIN et USER_VIEW n'ont plus aucun lecteur.
     // =====================================================================================
 
     /** Consulter la tournee d'une commune. */

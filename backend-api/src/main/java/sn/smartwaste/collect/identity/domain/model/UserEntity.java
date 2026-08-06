@@ -120,10 +120,10 @@ public class UserEntity extends  AbstractAuditingEntity<UUID> implements UserDet
      * <p><b>Ce que cela ferme.</b> Seul {@code ROLE_<nom>} était rendu : les permissions attachées
      * au rôle n'atteignaient jamais le contexte de sécurité. Les lignes de
      * {@code authoritypermission} étaient donc décoratives, et les seules règles qui les
-     * mentionnent — {@code AuthorityRules}, {@code UserRules} — sont précisément celles que rien
-     * n'applique. Toute décision se prenait sur le <i>nom</i> du rôle, si bien que changer qui peut
-     * faire quoi imposait de modifier du code, alors que le modèle rôle→permissions existait déjà
-     * en base pour l'éviter.
+     * mentionnaient — {@code AuthorityRules}, {@code UserRules}, retirées le 2026-08-06 — étaient
+     * précisément celles que rien n'appliquait. Toute décision se prenait sur le <i>nom</i> du rôle,
+     * si bien que changer qui peut faire quoi imposait de modifier du code, alors que le modèle
+     * rôle→permissions existait déjà en base pour l'éviter.
      *
      * <p><b>Le préfixe distingue deux choses différentes.</b> {@code ROLE_} dit ce qu'on <i>est</i>
      * et répond à {@code hasRole} ; une permission nue dit ce qu'on <i>peut faire</i> et répond à
