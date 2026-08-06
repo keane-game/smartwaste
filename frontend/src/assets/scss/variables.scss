@@ -1,0 +1,49 @@
+/* --------------------------------------------------------------------
+	Default Theme Variables
+/*-------------------------------------------------------------------- */
+
+$primary: #00008F;
+$secondary: #D24723;
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "danger": #C91432,
+);
+$theme-colors: (
+  "primary": $primary,
+) !default;
+
+:root {
+    --body-text: #24313a;
+    --body-bg: #fff;
+    --main-color: #00008F;
+    --main-tx: #fff;
+
+    --radius: 0.5em;
+    --radius-h: 0.25em;
+    --text-color: #fff !important;
+}
+
+:root {
+  --white: #fff;
+  --gray: #f5f5f5;
+  --black1: #222;
+  --black2: #999;
+  --white1: #f6f9ff;
+  --green: #045211;
+  --green-light :#5D8B47;
+  --green1:rgb(248, 255, 250);
+  scroll-behavior: smooth;
+  scrollbar-width: 5px !important;
+  scrollbar-color: red;
+  --font-poppine: "Poppins", sans-serif;
+  --font-helvetica: 'Helvetica'
+
+  --secondary: #423f3f;
+  --green: #5D8B47;
+  --light_green: #CAD8C8;
+  --light_green1: #F0FCEF;
+  --black: #000000;
+  --blue_black : #011229;
+
+}

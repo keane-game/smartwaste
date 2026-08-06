@@ -19,10 +19,10 @@ dist/
 npm-debug.log*
 
 # Mobile (Flutter)
-mobileFlutter/build/
-mobileFlutter/.dart_tool/
-mobileFlutter/.flutter-plugins
-mobileFlutter/.flutter-plugins-dependencies
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
 
 # IDE / OS
 .idea/
@@ -33,7 +33,7 @@ mobileFlutter/.flutter-plugins-dependencies
 Thumbs.db
 
 # Secrets versionnés à retirer du suivi ET à roter (voir docs/IMPLEMENTATION_LOG.md P0-2)
-# mobileFlutter/android/app/google-services.json
+# mobile/android/app/google-services.json
 
 # Fichiers de travail de l'agent (locaux, non partagés)
 .claude/*.lock
