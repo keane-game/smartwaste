@@ -540,6 +540,39 @@
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
+          <h5 class="card-title">Carte en direct</h5>
+          <app-dashboard-map></app-dashboard-map>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Activité récente</h5>
+          <div class="activity" *ngIf="activity.length > 0; else noActivity">
+            <div class="activity-item d-flex" *ngFor="let item of activity">
+              <div class="activite-label">{{ item.at | date:'HH:mm' }}</div>
+              <i class="bi bi-circle-fill activity-badge align-self-start"
+                 [ngClass]="{
+                   'text-danger': item.code === 'DANGER',
+                   'text-warning': item.code === 'WARNING',
+                   'text-info': item.code !== 'DANGER' && item.code !== 'WARNING'
+                 }"></i>
+              <div class="activity-content">
+                <span class="fw-bold text-dark">{{ item.label }}</span>
+                <span *ngIf="item.detail"> — {{ item.detail }}</span>
+              </div>
+            </div>
+          </div>
+          <ng-template #noActivity>
+            <p class="text-muted small mb-0">Aucune alerte depuis l'ouverture de cette session.</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
           <div style="position: relative; height: 320px;">
             <canvas #mychart></canvas>
           </div>
@@ -551,6 +584,45 @@
         <div class="card-body">
           <div style="position: relative; height: 320px;">
             <canvas #alertsByCodeChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <div style="position: relative; height: 280px;">
+            <canvas #fillLevelChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6" *ngIf="supervisionStats as stats">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Signalements citoyens</h5>
+          <div class="row">
+            <div class="col-6" *ngFor="let status of stats.citizenReports.byStatus | keyvalue">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small">{{ status.key }}</span>
+                <span class="fw-bold">{{ status.value }}</span>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="small">Délai médian de résolution</span>
+            <span class="fw-bold">
+              {{ stats.citizenReports.medianResolutionMinutes !== null
+                  ? (stats.citizenReports.medianResolutionMinutes + ' min')
+                  : '—' }}
+            </span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="small">Signalements oubliés</span>
+            <span class="fw-bold" [class.text-danger]="stats.citizenReports.openOlderThanThreshold > 0">
+              {{ stats.citizenReports.openOlderThanThreshold }}
+            </span>
           </div>
         </div>
       </div>

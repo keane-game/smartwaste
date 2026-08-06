@@ -35,7 +35,33 @@ export interface DepotoirMap {
   typeDepot: string;
   typeGeo: string;
   coordinates: GeoCoordinate[];
+  /** `null` si jamais mesuré — pas de capteur sur ce point. */
+  fillLevelPercent: number | null;
+  lastMeasuredAt: string | null;
 }
+
+/** Tranche de remplissage, pour la couleur du marqueur — jamais mesuré compte à part. */
+export type FillLevelBucket = 'unknown' | 'ok' | 'warning' | 'danger';
+
+export function fillLevelBucket(fillLevelPercent: number | null | undefined): FillLevelBucket {
+  if (fillLevelPercent === null || fillLevelPercent === undefined) {
+    return 'unknown';
+  }
+  if (fillLevelPercent >= 80) {
+    return 'danger';
+  }
+  if (fillLevelPercent >= 50) {
+    return 'warning';
+  }
+  return 'ok';
+}
+
+export const FILL_LEVEL_COLORS: Record<FillLevelBucket, string> = {
+  unknown: '#6c757d',
+  ok: '#2eca6a',
+  warning: '#ff771d',
+  danger: '#dc3545',
+};
 
 /**
  * Véhicule en circulation — `GET /v1/maps/vehicles`.

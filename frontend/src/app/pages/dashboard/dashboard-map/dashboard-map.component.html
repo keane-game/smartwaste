@@ -1,0 +1,17 @@
+<div class="dashboard-map-wrapper">
+  <div #dashboardMap class="dashboard-map"></div>
+  <div class="dashboard-map-legend">
+    <div class="legend-item" *ngFor="let entry of legend">
+      <span class="legend-dot" [style.background]="entry.color"></span>
+      <span>{{ entry.label }}</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-emoji">🚛</span>
+      <span>Véhicule</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-emoji">🚨</span>
+      <span>Alerte (2 min)</span>
+    </div>
+  </div>
+</div>
