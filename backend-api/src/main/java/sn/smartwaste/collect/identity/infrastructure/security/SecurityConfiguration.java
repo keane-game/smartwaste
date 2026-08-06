@@ -65,7 +65,10 @@ public class SecurityConfiguration{
                                 CorsConfiguration cors = new CorsConfiguration();
                                 cors.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
                                 cors.setAllowedMethods(Collections.singletonList("*"));
-                                cors.setAllowCredentials(true);
+                                // Aucun cookie n'est jamais posé (auth par Authorization: Bearer uniquement,
+                                // rafraichissement inclus) : autoriser les creances ambiantes n'a donc aucun
+                                // usage ici, et le laisser a `true` ne fait qu'elargir la surface pour rien.
+                                cors.setAllowCredentials(false);
                                 cors.setAllowedHeaders(Collections.singletonList("*"));
                                 cors.setExposedHeaders(Collections.singletonList("Authorization"));
                                 cors.setMaxAge(3600L);

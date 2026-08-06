@@ -29,6 +29,21 @@
 
 ## Détail
 
+### `allowCredentials(true)` retiré : le contrat CORS dit enfin « jeton uniquement » (2026-08-06)
+
+Signalé par la revue automatique du 2026-07-27 (P1-7b), laissé de côté car non exploitable en
+l'état : la chaîne est `STATELESS`, l'authentification passe uniquement par l'en-tête
+`Authorization`, et aucun cookie n'est jamais posé — vérifié à nouveau ici (aucun `Set-Cookie`,
+aucun `ResponseCookie` dans le code ; le front n'utilise `withCredentials` que dans TinyMCE
+vendorisé, sans rapport). `setAllowCredentials(true)` n'avait donc aucun usage : il élargissait la
+surface CORS pour un mécanisme qui n'existe pas.
+
+- **Statut** : ✅ `./mvnw test` vert (248 tests, 1 ignoré, JDK 22 via `--release 21`).
+
+| Date | Tâche | Fichiers | Statut | À vérifier manuellement |
+|---|---|---|---|---|
+| 2026-08-06 | `setAllowCredentials(false)` | `identity/infrastructure/security/SecurityConfiguration.java` | ✅ vérifié par la suite de tests | Aucun client ne s'appuyait sur des creances ambiantes — confirmé par recherche, pas par un test dédié (aucun n'existait pour cette configuration) |
+
 ### P2-2 — Dockerfile applicatif, sonde de santé, et le répertoire s'appelle enfin `backend-api` (2026-08-06)
 
 `ucgBackend/` a été renommé `backend-api/` sur le disque (avec `sonaged_web/` → `frontend/` et
@@ -1607,7 +1622,7 @@ La voie 2 est retenue, et traitée comme une tâche à part entière — la fair
 #### Points connus, volontairement non traités ici
 - **Deux secrets versionnés dans `JwtService`, dont un mort.** La revue automatique a signalé `ENCRIPTION_KEY` ; c'est bien un secret versionné, mais **ce n'est pas la clé de signature** : son unique lecteur `getKey()` n'est appelé que depuis un bloc `getAllClaims()` **commenté**. La signature et la vérification utilisent `SecurityConstants.SECRET`, que la revue n'a pas signalé. Les deux sont compromis et à roter ; seul le second influe aujourd'hui sur la validité des jetons. P0-2 / ADR-0002 — non touché ici (CLAUDE.md : signaler avant d'intervenir sur les secrets).
 - **`createUser` et `register` divergent** : `UserServiceImpl.createUser` force encore `encode("Sonaged@123")` alors que `AuthServiceImpl.register` hache bien le mot de passe fourni. Le correctif relève de P0-1/P0-A (Keycloak), pas d'une migration de packages.
-- **CSRF désactivé avec `setAllowCredentials(true)`** : signalé par la revue. Non exploitable en l'état — la chaîne est `STATELESS` et l'authentification passe uniquement par l'en-tête `Authorization`, donc aucune créance ambiante ne peut être rejouée. À passer à `false` pour rendre le contrat « jeton uniquement » explicite.
+- ~~**CSRF désactivé avec `setAllowCredentials(true)`**~~ — corrigé le 2026-08-06 (voir « Détail »).
 - **Les beans `SecurityRule` ne sont jamais appliqués** : `AuthorityRules` et `UserRules` déclarent 13 règles d'autorisation que `SecurityConfiguration` n'appelle nulle part (`configure(...)` n'est invoqué par personne). L'autorisation réelle se limite donc à `anyRequest().authenticated()` — **aucun contrôle de permission par rôle n'est actif**. Migré tel quel pour ne pas changer le comportement au milieu d'un déplacement de packages ; à trancher (câbler ou retirer) avec P0-A.
 - **`AuthReponse`, `AuthRequest`, `UserResponse`, `AuthorityInfo`** ne sont référencés nulle part. Conservés (suppression → validation requise).
 
