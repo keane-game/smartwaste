@@ -10,6 +10,7 @@ import sn.smartwaste.collect.waste.application.dto.TypeDepotoir;
 import sn.smartwaste.collect.waste.application.service.TypeDepotoirService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{typeDepotoirId}")
-    public TypeDepotoir getOneTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId){
+    public TypeDepotoir getOneTypeDepotoir(@PathVariable("typeDepotoirId") UUID typeDepotoirId){
         return typeDepotoirService.readTypeDepotoir (typeDepotoirId);
     }
 
@@ -62,7 +63,7 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{typeDepotoirId}")
-    public TypeDepotoir  updateTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId, @RequestBody() TypeDepotoir typeDepotoir) {
+    public TypeDepotoir  updateTypeDepotoir(@PathVariable("typeDepotoirId") UUID typeDepotoirId, @RequestBody() TypeDepotoir typeDepotoir) {
         return typeDepotoirService.updateTypeDepotoir (typeDepotoirId, typeDepotoir);
     }
 
@@ -74,7 +75,7 @@ public class TypeDepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{typeDepotoirId}")
-    public String deleteTypeDepotoir(@PathVariable("typeDepotoirId") Long typeDepotoirId) {
+    public String deleteTypeDepotoir(@PathVariable("typeDepotoirId") UUID typeDepotoirId) {
         typeDepotoirService.deleteTypeDepotoir (typeDepotoirId);
         return "Successfully delete";
     }

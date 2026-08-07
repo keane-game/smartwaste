@@ -20,6 +20,6 @@ public interface VehicleService {
      * @param registration   immatriculation, obligatoire et unique — l'identifiant du terrain
      * @param lastPositionAt en lecture seule : alimenté par les traceurs, jamais par l'API
      */
-    record VehicleDto(UUID vehicleId, String registration, String label, Long circuitCollectId,
+    record VehicleDto(UUID vehicleId, String registration, String label, UUID circuitCollectId,
                       Boolean active, Double lastLatitude, Double lastLongitude, Instant lastPositionAt) { }
 }

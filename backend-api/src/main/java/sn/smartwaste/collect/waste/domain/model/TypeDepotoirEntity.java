@@ -1,14 +1,13 @@
 package sn.smartwaste.collect.waste.domain.model;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.CascadeType;
@@ -21,10 +20,12 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -35,12 +36,12 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "TYPEDEPOTOIR")
-public class TypeDepotoirEntity  extends AbstractAuditingEntity<Long> {
+public class TypeDepotoirEntity  extends AbstractAuditingEntity<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "TypeDepotoirId")
-    Long typeDepotoirId;
+    UUID typeDepotoirId;
 
     @Column(name = "Name")
     String name;

@@ -56,7 +56,8 @@ import static org.mockito.Mockito.when;
 class CollectionPassageServiceImplTest {
 
     private static final Instant NOW = Instant.parse("2026-07-30T12:00:00Z");
-    private static final Long POINT = 73L;
+    private static final UUID POINT = UUID.fromString("00000000-0000-0000-0000-000000000073");
+    private static final UUID UNKNOWN_POINT = UUID.fromString("00000000-0000-0000-0000-000000000999");
     private static final UUID AGENT = UUID.randomUUID();
 
     @Mock private DepotoirRepository depotoirRepository;
@@ -215,9 +216,9 @@ class CollectionPassageServiceImplTest {
     @Test
     @DisplayName("un point inconnu est refusé plutôt qu'ignoré")
     void unknownPointIsRejected() {
-        when(depotoirRepository.findById(999L)).thenReturn(Optional.empty());
+        when(depotoirRepository.findById(UNKNOWN_POINT)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service().markCollected(999L))
+        assertThatThrownBy(() -> service().markCollected(UNKNOWN_POINT))
                 .isInstanceOf(RuntimeException.class);
 
         verify(passageRepository, never()).save(any());

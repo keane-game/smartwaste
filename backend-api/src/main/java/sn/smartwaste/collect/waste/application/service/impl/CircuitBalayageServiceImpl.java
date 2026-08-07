@@ -13,6 +13,7 @@ import sn.smartwaste.collect.waste.domain.model.CircuitBalayageEntity;
 import sn.smartwaste.collect.waste.application.service.CircuitBalayageService;
 
 import java.util.List;
+import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class CircuitBalayageServiceImpl implements CircuitBalayageService {
@@ -20,7 +21,7 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
     private final CircuitBalayageRepository circuitBalayageRepository;
 
     @Override
-    public CircuitBalayage readCircuitBalayage(Long circuitBalayageId) {
+    public CircuitBalayage readCircuitBalayage(UUID circuitBalayageId) {
         var circuitBalayage = circuitBalayageRepository.findById(circuitBalayageId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitBalayageId)
@@ -47,7 +48,7 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
 
     @Override
-    public CircuitBalayage updateCircuitBalayage(Long circuitBalayageId, CircuitBalayage circuitBalayage) {
+    public CircuitBalayage updateCircuitBalayage(UUID circuitBalayageId, CircuitBalayage circuitBalayage) {
         var existedCircuitBalayage = circuitBalayageRepository.findById(circuitBalayageId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitBalayage with id [%s] not found to update ".formatted(circuitBalayageId)
@@ -69,7 +70,7 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
 
     @Override
-    public void deleteCircuitBalayage(Long circuitBalayageId) {
+    public void deleteCircuitBalayage(UUID circuitBalayageId) {
         var circuitBalayage = circuitBalayageRepository.findById(circuitBalayageId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitBalayage with id [%s] not found ".formatted(circuitBalayageId)

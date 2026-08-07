@@ -27,7 +27,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CircuitCollect implements Serializable {
 
-    Long circuitcollectId;
+    UUID circuitcollectId;
 
     String name;
 

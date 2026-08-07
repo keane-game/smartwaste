@@ -13,6 +13,7 @@ import sn.smartwaste.collect.waste.application.dto.Depotoir;
 import sn.smartwaste.collect.waste.application.service.DepotoirService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -30,7 +31,7 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{depotoirId}")
-    public Depotoir readDepotoir(@PathVariable("depotoirId") Long depotoirId){
+    public Depotoir readDepotoir(@PathVariable("depotoirId") UUID depotoirId){
         return depotoirService.readDepotoir(depotoirId);
     }
 
@@ -83,7 +84,7 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{depotoirId}")
-    public Depotoir  updateDepotoir(@PathVariable("depotoirId") Long depotoirId, @RequestBody() Depotoir depotoir) {
+    public Depotoir  updateDepotoir(@PathVariable("depotoirId") UUID depotoirId, @RequestBody() Depotoir depotoir) {
         return depotoirService.updateDepotoir(depotoirId, depotoir);
     }
 
@@ -96,7 +97,7 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{depotoirId}")
-    public String deleteDepotoir(@PathVariable("depotoirId") Long depotoirId) {
+    public String deleteDepotoir(@PathVariable("depotoirId") UUID depotoirId) {
         depotoirService.deleteDepotoir (depotoirId);
         return "Successfully soft-deleted";
     }
@@ -123,7 +124,7 @@ public class DepotoirController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/{depotoirId}/restore")
-    public Depotoir restoreDepotoir(@PathVariable("depotoirId") Long depotoirId) {
+    public Depotoir restoreDepotoir(@PathVariable("depotoirId") UUID depotoirId) {
         return depotoirService.restoreDepotoir(depotoirId);
     }
 

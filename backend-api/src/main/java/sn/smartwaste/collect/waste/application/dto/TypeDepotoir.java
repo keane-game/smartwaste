@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 
 @Getter
@@ -19,7 +20,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TypeDepotoir implements Serializable {
 
-    Long typeDepotoirId;
+    UUID typeDepotoirId;
 
     String name;
 

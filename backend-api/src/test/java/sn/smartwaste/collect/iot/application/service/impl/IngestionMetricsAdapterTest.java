@@ -42,10 +42,14 @@ class IngestionMetricsAdapterTest {
         return new IngestionMetricsAdapter(sensorRepository, measurementRepository);
     }
 
+    private static java.util.UUID uuid(long n) {
+        return java.util.UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     private static Sensor sensor(String code, long depotoirId, boolean active, Instant lastSeenAt) {
         var s = new Sensor();
         s.setDeviceCode(code);
-        s.setDepotoirId(depotoirId);
+        s.setDepotoirId(uuid(depotoirId));
         s.setActive(active);
         s.setLastSeenAt(lastSeenAt);
         return s;

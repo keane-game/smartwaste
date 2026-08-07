@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -39,7 +40,7 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     @Transactional
-    public Alert readAlert(Long alertId) {
+    public Alert readAlert(UUID alertId) {
         var alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Alert with id [%s] not found ".formatted(alertId)
@@ -110,7 +111,7 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     @Transactional
-    public Alert updateAlert(Long alertId, String alert, MultipartFile file) throws IOException {
+    public Alert updateAlert(UUID alertId, String alert, MultipartFile file) throws IOException {
         // Mapping object String to alert dto
         var alertMapper = mapper.readValue (alert, Alert.class);
 
@@ -136,7 +137,7 @@ public class AlertServiceImpl implements AlertService {
 
 
     @Override
-    public void deleteAlert(Long alertId) {
+    public void deleteAlert(UUID alertId) {
         var alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Alert with id [%s] not found ".formatted(alertId)

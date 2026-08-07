@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 class PerformanceReportServiceImplTest {
 
     private static final UUID COMMUNE = UUID.randomUUID();
+    private static final UUID CHRONIC_POINT = UUID.fromString("00000000-0000-0000-0000-000000000076");
     private static final Instant DEBUT = Instant.parse("2026-07-01T00:00:00Z");
     private static final Instant FIN = Instant.parse("2026-08-01T00:00:00Z");
 
@@ -93,7 +94,7 @@ class PerformanceReportServiceImplTest {
     @DisplayName("le CSV porte les indicateurs puis le tableau des points chroniques")
     void csvCarriesBothSections() {
         performanceReturns(source(List.of(
-                new CollectionPerformance.ProblemPoint(76L, "Zac Mbao", 5))));
+                new CollectionPerformance.ProblemPoint(CHRONIC_POINT, "Zac Mbao", 5))));
         communeIsNamed("mbao");
 
         String csv = service().asCsv(service().reportFor(COMMUNE, DEBUT, FIN));
@@ -101,7 +102,7 @@ class PerformanceReportServiceImplTest {
         assertThat(csv).contains("Points de collecte;24");
         assertThat(csv).contains("Points desservis;18");
         assertThat(csv).contains("depotoirId;adresse;debordements");
-        assertThat(csv).contains("76;Zac Mbao;5");
+        assertThat(csv).contains(CHRONIC_POINT + ";Zac Mbao;5");
     }
 
     @Test
@@ -110,14 +111,14 @@ class PerformanceReportServiceImplTest {
         // « Ecole; annexe » couperait la ligne en trois et decalerait toutes les colonnes
         // suivantes : le tableur afficherait un rapport faux sans le moindre avertissement.
         performanceReturns(source(List.of(
-                new CollectionPerformance.ProblemPoint(76L, "Ecole; annexe \"nord\"", 5))));
+                new CollectionPerformance.ProblemPoint(CHRONIC_POINT, "Ecole; annexe \"nord\"", 5))));
         communeIsNamed("mbao");
 
         String csv = service().asCsv(service().reportFor(COMMUNE, DEBUT, FIN));
 
         assertThat(csv).contains("\"Ecole; annexe \"\"nord\"\"\"");
         // La ligne du point conserve exactement trois colonnes.
-        String ligne = csv.lines().filter(l -> l.startsWith("76;")).findFirst().orElseThrow();
+        String ligne = csv.lines().filter(l -> l.startsWith(CHRONIC_POINT + ";")).findFirst().orElseThrow();
         assertThat(compterColonnes(ligne)).isEqualTo(3);
     }
 

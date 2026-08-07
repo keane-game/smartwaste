@@ -74,13 +74,13 @@ public class WasteReadModelAdapter implements WasteReadModel {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean collectionPointExists(Long depotoirId) {
+    public boolean collectionPointExists(java.util.UUID depotoirId) {
         return depotoirId != null && depotoirRepository.existsById(depotoirId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public java.util.Set<Long> existingCollectionPoints(java.util.Collection<Long> depotoirIds) {
+    public java.util.Set<java.util.UUID> existingCollectionPoints(java.util.Collection<java.util.UUID> depotoirIds) {
         var connus = depotoirIds.stream().filter(java.util.Objects::nonNull).distinct().toList();
         if (connus.isEmpty()) {
             return java.util.Set.of();
@@ -157,7 +157,7 @@ public class WasteReadModelAdapter implements WasteReadModel {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<PointEvent> pointEvents(Long depotoirId, java.time.Instant from,
+    public List<PointEvent> pointEvents(java.util.UUID depotoirId, java.time.Instant from,
                                         java.time.Instant to) {
         var events = new java.util.ArrayList<PointEvent>();
         var zone = java.time.ZoneId.systemDefault();

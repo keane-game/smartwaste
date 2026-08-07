@@ -2,6 +2,7 @@
 package sn.smartwaste.collect.waste.domain.model;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 // Le référentiel territorial a migré vers son module dédié : les types autrefois résolus
 // par appartenance au même package requièrent maintenant un import explicite.
@@ -10,10 +11,8 @@ import sn.smartwaste.collect.territory.domain.model.CoordinateEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
@@ -29,11 +28,13 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 import sn.smartwaste.collect.waste.domain.model.AlertCode;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
@@ -43,13 +44,13 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "ALERT")
-public class AlertEntity extends AbstractAuditingEntity<Long> {
+public class AlertEntity extends AbstractAuditingEntity<UUID> {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "AlertId")
-    Long alertId;
+    UUID alertId;
 
     @Column(name = "Object")
     String object;
@@ -70,7 +71,7 @@ public class AlertEntity extends AbstractAuditingEntity<Long> {
     // ne visent pas forcément un dépotoir. (Le remplissage automatique de ce champ par le
     // moteur de seuils relève de P0-6, module IoT réservé.)
     @Column(name = "depotoirId")
-    Long depotoirId;
+    UUID depotoirId;
 
     // Lot 1 / lot 2 du backlog : une alerte avait un debut et jamais de fin. « Ouverte » se lit
     // desormais `resolvedAt == null` — un capteur qui reemet, un point qui est vide, referment ce

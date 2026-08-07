@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.smartwaste.collect.waste.domain.model.CircuitCollectEntity;
 
+import java.util.UUID;
+
 @Repository
-public interface CircuitCollectRepository extends SoftDeleteRepository<CircuitCollectEntity, Long> {
+public interface CircuitCollectRepository extends SoftDeleteRepository<CircuitCollectEntity, UUID> {
 }

@@ -63,4 +63,8 @@ public class AwarenessMessage extends AbstractAuditingEntity<UUID> {
 
     @Column(name = "authorId")
     UUID authorId;
+
+    /** Campagne d'appartenance ; {@code null} = message ponctuel, hors campagne. */
+    @Column(name = "campaignId")
+    UUID campaignId;
 }

@@ -27,4 +27,10 @@
     <include file="config/liquibase/changelog/2.15.0_device_tokens.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.16.0_sensibilisation.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.17.0_permissions_metier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.18.0_typedepotoir_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.19.0_moblierurbain_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.20.0_circuits_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.21.0_superviseur_technicien_iot.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.22.0_depotoir_alert_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.23.0_awareness_campaigns_quiz.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

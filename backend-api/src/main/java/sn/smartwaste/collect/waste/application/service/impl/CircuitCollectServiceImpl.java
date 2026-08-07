@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.mapper.CircuitCollectMapper;
 import sn.smartwaste.collect.waste.application.service.CircuitCollectService;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
     private final CircuitCollectRepository circuitCollectRepository;
 
     @Override
-    public CircuitCollect readCircuitCollect(Long circuitCollectId) {
+    public CircuitCollect readCircuitCollect(UUID circuitCollectId) {
         var circuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitCollectId)
@@ -47,7 +48,7 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
 
     @Override
-    public CircuitCollect updateCircuitCollect(Long circuitCollectId, CircuitCollect circuitCollectDto) {
+    public CircuitCollect updateCircuitCollect(UUID circuitCollectId, CircuitCollect circuitCollectDto) {
 
         var existedCircuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -98,7 +99,7 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
 
     @Override
-    public void deleteCircuitCollect(Long circuitCollectId) {
+    public void deleteCircuitCollect(UUID circuitCollectId) {
         var circuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "CircuitCollect with id [%s] not found ".formatted(circuitCollectId)

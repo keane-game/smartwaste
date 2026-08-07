@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.service.TypeDepotoirService;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -21,7 +22,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
 
 
     @Override
-    public TypeDepotoir readTypeDepotoir(Long typeDepotoirId) {
+    public TypeDepotoir readTypeDepotoir(UUID typeDepotoirId) {
         var typeDepotoir  = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "TypeDepotoir with id [%s] not found ".formatted(typeDepotoirId)
@@ -46,7 +47,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
 
 
     @Override
-    public TypeDepotoir updateTypeDepotoir(Long typeDepotoirId, TypeDepotoir typeDepotoirDto) {
+    public TypeDepotoir updateTypeDepotoir(UUID typeDepotoirId, TypeDepotoir typeDepotoirDto) {
         var existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)
@@ -63,7 +64,7 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
 
 
     @Override
-    public void deleteTypeDepotoir(Long typeDepotoirId) {
+    public void deleteTypeDepotoir(UUID typeDepotoirId) {
         var existedtypeDepotoir = typeDepotoirRepository.findById(typeDepotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Type de depotoir with id [%s] not found to update ".formatted(typeDepotoirId)

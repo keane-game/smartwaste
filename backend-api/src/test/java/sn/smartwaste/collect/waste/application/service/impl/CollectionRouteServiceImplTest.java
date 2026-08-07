@@ -54,9 +54,14 @@ class CollectionRouteServiceImplTest {
                 Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650);
     }
 
-    private static DepotoirEntity point(long id, String address, Integer fill, Instant measuredAt) {
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles (`point(1, ...)`), l'entité est en UUID. */
+    private static UUID uuid(int n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
+    private static DepotoirEntity point(int id, String address, Integer fill, Instant measuredAt) {
         var d = new DepotoirEntity();
-        d.setDepotoirId(id);
+        d.setDepotoirId(uuid(id));
         d.setAddress(address);
         d.setFillLevelPercent(fill);
         d.setLastMeasuredAt(measuredAt);
@@ -84,7 +89,7 @@ class CollectionRouteServiceImplTest {
 
         // L'erreur naturelle serait de trier sur fillLevel en lisant null comme 0 : le point sans
         // capteur finirait dernier et ne serait JAMAIS collecte. L'angle mort grandirait tout seul.
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(1L, 2L, 3L, 4L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(1), uuid(2), uuid(3), uuid(4));
         assertThat(plan.get(1).priority()).isEqualTo(StopPriority.ETAT_INCONNU);
         assertThat(plan.get(1).reason()).contains("Jamais mesure");
     }
@@ -99,7 +104,7 @@ class CollectionRouteServiceImplTest {
 
         // Un niveau de 10 % date de 30 h ne dit rien de l'etat d'aujourd'hui : le croire reviendrait
         // a ignorer le point alors qu'il a pu deborder entre-temps.
-        assertThat(plan.get(0).depotoirId()).isEqualTo(1L);
+        assertThat(plan.get(0).depotoirId()).isEqualTo(uuid(1));
         assertThat(plan.get(0).priority()).isEqualTo(StopPriority.ETAT_INCONNU);
         assertThat(plan.get(1).priority()).isEqualTo(StopPriority.A_SURVEILLER);
     }
@@ -114,7 +119,7 @@ class CollectionRouteServiceImplTest {
 
         // Sans ce departage, le point a 95 % remesure en continu repasserait indefiniment devant
         // celui a 82 % qui attend depuis 20 h : famine, et outil abandonne.
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(2L, 1L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(2), uuid(1));
         assertThat(plan).allSatisfy(s -> assertThat(s.priority()).isEqualTo(StopPriority.DEBORDEMENT));
     }
 

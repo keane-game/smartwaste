@@ -54,7 +54,7 @@ public class Sensor extends AbstractAuditingEntity<UUID> {
 
     /** Point de collecte instrumenté (contexte « Déchets », référencé par identifiant). */
     @Column(name = "depotoirId", nullable = false)
-    Long depotoirId;
+    UUID depotoirId;
 
     /** Un capteur désactivé est refusé à l'ingestion sans être supprimé (remplacement, panne). */
     @Column(name = "active", nullable = false)

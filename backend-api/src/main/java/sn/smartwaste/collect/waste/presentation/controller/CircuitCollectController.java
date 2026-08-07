@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.dto.CircuitCollect;
 import sn.smartwaste.collect.waste.application.service.CircuitCollectService;
 
 import java.util.List;
+import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/v1/circuit-collects")
@@ -26,7 +27,7 @@ public class CircuitCollectController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{circuitCollectId}")
-    public CircuitCollect readCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId){
+    public CircuitCollect readCircuitCollect(@PathVariable("circuitCollectId") UUID circuitCollectId){
         return circuitCollectService.readCircuitCollect(circuitCollectId);
     }
 
@@ -63,7 +64,7 @@ public class CircuitCollectController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{circuitCollectId}")
-    public CircuitCollect  updateCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId, @RequestBody() CircuitCollect circuitCollectDto) {
+    public CircuitCollect  updateCircuitCollect(@PathVariable("circuitCollectId") UUID circuitCollectId, @RequestBody() CircuitCollect circuitCollectDto) {
         return circuitCollectService.updateCircuitCollect(circuitCollectId, circuitCollectDto);
 
     }
@@ -76,7 +77,7 @@ public class CircuitCollectController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{circuitCollectId}")
-    public String deleteOneCircuitCollect(@PathVariable("circuitCollectId") Long circuitCollectId) {
+    public String deleteOneCircuitCollect(@PathVariable("circuitCollectId") UUID circuitCollectId) {
         circuitCollectService.deleteCircuitCollect (circuitCollectId);
         return "Successfully delete";
     }

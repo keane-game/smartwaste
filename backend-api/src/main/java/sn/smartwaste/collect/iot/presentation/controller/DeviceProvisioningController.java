@@ -96,7 +96,7 @@ public class DeviceProvisioningController {
         provisioningService.deactivateVehicleTracker(trackerId);
     }
 
-    public record SensorEnrollment(String deviceCode, Long depotoirId) { }
+    public record SensorEnrollment(String deviceCode, UUID depotoirId) { }
 
     public record TrackerEnrollment(String deviceCode, UUID vehicleId) { }
 }

@@ -21,7 +21,13 @@ public interface AwarenessService {
      * @throws org.springframework.web.server.ResponseStatusException si le plafond de fréquence du
      *         territoire est déjà atteint
      */
-    AwarenessMessage schedule(String title, String body, UUID quartierId, Instant scheduledAt);
+    default AwarenessMessage schedule(String title, String body, UUID quartierId, Instant scheduledAt) {
+        return schedule(title, body, quartierId, scheduledAt, null);
+    }
+
+    /** Comme {@link #schedule(String, String, UUID, Instant)}, rattaché à une campagne. */
+    AwarenessMessage schedule(String title, String body, UUID quartierId, Instant scheduledAt,
+                              UUID campaignId);
 
     /** Diffuse les messages dont l'heure est venue. */
     void dispatchDue();

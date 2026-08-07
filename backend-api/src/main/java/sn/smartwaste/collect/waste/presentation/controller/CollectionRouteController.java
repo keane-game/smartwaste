@@ -70,7 +70,7 @@ public class CollectionRouteController {
     @PostMapping("/stops/{depotoirId}/collected")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize(DECLARER_PASSAGE)
-    public void markCollected(@PathVariable("depotoirId") Long depotoirId) {
+    public void markCollected(@PathVariable("depotoirId") UUID depotoirId) {
         passageService.markCollected(depotoirId);
     }
 
@@ -80,7 +80,7 @@ public class CollectionRouteController {
     @PostMapping("/stops/{depotoirId}/inaccessible")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize(DECLARER_PASSAGE)
-    public void markInaccessible(@PathVariable("depotoirId") Long depotoirId,
+    public void markInaccessible(@PathVariable("depotoirId") UUID depotoirId,
                                  @RequestBody(required = false) InaccessibleReason body) {
         passageService.markInaccessible(depotoirId, body == null ? null : body.reason());
     }

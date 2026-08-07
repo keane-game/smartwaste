@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.shared.domain.event;
 
+import java.util.UUID;
+
 /**
  * Événement de domaine : une alerte vient d'être levée (P2-1 / ADR-0007).
  *
@@ -45,7 +47,7 @@ public record AlertRaisedEvent(RaisedAlert alert, Source source) {
      *             le vocabulaire métier du contexte « Déchets », et la sérialisation Jackson
      *             produisait déjà exactement cette chaîne.
      */
-    public record RaisedAlert(Long alertId,
+    public record RaisedAlert(UUID alertId,
                               String object,
                               String message,
                               String address,

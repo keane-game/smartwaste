@@ -51,7 +51,7 @@ public class Measurement {
     UUID sensorId;
 
     @Column(name = "depotoirId", nullable = false)
-    Long depotoirId;
+    UUID depotoirId;
 
     /** Niveau de remplissage en pourcentage (0–100). */
     @Column(name = "fillLevelPercent")

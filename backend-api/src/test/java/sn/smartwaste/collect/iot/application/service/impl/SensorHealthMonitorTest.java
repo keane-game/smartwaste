@@ -56,7 +56,7 @@ class SensorHealthMonitorTest {
         var s = new Sensor();
         s.setSensorId(UUID.randomUUID());
         s.setDeviceCode("CAPTEUR-TEST");
-        s.setDepotoirId(42L);
+        s.setDepotoirId(UUID.randomUUID());
         s.setActive(active);
         s.setLastSeenAt(lastSeenAt);
         s.setSilenceReportedAt(silenceReportedAt);

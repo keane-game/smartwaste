@@ -12,7 +12,7 @@ import sn.smartwaste.collect.waste.domain.model.AlertThreshold;
 @Repository
 public interface AlertThresholdRepository extends JpaRepository<AlertThreshold, UUID> {
 
-    Optional<AlertThreshold> findByTypeDepotoirIdAndActiveTrue(Long typeDepotoirId);
+    Optional<AlertThreshold> findByTypeDepotoirIdAndActiveTrue(UUID typeDepotoirId);
 
     /** Seuil par défaut : celui qui ne vise aucun type en particulier. */
     Optional<AlertThreshold> findByTypeDepotoirIdIsNullAndActiveTrue();

@@ -77,7 +77,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
 
     @Override
     @Transactional
-    public void markCollected(Long depotoirId) {
+    public void markCollected(UUID depotoirId) {
         DepotoirEntity depotoir = require(depotoirId);
         requireTerritorialAccess(depotoir);
         Instant now = Instant.now(clock);
@@ -96,7 +96,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
 
     @Override
     @Transactional
-    public void markInaccessible(Long depotoirId, String reason) {
+    public void markInaccessible(UUID depotoirId, String reason) {
         requireTerritorialAccess(require(depotoirId));
         Instant now = Instant.now(clock);
         // Rien n'est vidé, rien n'est refermé : un obstacle n'est pas une collecte. Le point
@@ -142,7 +142,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
         return userDirectory.emailOf(agent).orElseGet(agent::toString);
     }
 
-    private void record(Long depotoirId, PassageOutcome outcome, String reason, Instant now) {
+    private void record(UUID depotoirId, PassageOutcome outcome, String reason, Instant now) {
         var passage = new CollectionPassage();
         passage.setDepotoirId(depotoirId);
         passage.setAgentId(currentUser());
@@ -173,7 +173,7 @@ public class CollectionPassageServiceImpl implements CollectionPassageService {
         accessGuard.requireAccessTo(depotoir.getCommuneId());
     }
 
-    private DepotoirEntity require(Long depotoirId) {
+    private DepotoirEntity require(UUID depotoirId) {
         return depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Point de collecte inconnu : " + depotoirId));

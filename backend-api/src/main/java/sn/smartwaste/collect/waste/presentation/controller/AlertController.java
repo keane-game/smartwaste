@@ -31,6 +31,7 @@ import sn.smartwaste.collect.waste.application.service.AlertService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class AlertController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{alertId}")
-    public Alert readAlert(@PathVariable("alertId") Long alertId){
+    public Alert readAlert(@PathVariable("alertId") UUID alertId){
         return alertService.readAlert(alertId);
     }
 
@@ -146,7 +147,7 @@ public class AlertController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{alertId}",  consumes = {"multipart/form-data", "application/octet-stream", "application/json"})
-    public Alert updateAlert(@PathVariable("alertId") Long alertId, @RequestParam("alert") String alert, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+    public Alert updateAlert(@PathVariable("alertId") UUID alertId, @RequestParam("alert") String alert, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         return alertService.updateAlert(alertId, alert, file);
     }
 
@@ -158,7 +159,7 @@ public class AlertController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{alertId}")
-    public String deleteAlert(@PathVariable("alertId") Long alertId) {
+    public String deleteAlert(@PathVariable("alertId") UUID alertId) {
         alertService.deleteAlert(alertId);
         return "Successfully delete";
     }

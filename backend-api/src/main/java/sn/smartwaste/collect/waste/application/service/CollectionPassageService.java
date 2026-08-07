@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.waste.application.service;
 
+import java.util.UUID;
+
 /**
  * Déclaration des passages d'agent sur les points de collecte (G1 du backlog).
  *
@@ -9,10 +11,10 @@ package sn.smartwaste.collect.waste.application.service;
 public interface CollectionPassageService {
 
     /** Le point a été vidé : niveau remis à zéro, alertes de collecte refermées. */
-    void markCollected(Long depotoirId);
+    void markCollected(UUID depotoirId);
 
     /** Le point n'a pas pu être desservi : rien n'est vidé, rien n'est refermé, le motif est gardé. */
-    void markInaccessible(Long depotoirId, String reason);
+    void markInaccessible(UUID depotoirId, String reason);
 
     /**
      * Avancement de la tournée du jour sur une commune.

@@ -8,9 +8,10 @@ import sn.smartwaste.collect.territory.domain.model.CommuneEntity;
 import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface DepotoirRepository extends SoftDeleteRepository<DepotoirEntity, Long> {
+public interface DepotoirRepository extends SoftDeleteRepository<DepotoirEntity, UUID> {
 
     List<DepotoirEntity> findByTypeDepotoir_NameContainingIgnoreCase(String name);
 

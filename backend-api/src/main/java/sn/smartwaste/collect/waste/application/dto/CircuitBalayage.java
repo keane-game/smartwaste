@@ -26,7 +26,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CircuitBalayage implements Serializable {
 
-    Long circuitbalayageId;
+    UUID circuitbalayageId;
 
     String name;
 

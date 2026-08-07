@@ -31,7 +31,7 @@ public interface WasteReadModel {
      * pointer vers le vide — en silence, puisque la mesure est acceptée et seulement ignorée à la
      * projection.
      */
-    boolean collectionPointExists(Long depotoirId);
+    boolean collectionPointExists(UUID depotoirId);
 
     /**
      * Parmi ces identifiants, ceux qui désignent un point de collecte existant.
@@ -41,7 +41,7 @@ public interface WasteReadModel {
      * autant de requêtes que d'équipements dès que le parc sera instrumenté — le même défaut que
      * celui corrigé pour les contours de communes, et réintroduit ici.
      */
-    java.util.Set<Long> existingCollectionPoints(java.util.Collection<Long> depotoirIds);
+    java.util.Set<UUID> existingCollectionPoints(java.util.Collection<UUID> depotoirIds);
 
     /**
      * Ce qui est arrivé à un point de collecte : alertes levées ou refermées, passages d'agent (G8).
@@ -50,7 +50,7 @@ public interface WasteReadModel {
      * ses propres événements plutôt que d'exposer alertes et passages : l'appelant compose un
      * journal, il n'a pas à connaître deux modèles.
      */
-    List<PointEvent> pointEvents(Long depotoirId, java.time.Instant from, java.time.Instant to);
+    List<PointEvent> pointEvents(UUID depotoirId, java.time.Instant from, java.time.Instant to);
 
     /**
      * Un fait daté concernant le point.

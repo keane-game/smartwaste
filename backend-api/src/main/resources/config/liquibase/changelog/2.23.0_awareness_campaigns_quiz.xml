@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      G3 (suite) — campagnes et quiz de sensibilisation.
+
+      Le message unique (2.16.0) existe et fonctionne ; ce qui manquait pour repondre a la demande
+      du memoire etait de pouvoir grouper plusieurs messages ET un quiz sous un theme commun, et
+      d'offrir un format ou le citoyen repond plutot que lit passivement.
+
+      NON destructeur : trois tables ajoutees, une colonne ajoutee sur awarenessmessage (existant).
+    -->
+
+    <changeSet author="claude" id="2.23.0-1-awarenesscampaign">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="awarenesscampaign"/></not>
+        </preConditions>
+        <comment>Regroupe messages et quiz sous un theme commun.</comment>
+        <createTable tableName="awarenesscampaign">
+            <column name="campaignid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_awarenesscampaign"/>
+            </column>
+            <column name="name" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="startdate" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <!-- NULL = campagne ouverte, sans cloture prevue. -->
+            <column name="enddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorid" type="uuid"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_awarenesscampaign_active" tableName="awarenesscampaign">
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.23.0-2-quiz">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="quiz"/></not>
+        </preConditions>
+        <comment>Quiz de sensibilisation, rattache ou non a une campagne.</comment>
+        <createTable tableName="quiz">
+            <column name="quizid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_quiz"/>
+            </column>
+            <!-- Reference par identifiant, intra-contexte (platform -> platform) : pas de FK,
+                 par coherence avec le reste des references de ce module. -->
+            <column name="campaignid" type="uuid"/>
+            <column name="title" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorid" type="uuid"/>
+            <column name="createdby" type="VARCHAR(50)"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="lastmodifiedby" type="VARCHAR(50)"/>
+            <column name="lastmodifieddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueBoolean="false" name="archived" type="BOOLEAN"/>
+            <column name="deletionstatus" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletionrequestedat" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex indexName="idx_quiz_active" tableName="quiz">
+            <column name="active"/>
+        </createIndex>
+        <createIndex indexName="idx_quiz_campaignid" tableName="quiz">
+            <column name="campaignid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.23.0-3-quizquestion">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="quizquestion"/></not>
+        </preConditions>
+        <comment>Question a choix unique d'un quiz. N'existe pas hors de son quiz.</comment>
+        <createTable tableName="quizquestion">
+            <column name="questionid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_quizquestion"/>
+            </column>
+            <column name="quizid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="questiontext" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="optiona" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="optionb" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="optionc" type="VARCHAR(255)"/>
+            <column name="optiond" type="VARCHAR(255)"/>
+            <!-- 'A'..'D' : jamais rendue au citoyen avant reponse (cf. QuizController). -->
+            <column name="correctoption" type="VARCHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="displayorder" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_quizquestion_quizid" tableName="quizquestion">
+            <column name="quizid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.23.0-4-quizresponse">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="quizresponse"/></not>
+        </preConditions>
+        <comment>Une tentative par citoyen et par quiz — jamais deux.</comment>
+        <createTable tableName="quizresponse">
+            <column name="responseid" type="uuid">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_quizresponse"/>
+            </column>
+            <column name="quizid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Reference par identifiant vers « Identite & Acces » (ADR-0012) : pas de FK traversante. -->
+            <column name="userid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="score" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="totalquestions" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="respondedat" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="quizresponse" columnNames="quizid, userid"
+                             constraintName="uk_quizresponse_quiz_user"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.23.0-5-awarenessmessage-campaignid">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="awarenessmessage" columnName="campaignid"/></not>
+        </preConditions>
+        <comment>Rattachement optionnel d'un message a une campagne.</comment>
+        <addColumn tableName="awarenessmessage">
+            <column name="campaignid" type="uuid"/>
+        </addColumn>
+        <createIndex indexName="idx_awarenessmessage_campaignid" tableName="awarenessmessage">
+            <column name="campaignid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

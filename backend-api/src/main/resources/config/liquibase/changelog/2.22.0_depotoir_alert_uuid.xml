@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0012 — dernière étape : Depotoir et Alert migrés en UUID v7, même série que
+      2.18.0/2.19.0/2.20.0. C'est la migration la plus large du lot : Depotoir est l'entité la
+      plus référencée du système (capteurs, mesures, passages, alertes, seuils par type).
+
+      ⚠️⚠️ DESTRUCTEUR, PLUS LARGEMENT QUE LES PRÉCÉDENTES — à lire avant d'appliquer sur une base
+      qui contient déjà des données (la CI, elle, part d'une base vierge : no-op) :
+
+      - `depotoir` : purgé, réimportable (WasteImportAdapter, GeoJSON depotoir/depotoir2).
+      - `sensor`, `measurement`, `collectionpassage` : leur colonne `depotoirid` est NOT NULL
+        (contrainte d'entité). Une fois les identifiants de `depotoir` changés, aucune valeur
+        existante n'est plus valide — on ne peut ni la garder à NULL (contrainte), ni la deviner.
+        Ces trois tables sont donc purgées intégralement, pas seulement leur colonne de référence.
+        C'est la MÊME situation que celle déjà documentée pour un réimport GeoJSON ordinaire
+        (« un réimport du référentiel rendait tous les capteurs muets », 2026-08-04) : un
+        changement d'identifiant de point de collecte a toujours orphelinisé capteurs et mesures.
+        Ici, tous les points changent d'un coup. **Les capteurs devront être ré-enrôlés** après
+        réimport du référentiel (POST /v1/devices/sensors) ; l'historique de mesures et de passages
+        n'est PAS reconstituable.
+      - `alert` : purgée (PK propre convertie ; `depotoirid` y est nullable, mais l'alerte
+        elle-même perd son identité BIGINT). Aucune alerte, manuelle ou automatique, ne survit.
+
+      Aucune de ces quatre tables n'a de contrainte FK physique sur `depotoirid` (ADR-0012,
+      référence par identifiant) : rien à casser côté contraintes, seulement les colonnes à retyper.
+    -->
+
+    <changeSet author="claude" id="2.22.0-1-purge-referencing-tables">
+        <comment>⚠️ Destructeur : purge sensor/measurement/collectionpassage/alert avant le changement de type de depotoir.depotoirid qu'ils référencent tous.</comment>
+        <delete tableName="measurement"/>
+        <delete tableName="sensor"/>
+        <delete tableName="collectionpassage"/>
+        <delete tableName="alert"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.22.0-2-purge-depotoir">
+        <comment>⚠️ Destructeur : vide depotoir — recréé par réimport GeoJSON (POST /v1/admin/import/geojson).</comment>
+        <delete tableName="depotoir"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.22.0-3-pk-uuid-depotoir">
+        <comment>PK Depotoir en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="depotoir"/>
+        <dropColumn tableName="depotoir" columnName="depotoirid"/>
+        <addColumn tableName="depotoir">
+            <column name="depotoirid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="depotoir" columnName="depotoirid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="depotoir" columnNames="depotoirid" constraintName="pk_depotoir"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.22.0-4-pk-uuid-alert">
+        <comment>PK Alert en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="alert"/>
+        <dropColumn tableName="alert" columnName="alertid"/>
+        <addColumn tableName="alert">
+            <column name="alertid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="alert" columnName="alertid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="alert" columnNames="alertid" constraintName="pk_alert"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.22.0-5-fk-columns-uuid">
+        <comment>Colonnes referencant Depotoir par identifiant, sans FK physique (ADR-0012).</comment>
+        <dropColumn tableName="alert" columnName="depotoirid"/>
+        <addColumn tableName="alert"><column name="depotoirid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="sensor" columnName="depotoirid"/>
+        <addColumn tableName="sensor"><column name="depotoirid" type="uuid"/></addColumn>
+        <addNotNullConstraint tableName="sensor" columnName="depotoirid" columnDataType="uuid"/>
+
+        <dropColumn tableName="measurement" columnName="depotoirid"/>
+        <addColumn tableName="measurement"><column name="depotoirid" type="uuid"/></addColumn>
+        <addNotNullConstraint tableName="measurement" columnName="depotoirid" columnDataType="uuid"/>
+
+        <dropColumn tableName="collectionpassage" columnName="depotoirid"/>
+        <addColumn tableName="collectionpassage"><column name="depotoirid" type="uuid"/></addColumn>
+        <addNotNullConstraint tableName="collectionpassage" columnName="depotoirid" columnDataType="uuid"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.22.0-6-indexes">
+        <comment>Index perdus au drop de colonne (crees en 1.5.0/2.4.0/2.12.0/2.13.0 sur les anciennes colonnes BIGINT).</comment>
+        <createIndex indexName="idx_alert_depotoirid" tableName="alert">
+            <column name="depotoirid"/>
+        </createIndex>
+        <createIndex indexName="idx_sensor_depotoirid" tableName="sensor">
+            <column name="depotoirid"/>
+        </createIndex>
+        <createIndex indexName="idx_measurement_depotoir_measuredat" tableName="measurement">
+            <column name="depotoirid"/>
+            <column name="measuredat"/>
+        </createIndex>
+        <createIndex indexName="idx_passage_depotoir_date" tableName="collectionpassage">
+            <column name="depotoirid"/>
+            <column name="occurredat"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

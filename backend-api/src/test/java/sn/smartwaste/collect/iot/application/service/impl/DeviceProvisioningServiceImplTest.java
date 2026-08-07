@@ -45,6 +45,11 @@ class DeviceProvisioningServiceImplTest {
 
     private static final UUID SENSOR_ID = UUID.randomUUID();
 
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles, les entités sont en UUID. */
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     @Mock
     private SensorRepository sensorRepository;
     @Mock
@@ -78,7 +83,7 @@ class DeviceProvisioningServiceImplTest {
     void enrollmentGeneratesKeyAndStoresOnlyItsHash() {
         sensorSavesEcho();
 
-        var provisioned = service.enrollSensor("ESP-001", 42L);
+        var provisioned = service.enrollSensor("ESP-001", uuid(42));
 
         assertThat(provisioned.apiKey()).isNotBlank();
         // 256 bits en base64url sans padding : 43 caracteres. Une cle courte serait devinable
@@ -89,7 +94,7 @@ class DeviceProvisioningServiceImplTest {
         assertThat(saved.getApiKeyHash()).isEqualTo(DeviceApiKeys.hash(provisioned.apiKey()));
         // La cle en clair ne doit exister QUE dans la reponse.
         assertThat(saved.getApiKeyHash()).isNotEqualTo(provisioned.apiKey());
-        assertThat(saved.getDepotoirId()).isEqualTo(42L);
+        assertThat(saved.getDepotoirId()).isEqualTo(uuid(42));
         assertThat(saved.isActive()).isTrue();
     }
 
@@ -98,8 +103,8 @@ class DeviceProvisioningServiceImplTest {
     void keysAreNotPredictable() {
         sensorSavesEcho();
 
-        assertThat(service.enrollSensor("ESP-001", 1L).apiKey())
-                .isNotEqualTo(service.enrollSensor("ESP-002", 2L).apiKey());
+        assertThat(service.enrollSensor("ESP-001", uuid(1)).apiKey())
+                .isNotEqualTo(service.enrollSensor("ESP-002", uuid(2)).apiKey());
     }
 
     @Test
@@ -126,13 +131,13 @@ class DeviceProvisioningServiceImplTest {
     @Test
     @DisplayName("un code d'équipement déjà pris est refusé")
     void duplicateDeviceCodeIsRejected() {
-        when(waste.collectionPointExists(1L)).thenReturn(true);
+        when(waste.collectionPointExists(uuid(1))).thenReturn(true);
         when(sensorRepository.findByDeviceCode("ESP-001")).thenReturn(Optional.of(new Sensor()));
 
         // Le motif est verifie, pas seulement le type : sans cela le cas passait au vert alors que
         // le controle d'unicite n'etait meme plus atteint — la verification d'existence du point,
         // ajoutee en amont, echouait la premiere sur un mock non stube.
-        assertThatThrownBy(() -> service.enrollSensor("ESP-001", 1L))
+        assertThatThrownBy(() -> service.enrollSensor("ESP-001", uuid(1)))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("porte deja le code");
         verify(sensorRepository, never()).save(any());
@@ -141,7 +146,7 @@ class DeviceProvisioningServiceImplTest {
     @Test
     @DisplayName("code ou cible manquants : refus, aucun équipement fantôme")
     void missingFieldsAreRejected() {
-        assertThatThrownBy(() -> service.enrollSensor("  ", 1L)).isInstanceOf(ResponseStatusException.class);
+        assertThatThrownBy(() -> service.enrollSensor("  ", uuid(1))).isInstanceOf(ResponseStatusException.class);
         assertThatThrownBy(() -> service.enrollSensor("ESP-001", null)).isInstanceOf(ResponseStatusException.class);
         assertThatThrownBy(() -> service.enrollVehicleTracker("GPS-1", null))
                 .isInstanceOf(ResponseStatusException.class);
@@ -155,7 +160,7 @@ class DeviceProvisioningServiceImplTest {
         var sensor = new Sensor();
         sensor.setSensorId(SENSOR_ID);
         sensor.setDeviceCode("ESP-001");
-        sensor.setDepotoirId(42L);
+        sensor.setDepotoirId(uuid(42));
         sensor.setApiKeyHash(DeviceApiKeys.hash("secret"));
         when(sensorRepository.findAll()).thenReturn(java.util.List.of(sensor));
 

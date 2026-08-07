@@ -108,6 +108,11 @@ class AdministrationAuthorizationTest {
                 .andExpect(status().isForbidden());
         mockMvc.perform(post("/v1/typedepotoirs").with(csrf()).contentType("application/json").content("{}"))
                 .andExpect(status().isForbidden());
+        // Creer une campagne ou un quiz reste reserve a l'administration, comme un message isole.
+        mockMvc.perform(post("/v1/awareness/campaigns").with(csrf()).contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/v1/quizzes").with(csrf()).contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
     }
 
     // ------------------------------------------------------ ce qui doit rester accessible
@@ -131,6 +136,10 @@ class AdministrationAuthorizationTest {
                 .contentType("application/json").content("{\"quartierId\":null}"));
         assertNotForbidden(post("/avis").with(csrf())
                 .contentType("application/json").content("{\"message\":\"Depot sauvage\"}"));
+        // Meme risque que pour /avis et /v1/collection-subscriptions : POST /v1/** est ferme par
+        // defaut, et repondre a un quiz est un geste d'habitant qui doit passer malgre tout.
+        assertNotForbidden(post("/v1/quizzes/00000000-0000-0000-0000-000000000001/answers")
+                .with(csrf()).contentType("application/json").content("[]"));
     }
 
     @Test
@@ -167,8 +176,8 @@ class AdministrationAuthorizationTest {
         // « POST /v1/** reserve a l'administration » le refusait — sur sa propre commune. Aucun
         // test unitaire ne pouvait le voir : le service et son annotation etaient justes, c'est
         // l'ordre des deux mecanismes qui ne l'etait pas.
-        assertNotForbidden(post("/v1/collection-routes/stops/1/collected").with(csrf()));
-        assertNotForbidden(post("/v1/collection-routes/stops/1/inaccessible").with(csrf())
+        assertNotForbidden(post("/v1/collection-routes/stops/00000000-0000-0000-0000-000000000001/collected").with(csrf()));
+        assertNotForbidden(post("/v1/collection-routes/stops/00000000-0000-0000-0000-000000000001/inaccessible").with(csrf())
                 .contentType("application/json").content("{\"reason\":\"voie barree\"}"));
     }
 
@@ -180,7 +189,7 @@ class AdministrationAuthorizationTest {
         // roles figee dans le code. Elle se lit desormais dans les permissions du role, que
         // l'administration modifie en base : retirer DECLARE_COLLECTION suffit a retirer le droit,
         // sans livraison.
-        mockMvc.perform(post("/v1/collection-routes/stops/1/collected").with(csrf()))
+        mockMvc.perform(post("/v1/collection-routes/stops/00000000-0000-0000-0000-000000000001/collected").with(csrf()))
                 .andExpect(status().isForbidden());
         mockMvc.perform(get("/v1/collection-routes").param("communeId",
                         "00000000-0000-0000-0000-000000000001"))
@@ -220,6 +229,31 @@ class AdministrationAuthorizationTest {
         mockMvc.perform(get("/v1/users/s")).andExpect(status().isOk());
         assertNotForbidden(post("/v1/depotoirs").with(csrf())
                 .contentType("application/json").content("{}"));
+    }
+
+    @Test
+    @WithMockUser(roles = "SUPERVISEUR")
+    @DisplayName("le superviseur lit la supervision mais n'administre pas")
+    void supervisorReadsSupervisionButNotAdministration() throws Exception {
+        // 2.21.0 : ouvert pour VIEW_SUPERVISION, sans lui donner /v1/users, /v1/authorities ni
+        // /v1/admin — ce bloc reste réservé à ADMIN/SUPER_ADMIN (voir le matcher juste au-dessus).
+        mockMvc.perform(get("/v1/supervision/stats")).andExpect(status().isOk());
+        mockMvc.perform(get("/v1/users/s")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/v1/admin/import/geojson")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_TECHNICIEN_IOT", "MANAGE_DEVICES"})
+    @DisplayName("le technicien IoT enrôle un capteur mais n'administre pas le référentiel")
+    void iotTechnicianManagesDevicesButNotTheReferential() throws Exception {
+        // 2.21.0 : la règle générale « POST /v1/** réservée à l'administration » l'aurait exclu
+        // avant même d'atteindre le `@PreAuthorize(MANAGE_DEVICES)` du contrôleur — même défaut
+        // que celui documenté plus haut pour l'agent de collecte (l'ordre filtre/méthode compte).
+        assertNotForbidden(post("/v1/devices/sensors").with(csrf())
+                .contentType("application/json").content("{}"));
+        mockMvc.perform(post("/v1/depotoirs").with(csrf())
+                        .contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
     }
 
     /**

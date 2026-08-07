@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
 import sn.smartwaste.collect.waste.domain.repository.AlertThresholdRepository;
 
+import java.util.UUID;
+
 /**
  * Détermine les seuils applicables à un point de collecte.
  *
@@ -30,7 +32,7 @@ public class ThresholdResolver {
 
     @Transactional(readOnly = true)
     public EffectiveThresholds resolve(DepotoirEntity depotoir) {
-        Long typeId = depotoir.getTypeDepotoir() == null ? null : depotoir.getTypeDepotoir().getTypeDepotoirId();
+        UUID typeId = depotoir.getTypeDepotoir() == null ? null : depotoir.getTypeDepotoir().getTypeDepotoirId();
 
         var configured = typeId == null
                 ? thresholdRepository.findByTypeDepotoirIdIsNullAndActiveTrue()

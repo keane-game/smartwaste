@@ -75,7 +75,7 @@ class CollectionRouteGeographyTest {
 
         var plan = service().planForCommune(COMMUNE);
 
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(1L, 3L, 2L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(1), uuid(3), uuid(2));
     }
 
     @Test
@@ -88,7 +88,7 @@ class CollectionRouteGeographyTest {
 
         var plan = service().planForCommune(COMMUNE);
 
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(2L, 1L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(2), uuid(1));
     }
 
     @Test
@@ -105,7 +105,7 @@ class CollectionRouteGeographyTest {
 
         var plan = service().planForCommune(COMMUNE);
 
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(2L, 1L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(2), uuid(1));
     }
 
     @Test
@@ -124,7 +124,7 @@ class CollectionRouteGeographyTest {
 
         var plan = service().planForCommune(COMMUNE);
 
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(1L, 3L, 2L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(1), uuid(3), uuid(2));
     }
 
     @Test
@@ -137,7 +137,7 @@ class CollectionRouteGeographyTest {
 
         var plan = service().planForCommune(COMMUNE);
 
-        assertThat(plan).extracting(RouteStop::depotoirId).containsExactlyInAnyOrder(1L, 2L);
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactlyInAnyOrder(uuid(1), uuid(2));
     }
 
     @Test
@@ -165,10 +165,15 @@ class CollectionRouteGeographyTest {
         return d;
     }
 
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles (`point(1L, ...)`), l'entité est en UUID. */
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     private static DepotoirEntity sansPosition(long id, String address, Integer fill,
                                                Instant measuredAt) {
         var d = new DepotoirEntity();
-        d.setDepotoirId(id);
+        d.setDepotoirId(uuid(id));
         d.setAddress(address);
         d.setFillLevelPercent(fill);
         d.setLastMeasuredAt(measuredAt);

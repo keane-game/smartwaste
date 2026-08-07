@@ -37,7 +37,7 @@ public interface CollectionRouteService {
      * @param reason           pourquoi ce point est là — un ordre qu'on ne peut pas expliquer
      *                         n'est pas suivi sur le terrain
      */
-    record RouteStop(Long depotoirId, String address, String typeName,
+    record RouteStop(UUID depotoirId, String address, String typeName,
                      StopPriority priority, Integer fillLevelPercent,
                      Instant lastMeasuredAt, String reason,
                      Double latitude, Double longitude) { }

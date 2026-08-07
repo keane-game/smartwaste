@@ -6,21 +6,22 @@ import sn.smartwaste.collect.waste.application.dto.Depotoir;
 import sn.smartwaste.collect.waste.application.api.DepotoirMaps;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface DepotoirService {
-    Depotoir readDepotoir(Long depotoirId);
+    Depotoir readDepotoir(UUID depotoirId);
 
     List<Depotoir> readAllDepotoir();
 
     Depotoir createDepotoir(Depotoir depotoir);
 
-    Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir);
+    Depotoir updateDepotoir(UUID depotoirId, Depotoir depotoir);
 
     /** Suppression logique (soft-delete) : passe en attente de suppression (purge après rétention). */
-    void deleteDepotoir(Long depotoirId);
+    void deleteDepotoir(UUID depotoirId);
 
     /** Restaure un dépotoir en attente de suppression (si le délai de rétention n'est pas dépassé). */
-    Depotoir restoreDepotoir(Long depotoirId);
+    Depotoir restoreDepotoir(UUID depotoirId);
 
     /** Liste des dépotoirs en attente de suppression (avec date de purge prévue). */
     List<Depotoir> readPendingDeletions();

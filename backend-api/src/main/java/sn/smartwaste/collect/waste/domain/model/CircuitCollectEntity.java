@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.waste.domain.model;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -33,12 +35,12 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "CIRCUITCOLLECT")
-public class CircuitCollectEntity extends AbstractAuditingEntity<Long> {
+public class CircuitCollectEntity extends AbstractAuditingEntity<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "CircuitcollectId")
-    Long circuitcollectId;
+    UUID circuitcollectId;
 
     @Column(name = "Name")
     String Name;

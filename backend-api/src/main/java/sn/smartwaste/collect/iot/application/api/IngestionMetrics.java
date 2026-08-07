@@ -2,6 +2,7 @@ package sn.smartwaste.collect.iot.application.api;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Santé de la chaîne d'ingestion, à destination des rapports de supervision.
@@ -35,7 +36,7 @@ public interface IngestionMetrics {
      * <p>Publié pour le journal d'un point : c'est la moitié de son histoire, l'autre venant du
      * contexte « Déchets » (alertes et passages). Aucune entité ne franchit la frontière.
      */
-    List<RecordedMeasurement> measurementsFor(Long depotoirId, Instant from, Instant to);
+    List<RecordedMeasurement> measurementsFor(UUID depotoirId, Instant from, Instant to);
 
     /** Une mesure, réduite à ce qu'un journal affiche. */
     record RecordedMeasurement(Instant measuredAt, Integer fillLevelPercent,
@@ -43,5 +44,5 @@ public interface IngestionMetrics {
                                String source) { }
 
     /** @param lastSeenAt {@code null} si le capteur n'a jamais émis depuis son enrôlement */
-    record SilentSensor(String deviceCode, Long depotoirId, Instant lastSeenAt) { }
+    record SilentSensor(String deviceCode, UUID depotoirId, Instant lastSeenAt) { }
 }

@@ -65,16 +65,21 @@ class CollectionPerformanceAdapterTest {
                 passageRepository);
     }
 
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles, les entités sont en UUID. */
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     private DepotoirEntity point(long id, String address) {
         var d = new DepotoirEntity();
-        d.setDepotoirId(id);
+        d.setDepotoirId(uuid(id));
         d.setAddress(address);
         return d;
     }
 
     private AlertEntity alert(long depotoirId, String object, String raisedAt, String resolvedAt) {
         var a = new AlertEntity();
-        a.setDepotoirId(depotoirId);
+        a.setDepotoirId(uuid(depotoirId));
         a.setObject(object);
         a.setCreatedDate(LocalDateTime.parse(raisedAt));
         if (resolvedAt != null) {
@@ -85,7 +90,7 @@ class CollectionPerformanceAdapterTest {
 
     private CollectionPassage passage(long depotoirId, PassageOutcome outcome) {
         var p = new CollectionPassage();
-        p.setDepotoirId(depotoirId);
+        p.setDepotoirId(uuid(depotoirId));
         p.setOutcome(outcome);
         p.setOccurredAt(DEBUT.plusSeconds(3600));
         return p;
@@ -180,7 +185,7 @@ class CollectionPerformanceAdapterTest {
         var report = adapter().reportFor(COMMUNE, DEBUT, FIN);
 
         assertThat(report.chronicPoints()).hasSize(2);
-        assertThat(report.chronicPoints().getFirst().depotoirId()).isEqualTo(2L);
+        assertThat(report.chronicPoints().getFirst().depotoirId()).isEqualTo(uuid(2));
         assertThat(report.chronicPoints().getFirst().address()).isEqualTo("Marche");
         assertThat(report.chronicPoints().getFirst().overflowCount()).isEqualTo(3);
     }

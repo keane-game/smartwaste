@@ -9,6 +9,7 @@ import sn.smartwaste.collect.waste.domain.repository.MoblierUrbainRepository;
 import sn.smartwaste.collect.waste.application.service.MoblierUrbainService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -18,7 +19,7 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
 
     @Override
-    public MoblierUrbain readMoblierUrbain(Long moblierUrbainId) {
+    public MoblierUrbain readMoblierUrbain(UUID moblierUrbainId) {
         var moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found ".formatted(moblierUrbainId)
@@ -43,7 +44,7 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
 
     @Override
-    public MoblierUrbain updateMoblierUrbain(Long moblierUrbainId, MoblierUrbain moblierUrbain) {
+    public MoblierUrbain updateMoblierUrbain(UUID moblierUrbainId, MoblierUrbain moblierUrbain) {
         var existedMoblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found to update ".formatted(moblierUrbainId)
@@ -60,7 +61,7 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
 
     @Override
-    public void deleteMoblierUrbain(Long moblierUrbainId) {
+    public void deleteMoblierUrbain(UUID moblierUrbainId) {
         var moblierUrbain = moblierUrbainRepository.findById(moblierUrbainId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "MoblierUrbain with id [%s] not found ".formatted(moblierUrbainId)

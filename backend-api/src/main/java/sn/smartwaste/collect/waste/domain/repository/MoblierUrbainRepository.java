@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.smartwaste.collect.waste.domain.model.MoblierUrbainEntity;
 
+import java.util.UUID;
+
 @Repository
-public interface MoblierUrbainRepository extends SoftDeleteRepository<MoblierUrbainEntity, Long> {
+public interface MoblierUrbainRepository extends SoftDeleteRepository<MoblierUrbainEntity, UUID> {
 }

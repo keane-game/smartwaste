@@ -3,6 +3,7 @@ package sn.smartwaste.collect.analytics.presentation.controller;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,7 +50,7 @@ public class PointJournalController {
                     alertes et passages qui l'ont concerne. Sans periode, le mois ecoule.""")
     @GetMapping("/{depotoirId}/journal")
     public PointJournal journal(
-            @PathVariable("depotoirId") Long depotoirId,
+            @PathVariable("depotoirId") UUID depotoirId,
             @Parameter(description = "Debut de periode (ISO-8601) ; defaut : il y a 30 jours")
             @RequestParam(value = "from", required = false) Instant from,
             @Parameter(description = "Fin de periode (ISO-8601) ; defaut : maintenant")

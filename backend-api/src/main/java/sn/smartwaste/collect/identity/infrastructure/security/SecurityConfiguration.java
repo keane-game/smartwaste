@@ -157,8 +157,12 @@ public class SecurityConfiguration{
                                                 .requestMatchers("/v1/users*", "/v1/users/**",
                                                                  "/v1/authorities*", "/v1/authorities/**",
                                                                  "/v1/deletions", "/v1/deletions/**",
-                                                                 "/v1/admin/**",
-                                                                 "/v1/supervision/**").hasAnyRole(ADMINISTRATION)
+                                                                 "/v1/admin/**").hasAnyRole(ADMINISTRATION)
+                                                // Stats/rapports/journal : le superviseur de circuit les lit
+                                                // aussi (VIEW_SUPERVISION), séparé du bloc ci-dessus pour ne
+                                                // pas lui ouvrir /v1/users, /v1/authorities ou /v1/admin.
+                                                .requestMatchers("/v1/supervision/**")
+                                                        .hasAnyRole("SUPERVISEUR", "ADMIN", "SUPER_ADMIN")
                                                 // Le flux SSE diffuse toutes les alertes de la ville.
                                                 .requestMatchers(GET, "/v1/alerts/stream").hasAnyRole(ADMINISTRATION)
 
@@ -176,6 +180,9 @@ public class SecurityConfiguration{
                                                 // jeton, jamais du corps de la requete.
                                                 .requestMatchers(POST, "/v1/device-tokens").authenticated()
                                                 .requestMatchers(DELETE, "/v1/device-tokens").authenticated()
+                                                // Repondre a un quiz est un geste d'habitant au meme titre :
+                                                // ecriture sous /v1, nommee avant le refus general.
+                                                .requestMatchers(POST, "/v1/quizzes/*/answers").authenticated()
                                                 .requestMatchers(POST, "/data/**").hasAnyRole(ADMINISTRATION)
                                                 // L'agent de collecte déclare ses passages : deux
                                                 // écritures, nommées une par une, AVANT la règle
@@ -197,6 +204,13 @@ public class SecurityConfiguration{
                                                         "/v1/collection-routes/stops/*/collected",
                                                         "/v1/collection-routes/stops/*/inaccessible")
                                                         .hasAnyRole("AGENT", "ADMIN", "SUPER_ADMIN")
+                                                // Enrolement/revocation/rotation de cle : le technicien IoT
+                                                // (MANAGE_DEVICES) en a besoin, nomme AVANT le refus general
+                                                // d'ecriture ci-dessous qui l'exclurait sinon.
+                                                .requestMatchers(POST, "/v1/devices/**")
+                                                        .hasAnyRole("TECHNICIEN_IOT", "ADMIN", "SUPER_ADMIN")
+                                                .requestMatchers(DELETE, "/v1/devices/**")
+                                                        .hasAnyRole("TECHNICIEN_IOT", "ADMIN", "SUPER_ADMIN")
                                                 .requestMatchers(POST, "/v1/**").hasAnyRole(ADMINISTRATION)
                                                 .requestMatchers(PUT, "/v1/**").hasAnyRole(ADMINISTRATION)
                                                 .requestMatchers(PATCH, "/v1/**").hasAnyRole(ADMINISTRATION)

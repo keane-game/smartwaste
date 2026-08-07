@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.waste.domain.model;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
+import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 
 // Le référentiel territorial a migré vers son module dédié : les types autrefois résolus
 // par appartenance au même package requièrent maintenant un import explicite.
@@ -8,10 +9,8 @@ import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
 
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
@@ -25,9 +24,11 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
+import java.util.UUID;
 
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -38,12 +39,12 @@ import java.util.Objects;
 @Setter
 @ToString
 @Table(name = "CIRCUIT")
-public class CircuitEntity extends AbstractAuditingEntity<Long> {
+public class CircuitEntity extends AbstractAuditingEntity<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "CircuitId")
-    Long circuitId;
+    UUID circuitId;
 
     @Column(name = "Name")
     String name;

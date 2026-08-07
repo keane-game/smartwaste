@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0012 — TypeDepotoir (référentiel du contexte `waste` lui-même, cf. 1.5.0) migré en
+      UUID v7, dans la continuité de 2.0.0 (référentiel territorial) et 2.1.0 (identity). Même
+      contrainte Postgres (BIGINT -> uuid non convertible implicitement) et même choix : base
+      jetable, on retire puis on recrée.
+
+      TypeDepotoir n'est pas semé par Liquibase : WasteImportAdapter.resolveOrCreateType(...) le
+      recrée à la volée depuis l'attribut `Type_de_Mo` des GeoJSON depotoir/depotoir2 — aucune
+      perte réelle, un réimport (`POST /v1/admin/import/geojson`) suffit à repeupler.
+
+      alertthreshold.typedepotoirid n'a jamais porté de contrainte FK physique (référence libre,
+      cf. 2.8.0) : sa colonne est retypée sans FK à recréer. Le seuil par défaut semé en 2.8.0-3
+      a typedepotoirid = NULL, donc rien n'y est perdu.
+    -->
+
+    <changeSet author="claude" id="2.18.0-1-drop-fk-typedepotoir">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fkbpei6dpwnpimktrb81np6c0yc"/>
+        </preConditions>
+        <comment>FK depotoir.typedepotoirid -> typedepotoir retirée avant changement de type.</comment>
+        <dropForeignKeyConstraint baseTableName="depotoir" constraintName="fkbpei6dpwnpimktrb81np6c0yc"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.18.0-2-purge-typedepotoir">
+        <comment>⚠️ Destructeur : vide le référentiel TypeDepotoir (base jetable, recréé par réimport GeoJSON).</comment>
+        <delete tableName="typedepotoir"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.18.0-3-pk-uuid">
+        <comment>PK TypeDepotoir en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="typedepotoir"/>
+        <dropColumn tableName="typedepotoir" columnName="typedepotoirid"/>
+        <addColumn tableName="typedepotoir">
+            <column name="typedepotoirid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="typedepotoir" columnName="typedepotoirid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="typedepotoir" columnNames="typedepotoirid" constraintName="pk_typedepotoir"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.18.0-4-fk-columns-uuid">
+        <comment>Colonnes référençant TypeDepotoir : depotoir (association objet, même contexte) et alertthreshold (référence libre, sans FK physique).</comment>
+        <dropColumn tableName="depotoir" columnName="typedepotoirid"/>
+        <addColumn tableName="depotoir"><column name="typedepotoirid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="alertthreshold" columnName="typedepotoirid"/>
+        <addColumn tableName="alertthreshold"><column name="typedepotoirid" type="uuid"/></addColumn>
+    </changeSet>
+
+    <changeSet author="claude" id="2.18.0-5-recreate-fk">
+        <comment>FK depotoir -> typedepotoir rétablie (même contexte `waste`, association objet légitime).</comment>
+        <addForeignKeyConstraint baseTableName="depotoir" baseColumnNames="typedepotoirid"
+                                 constraintName="fk_depotoir_typedepotoir"
+                                 referencedTableName="typedepotoir" referencedColumnNames="typedepotoirid"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.18.0-6-index-alertthreshold-type">
+        <comment>Index perdu au drop de colonne (créé en 2.8.0 sur l'ancienne colonne BIGINT).</comment>
+        <createIndex indexName="idx_alertthreshold_type" tableName="alertthreshold">
+            <column name="typedepotoirid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

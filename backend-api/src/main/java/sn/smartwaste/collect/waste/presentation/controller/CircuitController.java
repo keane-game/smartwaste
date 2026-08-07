@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.dto.Circuit;
 import sn.smartwaste.collect.waste.application.service.CircuitService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -27,7 +28,7 @@ public class CircuitController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{circuitId}")
-    public Circuit readCircuit(@PathVariable("circuitId") Long circuitId){
+    public Circuit readCircuit(@PathVariable("circuitId") UUID circuitId){
         return circuitService.readCircuit (circuitId);
 
     }
@@ -65,7 +66,7 @@ public class CircuitController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{circuitId}")
-    public Circuit  updateCircuit(@PathVariable("circuitId") Long circuitId, @RequestBody() Circuit circuit) {
+    public Circuit  updateCircuit(@PathVariable("circuitId") UUID circuitId, @RequestBody() Circuit circuit) {
         return circuitService.updateCircuit (circuitId, circuit);
 
     }
@@ -78,7 +79,7 @@ public class CircuitController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{circuitId}")
-    public String deleteOneCircuit(@PathVariable("circuitId") Long circuitId) {
+    public String deleteOneCircuit(@PathVariable("circuitId") UUID circuitId) {
         circuitService.deleteCircuit (circuitId);
         return "Successfully delete";
     }

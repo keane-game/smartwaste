@@ -50,7 +50,7 @@ public class Vehicle extends AbstractAuditingEntity<UUID> {
 
     /** Circuit habituellement desservi (même contexte), facultatif. */
     @Column(name = "circuitCollectId")
-    Long circuitCollectId;
+    UUID circuitCollectId;
 
     @Column(name = "active", nullable = false)
     boolean active = true;

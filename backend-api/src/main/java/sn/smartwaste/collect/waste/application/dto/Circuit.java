@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 
 @Getter
@@ -18,7 +19,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Circuit implements Serializable {
 
-    Long circuitId;
+    UUID circuitId;
 
     String name;
 

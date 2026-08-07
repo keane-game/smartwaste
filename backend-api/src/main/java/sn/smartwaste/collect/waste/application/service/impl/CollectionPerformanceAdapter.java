@@ -69,11 +69,11 @@ public class CollectionPerformanceAdapter implements CollectionPerformance {
             return new PerformanceReport(0, 0, null, 0, 0, 0, 0, List.of());
         }
 
-        Map<Long, String> adresses = points.stream().collect(Collectors.toMap(
+        Map<UUID, String> adresses = points.stream().collect(Collectors.toMap(
                 DepotoirEntity::getDepotoirId,
                 d -> d.getAddress() == null ? "" : d.getAddress(),
                 (a, b) -> a, LinkedHashMap::new));
-        List<Long> ids = List.copyOf(adresses.keySet());
+        List<UUID> ids = List.copyOf(adresses.keySet());
 
         var alertes = alertRepository.findByDepotoirIdInAndCreatedDateBetween(
                 ids, toLocal(from), toLocal(to));
@@ -114,11 +114,11 @@ public class CollectionPerformanceAdapter implements CollectionPerformance {
     }
 
     /** Les points qui reviennent le plus souvent — le seul chiffre du rapport qui désigne une action. */
-    private List<ProblemPoint> chronicPoints(List<AlertEntity> alertes, Map<Long, String> adresses) {
+    private List<ProblemPoint> chronicPoints(List<AlertEntity> alertes, Map<UUID, String> adresses) {
         return alertes.stream()
                 .collect(Collectors.groupingBy(AlertEntity::getDepotoirId, Collectors.counting()))
                 .entrySet().stream()
-                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed()
+                .sorted(Map.Entry.<UUID, Long>comparingByValue().reversed()
                         // Départage stable : sans lui, deux points à égalité changeraient d'ordre
                         // d'un rapport à l'autre, et la liste paraîtrait bouger sans raison.
                         .thenComparing(Map.Entry.comparingByKey()))

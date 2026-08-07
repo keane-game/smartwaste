@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  # Base de developpement (P2-2 / KNOWLEDGE_MAP §7.2) : jusqu'ici seule une install locale sur
+  # :5433 etait documentee, jamais un conteneur. Le port hote reprend :5433 pour ne rien changer
+  # a application.yml (spring.datasource.url) ni aux habitudes de connexion existantes.
+  # DB_NAME est propre a ce service (Postgres a besoin du nom seul) ; Spring, lui, le lit dans
+  # DB_URL (jdbc:postgresql://.../<nom>) — les deux doivent designer la meme base.
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME:-sonaged}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set (see .env.example)}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-sonaged}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   smtp4dev:
     image: rnwood/smtp4dev
     ports:
@@ -27,6 +48,7 @@ services:
       - minio-data:/data
 
 volumes:
+  postgres-data:
   smtp4dev-data:
   minio-data:
 

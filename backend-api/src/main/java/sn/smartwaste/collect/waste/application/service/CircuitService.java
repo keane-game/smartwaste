@@ -3,16 +3,17 @@ package sn.smartwaste.collect.waste.application.service;
 import sn.smartwaste.collect.waste.application.dto.Circuit;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CircuitService {
 
-    Circuit readCircuit(Long circuitId);
+    Circuit readCircuit(UUID circuitId);
 
     List<Circuit> readAllCircuit();
 
     Circuit createCircuit(Circuit circuit);
 
-    Circuit updateCircuit(Long circuitId, Circuit circuitDto);
+    Circuit updateCircuit(UUID circuitId, Circuit circuitDto);
 
-    void deleteCircuit(Long circuitId);
+    void deleteCircuit(UUID circuitId);
 }

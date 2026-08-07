@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.dto.CircuitBalayage;
 import sn.smartwaste.collect.waste.application.service.CircuitBalayageService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class CircuitBalayageController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/circuit-balayage/{circuitBalayageId}")
-    public CircuitBalayage readCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId){
+    public CircuitBalayage readCircuitBalayage(@PathVariable("circuitBalayageId") UUID circuitBalayageId){
         return  circuitBalayageService.readCircuitBalayage(circuitBalayageId);
 
     }
@@ -64,7 +65,7 @@ public class CircuitBalayageController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{circuitBalayageId}")
-    public CircuitBalayage  updateCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId, @RequestBody() CircuitBalayage circuitBalayageDto) {
+    public CircuitBalayage  updateCircuitBalayage(@PathVariable("circuitBalayageId") UUID circuitBalayageId, @RequestBody() CircuitBalayage circuitBalayageDto) {
         return circuitBalayageService.updateCircuitBalayage(circuitBalayageId, circuitBalayageDto);
 
     }
@@ -77,7 +78,7 @@ public class CircuitBalayageController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{circuitBalayageId}")
-    public String deleteCircuitBalayage(@PathVariable("circuitBalayageId") Long circuitBalayageId) {
+    public String deleteCircuitBalayage(@PathVariable("circuitBalayageId") UUID circuitBalayageId) {
         circuitBalayageService.deleteCircuitBalayage (circuitBalayageId);
         return "Successfully delete";
     }

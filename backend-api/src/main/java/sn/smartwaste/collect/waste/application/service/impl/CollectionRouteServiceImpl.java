@@ -109,7 +109,7 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
         Instant debutDeJournee = now.atZone(clock.getZone()).toLocalDate()
                 .atStartOfDay(clock.getZone()).toInstant();
 
-        List<Long> points = depotoirRepository
+        List<UUID> points = depotoirRepository
                 .findByCommuneIdAndDeletionStatus(communeId, DeletionStatus.ACTIVE).stream()
                 .map(DepotoirEntity::getDepotoirId)
                 .toList();

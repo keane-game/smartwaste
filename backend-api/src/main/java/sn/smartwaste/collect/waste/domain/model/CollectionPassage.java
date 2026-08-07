@@ -43,7 +43,7 @@ public class CollectionPassage extends AbstractAuditingEntity<UUID> {
     UUID passageId;
 
     @Column(name = "depotoirId", nullable = false)
-    Long depotoirId;
+    UUID depotoirId;
 
     @Column(name = "agentId")
     UUID agentId;

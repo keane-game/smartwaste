@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.smartwaste.collect.waste.domain.model.AlertEntity;
 
+import java.util.UUID;
+
 @Repository
-public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long> {
+public interface AlertRepository extends SoftDeleteRepository<AlertEntity, UUID> {
 
     /**
      * Alertes <b>ouvertes</b> d'un point pour un objet donné — « ouverte » se lisant
@@ -17,11 +19,11 @@ public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long>
      * point vidé clôt son alerte de débordement. Sans cela le tableau de bord accumulerait des
      * problèmes déjà résolus, jusqu'à ce qu'on cesse de le regarder.
      */
-    java.util.List<AlertEntity> findByDepotoirIdAndObjectAndResolvedAtIsNull(Long depotoirId,
+    java.util.List<AlertEntity> findByDepotoirIdAndObjectAndResolvedAtIsNull(UUID depotoirId,
                                                                             String object);
 
     /** Toutes les alertes ouvertes d'un point, quel qu'en soit l'objet. */
-    java.util.List<AlertEntity> findByDepotoirIdAndResolvedAtIsNull(Long depotoirId);
+    java.util.List<AlertEntity> findByDepotoirIdAndResolvedAtIsNull(UUID depotoirId);
 
     /**
      * Alertes levées sur un ensemble de points pendant une période (G5).
@@ -31,7 +33,7 @@ public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long>
      * refermé — sinon les périodes difficiles paraîtraient les plus calmes.
      */
     java.util.List<AlertEntity> findByDepotoirIdInAndCreatedDateBetween(
-            java.util.List<Long> depotoirIds,
+            java.util.List<UUID> depotoirIds,
             java.time.LocalDateTime from,
             java.time.LocalDateTime to);
 
@@ -49,7 +51,7 @@ public interface AlertRepository extends SoftDeleteRepository<AlertEntity, Long>
             + "and ((a.createdDate >= :from and a.createdDate < :to) "
             +      "or (a.resolvedAt >= :from and a.resolvedAt < :to))")
     java.util.List<AlertEntity> findTouchingPeriod(
-            @org.springframework.data.repository.query.Param("depotoirId") Long depotoirId,
+            @org.springframework.data.repository.query.Param("depotoirId") UUID depotoirId,
             @org.springframework.data.repository.query.Param("from") java.time.LocalDateTime from,
             @org.springframework.data.repository.query.Param("to") java.time.LocalDateTime to);
 }

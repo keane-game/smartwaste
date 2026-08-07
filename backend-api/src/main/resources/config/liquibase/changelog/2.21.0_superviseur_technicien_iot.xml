@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Deux acteurs du Tome 1 (§2, parties prenantes) absents des rôles semés : le superviseur de
+      circuit (encadre 25 agents, pilote un circuit) et le technicien IoT (installation,
+      calibration, maintenance des capteurs). CITOYEN et CONTROLEUR_BALAYAGE ne sont volontairement
+      PAS ajoutés ici : le premier duplique ce que USER fait déjà (Avis, abonnements, jetons
+      d'appareil sont tous rattachés à un `userId`, sans distinction de rôle) ; le second n'a
+      aujourd'hui aucun endpoint qui l'exercerait — le mémoire lui-même le place hors du système
+      numérique actuel. Semer un rôle que rien ne vérifie recrée le problème déjà nettoyé le
+      2026-08-06 (les 13 `SecurityRule` mortes, `ACCESS_ADMIN`/`USER_VIEW` sans lecteur).
+
+      Aucun code Java à changer : `TerritorialAccessGuard`/`CollectionRouteController` gardent sur
+      `hasAuthority('VIEW_COLLECTION_ROUTE')` et `DeviceProvisioningController` sur
+      `hasAuthority('MANAGE_DEVICES')` — jamais sur un nom de rôle — donc accorder la permission
+      suffit à ouvrir l'accès, sans toucher un seul `@PreAuthorize`.
+
+      SUPERVISEUR reçoit VIEW_COLLECTION_ROUTE (tournées de ses agents) et VIEW_SUPERVISION
+      (indicateurs) — pas DECLARE_COLLECTION, qu'il ne fait pas lui-même, ni MANAGE_DEVICES/
+      SEND_AWARENESS, qui restent des actes d'administration. Comme pour un agent, l'accès reste
+      borné par `AgentAssignment`/`AgentDirectory` (TerritorialAccessGuard.requireAccessTo) : un
+      superviseur sans affectation ne voit aucune commune tant qu'on ne lui en assigne pas une —
+      le mécanisme existant fonctionne tel quel, il n'est pas spécifique au rôle AGENT.
+
+      TECHNICIEN_IOT reçoit seulement MANAGE_DEVICES : enrôler/révoquer capteurs et traceurs. Pas
+      VIEW_SUPERVISION — le mémoire le confine à l'installation et la maintenance, pas au pilotage.
+    -->
+
+    <changeSet author="claude" id="2.21.0-1-seed-roles">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM authority WHERE name = 'SUPERVISEUR'</sqlCheck>
+        </preConditions>
+        <comment>Deux acteurs du mémoire absents des rôles semés, dont les actes existent déjà (permissions du domaine, 2.17.0).</comment>
+        <sql>
+            INSERT INTO authority (authorityid, name, description, createdby, lastmodifiedby,
+                                   createddate, lastmodifieddate, archived, deletionstatus)
+            VALUES
+              ('01983c4f-0000-7000-8000-000000000005', 'SUPERVISEUR',
+               'Superviseur de circuit : encadre des agents, consulte tournees et indicateurs',
+               'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE'),
+              ('01983c4f-0000-7000-8000-000000000006', 'TECHNICIEN_IOT',
+               'Technicien IoT : installation, calibration et maintenance des capteurs/traceurs',
+               'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 'ACTIVE');
+
+            INSERT INTO authoritypermission (authorityid, permission) VALUES
+              ('01983c4f-0000-7000-8000-000000000005', 'VIEW_COLLECTION_ROUTE'),
+              ('01983c4f-0000-7000-8000-000000000005', 'VIEW_SUPERVISION'),
+              ('01983c4f-0000-7000-8000-000000000006', 'MANAGE_DEVICES');
+        </sql>
+        <rollback>
+            DELETE FROM authoritypermission WHERE authorityid IN
+                ('01983c4f-0000-7000-8000-000000000005', '01983c4f-0000-7000-8000-000000000006');
+            DELETE FROM authority WHERE authorityid IN
+                ('01983c4f-0000-7000-8000-000000000005', '01983c4f-0000-7000-8000-000000000006');
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

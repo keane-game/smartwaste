@@ -50,7 +50,7 @@ public class AlertThreshold extends AbstractAuditingEntity<UUID> {
      * qui n'ont pas le leur.
      */
     @Column(name = "typeDepotoirId")
-    Long typeDepotoirId;
+    UUID typeDepotoirId;
 
     /** Remplissage en %, au-delà duquel on alerte. {@code null} = non surveillé. */
     @Column(name = "fillLevelPercent")

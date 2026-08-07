@@ -2,6 +2,7 @@ package sn.smartwaste.collect.analytics.application.dto;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * L'histoire d'un point de collecte (G8 du backlog).
@@ -10,7 +11,7 @@ import java.util.List;
  * passages qui l'ont concerné. Lus séparément, ces faits ne racontent rien ; entrelacés, ils disent
  * « le bac s'est rempli, l'alerte est partie, l'agent est passé ».
  */
-public record PointJournal(Long depotoirId, Instant from, Instant to, List<Entry> entries) {
+public record PointJournal(UUID depotoirId, Instant from, Instant to, List<Entry> entries) {
 
     /**
      * Un fait daté.

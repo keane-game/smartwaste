@@ -9,6 +9,7 @@ import sn.smartwaste.collect.waste.application.mapper.CircuitMapper;
 import sn.smartwaste.collect.waste.application.service.CircuitService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -18,7 +19,7 @@ public class CircuitServiceImpl implements CircuitService {
 
 
     @Override
-    public Circuit readCircuit(Long circuitId) {
+    public Circuit readCircuit(UUID circuitId) {
         var circuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found ".formatted(circuitId)
@@ -42,7 +43,7 @@ public class CircuitServiceImpl implements CircuitService {
 
 
     @Override
-    public Circuit updateCircuit(Long circuitId, Circuit circuit) {
+    public Circuit updateCircuit(UUID circuitId, Circuit circuit) {
         var existedCircuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Circuit with id [%s] not found to update ".formatted(circuitId)
@@ -61,7 +62,7 @@ public class CircuitServiceImpl implements CircuitService {
      * @param circuitId 
      */
     @Override
-    public void deleteCircuit(Long circuitId) {
+    public void deleteCircuit(UUID circuitId) {
         var circuit = circuitRepository.findById(circuitId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found to delete".formatted(circuitId)

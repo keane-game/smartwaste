@@ -51,7 +51,7 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
     }
 
     @Override
-    public ProvisionedDevice enrollSensor(String deviceCode, Long depotoirId) {
+    public ProvisionedDevice enrollSensor(String deviceCode, UUID depotoirId) {
         requireCode(deviceCode);
         if (depotoirId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le point de collecte est obligatoire");

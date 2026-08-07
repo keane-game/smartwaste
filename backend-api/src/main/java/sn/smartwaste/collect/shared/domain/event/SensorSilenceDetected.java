@@ -16,6 +16,6 @@ import java.util.UUID;
  */
 public record SensorSilenceDetected(UUID sensorId,
                                     String deviceCode,
-                                    Long depotoirId,
+                                    UUID depotoirId,
                                     Instant silentSince,
                                     Instant detectedAt) { }

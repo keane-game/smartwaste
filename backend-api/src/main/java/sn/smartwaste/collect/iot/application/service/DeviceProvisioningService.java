@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface DeviceProvisioningService {
 
     /** Enrôle un capteur sur un point de collecte. La clé rendue ne sera plus jamais lisible. */
-    ProvisionedDevice enrollSensor(String deviceCode, Long depotoirId);
+    ProvisionedDevice enrollSensor(String deviceCode, UUID depotoirId);
 
     /** Enrôle un traceur sur un véhicule. La clé rendue ne sera plus jamais lisible. */
     ProvisionedDevice enrollVehicleTracker(String deviceCode, UUID vehicleId);

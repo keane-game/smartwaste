@@ -12,7 +12,7 @@ import sn.smartwaste.collect.iot.domain.model.Measurement;
 @Repository
 public interface MeasurementRepository extends JpaRepository<Measurement, UUID> {
 
-    List<Measurement> findByDepotoirIdOrderByMeasuredAtDesc(Long depotoirId);
+    List<Measurement> findByDepotoirIdOrderByMeasuredAtDesc(UUID depotoirId);
 
     /**
      * Mesures d'un point sur une période.
@@ -22,7 +22,7 @@ public interface MeasurementRepository extends JpaRepository<Measurement, UUID> 
      * jours.
      */
     List<Measurement> findByDepotoirIdAndMeasuredAtBetweenOrderByMeasuredAtDesc(
-            Long depotoirId, java.time.Instant from, java.time.Instant to);
+            UUID depotoirId, java.time.Instant from, java.time.Instant to);
 
     /** Idempotence : un capteur qui réémet la même mesure ne doit pas la dupliquer. */
     boolean existsBySensorIdAndMeasuredAt(UUID sensorId, Instant measuredAt);

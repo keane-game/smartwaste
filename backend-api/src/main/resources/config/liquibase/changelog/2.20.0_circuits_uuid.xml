@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0012 — Circuit, CircuitCollect, CircuitBalayage migrés en UUID v7, même série que
+      2.18.0/2.19.0. Aucune des trois tables n'a de FK physique entrante ou sortante (vérifié) :
+      les deux seules colonnes externes qui les référencent par identifiant — vehicle.circuitcollectid
+      et collectionschedule.circuitcollectid — n'ont jamais porté de contrainte FK (référence libre,
+      cf. 2.5.0/2.7.0), donc pas de FK à casser, seulement leur type à aligner.
+
+      Recouvrabilité, à vérifier avant d'appliquer sur une base qui contient déjà des données :
+      - circuitcollect / circuitbalayage : réimportables (WasteImportAdapter, GeoJSON
+        circuit_collect/circuit_balay) — perte sans conséquence sur CI (base vierge).
+      - circuit (table "Circuit" générique) : AUCUN chemin de réimport, aucun autre code n'y
+        référence — CRUD isolé, jamais peuplé par l'import. Même réserve que 2.19.0
+        (moblierurbain) : perte réelle si des lignes existent déjà en dev.
+    -->
+
+    <changeSet author="claude" id="2.20.0-1-purge-circuit">
+        <comment>⚠️ Destructeur : vide circuit — aucune donnée n'est convertible BIGINT->uuid en place, aucun réimport disponible.</comment>
+        <delete tableName="circuit"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.20.0-2-pk-uuid-circuit">
+        <comment>PK Circuit en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="circuit"/>
+        <dropColumn tableName="circuit" columnName="circuitid"/>
+        <addColumn tableName="circuit">
+            <column name="circuitid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="circuit" columnName="circuitid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="circuit" columnNames="circuitid" constraintName="pk_circuit"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.20.0-3-purge-circuitcollect-circuitbalayage">
+        <comment>⚠️ Destructeur : vide circuitcollect/circuitbalayage — recréés par réimport GeoJSON (POST /v1/admin/import/geojson).</comment>
+        <delete tableName="circuitcollect"/>
+        <delete tableName="circuitbalayage"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.20.0-4-pk-uuid-circuitcollect">
+        <comment>PK CircuitCollect en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="circuitcollect"/>
+        <dropColumn tableName="circuitcollect" columnName="circuitcollectid"/>
+        <addColumn tableName="circuitcollect">
+            <column name="circuitcollectid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="circuitcollect" columnName="circuitcollectid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="circuitcollect" columnNames="circuitcollectid" constraintName="pk_circuitcollect"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.20.0-5-pk-uuid-circuitbalayage">
+        <comment>PK CircuitBalayage en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="circuitbalayage"/>
+        <dropColumn tableName="circuitbalayage" columnName="circuitbalayageid"/>
+        <addColumn tableName="circuitbalayage">
+            <column name="circuitbalayageid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="circuitbalayage" columnName="circuitbalayageid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="circuitbalayage" columnNames="circuitbalayageid" constraintName="pk_circuitbalayage"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.20.0-6-fk-columns-uuid">
+        <comment>Colonnes referencant CircuitCollect par identifiant, sans FK physique (2.5.0, 2.7.0).</comment>
+        <dropColumn tableName="vehicle" columnName="circuitcollectid"/>
+        <addColumn tableName="vehicle"><column name="circuitcollectid" type="uuid"/></addColumn>
+
+        <dropColumn tableName="collectionschedule" columnName="circuitcollectid"/>
+        <addColumn tableName="collectionschedule"><column name="circuitcollectid" type="uuid"/></addColumn>
+    </changeSet>
+
+</databaseChangeLog>

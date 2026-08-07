@@ -48,7 +48,7 @@ public class CollectionSchedule extends AbstractAuditingEntity<UUID> {
 
     /** Circuit qui effectue le passage (même contexte). */
     @Column(name = "circuitCollectId")
-    Long circuitCollectId;
+    UUID circuitCollectId;
 
     /**
      * Quartier desservi — référence par identifiant vers le référentiel territorial (ADR-0012).

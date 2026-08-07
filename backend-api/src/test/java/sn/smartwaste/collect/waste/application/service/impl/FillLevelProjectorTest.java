@@ -47,7 +47,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FillLevelProjectorTest {
 
-    private static final long DEPOTOIR_ID = 42L;
+    private static final UUID DEPOTOIR_ID = UUID.fromString("00000000-0000-0000-0000-000000000042");
+    private static final UUID ALERT_ID = UUID.fromString("00000000-0000-0000-0000-000000000007");
     private static final UUID SENSOR_ID = UUID.randomUUID();
     private static final int THRESHOLD = 80;
 
@@ -88,7 +89,7 @@ class FillLevelProjectorTest {
         lenient().when(depotoirRepository.save(any(DepotoirEntity.class))).thenAnswer(i -> i.getArgument(0));
         lenient().when(alertRepository.save(any(AlertEntity.class))).thenAnswer(i -> {
             AlertEntity a = i.getArgument(0);
-            a.setAlertId(7L);
+            a.setAlertId(ALERT_ID);
             return a;
         });
     }
@@ -134,7 +135,7 @@ class FillLevelProjectorTest {
 
         AlertRaisedEvent event = captureAlertEvent();
         assertThat(event.source()).isEqualTo(AlertRaisedEvent.Source.THRESHOLD);
-        assertThat(event.alert().alertId()).isEqualTo(7L);
+        assertThat(event.alert().alertId()).isEqualTo(ALERT_ID);
     }
 
     @Test

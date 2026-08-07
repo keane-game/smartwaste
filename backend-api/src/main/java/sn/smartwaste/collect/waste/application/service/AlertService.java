@@ -7,9 +7,10 @@ import sn.smartwaste.collect.waste.application.dto.Alert;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public interface AlertService {
-    Alert readAlert(Long alertId);
+    Alert readAlert(UUID alertId);
 
     List<Alert> readAllAlert();
 
@@ -19,9 +20,9 @@ public interface AlertService {
 
     Alert createAlertFile(Alert alert) throws IOException;
 
-    Alert updateAlert(Long AlertId, String alert, MultipartFile file) throws IOException;
+    Alert updateAlert(UUID AlertId, String alert, MultipartFile file) throws IOException;
 
-    void deleteAlert(Long alertId);
+    void deleteAlert(UUID alertId);
 
     Page<Alert> readAllAlert(Pageable pageable);
 

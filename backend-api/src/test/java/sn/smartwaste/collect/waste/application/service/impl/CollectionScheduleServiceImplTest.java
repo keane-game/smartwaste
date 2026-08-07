@@ -50,7 +50,7 @@ class CollectionScheduleServiceImplTest {
     private CollectionScheduleServiceImpl service;
 
     private static CollectionScheduleDto dto(UUID quartierId, DayOfWeek day, LocalTime time) {
-        return new CollectionScheduleDto(null, 7L, quartierId, day, time, null);
+        return new CollectionScheduleDto(null, UUID.randomUUID(), quartierId, day, time, null);
     }
 
     private CollectionSchedule captureSaved() {

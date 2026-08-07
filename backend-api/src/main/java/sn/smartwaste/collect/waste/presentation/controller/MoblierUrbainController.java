@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.dto.MoblierUrbain;
 import sn.smartwaste.collect.waste.application.service.MoblierUrbainService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -27,7 +28,7 @@ public class MoblierUrbainController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{moblierUrbainId}")
-    public ResponseEntity<MoblierUrbain> readMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainid){
+    public ResponseEntity<MoblierUrbain> readMoblierUrbain(@PathVariable("moblierUrbainId") UUID moblierUrbainid){
         MoblierUrbain moblierUrbain = moblierUrbainService.readMoblierUrbain (moblierUrbainid);
         return ResponseEntity
                 .ok()
@@ -67,7 +68,7 @@ public class MoblierUrbainController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{moblierUrbainId}")
-    public MoblierUrbain  updateMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId, @RequestBody() MoblierUrbain moblierUrbain) {
+    public MoblierUrbain  updateMoblierUrbain(@PathVariable("moblierUrbainId") UUID moblierUrbainId, @RequestBody() MoblierUrbain moblierUrbain) {
         return moblierUrbainService.updateMoblierUrbain (moblierUrbainId, moblierUrbain);
 
     }
@@ -80,7 +81,7 @@ public class MoblierUrbainController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{moblierUrbainId}")
-    public String deleteMoblierUrbain(@PathVariable("moblierUrbainId") Long moblierUrbainId) {
+    public String deleteMoblierUrbain(@PathVariable("moblierUrbainId") UUID moblierUrbainId) {
         moblierUrbainService.deleteMoblierUrbain (moblierUrbainId);
         return "Successfully delete";
     }

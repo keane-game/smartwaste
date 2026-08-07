@@ -56,7 +56,7 @@ public class IngestionMetricsAdapter implements IngestionMetrics {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<RecordedMeasurement> measurementsFor(Long depotoirId, java.time.Instant from,
+    public List<RecordedMeasurement> measurementsFor(java.util.UUID depotoirId, java.time.Instant from,
                                                      java.time.Instant to) {
         return measurementRepository
                 .findByDepotoirIdAndMeasuredAtBetweenOrderByMeasuredAtDesc(depotoirId, from, to)

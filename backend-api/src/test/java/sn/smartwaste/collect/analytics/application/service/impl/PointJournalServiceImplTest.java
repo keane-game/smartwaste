@@ -2,6 +2,7 @@ package sn.smartwaste.collect.analytics.application.service.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PointJournalServiceImplTest {
 
-    private static final Long POINT = 215L;
+    private static final UUID POINT = UUID.fromString("00000000-0000-0000-0000-000000000215");
     private static final Instant DEBUT = Instant.parse("2026-08-01T00:00:00Z");
     private static final Instant FIN = Instant.parse("2026-08-05T00:00:00Z");
 
@@ -51,8 +51,8 @@ class PointJournalServiceImplTest {
     private void given(List<WasteReadModel.PointEvent> events,
                        List<IngestionMetrics.RecordedMeasurement> measurements) {
         lenient().when(waste.collectionPointExists(POINT)).thenReturn(true);
-        lenient().when(waste.pointEvents(anyLong(), any(), any())).thenReturn(events);
-        lenient().when(iot.measurementsFor(anyLong(), any(), any())).thenReturn(measurements);
+        lenient().when(waste.pointEvents(any(), any(), any())).thenReturn(events);
+        lenient().when(iot.measurementsFor(any(), any(), any())).thenReturn(measurements);
     }
 
     private static Instant at(String iso) {

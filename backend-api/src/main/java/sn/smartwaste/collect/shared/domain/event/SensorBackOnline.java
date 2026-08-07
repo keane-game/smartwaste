@@ -11,5 +11,5 @@ import java.util.UUID;
  */
 public record SensorBackOnline(UUID sensorId,
                                String deviceCode,
-                               Long depotoirId,
+                               UUID depotoirId,
                                Instant backAt) { }

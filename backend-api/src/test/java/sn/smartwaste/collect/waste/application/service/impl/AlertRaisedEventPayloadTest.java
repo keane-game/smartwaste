@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.waste.application.service.impl;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +54,11 @@ class AlertRaisedEventPayloadTest {
     @InjectMocks
     private AlertServiceImpl alertService;
 
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles, l'entité est en UUID. */
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     private AlertRaisedEvent captureRaisedEvent() {
         ArgumentCaptor<Object> published = ArgumentCaptor.forClass(Object.class);
         verify(eventPublisher).publishEvent(published.capture());
@@ -66,7 +72,7 @@ class AlertRaisedEventPayloadTest {
         image.setName("photo.jpg");
 
         AlertEntity entity = new AlertEntity();
-        entity.setAlertId(42L);
+        entity.setAlertId(uuid(42));
         entity.setObject("Dépôt sauvage");
         entity.setMessage("Amas de gravats");
         entity.setAddress("Pikine Nord");
@@ -83,7 +89,7 @@ class AlertRaisedEventPayloadTest {
         alertService.createAlertFile(new Alert());
 
         AlertRaisedEvent.RaisedAlert payload = captureRaisedEvent().alert();
-        assertThat(payload.alertId()).isEqualTo(42L);
+        assertThat(payload.alertId()).isEqualTo(uuid(42));
         assertThat(payload.object()).isEqualTo("Dépôt sauvage");
         assertThat(payload.message()).isEqualTo("Amas de gravats");
         assertThat(payload.address()).isEqualTo("Pikine Nord");
@@ -104,7 +110,7 @@ class AlertRaisedEventPayloadTest {
 
         // Le composant Angular lit `payload.alert.<champ>` et `payload.alert.image.url`.
         assertThat(json).contains("\"alert\":")
-                .contains("\"alertId\":42")
+                .contains("\"alertId\":\"" + uuid(42) + "\"")
                 .contains("\"object\":\"Dépôt sauvage\"")
                 .contains("\"message\":\"Amas de gravats\"")
                 .contains("\"address\":\"Pikine Nord\"")
@@ -120,14 +126,14 @@ class AlertRaisedEventPayloadTest {
     @DisplayName("une alerte sans image ni code produit une charge utile valide, sans NPE")
     void raisedEventToleratesMissingImageAndCode() throws IOException {
         AlertEntity bare = new AlertEntity();
-        bare.setAlertId(7L);
+        bare.setAlertId(uuid(7));
         bare.setObject("Sans image");
         when(alertRepository.save(any(AlertEntity.class))).thenReturn(bare);
 
         alertService.createAlertFile(new Alert());
 
         AlertRaisedEvent.RaisedAlert payload = captureRaisedEvent().alert();
-        assertThat(payload.alertId()).isEqualTo(7L);
+        assertThat(payload.alertId()).isEqualTo(uuid(7));
         assertThat(payload.code()).isNull();
         assertThat(payload.image()).isNull();
     }

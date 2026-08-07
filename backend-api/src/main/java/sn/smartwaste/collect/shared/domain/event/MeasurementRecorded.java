@@ -24,7 +24,7 @@ import java.util.UUID;
  * @param measuredAt         horodatage <b>de la mesure</b>, pas de sa réception
  */
 public record MeasurementRecorded(UUID sensorId,
-                                  Long depotoirId,
+                                  UUID depotoirId,
                                   Integer fillLevelPercent,
                                   Double temperatureCelsius,
                                   Double humidityPercent,

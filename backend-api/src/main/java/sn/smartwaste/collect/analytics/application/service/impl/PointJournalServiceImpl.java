@@ -39,7 +39,7 @@ public class PointJournalServiceImpl implements PointJournalService {
     }
 
     @Override
-    public PointJournal journalFor(Long depotoirId, Instant from, Instant to) {
+    public PointJournal journalFor(java.util.UUID depotoirId, Instant from, Instant to) {
         // Un journal vide se lirait « ce point n'a pas d'histoire », alors qu'il n'existe pas.
         if (!waste.collectionPointExists(depotoirId)) {
             return null;

@@ -9,8 +9,8 @@ import sn.smartwaste.collect.waste.domain.model.CollectionPassage;
 
 public interface CollectionPassageRepository extends SoftDeleteRepository<CollectionPassage, UUID> {
 
-    List<CollectionPassage> findByDepotoirIdInAndOccurredAtBetween(List<Long> depotoirIds,
+    List<CollectionPassage> findByDepotoirIdInAndOccurredAtBetween(List<UUID> depotoirIds,
                                                                    Instant from, Instant to);
 
-    List<CollectionPassage> findByDepotoirIdOrderByOccurredAtDesc(Long depotoirId);
+    List<CollectionPassage> findByDepotoirIdOrderByOccurredAtDesc(UUID depotoirId);
 }

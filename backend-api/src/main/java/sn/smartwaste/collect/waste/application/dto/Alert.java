@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sn.smartwaste.collect.waste.domain.model.AlertCode;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,7 +23,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Alert implements Serializable {
-    Long alertId;
+    UUID alertId;
 
     String object;
 

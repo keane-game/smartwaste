@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param active           un horaire suspendu cesse de déclencher des rappels sans être supprimé
  */
 public record CollectionScheduleDto(UUID scheduleId,
-                                    Long circuitCollectId,
+                                    UUID circuitCollectId,
                                     UUID quartierId,
                                     DayOfWeek dayOfWeek,
                                     LocalTime passageTime,

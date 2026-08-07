@@ -45,17 +45,22 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OrphanedSensorTest {
 
-    private static final Long POINT = 215L;
+    /** UUID stable se terminant par « 215 » : les messages d'erreur testés en dépendent. */
+    private static final UUID POINT = uuid(215);
 
     @Mock private SensorRepository sensorRepository;
     @Mock private VehicleTrackerRepository trackerRepository;
     @Mock private WasteReadModel waste;
 
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     private DeviceProvisioningServiceImpl service() {
         return new DeviceProvisioningServiceImpl(sensorRepository, trackerRepository, waste);
     }
 
-    private Sensor sensor(Long depotoirId) {
+    private Sensor sensor(UUID depotoirId) {
         var s = new Sensor();
         s.setSensorId(UUID.randomUUID());
         s.setDeviceCode("CAPTEUR-TEST");
@@ -99,7 +104,7 @@ class OrphanedSensorTest {
         // Le cas du reimport : le capteur etait valide a l'enrolement et ne l'est plus. Seule la
         // liste du parc peut le rattraper — la porte d'entree ne suffit pas.
         lenient().when(sensorRepository.findAll())
-                .thenReturn(List.of(sensor(POINT), sensor(999L)));
+                .thenReturn(List.of(sensor(POINT), sensor(uuid(999))));
         when(waste.existingCollectionPoints(any())).thenReturn(java.util.Set.of(POINT));
 
         var parc = service().listSensors();
@@ -116,8 +121,8 @@ class OrphanedSensorTest {
         // contours de communes, reintroduit deux commits plus tard. Invisible a 2 capteurs, ce sont
         // 71 requetes par affichage quand le parc sera instrumente.
         lenient().when(sensorRepository.findAll())
-                .thenReturn(List.of(sensor(1L), sensor(2L), sensor(3L), sensor(4L)));
-        when(waste.existingCollectionPoints(any())).thenReturn(java.util.Set.of(1L, 2L));
+                .thenReturn(List.of(sensor(uuid(1)), sensor(uuid(2)), sensor(uuid(3)), sensor(uuid(4))));
+        when(waste.existingCollectionPoints(any())).thenReturn(java.util.Set.of(uuid(1), uuid(2)));
 
         service().listSensors();
 

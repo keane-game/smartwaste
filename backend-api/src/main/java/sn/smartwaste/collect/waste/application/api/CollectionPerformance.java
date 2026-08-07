@@ -57,5 +57,5 @@ public interface CollectionPerformance {
     }
 
     /** Un point qui revient trop souvent — c'est là que se décide un renforcement de tournée. */
-    record ProblemPoint(Long depotoirId, String address, long overflowCount) { }
+    record ProblemPoint(UUID depotoirId, String address, long overflowCount) { }
 }

@@ -42,7 +42,7 @@ public class DepotoirServiceImpl implements DepotoirService {
     private final CrossContextReferenceValidator crossContextReferenceValidator;
 
     @Override
-    public Depotoir readDepotoir(Long depotoirId) {
+    public Depotoir readDepotoir(UUID depotoirId) {
         var depotoir  = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Depotoir with id [%s] not found ".formatted(depotoirId)
@@ -116,7 +116,7 @@ public class DepotoirServiceImpl implements DepotoirService {
 
 
     @Override
-    public Depotoir updateDepotoir(Long depotoirId, Depotoir depotoir) {
+    public Depotoir updateDepotoir(UUID depotoirId, Depotoir depotoir) {
         var existedDepotoir = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Depotoir with id [%s] not found to update ".formatted(depotoirId)
@@ -129,14 +129,14 @@ public class DepotoirServiceImpl implements DepotoirService {
 
 
     @Override
-    public void deleteDepotoir(Long depotoirId) {
+    public void deleteDepotoir(UUID depotoirId) {
         // Suppression logique : passe en PENDING_DELETION (purge définitive par le planificateur
         // après la période de rétention). Restaurable via restoreDepotoir tant que le délai court.
         softDeleteService.softDelete(depotoirRepository, depotoirId);
     }
 
     @Override
-    public Depotoir restoreDepotoir(Long depotoirId) {
+    public Depotoir restoreDepotoir(UUID depotoirId) {
         var restored = softDeleteService.restore(depotoirRepository, depotoirId);
         return toDtoWithDeletionInfo(restored);
     }

@@ -69,7 +69,7 @@ public class AwarenessServiceImpl implements AwarenessService {
     @Override
     @Transactional
     public AwarenessMessage schedule(String title, String body, UUID quartierId,
-                                     Instant scheduledAt) {
+                                     Instant scheduledAt, UUID campaignId) {
         Instant depuis = Instant.now(clock).minus(Duration.ofHours(frequencyCapHours));
         if (!messageRepository.findByQuartierIdAndScheduledAtGreaterThanEqual(quartierId, depuis)
                 .isEmpty()) {
@@ -84,6 +84,7 @@ public class AwarenessServiceImpl implements AwarenessService {
         message.setQuartierId(quartierId);
         message.setScheduledAt(scheduledAt == null ? Instant.now(clock) : scheduledAt);
         message.setAuthorId(currentUserProvider.requireCurrentUserId());
+        message.setCampaignId(campaignId);
         return messageRepository.save(message);
     }
 

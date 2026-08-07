@@ -4,6 +4,13 @@
 > suivies récursivement jusqu'à épuisement des références.
 > Date : 2026-07-28 · Aucun développement effectué pendant cette phase.
 > Sert de base au plan d'évolution — à lire avant `ROADMAP.md`.
+>
+> ⚠️ **Mise à jour 2026-08-06** : `docs/IMPLEMENTATION_LOG.md` a continué bien après cette date
+> (jusqu'au 2026-08-06) et invalide plusieurs constats ci-dessous, en particulier tout le §4.2/§7.1
+> et la ligne ADR-0004 du §3.1 — la chaîne capteur→mesure→seuil→alerte **est** implémentée et
+> vérifiée en base depuis le 2026-08-04. Corrections ponctuelles apportées inline ; pour tout ce qui
+> n'est pas explicitement corrigé ici, `IMPLEMENTATION_LOG.md` reste la source qui prime sur ce
+> document en cas de désaccord.
 
 ---
 
@@ -112,7 +119,7 @@ en retour. **Tous les écarts du §8 découlent de cette unique boucle manquante
 | 0001 | Liquibase = source unique du schéma, JPA `validate` | Proposé | ✅ **fait** |
 | 0002 | Externaliser + roter les secrets, `.gitignore` racine | Proposé | 🟠 externalisé, `.gitignore` créé — **rotation et purge d'historique NON faites** |
 | 0003 | Hacher le mdp soumis · durcir JWT · TTL 1 h + refresh | Proposé, part. remplacé par 0011 | 🟠 `register` corrigé, JWT durci ; **TTL toujours à 10 j** ; refresh en cours |
-| 0004 | Chaîne d'ingestion IoT : `Measurement` → seuil → alerte | Proposé | ❌ **non implémenté — c'est le cœur du produit** |
+| 0004 | Chaîne d'ingestion IoT : `Measurement` → seuil → alerte | Proposé | ✅ **implémenté et vérifié en base depuis 2026-08-04** (corrigé 2026-08-06 — voir §4.2) ; `FillLevelProjector` évalue remplissage, température **et** humidité indépendamment via `AlertThreshold` (par type ou seuil par défaut) — le manque signalé plus bas (§7.1, ancienne version) sur température/humidité est déjà comblé, aucun ADR-0004bis nécessaire |
 | 0005 | `Alert → Depotoir` + images hors BLOB (MinIO) | Proposé | 🟠 MinIO fait ; **`Alert.depotoirId` : colonne créée, relation non exploitée** |
 | 0006 | `angular/` = front canonique, retirer les 2 autres | Proposé | ❌ non tranché — **et la prémisse est fausse** (§8.7) |
 | 0007 | Notifications temps réel SSE (+ FCM mobile) | Proposé | ✅ SSE fait · ❌ FCM non fait |
@@ -140,13 +147,25 @@ Authentification JWT + inscription + activation e-mail · CRUD utilisateurs/rôl
 métier (dépotoirs, types, mobilier urbain, circuits ×3, alertes, images, historique) · référentiel
 territorial complet (région→département→commune→quartier + géométries) · cartographie
 (`/v1/maps/**`) · tableau de bord + statistiques de supervision · upload d'images MinIO · import
-GeoJSON · avis citoyens · **SSE temps réel des alertes** · soft-delete + corbeille + purge ·
-écrans CRUD génériques Angular · écrans mobiles (auth, dashboard, carte, live tracking).
+GeoJSON · avis citoyens (géolocalisés, statut piloté) · **SSE temps réel des alertes** · soft-delete
++ corbeille + purge · écrans CRUD génériques Angular · écrans mobiles (auth, dashboard, carte,
+live tracking).
+**Ajouté depuis 2026-08-04, non listé ici avant le 2026-08-06** : ingestion de mesures capteur +
+seuil + alerte automatique (§4.2), provisioning/santé des capteurs et véhicules, suivi de position
+véhicule, journal par point de collecte, tournées agent priorisées par état réel, rapports de
+performance (export CSV), messages de sensibilisation programmés par quartier, permissions
+réellement appliquées (plus de `SecurityRule` mortes), notifications push par appareil (transport
+loggué, pas encore de FCM réel).
 
-### 4.2 Le cœur métier, **absent**
-La chaîne **capteur → mesure → seuil → alerte automatique → notification** n'existe pas. C'est la
-raison d'être du produit, énoncée dans le titre même du mémoire (« mise en place d'un système
-d'alerte d'un point de collecte »). `Alert` reste une ressource saisie à la main.
+### 4.2 Le cœur métier — ~~absent~~ **implémenté (corrigé 2026-08-06)**
+La chaîne **capteur → mesure → seuil → alerte automatique → notification** — raison d'être du
+produit, énoncée dans le titre même du mémoire (« mise en place d'un système d'alerte d'un point
+de collecte ») — **existe et a été vérifiée contre PostgreSQL** (`docs/IMPLEMENTATION_LOG.md`,
+2026-08-04/05) : `iot.Sensor`/`Measurement`, `waste.FillLevelProjector`/`ThresholdResolver`
+déclenchent une `Alert` liée au `Depotoir` sur dépassement de seuil, avec résolution et journal par
+point (`PointJournalController`). `Alert` n'est plus une ressource saisie à la main uniquement.
+Ce qui reste hors périmètre d'ADR-0004 : les seuils **température/humidité** que le mémoire
+demande également (§7.1) ne sont pas évalués, seul le remplissage l'est.
 
 ### 4.3 Ce que dit l'enquête citoyenne (34 réponses) — **jamais traduit en backlog**
 | Question | Résultat |
@@ -208,12 +227,21 @@ Le mémoire (ch. 4) décrit le **matériel choisi** : Arduino UNO/Mega, **ESP826
 Communication hybride **LoRa + WiFi (+5G)**, protocoles **TCP/UDP/MQTT**, **passerelle IoT**
 agrégeant vers le cloud.
 
-Côté backend, **rien** : ni `Capteur`, ni `Measurement`, ni endpoint d'ingestion, ni évaluateur de
-seuil, ni `fillLevel` sur `Depotoir`.
+~~Côté backend, **rien** : ni `Capteur`, ni `Measurement`, ni endpoint d'ingestion, ni évaluateur de
+seuil, ni `fillLevel` sur `Depotoir`.~~ — **corrigé 2026-08-06** : tout ceci existe désormais
+(`iot.Sensor`, `iot.Measurement`, `MeasurementIngestionController`, `ThresholdResolver`,
+`Depotoir.fillLevel`/`lastMeasuredAt`), voir §4.2. Ce qui manque encore du matériel décrit ci-dessus
+reste réel : GPS embarqué sur les bacs (géométrie toujours statique), ouverture automatique du bac,
+et LoRa/passerelle IoT (l'ingestion actuelle est REST + clé API device, pas LoRa/MQTT).
 
-> ⚠️ **Écart de périmètre à trancher** : le cas d'usage administrateur du mémoire demande de
-> « configurer les seuils de **température, d'humidité** et de niveau de remplissage ». **ADR-0004 ne
-> modélise que le remplissage.** Deux grandeurs spécifiées sont absentes de la décision d'architecture.
+> ✅ **Écart de périmètre comblé (corrigé 2026-08-06)** : le cas d'usage administrateur du mémoire
+> demande de « configurer les seuils de **température, d'humidité** et de niveau de remplissage ».
+> Une lecture précédente de ce document disait qu'ADR-0004 ne modélisait que le remplissage — faux
+> à la vérification du code : `AlertThreshold` porte les trois grandeurs (`fillLevelPercent`,
+> `temperatureCelsius`, `humidityPercent`, chacune configurable par `TypeDepotoir` ou en seuil par
+> défaut, `null` = grandeur non surveillée), et `FillLevelProjector.on(MeasurementRecorded)` les
+> évalue **indépendamment** (un bac peut déborder et fermenter, ce sont deux alertes distinctes,
+> `AlertCode.DANGER` pour température/humidité). Aucun ADR-0004bis n'est nécessaire.
 
 ### 7.2 Autres fonctionnalités spécifiées et manquantes
 | Fonctionnalité | Source | État |
@@ -331,9 +359,11 @@ défendables, mais elles doivent être arbitrées, pas menées en parallèle.
    module `administration`, ports applicatifs, propriétaire du rattachement tenant.
 
 ### 9.2 Produit — l'écart le plus coûteux
-9. **Trancher le périmètre du cœur IoT** avant de le construire : ADR-0004 ne couvre que le
-   remplissage, alors que la spécification demande aussi température et humidité. Un ADR-0004bis
-   est nécessaire.
+9. ~~**Trancher le périmètre du cœur IoT** avant de le construire : ADR-0004 ne couvre que le
+   remplissage... Un ADR-0004bis est nécessaire.~~ — **fait, sans ADR dédié (corrigé 2026-08-06)** :
+   `AlertThreshold`/`FillLevelProjector` couvrent déjà remplissage, température et humidité (voir
+   §3.1/§7.1). Reste un point mineur pour la gouvernance documentaire : consigner cette extension
+   de périmètre dans ADR-0004 lui-même (mise à jour de son statut) plutôt que la laisser implicite.
 10. **Instruire le besoin citoyen** (§4.3) : c'est la demande n°1 de la seule étude utilisateur du
     projet, et elle est absente du backlog. Elle est peu coûteuse comparée à la chaîne IoT
     (horaires de collecte + notification) et donnerait une valeur perçue immédiate.

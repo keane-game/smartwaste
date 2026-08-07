@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -113,8 +114,8 @@ class SupervisionStatsServiceTest {
         // avec la donnée plutôt que d'être une convention implicite côté frontend.
         Instant lastSeen = Instant.parse("2026-07-28T08:00:00Z");
         when(ingestionMetrics.silentSensors(any())).thenReturn(
-                List.of(new IngestionMetrics.SilentSensor("ESP-001", 7L, lastSeen),
-                        new IngestionMetrics.SilentSensor("ESP-002", 8L, null)));
+                List.of(new IngestionMetrics.SilentSensor("ESP-001", UUID.randomUUID(), lastSeen),
+                        new IngestionMetrics.SilentSensor("ESP-002", UUID.randomUUID(), null)));
 
         SupervisionStats.IngestionHealth ingestion = service.compute(null).ingestion();
 

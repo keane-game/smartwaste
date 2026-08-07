@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 class CollectionPassageAuthorizationTest {
 
     private static final Instant NOW = Instant.parse("2026-07-30T12:00:00Z");
-    private static final Long POINT = 73L;
+    private static final UUID POINT = UUID.fromString("00000000-0000-0000-0000-000000000073");
     private static final UUID AGENT = UUID.randomUUID();
     private static final UUID COMMUNE = UUID.randomUUID();
 

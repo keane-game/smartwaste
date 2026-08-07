@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.analytics.application.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import sn.smartwaste.collect.analytics.application.dto.PointJournal;
 
@@ -13,5 +14,5 @@ import sn.smartwaste.collect.analytics.application.dto.PointJournal;
 public interface PointJournalService {
 
     /** @return {@code null} si le point n'existe pas — un journal vide se lirait « pas d'histoire ». */
-    PointJournal journalFor(Long depotoirId, Instant from, Instant to);
+    PointJournal journalFor(UUID depotoirId, Instant from, Instant to);
 }

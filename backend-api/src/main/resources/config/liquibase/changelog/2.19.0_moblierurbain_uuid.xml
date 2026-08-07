@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0012 — MoblierUrbain migré en UUID v7, même série que 2.18.0 (TypeDepotoir).
+
+      Table isolée : aucune FK entrante ni sortante (vérifié — ni schéma, ni code n'y référence
+      moblierurbainid ailleurs que MoblierUrbainEntity/DTO/service/controller eux-mêmes), donc pas
+      de colonne de référence à retyper ailleurs.
+
+      ⚠️ Contrairement à TypeDepotoir (2.18.0), MoblierUrbain n'a AUCUN chemin de réimport
+      automatique (pas de GeoJSON, pas de seed) : ses lignes ne viennent que de la CRUD API/écran
+      frontend `pages/moblier-urbain/`. La purge ci-dessous est donc une perte réelle si la base de
+      dev a déjà des lignes saisies à la main — à vérifier avant d'appliquer ce changelog sur une
+      base qui en contient. Sur la base jetable de CI (vierge à chaque run), c'est un no-op.
+    -->
+
+    <changeSet author="claude" id="2.19.0-1-purge-moblierurbain">
+        <comment>⚠️ Destructeur : vide moblierurbain — aucune donnée n'est convertible BIGINT->uuid en place.</comment>
+        <delete tableName="moblierurbain"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.19.0-2-pk-uuid">
+        <comment>PK MoblierUrbain en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="moblierurbain"/>
+        <dropColumn tableName="moblierurbain" columnName="moblierurbainid"/>
+        <addColumn tableName="moblierurbain">
+            <column name="moblierurbainid" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="moblierurbain" columnName="moblierurbainid" columnDataType="uuid"/>
+        <addPrimaryKey tableName="moblierurbain" columnNames="moblierurbainid" constraintName="pk_moblierurbain"/>
+    </changeSet>
+
+</databaseChangeLog>

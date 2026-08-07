@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Indicateurs avancés de supervision (P2-5).
@@ -71,7 +72,7 @@ public record SupervisionStats(
             List<SilentSensor> silentSensors
     ) {
         /** @param lastSeenAt {@code null} si le capteur n'a jamais émis depuis son enrôlement */
-        public record SilentSensor(String deviceCode, Long depotoirId, Instant lastSeenAt) { }
+        public record SilentSensor(String deviceCode, UUID depotoirId, Instant lastSeenAt) { }
     }
 
     /**
