@@ -60,7 +60,7 @@ throw new Error('Method not implemented.');
       console.log(this.notifs);
       this.iSnextPage = this.p < this.notifs.length / this.itemsPerPage
     });
-    this.headerTitleService.setTitle('Gestion Dépotoir');
+    this.headerTitleService.setTitle('Notifications');
   }
 
      /** Announce the change in sort state for assistive technology. */

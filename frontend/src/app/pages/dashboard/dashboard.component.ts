@@ -67,7 +67,7 @@ export class DashboardComponent implements OnDestroy {
   ){}
 
   ngOnInit() {
-    this.headerTitleService.setTitle('Dashboard');
+    this.headerTitleService.setTitle('Tableau de bord');
     this.getDepartmentState();
     // Passif : si la session n'est pas admin, `LayoutComponent` n'a jamais ouvert le flux et
     // cet abonnement ne recevra simplement rien — pas de vérification de rôle à dupliquer ici.

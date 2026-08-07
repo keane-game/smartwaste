@@ -44,7 +44,7 @@ export class QuartierComponent {
 
   ngOnInit() {
     this.sharedService.url = '/quartiers';
-    this.headerTitleService.setTitle('Gestion Quartier');
+    this.headerTitleService.setTitle('Gestion des quartiers');
     this.loadQuartiers(this.currentPage, this.itemsPerPage);
     //this.openDeleteQuartierModal(-7);
   }

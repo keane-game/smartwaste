@@ -36,4 +36,60 @@
     </form>
 
   </div>
+
+  <p class="msg error section-block" *ngIf="sectionError">{{ sectionError }}</p>
+
+  <!-- Mes signalements -->
+  <section class="avis-card section-block" *ngIf="mesSignalements.length > 0">
+    <h2 class="section-title">Mes signalements</h2>
+    <ul class="list-plain">
+      <li *ngFor="let avis of mesSignalements" class="list-row">
+        <div class="list-row-main">
+          <span class="statut-badge" [class]="'statut-' + avis.statut">{{ statutLabel(avis.statut) }}</span>
+          <p class="list-row-text">{{ avis.message }}</p>
+        </div>
+        <span class="list-row-date">{{ avis.submittedAt | date:'short' }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Mes abonnements -->
+  <section class="avis-card section-block">
+    <h2 class="section-title">Mes abonnements aux passages de collecte</h2>
+
+    <ul class="list-plain" *ngIf="mesAbonnements.length > 0">
+      <li *ngFor="let quartierId of mesAbonnements" class="list-row">
+        <span class="list-row-text">{{ quartierName(quartierId) }}</span>
+        <button type="button" class="btn-link" (click)="seDesabonner(quartierId)">Se désabonner</button>
+      </li>
+    </ul>
+    <p class="empty-hint" *ngIf="mesAbonnements.length === 0">Vous n'êtes abonné à aucun quartier.</p>
+
+    <div class="subscribe-row">
+      <select class="select" [(ngModel)]="quartierASuivre">
+        <option [ngValue]="null" disabled>Choisir un quartier…</option>
+        <option *ngFor="let quartier of quartiersDisponibles" [ngValue]="quartier.quartierId">
+          {{ quartier.name }}
+        </option>
+      </select>
+      <button type="button" class="btn-secondary" [disabled]="!quartierASuivre || abonnementEnCours" (click)="sabonner()">
+        S'abonner
+      </button>
+    </div>
+  </section>
+
+  <!-- Sensibilisation -->
+  <section class="avis-card section-block" *ngIf="messagesSensibilisation.length > 0">
+    <h2 class="section-title">Messages de sensibilisation</h2>
+    <ul class="list-plain">
+      <li *ngFor="let message of messagesSensibilisation" class="list-row list-row--column">
+        <div class="list-row-header">
+          <strong>{{ message.title }}</strong>
+          <span class="list-row-date">{{ message.sentAt | date:'short' }}</span>
+        </div>
+        <p class="list-row-text">{{ message.body }}</p>
+      </li>
+    </ul>
+  </section>
+
 </div>

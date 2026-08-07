@@ -1,0 +1,76 @@
+<section class="section">
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ editingId === null ? 'Ajouter un véhicule' : 'Modifier le véhicule' }}</h5>
+          <form (ngSubmit)="submit()">
+            <div class="mb-3">
+              <label class="form-label" for="registration">Immatriculation</label>
+              <input id="registration" class="form-control" [(ngModel)]="form.registration" name="registration" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="label">Libellé</label>
+              <input id="label" class="form-control" [(ngModel)]="form.label" name="label" required>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="submitting">
+              {{ editingId === null ? 'Créer' : 'Enregistrer' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary ms-2" *ngIf="editingId !== null" (click)="cancelEdit()">
+              Annuler
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Flotte</h5>
+
+          <div *ngIf="loading" class="text-center py-4">
+            <span class="spinner-border spinner-border-sm"></span> Chargement…
+          </div>
+
+          <div *ngIf="!loading && vehicles.length === 0" class="text-muted py-4">
+            Aucun véhicule enregistré.
+          </div>
+
+          <table class="table table-borderless" *ngIf="!loading && vehicles.length > 0">
+            <thead>
+              <tr>
+                <th>Immatriculation</th>
+                <th>Libellé</th>
+                <th>État</th>
+                <th>Dernière position</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let vehicle of vehicles">
+                <td>{{ vehicle.registration }}</td>
+                <td>{{ vehicle.label }}</td>
+                <td>
+                  <span class="badge" [ngClass]="vehicle.active ? 'bg-success' : 'bg-secondary'">
+                    {{ vehicle.active ? 'En circulation' : 'Retiré' }}
+                  </span>
+                </td>
+                <td>{{ vehicle.lastPositionAt ? (vehicle.lastPositionAt | date:'short') : 'Jamais' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(vehicle)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" [disabled]="!vehicle.active" (click)="deactivate(vehicle)">
+                    <i class="bi bi-slash-circle"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

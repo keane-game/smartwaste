@@ -41,6 +41,30 @@ const routes: Routes = [
 
     { path: 'maps', loadChildren: () => import('./maps/maps.module').then(m => m.MapsModule) },
 
+    {
+        path: 'collection-routes',
+        loadChildren: () => import('./collection-route/collection-route.module').then(m => m.CollectionRouteModule)
+    },
+
+    {
+        path: 'reports',
+        loadChildren: () => import('./reports/reports.module').then(m => m.ReportsModule)
+    },
+
+    {
+        path: 'moblier-urbains',
+        loadChildren: () => import('./moblier-urbain/moblier-urbain.module').then(m => m.MoblierUrbainModule)
+    },
+
+    {
+        path: 'vehicles',
+        loadChildren: () => import('./vehicle/vehicle.module').then(m => m.VehicleModule)
+    },
+
+    {
+        path: 'devices',
+        loadChildren: () => import('./device/device.module').then(m => m.DeviceModule)
+    },
 
 ]
 

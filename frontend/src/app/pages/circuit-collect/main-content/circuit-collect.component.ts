@@ -48,7 +48,7 @@ export class CircuitCollectComponent {
   ngOnInit() {
     this.sharedService.url = '/users';
     this.loadUsers(this.currentPage, this.itemsPerPage);
-    this.headerTitleService.setTitle('Gestion Utilisateur');
+    this.headerTitleService.setTitle('Gestion des circuits de collecte');
   }
 
   loadUsers(page: number = 0, size: number = 10): void {

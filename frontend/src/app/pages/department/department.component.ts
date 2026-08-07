@@ -60,7 +60,7 @@ export class DepartmentComponent {
         console.log(this.departs);
         this.iSnextPage = this.p < this.departs.length / this.itemsPerPage
       });
-      this.headerTitleService.setTitle('Gestion Departement');
+      this.headerTitleService.setTitle('Gestion des départements');
     }
   
   

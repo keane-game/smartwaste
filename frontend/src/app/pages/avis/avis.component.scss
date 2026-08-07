@@ -1,31 +1,31 @@
-/** Donner mon avis — thème éco/vert SONAGED. */
+/** Donner mon avis — thème éco/vert SONAGED, aligné sur les tokens globaux (assets/scss/variables.scss). */
 .avis {
   padding: 1.5rem;
-  color: #0f172a;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--color-foreground);
+  font-family: var(--font-body);
   max-width: 720px;
 }
 
 .avis-head {
   margin-bottom: 1.25rem;
-  h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
-  .sub { margin: .25rem 0 0; color: #475569; font-size: .9rem; }
+  h1 { margin: 0; font-size: 1.5rem; font-weight: 600; font-family: var(--font-heading); }
+  .sub { margin: .25rem 0 0; color: var(--color-muted); font-size: .9rem; }
 }
 
 .avis-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+  box-shadow: var(--shadow-md);
 }
 
 .field { display: flex; flex-direction: column; }
-.field > span { font-size: .85rem; font-weight: 500; color: #334155; margin-bottom: .4rem; }
-.field em { color: #dc2626; font-style: normal; }
+.field > span { font-size: .85rem; font-weight: 500; color: var(--color-text); margin-bottom: .4rem; }
+.field em { color: var(--color-destructive); font-style: normal; }
 .field textarea {
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: .7rem .8rem;
   font: inherit;
   font-size: .9rem;
@@ -34,51 +34,51 @@
 }
 .field textarea:focus {
   outline: none;
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, .15);
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
 }
 
 .field-foot { display: flex; justify-content: space-between; gap: 1rem; margin-top: .35rem; }
-.err { color: #dc2626; font-size: .75rem; }
-.count { color: #94a3b8; font-size: .75rem; margin-left: auto; }
-.count--low { color: #dc2626; font-weight: 600; }
+.err { color: var(--color-destructive); font-size: .75rem; }
+.count { color: var(--color-muted); font-size: .75rem; margin-left: auto; }
+.count--low { color: var(--color-destructive); font-weight: 600; }
 
 .btn-primary {
   margin-top: 1rem;
   height: 44px;
   padding: 0 1.5rem;
-  background: #16a34a;
+  background: var(--color-primary);
   color: #fff;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: .95rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 150ms ease;
 }
-.btn-primary:hover:not(:disabled) { background: #15803d; }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); }
 .btn-primary:disabled { opacity: .6; cursor: default; }
 
 .btn-secondary {
   margin-top: 1rem;
   height: 42px;
   padding: 0 1.25rem;
-  background: #fff;
-  color: #15803d;
-  border: 1px solid #16a34a;
-  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
   font-size: .9rem;
   font-weight: 600;
   cursor: pointer;
 }
-.btn-secondary:hover { background: #ecfdf5; }
+.btn-secondary:hover { background: var(--color-background); }
 
 .msg.error {
   background: #fef2f2;
-  border-left: 3px solid #dc2626;
-  color: #dc2626;
+  border-left: 3px solid var(--color-destructive);
+  color: var(--color-destructive);
   padding: .6rem .85rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: .85rem;
   margin-bottom: 1rem;
 }
@@ -86,7 +86,65 @@
 .sent {
   text-align: center;
   padding: 1rem 0;
-  i { font-size: 2.5rem; color: #16a34a; }
-  h2 { margin: .5rem 0 .25rem; font-size: 1.25rem; }
-  p { margin: 0; color: #475569; font-size: .9rem; }
+  i { font-size: 2.5rem; color: var(--color-primary); }
+  h2 { margin: .5rem 0 .25rem; font-size: 1.25rem; font-family: var(--font-heading); }
+  p { margin: 0; color: var(--color-muted); font-size: .9rem; }
+}
+
+.section-block { margin-top: 1.25rem; }
+.section-title { margin: 0 0 1rem; font-size: 1.1rem; font-weight: 600; color: var(--color-foreground); font-family: var(--font-heading); }
+
+.list-plain { list-style: none; margin: 0; padding: 0; }
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--color-border);
+  &:last-child { border-bottom: none; }
+}
+.list-row--column { flex-direction: column; align-items: stretch; }
+.list-row-header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.list-row-main { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.list-row-text { margin: 0; color: var(--color-text); font-size: .9rem; overflow-wrap: anywhere; }
+.list-row-date { color: var(--color-muted); font-size: .8rem; white-space: nowrap; }
+
+.statut-badge {
+  flex-shrink: 0;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+// SIGNALE/EN_COURS partagent la famille or (accent) — « en attente » / « en traitement » ; TRAITE
+// bascule sur le vert primaire (résolu) ; REJETE reste rouge. Plus aucune couleur bleue ici :
+// `.statut-EN_COURS` utilisait #dbeafe/#1d4ed8 avant cette passe.
+.statut-SIGNALE { background: var(--color-accent-light); color: var(--color-accent-dark); }
+.statut-EN_COURS { background: #FDE68A; color: var(--color-accent-dark); }
+.statut-TRAITE { background: #DCFCE7; color: var(--color-primary-dark); }
+.statut-REJETE { background: #fee2e2; color: #b91c1c; }
+
+.empty-hint { color: var(--color-muted); font-size: .85rem; margin: 0 0 1rem; }
+
+.subscribe-row { display: flex; gap: .75rem; align-items: center; }
+.select {
+  flex: 1;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 .7rem;
+  font: inherit;
+  font-size: .9rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-destructive);
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  &:hover { text-decoration: underline; }
 }

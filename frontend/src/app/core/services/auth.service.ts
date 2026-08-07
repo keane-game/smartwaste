@@ -4,7 +4,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 
 
@@ -17,12 +16,15 @@ export class AuthService {
 
   errorData: {} | undefined;
   redirectUrl: string | undefined;
-  
+
   baseUrl = environment.authUrl;
 
+  // Pas de `TranslateService` ici : il tire `HttpClient` (chargement du fichier de traduction),
+  // qui repasse par les intercepteurs, dont `ErrorInterceptor` demande `AuthService` — un aller-
+  // retour inutile qui a déjà causé un `NG0200` (dépendance circulaire) au bootstrap. Les
+  // messages restent en dur, en français (langue par défaut de l'app).
   constructor(
-    private http: HttpClient, 
-    private translate: TranslateService,
+    private http: HttpClient,
     private router: Router) {
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser') || '{}'));
     this.currentUser = this.currentUserSubject.asObservable();
@@ -129,42 +131,11 @@ export class AuthService {
     return !!token;
   }
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = this.translate.instant('ERROR.INTERNAL_ERROR');
-    if (error.error instanceof ErrorEvent) {
-      // A client-side or network error occurred.
-      this.translate.get('ERROR.CLIENT_SIDE').subscribe((translation: string) => {
-        errorMessage = `${translation}: ${error.error.message}`;
-      });
-    } else {
-      // The backend returned an unsuccessful response code.
-      this.translate.get('ERROR.SERVER_SIDE').subscribe((translation: string) => {
-        errorMessage = `${translation}: ${error.status}, ${error.message}`;
-      });
-    }
+    const errorMessage = error.error instanceof ErrorEvent
+      ? `Erreur côté client : ${error.error.message}`
+      : `Erreur serveur : ${error.status}, ${error.message}`;
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
-  }
-
-
-  private handleErrort(error: HttpErrorResponse): Observable<never> {
-    console.error('errorMessage');
-    let errorMessage =  this.translate.instant('ERROR.INTERNAL_ERROR');
-    console.error(errorMessage);
-    if (error.error instanceof ErrorEvent) {
-      // A client-side or network error occurred.
-      this.translate.get('ERROR.CLIENT_SIDE').subscribe((translation: string) => {
-        errorMessage = `${translation}: ${error.error.message}`;
-        console.error(errorMessage);
-      });
-    } else {
-      // The backend returned an unsuccessful response code.
-      this.translate.get('ERROR.SERVER_SIDE').subscribe((translation: string) => {
-        errorMessage = `${translation}: ${error.status}, ${error.message}`;
-        console.error(errorMessage);
-      });
-    }
-    console.error(errorMessage);
-    return throwError(() => new Error(error.error.message));
   }
 
 }

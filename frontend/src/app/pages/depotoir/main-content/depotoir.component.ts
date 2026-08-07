@@ -47,7 +47,7 @@ export class DepotoirComponent {
   ngOnInit() {
     this.sharedService.url = '/depotoirs';
     this.loadDepotoirs();
-    this.headerTitleService.setTitle('Gestion Dépotoir');
+    this.headerTitleService.setTitle('Gestion des dépotoirs');
   }
 
 

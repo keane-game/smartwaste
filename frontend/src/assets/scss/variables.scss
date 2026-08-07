@@ -1,49 +1,102 @@
 /* --------------------------------------------------------------------
-	Default Theme Variables
+	Design tokens — SONAGED
+	Palette « Agriculture / Farm Tech » (skill ui-ux-pro-max, vérifiée WCAG) : vert dominant,
+	pas de bleu — sur demande explicite, en remplacement du bleu institutionnel de la première
+	passe. Vert-terre + or-récolte, cohérent avec la collecte de déchets/environnement plutôt
+	qu'un positionnement « portail gouvernemental » générique.
 /*-------------------------------------------------------------------- */
 
-$primary: #00008F;
-$secondary: #D24723;
+$primary: #15803D;
+$secondary: #22C55E;
 $theme-colors: (
   "primary": $primary,
   "secondary": $secondary,
-  "danger": #C91432,
-);
-$theme-colors: (
-  "primary": $primary,
+  "danger": #DC2626,
 ) !default;
 
 :root {
-    --body-text: #24313a;
-    --body-bg: #fff;
-    --main-color: #00008F;
-    --main-tx: #fff;
+    // Couleurs de marque — verts uniquement, aucun bleu.
+    --color-primary: #15803D;
+    --color-primary-dark: #14532D;
+    --color-primary-light: #22C55E;
+    --color-accent: #A16207;
+    --color-accent-dark: #854D0E;
+    --color-accent-light: #FEF3C7;
 
-    --radius: 0.5em;
-    --radius-h: 0.25em;
+    // Surfaces
+    --color-background: #F0FDF4;
+    --color-surface: #FFFFFF;
+    --color-muted-surface: #E8F0F1;
+
+    // Texte
+    --color-foreground: #14532D;
+    --color-text: #334155;
+    --color-muted: #64748B;
+
+    // États
+    --color-border: #BBF7D0;
+    --color-destructive: #DC2626;
+    --color-warning: #D97706;
+    --color-success: #15803D;
+
+    // Typographie
+    --font-heading: 'Lexend', sans-serif;
+    --font-body: 'Source Sans 3', sans-serif;
+    // Alias historique — encore référencé par endroits, pointe désormais vers le corps de texte.
+    --font-poppine: var(--font-body);
+
+    // Profondeur — ombres douces à deux couches (« Soft UI Evolution ») plutôt que le flat-shadow
+    // unique d'origine : plus de matière sans tomber dans le skeuomorphisme. Teinte verte
+    // (21,128,61 = --color-primary) plutôt que neutre, pour rester dans la même famille de couleur.
+    --shadow-sm: 0 1px 2px rgba(21, 128, 61, 0.06);
+    --shadow-md: 0 4px 16px rgba(21, 128, 61, 0.08), 0 1px 3px rgba(21, 128, 61, 0.06);
+    --shadow-lg: 0 12px 32px rgba(21, 128, 61, 0.10), 0 2px 6px rgba(21, 128, 61, 0.06);
+    --focus-ring: 0 0 0 3px rgba(21, 128, 61, 0.15);
+
+    --radius: 0.75em;
+    --radius-h: 0.375em;
+    --radius-sm: 6px;
     --text-color: #fff !important;
-}
 
-:root {
-  --white: #fff;
-  --gray: #f5f5f5;
-  --black1: #222;
-  --black2: #999;
-  --white1: #f6f9ff;
-  --green: #045211;
-  --green-light :#5D8B47;
-  --green1:rgb(248, 255, 250);
-  scroll-behavior: smooth;
-  scrollbar-width: 5px !important;
-  scrollbar-color: red;
-  --font-poppine: "Poppins", sans-serif;
-  --font-helvetica: 'Helvetica'
+    // Échelle d'espacement (densité « standard/tableau de bord », skill ui-ux-pro-max --density 7)
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
 
-  --secondary: #423f3f;
-  --green: #5D8B47;
-  --light_green: #CAD8C8;
-  --light_green1: #F0FCEF;
-  --black: #000000;
-  --blue_black : #011229;
+    // Échelle typographique — base 16px, ratio ~1.25 (tiers accessible, cf. skill priorité 6).
+    --text-xs: 0.75rem;   // 12px — légendes, métadonnées
+    --text-sm: 0.875rem;  // 14px — corps secondaire, tableaux
+    --text-base: 1rem;    // 16px — corps de texte
+    --text-lg: 1.125rem;  // 18px — sous-titres, card-title
+    --text-xl: 1.375rem;  // 22px — titres de page
+    --text-2xl: 1.75rem;  // 28px — chiffres clés (KPI)
+    --text-3xl: 2.5rem;   // 40px — grands nombres / erreurs
 
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-muted) transparent;
+
+    // Alias conservés le temps de purger les anciennes références ailleurs dans le code.
+    --white: #fff;
+    --gray: #f5f5f5;
+    --black1: #222;
+    --black2: #999;
+    --white1: var(--color-background);
+    --green: var(--color-accent);
+    --green-light: var(--color-accent);
+    --green1: var(--color-accent-light);
+    --font-helvetica: var(--font-body);
+    --secondary: var(--color-text);
+    --light_green: var(--color-accent-light);
+    --light_green1: var(--color-accent-light);
+    --black: #000000;
+    --blue_black: var(--color-primary-dark);
+    --main-color: var(--color-primary);
+    --main-tx: #fff;
+    --body-text: var(--color-text);
+    --body-bg: var(--color-surface);
 }

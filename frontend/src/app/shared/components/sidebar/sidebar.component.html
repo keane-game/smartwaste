@@ -38,7 +38,7 @@
         data-bs-toggle="collapse"
         href="#"
       >
-        <i class="ri-file-settings-line"></i><span>Gestion ressouces</span
+        <i class="ri-file-settings-line"></i><span>Gestion des ressources</span
         ><i class="bi bi-chevron-down ms-auto"></i>
       </a>
       <ul
@@ -74,31 +74,43 @@
         </li>
 
         <li>
-          <a routerLink="/circuits" routerLinkActive="active-link">
+          <a routerLink="/circuit-balayages" routerLinkActive="active-link">
             <i class="bi bi-circle"></i>
-            <span>Circuit Balayages</span>
+            <span>Circuits de balayage</span>
           </a>
         </li>
         <li>
-          <a routerLink="/circuits" routerLinkActive="active-link">
+          <a routerLink="/circuit-collects" routerLinkActive="active-link">
             <i class="bi bi-circle"></i>
-            <span>Circuits Collectes</span>
+            <span>Circuits de collecte</span>
           </a>
         </li>
 
         <li>
-          <a routerLink="/userss" routerLinkActive="active-link">
+          <a routerLink="/moblier-urbains" routerLinkActive="active-link">
             <i class="bi bi-circle"></i>
-            <span>Mobliers Urbain</span>
+            <span>Mobiliers urbains</span>
           </a>
         </li>
         <li>
-          <a routerLink="/userss" routerLinkActive="active-link">
+          <a routerLink="/reports" routerLinkActive="active-link">
             <i class="bi bi-circle"></i>
             <span>Rapports</span>
           </a>
         </li>
-      
+        <li>
+          <a routerLink="/vehicles" routerLinkActive="active-link">
+            <i class="bi bi-circle"></i>
+            <span>Flotte</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/devices" routerLinkActive="active-link">
+            <i class="bi bi-circle"></i>
+            <span>Capteurs &amp; traceurs</span>
+          </a>
+        </li>
+
       </ul>
     </li>
 
@@ -116,11 +128,22 @@
     <li class="nav-item">
       <a
         class="nav-link collapsed"
+        routerLink="/collection-routes"
+        routerLinkActive="active-link"
+      >
+        <i class="bi bi-signpost-2"></i>
+        <span>Tournée agent</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a
+        class="nav-link collapsed"
         routerLink="/notifications"
         routerLinkActive="active-link"
       >
         <i class="bi bi-bell"></i>
-        <span>Notification</span>
+        <span>Notifications</span>
       </a>
     </li>
 
@@ -131,7 +154,7 @@
         routerLinkActive="active-link"
       >
         <i class="ri-alert-line"></i>
-        <span>Alerte</span>
+        <span>Alertes</span>
       </a>
     </li>
     <li class="nav-item">
@@ -156,7 +179,7 @@
   <br>
   <ul >
     <li class="nav-item btn-disconnect">
-      <a class="nav-link collapsed" routerLinkActive="active-link">
+      <a class="nav-link collapsed" (click)="logout()" style="cursor: pointer;">
         <i class="bi bi-box-arrow-right"></i>
         <span>Se déconnecter</span>
       </a>

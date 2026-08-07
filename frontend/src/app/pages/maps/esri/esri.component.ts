@@ -74,7 +74,7 @@ constructor(
  }
 
 ngOnInit(): void {
-  this.headerTitleService.setTitle('Maps');
+  this.headerTitleService.setTitle('Carte');
 }
 
 getDepotoirs(): any {

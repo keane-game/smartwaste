@@ -1,0 +1,92 @@
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+
+          <div class="row align-items-end mb-3">
+            <div class="col-md-4">
+              <label class="form-label" for="communeSelect">Commune</label>
+              <select
+                id="communeSelect"
+                class="form-select"
+                [(ngModel)]="communeId"
+                (ngModelChange)="onCommuneChange()"
+              >
+                <option [ngValue]="null" disabled>Choisir une commune…</option>
+                <option *ngFor="let commune of communes" [ngValue]="commune.communeId">
+                  {{ commune.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-8" *ngIf="completion as c">
+              <div class="d-flex align-items-center gap-3">
+                <span><strong>{{ c.served }}</strong> / {{ c.stops }} points desservis</span>
+                <span><strong>{{ c.collected }}</strong> collectés</span>
+                <div class="progress flex-grow-1" style="height: 8px;">
+                  <div class="progress-bar" role="progressbar"
+                       [style.width.%]="completionRate * 100"></div>
+                </div>
+                <span>{{ completionRate * 100 | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+          <div *ngIf="loading" class="text-center py-4">
+            <span class="spinner-border spinner-border-sm"></span> Chargement…
+          </div>
+
+          <div *ngIf="!loading && communeId && stops.length === 0 && !errorMessage" class="text-muted py-4">
+            Aucun point à desservir aujourd'hui sur cette commune.
+          </div>
+
+          <div class="table-responsive" *ngIf="!loading && stops.length > 0">
+            <table class="table table-borderless">
+              <thead>
+                <tr>
+                  <th>Priorité</th>
+                  <th>Adresse</th>
+                  <th>Type</th>
+                  <th>Niveau</th>
+                  <th>Dernière mesure</th>
+                  <th>Motif</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let stop of stops">
+                  <td>
+                    <span class="badge" [ngClass]="priorityBadgeClass(stop.priority)">
+                      {{ priorityLabel(stop.priority) }}
+                    </span>
+                  </td>
+                  <td>{{ stop.address }}</td>
+                  <td>{{ stop.typeName }}</td>
+                  <td>{{ stop.fillLevelPercent !== null ? stop.fillLevelPercent + '%' : 'Jamais mesuré' }}</td>
+                  <td>{{ stop.lastMeasuredAt ? (stop.lastMeasuredAt | date:'short') : '—' }}</td>
+                  <td>{{ stop.reason }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-success me-1"
+                      [disabled]="actionInFlight === stop.depotoirId"
+                      (click)="markCollected(stop)"
+                    >Collecté</button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      [disabled]="actionInFlight === stop.depotoirId"
+                      (click)="markInaccessible(stop)"
+                    >Inaccessible</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

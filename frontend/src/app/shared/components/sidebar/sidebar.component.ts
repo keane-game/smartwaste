@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { sidebarAnimations } from './sidebar.animations';
+import { AuthService } from '../../../core/services/auth.service';
 declare var $: any;
 
 @Component({
@@ -14,8 +15,13 @@ export class SidebarComponent implements AfterViewInit{
 
   constructor(
     private elRef: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private authService: AuthService,
   ) { }
+
+  logout(): void {
+    this.authService.logout();
+  }
 
   ngAfterViewInit(){
   //this.logoutBtn();

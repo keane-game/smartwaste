@@ -52,7 +52,7 @@ export class UserComponent  {
   ngOnInit() {
     this.sharedService.url = '/users';
     this.loadUsers(this.currentPage, this.itemsPerPage);
-    this.headerTitleService.setTitle('Gestion Utilisateur');
+    this.headerTitleService.setTitle('Gestion des utilisateurs');
   }
 
   loadUsers(page: number = 0, size: number = 10): void {

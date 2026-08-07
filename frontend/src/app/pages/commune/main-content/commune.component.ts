@@ -47,7 +47,7 @@ export class CommuneComponent {
   ngOnInit() {
     this.sharedService.url = '/communes';
     this.loadCommuns(this.currentPage, this.itemsPerPage);
-    this.headerTitleService.setTitle('Gestion Communes');
+    this.headerTitleService.setTitle('Gestion des communes');
   }
 
   loadCommuns(page: number = 0, size: number = 10): void {

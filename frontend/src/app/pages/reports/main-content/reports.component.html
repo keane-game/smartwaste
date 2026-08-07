@@ -1,0 +1,144 @@
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+
+          <div class="row align-items-end g-2 mb-3">
+            <div class="col-md-3">
+              <label class="form-label" for="communeSelect">Commune</label>
+              <select id="communeSelect" class="form-select" [(ngModel)]="communeId">
+                <option [ngValue]="null">Tout le référentiel</option>
+                <option *ngFor="let commune of communes" [ngValue]="commune.communeId">
+                  {{ commune.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="fromDate">Du</label>
+              <input id="fromDate" type="date" class="form-control" [(ngModel)]="from">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="toDate">Au</label>
+              <input id="toDate" type="date" class="form-control" [(ngModel)]="to">
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary me-2" [disabled]="loading" (click)="generate()">
+                Générer
+              </button>
+              <button class="btn btn-outline-secondary" [disabled]="downloadingCsv || !report" (click)="downloadCsv()">
+                <i class="bi bi-download"></i> CSV
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+          <div *ngIf="loading" class="text-center py-4">
+            <span class="spinner-border spinner-border-sm"></span> Génération…
+          </div>
+
+          <div *ngIf="!loading && report as r">
+            <p class="text-muted">
+              {{ r.communeName ?? 'Tout le référentiel' }} —
+              du {{ r.from | date:'short' }} au {{ r.to | date:'short' }}
+            </p>
+
+            <div class="row mb-4">
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card sales-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Alertes levées</span>
+                        <h6>{{ r.alertsRaised }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card revenue-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Alertes résolues</span>
+                        <h6>{{ r.alertsResolved }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card customers-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Délai moyen (h)</span>
+                        <h6>{{ r.averageResolutionHours !== null ? (r.averageResolutionHours | number:'1.0-1') : '—' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card revenue-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Taux de réalisation</span>
+                        <h6>{{ r.completionRate * 100 | number:'1.0-0' }}%</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card sales-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Collectés / desservis</span>
+                        <h6>{{ r.collected }} / {{ r.served }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-2 card-item">
+                <div class="card info-card customers-card">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="ps-3 text-end">
+                        <span class="small pt-2 ps-1">Inaccessibles</span>
+                        <h6>{{ r.inaccessible }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h5 class="card-title">Points chroniquement en débordement</h5>
+            <div *ngIf="r.chronicPoints.length === 0" class="text-muted">Aucun.</div>
+            <table class="table table-borderless" *ngIf="r.chronicPoints.length > 0">
+              <thead>
+                <tr>
+                  <th>Adresse</th>
+                  <th>Débordements sur la période</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let point of r.chronicPoints">
+                  <td>{{ point.address }}</td>
+                  <td>{{ point.overflowCount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -46,7 +46,7 @@ export class AlertComponent {
   ngOnInit(){
     this.sharedService.url = '/alerts';
     this.loadAlerts(this.currentPage, this.itemsPerPage);
-    this.headerTitleServie.setTitle('Gestion Alert');
+    this.headerTitleServie.setTitle('Gestion des alertes');
   }
 
   loadAlerts(page: number, size: number) {
