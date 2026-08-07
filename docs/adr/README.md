@@ -36,6 +36,7 @@ Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` 
 | [0016](0016-geometrie-des-entites-dechets.md) | Géométrie des entités « déchets » : posée par elles, construite par le territoire | ✅ **Implémenté** — 71/71, 52/52, 156/156 | P0 |
 | [0017](0017-ordre-de-passage-geographique.md) | Ordre de passage : l'urgence découpe, la géographie ordonne | ✅ **Implémenté** | P1 |
 | [0018](0018-rattachement-territorial-par-la-geometrie.md) | Commune d'un point : par la position, non par le libellé — ⛔ remplace 0015 §4 | ✅ **Implémenté** — 70/71 rattachés | P0 |
+| [0019](0019-remplissage-predictif-cadrage.md) | Remplissage prédictif : cadrage (G4) | 🔵 **Proposé** — cadrage seul, gate par point non ouvert | Lot 8 / G4 |
 
 ## Décisions structurantes prises **hors ADR**
 

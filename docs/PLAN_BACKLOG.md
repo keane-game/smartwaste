@@ -107,6 +107,8 @@ Trois contraintes ordonnent ce plan, dans cet ordre de force :
 
 **Condition d'entrée, non négociable : disposer de plusieurs semaines de mesures sur un nombre significatif de points.** Aujourd'hui : 2 capteurs de test pour 71 points. Lancer ce lot avant équipement produirait un modèle entraîné sur du vide, dont personne ne saurait dire s'il se trompe.
 
+**Cadré le 2026-08-06** (`docs/adr/0019-remplissage-predictif-cadrage.md`) — l'UCG prévoit d'équiper des capteurs prochainement. La condition d'entrée est désormais **vérifiable par le code, point par point** (≥ 20 mesures sur ≥ 14 jours par point, fenêtre bornée par le dernier passage collecté) plutôt qu'estimée globalement sur le parc : aucun risque d'activation prématurée si ce lot est mergé avant que le parc soit prêt. Reste à écrire quand l'historique existe réellement : `FillTrendEstimator` (régression linéaire, côté `waste`, réutilise `IngestionMetrics.measurementsFor` sans nouveau port `iot`) + `StopPriority.SATURATION_PROJETEE`.
+
 **Travail.** Vitesse de remplissage par point sur fenêtre glissante ; date de saturation projetée ; intégration comme niveau d'urgence dans la tournée.
 
 **Exigence de conception.** Le comportement quand l'historique est trop court doit être **explicite** : ne pas produire de tendance plutôt qu'en inventer une. C'est la même règle que « un point jamais mesuré n'est pas un point vide », qui a déjà coûté un défaut aujourd'hui — l'ancienneté conventionnelle d'un point jamais mesuré faisait basculer toute la tournée dans le rattrapage anti-famine.
@@ -136,7 +138,7 @@ Trois contraintes ordonnent ce plan, dans cet ordre de force :
 | 5 | G3 sensibilisation | M | lot 3 |
 | 6 | G8 traçabilité | M | lot 2 + décision sur `HistoryEntity` |
 | 7 | G6 balayage | L | lot 2 + **cadrage UCG** |
-| 8 | G4 prédictif | L | **capteurs déployés, historique réel** |
+| 8 | G4 prédictif | L | **capteurs déployés, historique réel** — cadré, gate par point : ADR-0019 |
 | 9 | G10 hors ligne | M | lot 2 + usage constaté |
 
 Les lots 1 et 2 sont exécutables immédiatement. Les lots 3, 7 et 8 attendent quelque chose qui ne dépend pas du code : une clé rotée, une réponse du métier, des capteurs posés.

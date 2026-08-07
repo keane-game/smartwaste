@@ -1,9 +1,41 @@
 # ADR-0006 — Consolidation vers un frontend web unique
 
-- Statut : **Proposé — ⚠️ PRÉMISSE INVALIDÉE, à réexaminer avant toute action**.
-> Cet ADR retient `angular/` au motif qu'il serait « le plus complet ». Mesure du 2026-07-28 : `angular/` = 164 fichiers `.ts` / ~9 900 lignes (Angular 17.0.7, NgModules) ; **`sonaged_web/` = 196 fichiers / ~16 900 lignes (Angular 17.3, composants standalone)**. Le second est plus gros et plus moderne. Le volume ne prouve pas la complétude, mais **appliquer cet ADR en l'état pourrait supprimer la meilleure base**. Comparaison fonctionnelle requise avant décision.
-- Date : 2026-07-11
+- Statut : **Exécuté le 2026-08-05, mais avec la décision INVERSÉE** — le front retenu est
+  `sonaged_web/`, pas `angular/`. Voir « Décision effective » ci-dessous.
+- Date : 2026-07-11 · Exécution : 2026-08-05
 - Priorité : P1-4
+
+## Décision effective (2026-08-05) — remplace la décision d'origine
+
+**Front retenu : `sonaged_web/`.** `angular/` et `ucgFrontend/` ont été supprimés
+(1 054 fichiers suivis).
+
+Cet ADR retenait `angular/` au motif qu'il serait « le plus complet ». L'audit du 2026-08-05
+(`docs/FRONTEND_AUDIT.md`) a montré que les deux candidats étaient en avance sur des axes
+**opposés** :
+
+- `angular/` était le seul **à jour de l'API** — sous-chemins `/s`, renouvellement de jeton,
+  déconnexion serveur, client SSE, registre CRUD sur 12 entités ;
+- `sonaged_web/` a la meilleure **fondation technique** — Leaflet + proj4 + esri-leaflet, i18n,
+  papaparse, dépendances Angular 17.3 cohérentes, deux fois plus de code — mais son contrat
+  d'API avait deux ans de retard : 11 chemins au singulier inexistants, listes en 400, aucun
+  rafraîchissement de jeton.
+
+L'arbitrage s'est fait sur ce qui est **coûteux à refaire**. La pile SIG et l'i18n sont du
+travail ; la fraîcheur de l'API est de la connaissance, transférable. Elle l'a été avant
+suppression : renouvellement de jeton, intercepteur 401, client SSE, registre des chemins
+(`shared/constants/api-endpoints.ts`), accès typés `/v1/maps/**` et écran « avis ».
+
+Correction au dossier : `sonaged_web` n'est **pas** « à composants standalone » — 16 fichiers
+sur 199 le sont, contre 44 NgModules. Le bootstrap est standalone, pas l'architecture.
+
+---
+
+## Décision d'origine (2026-07-11) — non retenue
+
+> ⚠️ Ce qui suit est conservé pour la trace du raisonnement. La mesure du 2026-07-28 avait déjà
+> signalé que la prémisse était fausse : `angular/` = 164 fichiers `.ts` / ~9 900 lignes ;
+> `sonaged_web/` = 196 fichiers / ~16 900 lignes.
 
 ## Contexte
 
