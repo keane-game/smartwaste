@@ -74,7 +74,9 @@ export class DashboardMapComponent implements AfterViewInit, OnDestroy {
       if (points.length === 0) {
         return;
       }
-      L.polygon([points], { color: '#4154f1', weight: 1, fillOpacity: 0.03 }).addTo(this.map);
+      // #15803D = --color-primary (assets/scss/variables.scss). Un style Leaflet inline ne peut
+      // pas lire une variable CSS, d'où la valeur en dur plutôt qu'un `var(...)`.
+      L.polygon([points], { color: '#15803D', weight: 1, fillOpacity: 0.03 }).addTo(this.map);
     });
   }
 

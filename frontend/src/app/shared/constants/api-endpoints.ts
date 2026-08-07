@@ -41,14 +41,15 @@ export interface ResourceEndpoint {
   /** Nom du champ identifiant dans le DTO. */
   idField: string;
   /**
-   * Type réel de l'identifiant côté backend, vérifié `@PathVariable` par `@PathVariable`
-   * (2026-08-06). ADR-0012 reste **partielle** : `depotoirs`, `typedepotoirs` et `alerts` sont
-   * encore en `Long` auto-incrémenté (`Depotoir`/`Alert` référencent `TypeDepotoir` par
-   * association objet interne au contexte, pas par id — les migrer suppose de migrer `Depotoir`
-   * et `Alert` en même temps). `territory`, `identity`, et depuis une passe de migration
-   * ultérieure `typedepotoirs`, `moblier-urbains`, `circuits`, `circuit-collects` et
-   * `circuit-balayages` sont en UUID v7. Sans impact d'usage côté front (les deux s'interpolent
-   * pareil dans une URL), mais à savoir avant de typer un DTO ou de valider un format d'id.
+   * Type réel de l'identifiant côté backend, vérifié `@PathVariable` par `@PathVariable`.
+   * ADR-0012 était **partielle** jusqu'au commit `4c25e8c` (2026-08-07, "finish ADR-0012 UUID
+   * migration") : `depotoirs`, `typedepotoirs`, `alerts`, `circuits`, `circuit-collects`,
+   * `circuit-balayages` et `moblier-urbains` restaient en `Long` auto-incrémenté jusque-là.
+   * Depuis ce commit, **toutes** les ressources de ce registre sont en UUID v7 — seul
+   * `Avis.id` (hors registre : `/avis` est monté hors `/v1`, cf. `API_PATHS.avis*`) reste un
+   * `int`, non touché par cette migration. Le champ `idType` n'a donc plus qu'une valeur
+   * possible ici, conservé pour tracer l'historique et détecter si une ressource future revient
+   * en arrière.
    */
   idType: 'uuid' | 'long';
   /**
@@ -174,8 +175,8 @@ export const API_PATHS = {
   supervisionStats: '/supervision/stats',
   supervisionReports: '/supervision/reports',
   supervisionReportsCsv: '/supervision/reports/csv',
-  // `depotoirId` prend indifféremment `string` ou `number` : `Depotoir` n'est pas encore migré
-  // en UUID v7 côté backend (c'est un `Long`), contrairement à la plupart des autres ressources.
+  // `depotoirId` est un UUID v7 depuis le commit `4c25e8c` (2026-08-07, "finish ADR-0012 UUID
+  // migration") — `Depotoir` était un `Long` avant cela.
   pointJournal: (depotoirId: string) => `/supervision/points/${depotoirId}/journal`,
 
   /**

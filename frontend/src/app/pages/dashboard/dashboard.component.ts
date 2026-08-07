@@ -162,7 +162,7 @@ export class DashboardComponent implements OnDestroy {
         labels: codes,
         datasets: [{
           data: codes.map(code => stats.alertsByCode[code]),
-          backgroundColor: ['#4154f1', '#ff771d', '#dc3545', '#2eca6a'],
+          backgroundColor: ['#15803D', '#A16207', '#DC2626', '#22C55E'],
         }],
       },
       options: {
@@ -194,7 +194,7 @@ export class DashboardComponent implements OnDestroy {
         datasets: [{
           label: 'Points de collecte',
           data: buckets.map(bucket => stats.depotoirsByFillLevel[bucket]),
-          backgroundColor: '#4154f1',
+          backgroundColor: '#15803D',
         }],
       },
       options: {
