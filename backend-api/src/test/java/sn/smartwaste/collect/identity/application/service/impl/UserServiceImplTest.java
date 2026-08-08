@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.identity.application.service.impl;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +67,24 @@ class UserServiceImplTest {
         assertThat(saved.getValue().getUserPassword()).isEqualTo("$2a$10$hash");
         // Le point du test : l'ancienne constante ne doit plus jamais être encodée.
         verify(bCryptPasswordEncoder, never()).encode("Sonaged@123");
+    }
+
+    @Test
+    @DisplayName("un identifiant fourni par l'appelant est ignoré : jamais un UPDATE déguisé en INSERT")
+    void submittedUserIdIsIgnored() {
+        when(bCryptPasswordEncoder.encode(any())).thenReturn("$2a$10$hash");
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        // L'id d'un compte EXISTANT quelconque, y compris potentiellement un SUPER_ADMIN : sans
+        // le correctif, un ADMIN pourrait ainsi écraser ce compte au lieu d'en créer un nouveau.
+        User request = submitted("MonMotDePasse!42");
+        request.setUserId(UUID.randomUUID());
+
+        userService.createUser(request);
+
+        ArgumentCaptor<UserEntity> saved = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepository).save(saved.capture());
+        assertThat(saved.getValue().getUserId()).isNull();
     }
 
     @Test

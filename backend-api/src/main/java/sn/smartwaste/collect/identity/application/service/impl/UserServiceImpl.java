@@ -79,7 +79,13 @@ public class UserServiceImpl  implements UserService {
             throw new ResourceNotFoundException("Le mot de passe est obligatoire");
         }
         user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));
-        var userSave = userRepository.save(UserMapper.UMP.asModel(user));
+        var userToCreate = UserMapper.UMP.asModel(user);
+        // Même faille que AuthServiceImpl.register (voir son commentaire) : un `userId` fourni par
+        // le client ferait faire un `merge` (UPDATE) à Spring Data au lieu d'un `persist` (INSERT)
+        // — ici un ADMIN pourrait ainsi écraser un compte SUPER_ADMIN existant, un second chemin
+        // vers l'élévation de privilège en plus de celui déjà connu sur /v1/authorities.
+        userToCreate.setUserId(null);
+        var userSave = userRepository.save(userToCreate);
         return UserMapper.UMP.asDto(userSave);
     }
 

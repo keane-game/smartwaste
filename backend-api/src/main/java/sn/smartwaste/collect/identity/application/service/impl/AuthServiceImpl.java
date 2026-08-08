@@ -94,6 +94,21 @@ public class AuthServiceImpl implements AuthService {
         UserEntity userToCreate = UserMapper.UMP.asModel(user);
 
         // ---------------------------------------------------------------------------------
+        // Prise de contrôle de compte par collision d'identifiant refermée.
+        //
+        // `UserEntity.userId` est généré par l'application (`@UuidGenerator`), et `User` (DTO)
+        // porte un champ `userId` public, jamais neutralisé jusqu'ici. `/auth/register` est en
+        // `permitAll` : un appelant pouvait fournir dans le corps de la requête le `userId` d'un
+        // compte EXISTANT. Spring Data voit alors un `@Id` non nul et fait un `merge` (UPDATE) au
+        // lieu d'un `persist` (INSERT) — le compte visé se retrouvait avec l'email et le mot de
+        // passe de l'attaquant, désactivé (`activated=false` ci-dessous), prêt à être réactivé par
+        // l'attaquant via SON code d'activation. Même famille de faille que celle fermée sur
+        // `Avis.create()` (`avis.setId(null)`), jamais reproduite ici alors que le module identité
+        // est bien plus sensible. Remis à `null` pour garantir un INSERT, jamais un UPDATE
+        // déguisé — l'identifiant appartient au serveur, pas au corps de la requête.
+        userToCreate.setUserId(null);
+
+        // ---------------------------------------------------------------------------------
         // Élévation de privilèges refermée.
         //
         // `/auth/register` est en `permitAll`, et l'ancien code faisait

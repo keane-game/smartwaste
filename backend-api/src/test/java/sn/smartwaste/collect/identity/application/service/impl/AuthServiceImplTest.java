@@ -107,6 +107,21 @@ class AuthServiceImplTest {
     }
 
     @Test
+    @DisplayName("un identifiant fourni dans la requête d'inscription est ignoré : jamais un UPDATE déguisé en INSERT")
+    void register_ignoresClientSuppliedUserId() {
+        givenEmailFreeAndRolesSeeded();
+
+        // L'id d'un compte EXISTANT quelconque : sans le correctif, Spring Data verrait un @Id
+        // non nul et ferait un merge (UPDATE de ce compte) au lieu d'un persist (INSERT).
+        User request = registration(null);
+        request.setUserId(UUID.randomUUID());
+
+        authService.register(request);
+
+        assertThat(captureSavedUser().getUserId()).isNull();
+    }
+
+    @Test
     @DisplayName("une inscription sans rôle aboutit : le serveur en attribue un (le formulaire n'en envoie pas)")
     void register_assignsDefaultRoleWhenNoneSupplied() {
         givenEmailFreeAndRolesSeeded();
