@@ -147,6 +147,20 @@ sonaged:
       # URL publique de diffusion des objets. Vide -> {endpoint}/{bucket}. Renseigner si proxy/CDN
       # (ou pour des URLs présignées gérées en amont). Le bucket doit être lisible pour un accès direct.
       public-base-url: ${MINIO_PUBLIC_URL:}
+  mqtt:
+    # Voie d'ingestion MQTT — EN PARALLÈLE de POST /v1/measurements (REST), pas un remplacement.
+    # Sert à tester la chaîne capteur -> mesure -> seuil -> alerte avec un broker public, sans
+    # matériel physique. DÉSACTIVÉE par défaut : un test/CI hors-ligne ne doit jamais dépendre
+    # d'Internet, et un broker public de test n'a aucune vocation à tourner en continu.
+    enabled: ${SONAGED_MQTT_ENABLED:false}
+    # broker.hivemq.com : broker public gratuit, pas d'inscription, bonne disponibilité, client
+    # web de vérification (www.hivemq.com/demos/websocket-client/), aucune rétention de message
+    # par défaut (rien ne "traîne" après un test). Port 1883 non chiffré : suffisant, aucune
+    # donnée sensible n'y transite (voir garde-fou ci-dessous et le commentaire du listener).
+    broker-url: ${SONAGED_MQTT_BROKER_URL:tcp://broker.hivemq.com:1883}
+    # Préfixé pour éviter toute collision avec les autres utilisateurs du broker public.
+    topic: ${SONAGED_MQTT_TOPIC:smartcollect-pikine-test/measurements}
+    client-id: ${SONAGED_MQTT_CLIENT_ID:smartcollect-pikine-test-backend}
   security:
     jwt:
       # Duree de vie du jeton d'acces. Passee de 10 JOURS a 15 minutes : c'est ce que les

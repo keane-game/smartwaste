@@ -25,6 +25,7 @@
 		<spring-modulith.version>1.4.1</spring-modulith.version>
 		<minio.version>8.5.17</minio.version>
 		<org-json.version>20260719</org-json.version>
+		<paho.version>1.2.5</paho.version>
 		<!-- Versions retirées volontairement (gérées par le BOM Spring Boot 3.5.3) :
 		     - hibernate-core : l'ancienne propriété `hibernate-core.version=7.0.0.Alpha2` était
 		       ORPHELINE (Boot pilote Hibernate via `hibernate.version`) et ne s'appliquait pas ;
@@ -232,6 +233,16 @@
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>${minio.version}</version>
+		</dependency>
+
+		<!-- Voie d'ingestion MQTT, en parallèle de MeasurementIngestionController (REST) — test
+		     de la chaîne capteur avec un broker public, PAS un remplacement (voir iot/infrastructure/mqtt).
+		     Client Paho direct plutôt que Spring Integration MQTT : ce module n'utilise Spring
+		     Integration nulle part ailleurs, et Paho suffit pour un simple abonnement à un topic. -->
+		<dependency>
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>${paho.version}</version>
 		</dependency>
 
 	</dependencies>
