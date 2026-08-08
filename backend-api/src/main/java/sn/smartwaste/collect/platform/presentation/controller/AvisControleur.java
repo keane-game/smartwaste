@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.platform.presentation.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -75,7 +76,7 @@ public class AvisControleur {
                description = "SIGNALE -> EN_COURS -> TRAITE|REJETE. Une transition interdite rend 409.")
     @PutMapping("/{avisId}/statut/{statut}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
-    public Avis changeStatus(@PathVariable("avisId") int avisId,
+    public Avis changeStatus(@PathVariable("avisId") UUID avisId,
                              @PathVariable("statut") AvisStatus statut) {
         return avisService.changeStatus(avisId, statut);
     }

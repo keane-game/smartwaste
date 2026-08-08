@@ -37,11 +37,11 @@ public class AvisService {
     public void create(Avis avis){
        // Champs contrôlés par le serveur : on neutralise ce que le client aurait pu injecter
        // dans le corps de la requête (liaison directe de l'entité JPA).
-       //  - id remis à 0 -> `save()` fait toujours un INSERT et ne peut plus écraser
+       //  - id remis à null -> `save()` fait toujours un INSERT et ne peut plus écraser
        //    l'avis d'un autre utilisateur (IDOR) ;
        //  - statut réinitialisé -> le client ne peut pas auto-valider son avis (mass assignment) ;
        //  - auteur imposé depuis le principal authentifié, jamais depuis le corps de la requête.
-       avis.setId(0);
+       avis.setId(null);
        avis.setStatut(AvisStatus.SIGNALE);
        // Le traitement ne se déclare pas à la création : un habitant ne peut pas déposer un
        // signalement déjà clos, ni s'attribuer la clôture d'un autre.
@@ -78,7 +78,7 @@ public class AvisService {
      * charge n'ait eu lieu — ce qui viderait la file de son sens.
      */
     @Transactional
-    public Avis changeStatus(int avisId, AvisStatus target) {
+    public Avis changeStatus(UUID avisId, AvisStatus target) {
         var avis = avisRepository.findById(avisId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Signalement [%s] introuvable".formatted(avisId)));

@@ -1,8 +1,6 @@
 package sn.smartwaste.collect.platform.domain.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -12,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
+import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
 import java.util.UUID;
 
 @Getter
@@ -23,8 +23,8 @@ import java.util.UUID;
 public class Avis {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @UuidGenerator(algorithm = UuidV7Generator.class)
+    private UUID id;
 
     /** Description libre du signalement, saisie par l'habitant. */
     private String message;

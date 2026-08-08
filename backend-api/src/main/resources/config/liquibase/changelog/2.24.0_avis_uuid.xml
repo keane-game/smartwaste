@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0012 — dernier holdout : Avis.id migré de INTEGER auto-incrémenté vers UUID v7, même
+      série que 2.18.0/2.19.0/2.20.0/2.22.0. C'est la plus petite migration du lot : aucune table
+      ne référence avis.id (vérifié — ni FK physique, ni colonne `avisid` ailleurs dans le schéma),
+      donc aucun effet de bord en dehors de cette table.
+
+      ⚠️ DESTRUCTEUR pour la table avis elle-même — à lire avant d'appliquer sur une base qui
+      contient déjà des signalements : ses lignes sont purgées, l'ancienne identité INTEGER n'a pas
+      de correspondance UUID sensée. Les colonnes `latitude`/`longitude`/`statut`/`userid`/etc. ne
+      sont pas affectées, seule la ligne existante disparaît.
+    -->
+
+    <changeSet author="claude" id="2.24.0-1-purge-avis">
+        <comment>⚠️ Destructeur : vide avis avant le changement de type de sa PK (integer -> uuid).</comment>
+        <delete tableName="avis"/>
+    </changeSet>
+
+    <changeSet author="claude" id="2.24.0-2-pk-uuid-avis">
+        <comment>PK Avis en uuid natif ; valeurs fournies par l'application (UUID v7).</comment>
+        <dropPrimaryKey tableName="avis"/>
+        <dropColumn tableName="avis" columnName="id"/>
+        <addColumn tableName="avis">
+            <column name="id" type="uuid"/>
+        </addColumn>
+        <addNotNullConstraint tableName="avis" columnName="id" columnDataType="uuid"/>
+        <addPrimaryKey tableName="avis" columnNames="id" constraintName="avis_pkey"/>
+    </changeSet>
+
+</databaseChangeLog>

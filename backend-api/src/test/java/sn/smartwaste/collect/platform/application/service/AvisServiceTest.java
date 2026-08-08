@@ -45,6 +45,11 @@ class AvisServiceTest {
     private static final UUID AUTEUR = UUID.randomUUID();
     private static final UUID AGENT = UUID.randomUUID();
 
+    /** UUID stable dérivé d'un petit entier : les cas restent lisibles, les entités sont en UUID. */
+    private static UUID uuid(long n) {
+        return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
+    }
+
     @Mock
     private AvisRepository avisRepository;
     @Mock
@@ -61,9 +66,9 @@ class AvisServiceTest {
 
     private Avis existing(AvisStatus statut) {
         var avis = new Avis();
-        avis.setId(12);
+        avis.setId(uuid(12));
         avis.setStatut(statut);
-        lenient().when(avisRepository.findById(12)).thenReturn(Optional.of(avis));
+        lenient().when(avisRepository.findById(uuid(12))).thenReturn(Optional.of(avis));
         lenient().when(avisRepository.save(any(Avis.class))).thenAnswer(i -> i.getArgument(0));
         return avis;
     }
@@ -74,7 +79,7 @@ class AvisServiceTest {
         when(currentUserProvider.requireCurrentUserId()).thenReturn(AUTEUR);
 
         var forged = new Avis();
-        forged.setId(999);                                  // tentative d'écrasement (IDOR)
+        forged.setId(uuid(999));                             // tentative d'écrasement (IDOR)
         forged.setStatut(AvisStatus.TRAITE);                // tentative d'auto-clôture
         forged.setUserId(UUID.randomUUID());                // tentative d'attribution à un tiers
         forged.setProcessedByUserId(UUID.randomUUID());
@@ -89,7 +94,7 @@ class AvisServiceTest {
         avisService.create(forged);
 
         Avis saved = captureSaved();
-        assertThat(saved.getId()).isZero();                 // INSERT garanti
+        assertThat(saved.getId()).isNull();                  // INSERT garanti
         assertThat(saved.getStatut()).isEqualTo(AvisStatus.SIGNALE);
         assertThat(saved.getUserId()).isEqualTo(AUTEUR);
         assertThat(saved.getProcessedByUserId()).isNull();
@@ -106,12 +111,12 @@ class AvisServiceTest {
         var avis = existing(AvisStatus.SIGNALE);
         when(currentUserProvider.requireCurrentUserId()).thenReturn(AGENT);
 
-        avisService.changeStatus(12, AvisStatus.EN_COURS);
+        avisService.changeStatus(uuid(12), AvisStatus.EN_COURS);
         assertThat(avis.getStatut()).isEqualTo(AvisStatus.EN_COURS);
         // La prise en charge n'est pas une clôture : rien n'est encore tracé.
         assertThat(avis.getProcessedAt()).isNull();
 
-        avisService.changeStatus(12, AvisStatus.TRAITE);
+        avisService.changeStatus(uuid(12), AvisStatus.TRAITE);
         assertThat(avis.getStatut()).isEqualTo(AvisStatus.TRAITE);
         assertThat(avis.getProcessedByUserId()).isEqualTo(AGENT);
         assertThat(avis.getProcessedAt()).isNotNull();
@@ -122,7 +127,7 @@ class AvisServiceTest {
     void skippingInProgressIsRejected() {
         existing(AvisStatus.SIGNALE);
 
-        assertThatThrownBy(() -> avisService.changeStatus(12, AvisStatus.TRAITE))
+        assertThatThrownBy(() -> avisService.changeStatus(uuid(12), AvisStatus.TRAITE))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("interdite");
 
@@ -134,9 +139,9 @@ class AvisServiceTest {
     void terminalStatusCannotBeReopened() {
         existing(AvisStatus.TRAITE);
 
-        assertThatThrownBy(() -> avisService.changeStatus(12, AvisStatus.EN_COURS))
+        assertThatThrownBy(() -> avisService.changeStatus(uuid(12), AvisStatus.EN_COURS))
                 .isInstanceOf(ResponseStatusException.class);
-        assertThatThrownBy(() -> avisService.changeStatus(12, AvisStatus.SIGNALE))
+        assertThatThrownBy(() -> avisService.changeStatus(uuid(12), AvisStatus.SIGNALE))
                 .isInstanceOf(ResponseStatusException.class);
 
         verify(avisRepository, never()).save(any());
@@ -148,7 +153,7 @@ class AvisServiceTest {
         var avis = existing(AvisStatus.EN_COURS);
         when(currentUserProvider.requireCurrentUserId()).thenReturn(AGENT);
 
-        avisService.changeStatus(12, AvisStatus.REJETE);
+        avisService.changeStatus(uuid(12), AvisStatus.REJETE);
 
         assertThat(avis.getStatut()).isEqualTo(AvisStatus.REJETE);
         assertThat(avis.getProcessedByUserId()).isEqualTo(AGENT);
@@ -161,7 +166,7 @@ class AvisServiceTest {
         var closedAt = java.time.Instant.parse("2026-07-01T10:00:00Z");
         avis.setProcessedAt(closedAt);
 
-        avisService.changeStatus(12, AvisStatus.TRAITE);
+        avisService.changeStatus(uuid(12), AvisStatus.TRAITE);
 
         assertThat(avis.getProcessedAt()).isEqualTo(closedAt);
         verify(avisRepository, never()).save(any());

@@ -51,7 +51,7 @@ class AvisAuthorizationTest {
     @DisplayName("un habitant ne peut pas faire avancer un signalement")
     void citizenCannotChangeStatus() throws Exception {
         // Sans cette règle, n'importe quel compte pouvait clore ou rejeter le signalement d'autrui.
-        mockMvc.perform(put("/avis/1/statut/EN_COURS").with(csrf()))
+        mockMvc.perform(put("/avis/00000000-0000-0000-0000-000000000001/statut/EN_COURS").with(csrf()))
                 .andExpect(status().isForbidden());
     }
 
@@ -76,7 +76,7 @@ class AvisAuthorizationTest {
     void supervisorIsNotForbiddenOnTransition() throws Exception {
         // Le signalement 999 n'existe pas : la réponse sera une erreur métier, pas un 403.
         // C'est bien l'autorisation qu'on vérifie ici, pas le résultat fonctionnel.
-        int status = mockMvc.perform(put("/avis/999/statut/EN_COURS").with(csrf()))
+        int status = mockMvc.perform(put("/avis/00000000-0000-0000-0000-000000000999/statut/EN_COURS").with(csrf()))
                 .andReturn().getResponse().getStatus();
         assertThat(status).isNotEqualTo(HttpStatus.FORBIDDEN.value());
     }

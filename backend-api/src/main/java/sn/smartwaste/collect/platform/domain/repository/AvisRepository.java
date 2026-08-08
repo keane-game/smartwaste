@@ -4,8 +4,10 @@ import sn.smartwaste.collect.platform.domain.model.Avis;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.UUID;
 
-public interface AvisRepository extends JpaRepository<Avis, Integer> {
+
+public interface AvisRepository extends JpaRepository<Avis, UUID> {
 
     java.util.List<Avis> findByStatutOrderByIdDesc(sn.smartwaste.collect.platform.domain.model.AvisStatus statut);
 
