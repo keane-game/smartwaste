@@ -45,11 +45,11 @@ export interface ResourceEndpoint {
    * ADR-0012 était **partielle** jusqu'au commit `4c25e8c` (2026-08-07, "finish ADR-0012 UUID
    * migration") : `depotoirs`, `typedepotoirs`, `alerts`, `circuits`, `circuit-collects`,
    * `circuit-balayages` et `moblier-urbains` restaient en `Long` auto-incrémenté jusque-là.
-   * Depuis ce commit, **toutes** les ressources de ce registre sont en UUID v7 — seul
-   * `Avis.id` (hors registre : `/avis` est monté hors `/v1`, cf. `API_PATHS.avis*`) reste un
-   * `int`, non touché par cette migration. Le champ `idType` n'a donc plus qu'une valeur
-   * possible ici, conservé pour tracer l'historique et détecter si une ressource future revient
-   * en arrière.
+   * Depuis ce commit, **toutes** les ressources de ce registre sont en UUID v7. `Avis.id` (hors
+   * registre : `/avis` est monté hors `/v1`, cf. `API_PATHS.avis*`) est passé en UUID v7 à son
+   * tour le 2026-08-08 (changelog `2.24.0`) — plus aucune ressource `int`/`Long` dans l'API. Le
+   * champ `idType` n'a donc plus qu'une valeur possible ici, conservé pour tracer l'historique et
+   * détecter si une ressource future revient en arrière.
    */
   idType: 'uuid' | 'long';
   /**

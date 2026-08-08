@@ -7,7 +7,7 @@ import { API_ENDPOINTS, API_PATHS } from '../../shared/constants/api-endpoints';
 import { succesAlert, errorAlert } from '../../services/alert.service';
 
 interface AvisMine {
-  id: number;
+  id: string;
   message: string;
   statut: 'SIGNALE' | 'EN_COURS' | 'TRAITE' | 'REJETE';
   submittedAt: string;
