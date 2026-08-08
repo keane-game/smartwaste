@@ -11,6 +11,13 @@
 > vérifiée en base depuis le 2026-08-04. Corrections ponctuelles apportées inline ; pour tout ce qui
 > n'est pas explicitement corrigé ici, `IMPLEMENTATION_LOG.md` reste la source qui prime sur ce
 > document en cas de désaccord.
+>
+> ⚠️ **Mise à jour 2026-08-08** : les corrections ponctuelles de 2026-08-06 n'avaient pas été
+> recopiées partout — §4.2 contredisait encore §7.1 sur température/humidité, et le tableau §7.2
+> décrivait un état antérieur aux lots du 2026-07-29 (alerte citoyenne, signalement géolocalisé,
+> localisation véhicules) et du 2026-08-04/07 (rapports de performance, sensibilisation/quiz).
+> Corrigé par vérification directe du journal et du code, pas par confiance dans les corrections
+> précédentes. La CI GitHub Actions a aussi été mise en route pour la première fois ce jour (§7.2).
 
 ---
 
@@ -164,8 +171,11 @@ de collecte ») — **existe et a été vérifiée contre PostgreSQL** (`docs/IM
 2026-08-04/05) : `iot.Sensor`/`Measurement`, `waste.FillLevelProjector`/`ThresholdResolver`
 déclenchent une `Alert` liée au `Depotoir` sur dépassement de seuil, avec résolution et journal par
 point (`PointJournalController`). `Alert` n'est plus une ressource saisie à la main uniquement.
-Ce qui reste hors périmètre d'ADR-0004 : les seuils **température/humidité** que le mémoire
-demande également (§7.1) ne sont pas évalués, seul le remplissage l'est.
+~~Ce qui reste hors périmètre d'ADR-0004 : les seuils température/humidité ne sont pas évalués.~~
+— **corrigé, cette phrase était fausse** (§7.1 le disait déjà correctement plus bas dans ce même
+document, incohérence non recopiée ici avant le 2026-08-08) : `AlertThreshold` porte les trois
+grandeurs (`fillLevelPercent`, `temperatureCelsius`, `humidityPercent`), chacune évaluée
+indépendamment par `FillLevelProjector`. Aucun écart de périmètre sur ce point.
 
 ### 4.3 Ce que dit l'enquête citoyenne (34 réponses) — **jamais traduit en backlog**
 | Question | Résultat |
@@ -244,22 +254,26 @@ et LoRa/passerelle IoT (l'ingestion actuelle est REST + clé API device, pas LoR
 > `AlertCode.DANGER` pour température/humidité). Aucun ADR-0004bis n'est nécessaire.
 
 ### 7.2 Autres fonctionnalités spécifiées et manquantes
+> ⚠️ Plusieurs lignes de ce tableau étaient stales avant le 2026-08-08 : elles décrivaient l'état
+> d'avant les lots des 2026-07-29/08-07 sans avoir été mises à jour au fil des entrées de
+> `docs/IMPLEMENTATION_LOG.md`. Corrigées ci-dessous par vérification directe du journal et du code.
+
 | Fonctionnalité | Source | État |
 |---|---|---|
-| **Alerte citoyen « sortez vos ordures »** / horaires de collecte par zone | Enquête + cas d'usage citoyen | ❌ absent **et non planifié** |
-| Signalement de dépôt sauvage par le citoyen | Cas d'usage citoyen | 🟠 `Avis` existe, sans géolocalisation ni photo ni statut de traitement |
-| Localisation des **véhicules** de collecte | Besoin « Localisation » du mémoire | ❌ (écran mobile « live tracking » sans backend) |
-| Notifications de **sensibilisation** | Besoin « Notifications et Alertes » | ❌ |
-| Push mobile **FCM** | ADR-0007 | ❌ |
+| **Alerte citoyen « sortez vos ordures »** / horaires de collecte par zone | Enquête + cas d'usage citoyen | ✅ **implémenté 2026-07-29** (`CollectionSchedule`, `CollectionSubscription`, `CollectionReminderScheduler`, anti-répétition + fenêtre stricte) |
+| Signalement de dépôt sauvage par le citoyen | Cas d'usage citoyen | ✅ **implémenté 2026-07-29** — `Avis` porte désormais latitude/longitude, `submittedAt`, cycle de statut (`SIGNALE→EN_COURS→TRAITE\|REJETE`), auteur et clôtureur tracés |
+| Localisation des **véhicules** de collecte | Besoin « Localisation » du mémoire | ✅ **implémenté 2026-07-29** — `Vehicle`/`VehicleTracker` (iot), `POST /v1/vehicle-positions`, `GET /v1/maps/vehicles`, gardes anti-recul et position (0,0) |
+| Notifications de **sensibilisation** | Besoin « Notifications et Alertes » | ✅ **implémenté** — `AwarenessService`/`AwarenessController` (changelog `2.16.0`/`2.17.0`), étendu le 2026-08-07 avec campagnes + quiz (`/v1/awareness/campaigns`, `/v1/quizzes`) |
+| Push mobile **FCM** | ADR-0007 | 🟡 chaîne complète opérationnelle (abonnement, déclenchement, révocation, `DeviceToken`) mais **transport factice** (`LoggingPushTransport`) — aucun compte Firebase configuré, rien ne part réellement (2026-08-05) |
 | Ouverture automatique du bac (servomoteur) | Mémoire §4.2.3 | ❌ (hors backend, mais partie de la promesse) |
 | GPS embarqué sur les bacs | Mémoire §4.2.4 | ❌ (géométrie statique importée par GeoJSON) |
-| Optimisation des tournées | Objectif produit | ❌ |
-| Rapports de performance | Cas d'usage administrateur | ❌ |
-| `GET /v1/me` | `architecture-cible` | ❌ |
-| Keycloak (SSO/MFA/reset) | ADR-0011 | ❌ blueprint seul |
-| CI/CD | P2-2 | ✅ validé en local, jamais exécuté sur GitHub (branche non poussée) |
+| Optimisation des tournées | Objectif produit | ❌ toujours vrai — tournées triées par priorité, pas re-séquencées par remplissage réel. Tentative bloquée le 2026-08-06 (cycle `iot↔waste`, cf. §8 et ADR-0019) |
+| Rapports de performance | Cas d'usage administrateur | ✅ **implémenté 2026-08-04** (Lot 4/G5) — `/v1/reports` (période + territoire), export CSV, vérifié contre PostgreSQL |
+| `GET /v1/me` | `architecture-cible` | ❌ toujours absent |
+| Keycloak (SSO/MFA/reset) | ADR-0011 | ❌ blueprint seul, non activé |
+| CI/CD | P2-2 | ✅ **GitHub Actions tourne et passe au vert** (2026-08-08) — `origin` pointait vers un dépôt introuvable (`keane-kane/master-ucg`, 404), corrigé vers le dépôt réellement actif (`keane-game/smartwaste`) ; premier run bloqué par un bit exécutable manquant sur `backend-api/mvnw`, corrigé |
 | Dockerfile applicatif | P2-2 | ✅ (`backend-api/Dockerfile`, multi-étage, Actuator `/actuator/health` seul ouvert) |
-| Conteneur PostgreSQL en dev | P2-2 | ❌ (`docker-compose.yml` ne fournit que smtp4dev et MinIO ; Postgres reste une install locale sur `:5433`) |
+| Conteneur PostgreSQL en dev | P2-2 | 🟡 service `postgres:17` ajouté à `docker-compose.yml` le 2026-08-06, jamais démarré via Docker à ce jour — le développement continue de se faire contre une install locale (`:5432`, voir `.env`) |
 
 ### 7.3 Rôles métier non modélisés
 Le mémoire définit **3 acteurs** (Administrateur, **Agent de collecte**, **Citoyen**) et le terrain en
@@ -293,12 +307,15 @@ token loggué, 500 sur JWT expiré, README vide, `endpoint.md` erroné, import G
 `ROADMAP.md` : P0-4 = Liquibase, P0-5/P0-6 = cœur IoT.
 **« P0-4 » ne désigne pas la même chose selon le fichier lu.**
 
-### 8.4 🔴 `docs/architecture-cible.md` contredit l'ADR accepté
-Il décrit les **5 modules d'ADR-0010**, explicitement **remplacé** par ADR-0013 (8 contextes).
-Or `README.md` le présente comme l'architecture cible et `ROADMAP.md` P1-7 y renvoie. Un lecteur
-suivant les liens depuis le README construit une image **fausse** de la cible.
-Il porte en outre une décision jamais appliquée : `Geometry`/`Coordinate` comme **embeddables du
-shared kernel** — l'implémentation en a fait des **entités du contexte `territory`** avec FK.
+### 8.4 🟢 `docs/architecture-cible.md` — corrigé le 2026-08-08
+Il décrit les **5 modules d'ADR-0010**, explicitement **remplacé** par ADR-0013 (7 contextes bornés
++ 3 non-contextes). Ce point était réel mais **déjà traité avant cette correction** : le fichier
+porte depuis un bandeau ⛔ *« DOCUMENT OBSOLÈTE — conservé pour l'historique »* qui pointe vers
+ADR-0013 et liste précisément ce qui reste valable (flux métier, ordre d'extraction, inventaire
+d'entités) contre ce qui est faux (les 5 modules, les noms de packages, `Geometry`/`Coordinate`
+comme embeddables — en réalité des **entités du contexte `territory`** avec FK). `README.md`
+avertit également le lecteur avant le lien. Seul `ROADMAP.md` P1-7 y renvoyait encore sans réserve
+— corrigé le 2026-08-08 (la tâche P1-7 elle-même est caduque, ADR-0013 déjà réalisé).
 
 ### 8.5 🟠 Statuts d'ADR faux, et règle projet contredite
 12 ADR sur 13 sont marqués **« Proposé »**, et l'index affirme :

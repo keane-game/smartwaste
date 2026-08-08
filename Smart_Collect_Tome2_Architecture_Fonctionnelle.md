@@ -4,6 +4,21 @@
 
 ---
 
+> **Note d'implémentation (2026-08-08)** — le schéma ci-dessous et les sections qui le détaillent
+> (Broker MQTT, RBAC via Keycloak) décrivent l'architecture **cible**. Dans le code livré à date :
+> - Le **Broker MQTT** est remplacé par une ingestion **REST + clé API par appareil**
+>   (`POST /v1/measurements`, enrôlement via `/v1/devices/**`) — la chaîne capteur → mesure → seuil
+>   → alerte automatique fonctionne bout en bout et est vérifiée contre PostgreSQL, mais le
+>   transport n'est pas MQTT.
+> - **Keycloak** n'est pas déployé ; l'authentification/RBAC en vigueur est un JWT maison avec
+>   sessions révocables (`SecurityConfiguration`, `JwtService`), pas une délégation à un fournisseur
+>   OIDC externe. Le blueprint de bascule existe (`docs/keycloak-migration.md`, ADR-0011) mais reste
+>   volontairement différé.
+>
+> Tout le reste — DDD, Spring Modulith, séparation en couches, API REST + SSE, multi-tenant natif —
+> correspond à l'architecture réellement en place. Voir `docs/IMPLEMENTATION_LOG.md` pour le détail
+> vérifié.
+
 ### 1. Vue globale
 
 Smart Collect repose sur une architecture en couches, du capteur physique jusqu'à l'utilisateur final, structurée ainsi :

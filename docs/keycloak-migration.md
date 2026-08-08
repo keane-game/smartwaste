@@ -7,7 +7,9 @@
 > `SecurityConstants` — or ces classes portent désormais les **sessions révocables**, qui sont la
 > solution d'authentification en vigueur. Les supprimer aujourd'hui retirerait la révocation sans
 > rien mettre à la place.
-> Contrainte de la session courante : pas de JDK → code de référence **non compilé/non vérifié**.
+> Le code de référence du §3 reste **non compilé/non vérifié** — un JDK est disponible depuis (voir
+> `docs/IMPLEMENTATION_LOG.md`), mais personne n'a tenté de compiler ce blueprint spécifique tant
+> que la bascule elle-même n'est pas décidée.
 > Étapes marquées 🔧 = code à ajouter ; ⛔ = code à retirer ; 🖥️ = infra ; 📱 = clients.
 
 ## Principe

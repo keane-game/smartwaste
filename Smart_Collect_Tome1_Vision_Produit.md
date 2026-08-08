@@ -4,6 +4,20 @@
 
 ---
 
+> **Note d'implémentation (2026-08-08)** — ce Tome décrit la **cible visée**, pas nécessairement
+> l'état du code livré à date. Deux écarts assumés à connaître avant de lire la suite :
+> - **Keycloak** (authentification/RBAC centralisée, §ci-dessous) : non déployé. L'implémentation
+>   actuelle utilise une authentification JWT maison avec sessions révocables côté serveur
+>   (`docs/adr/0003-authentification-et-jwt.md`). Keycloak reste la cible **différée** (ADR-0011,
+>   blueprint prêt : `docs/keycloak-migration.md`), par décision, pas par oubli.
+> - **MQTT** (communication capteurs → plateforme, §ci-dessous) : l'ingestion IoT réelle se fait par
+>   **API REST + clé API par appareil**, pas par un broker MQTT. La chaîne capteur → mesure → seuil
+>   → alerte automatique fonctionne et est vérifiée contre PostgreSQL ; seul le protocole de
+>   transport diffère de la cible décrite ici.
+>
+> Le reste de ce document (architecture DDD/Spring Modulith, multi-tenant, roadmap produit) reflète
+> l'orientation réellement suivie. Voir `docs/IMPLEMENTATION_LOG.md` pour l'état vérifié à jour.
+
 ### 1. Présentation
 
 #### 1.1 Contexte SONAGED

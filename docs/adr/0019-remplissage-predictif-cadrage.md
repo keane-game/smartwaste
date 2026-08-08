@@ -111,5 +111,9 @@ directions à la fois (`modules.verify()`, garde-fou documenté dans `CLAUDE.md`
   fonctionne aujourd'hui, donc à valider avant d'y toucher ;
 - reconsidérer où vit le gate/l'estimateur, en assumant le coût que le §4 écartait explicitement.
 
-Le gate d'éligibilité n'a pas été livré : le construire dans `waste` casse le build tant que ce
-point n'est pas tranché. Voir `docs/IMPLEMENTATION_LOG.md`.
+Le gate d'éligibilité n'a pas été livré — **précision 2026-08-08** : il a été **écrit puis retiré**,
+pas seulement jamais tenté. Le code de `FillTrendEligibilityGate` existait (le composant décrit au
+§4 avec une dépendance `iot.IngestionMetrics`), `SmartWasteModularityTests` a échoué dessus, et il a
+été supprimé dans le même passage plutôt que laissé casser le build — aucune trace n'en subsiste
+volontairement. Construire quoi que ce soit dans `waste` qui dépende de `iot` cassera le build de
+la même façon tant que ce point n'est pas tranché. Voir `docs/IMPLEMENTATION_LOG.md`.

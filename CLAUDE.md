@@ -19,7 +19,7 @@ Functional specification lives in the French `.txt`/`.docx`/`.pdf` at the root (
 
 | Path | Stack | Role |
 |---|---|---|
-| `backend-api/` | Java 21, Spring Boot 3.5.3, Maven | REST API — the single backend (renamed from `ucgBackend/` 2026-08-06, not yet re-`git mv`'d — see `docs/IMPLEMENTATION_LOG.md`). **Two roots during the ADR-0013 migration**: `sn.smartwaste.collect` (target, DDD) and `sonaged.collecte.master` (legacy remnant) |
+| `backend-api/` | Java 21, Spring Boot 3.5.3, Maven | REST API — the single backend (renamed from `ucgBackend/` 2026-08-06 via `git mv`, commits `5e9fad2`/`54607ad` — **corrected 2026-08-08**, this doc previously said the rename was uncommitted). Single DDD root `sn.smartwaste.collect` — the ADR-0013 migration finished 2026-07-28; `sonaged.collecte.master` no longer exists (verified: zero files) |
 | `sonaged_web/` | Angular 17.3 | **The** web frontend — sole survivor of the 2026-08-05 consolidation (199 `.ts`, ~17.4k lines). Mostly NgModules (44) with a standalone bootstrap; only 16 files are `standalone: true`. `angular/` and `ucgFrontend/` were deleted — see ADR-0006 (decision **inverted**, `sonaged_web/` kept) and `docs/FRONTEND_AUDIT.md` |
 | `mobileFlutter/` | Flutter 3 (Dart >=3.1.5) | Mobile app |
 | `datas/` | GeoJSON | **13 files** of real Pikine geo data (quartiers, communes, circuits, dépotoirs, bacs de rue, points propres, caisses polybennes, pré-collecte). Importable via `POST /v1/admin/import/geojson` |
@@ -59,11 +59,13 @@ flutter test
 
 ## Architecture
 
-### Backend — DDD, migration in progress (ADR-0013)
-Target root `sn.smartwaste.collect`, **10 modules** verified by Spring Modulith
+### Backend — DDD (ADR-0013, migration complete since 2026-07-28)
+Single root `sn.smartwaste.collect`, **10 modules** verified by Spring Modulith
 (`SmartWasteModularityTests`): 7 bounded contexts (`identity`, `tenant`, `territory`, `waste`,
-`iot` reserved, `platform`, `analytics`) + 3 non-contexts (`shared`, `config`, `administration`).
-Each context is `domain / application / infrastructure / presentation`, dependencies pointing inward.
+`iot`, `platform`, `analytics`) + 3 non-contexts (`shared`, `config`, `administration`). `iot` is
+no longer reserved — it holds `Sensor`, `Measurement`, `VehicleTracker` and device provisioning
+(see the correction above). Each context is `domain / application / infrastructure /
+presentation`, dependencies pointing inward.
 
 **Crossing a context boundary**: only via a published `@NamedInterface` port
 (`waste.application.api.WasteReadModel`, `identity.application.api.CurrentUserProvider`,
@@ -74,8 +76,10 @@ Never another context's repository or entity — `modules.verify()` fails on it.
 Cross-context references are **by identifier** (`UUID`), never JPA associations (ADR-0012).
 Identifiers are **UUID v7** (`shared.infrastructure.persistence.UuidV7Generator`).
 
-A legacy remnant survives in `sonaged.collecte.master` (bootstrap, config, aspects, exception
-handlers, GeoJSON import). Legacy may depend on the new modules; the reverse must not happen.
+~~A legacy remnant survives in `sonaged.collecte.master`~~ — **corrected 2026-08-08**: that package
+no longer exists (verified directly, zero files). Bootstrap, config, aspects, exception handlers
+and GeoJSON import all live under the single `sn.smartwaste.collect` root now (`config`/
+`administration` non-contexts).
 
 Mappers use a **static-instance pattern**: `XxxMapper.UMP.asModel(dto)` — reuse it, don't autowire.
 Circular references are **forbidden** (`spring.main.allow-circular-references=false` since 2026-07-30, ADR-0009 §4 closed) — `ApplicationContextLoadsTest` starts the real context, so a reintroduced cycle fails the build.
@@ -100,11 +104,11 @@ Feature-first clean architecture: `features/<name>/{data,domain,presentation}`, 
 
 ## Known sharp edges (full list: `docs/KNOWLEDGE_MAP.md`)
 - ~~The app has never been started against PostgreSQL~~ — done manually 2026-08-06: `./mvnw spring-boot:run` against a real local PostgreSQL 17 (pre-existing `smartwaste` database, already migrated, 38 tables) came up clean — `ddl-auto=validate` confronted the entities with the Liquibase schema and passed, `/actuator/health` returned `UP`, Swagger served. Only generic Spring Boot startup warnings (deprecated `hibernate.dialect` property, `open-in-view` default, springdoc defaults exposed), nothing DB-related. This was a one-off manual run, not wired into CI — `SonagedApplicationTests` is still `@Disabled` (no PostgreSQL/Docker in the environment that runs it; see `docs/IMPLEMENTATION_LOG.md`).
-- **Secrets remain in Git history** (JWT signing secret, DB password, Google key). Configuration is externalised and a root `.gitignore` exists, but **rotation and history purge were never done** (ADR-0002 §4-5). Do not add new ones.
+- **Secrets remain in Git history — and the JWT secret is worse than that.** `SecurityConstants.SECRET` (`identity/infrastructure/security/SecurityConstants.java`) is still hardcoded in the *current* codebase, not externalised despite what P0-2/ADR-0002 implies — it signs every JWT issued today. DB password and the Google key are historical-only (DB password is now externalised via `${DB_PASSWORD}`, though its `application.yml` fallback default `keqne` contradicts the file's own comment that says startup should fail loudly without it — also unfixed). Configuration is externalised elsewhere and a root `.gitignore` exists, but **rotation and history purge were never done** (ADR-0002 §4-5, plan proposed 2026-08-08, not executed — needs explicit validation, invalidates all active sessions). Do not add new ones.
 - ~~`UserServiceImpl.createUser` still hardcodes `Sonaged@123`~~ — fixed 2026-07-30: it now requires and hashes the submitted password, like `AuthServiceImpl.register`. The constant remains in Git history.
-- ~~`SecurityRule` beans are inert~~ — removed 2026-08-06: `AuthorityRules`/`UserRules` declared 13 authorization rules nothing ever applied. Real authorization lives in `SecurityConfiguration.authorizeHttpRequests` (writes under `/v1/**` and the whole administration surface require `ADMIN`/`SUPER_ADMIN`; referential reads stay open to any account) plus `@PreAuthorize` on the newer controllers. `Permission.ACCESS_ADMIN`/`USER_VIEW` (only referenced by the deleted rules) were left in place — a separate decision.
+- ~~`SecurityRule` beans are inert~~ — removed 2026-08-06: `AuthorityRules`/`UserRules` declared 13 authorization rules nothing ever applied. Real authorization lives in `SecurityConfiguration.authorizeHttpRequests` (writes under `/v1/**` and the whole administration surface require `ADMIN`/`SUPER_ADMIN`; referential reads stay open to any account) plus `@PreAuthorize` on the newer controllers. `Permission.ACCESS_ADMIN`/`USER_VIEW` were left in place — **correction 2026-08-08**: this doc previously said they had "no readers left", which was wrong. Both (plus `MANAGE_ROLE`, `CREATE_USER`, `ACCESS_MY_ACTIVITIES`) are seeded into `authorityPermission` by the baseline changelog and become real `SimpleGrantedAuthority` values at every login via `UserEntity.getAuthorities()` — removing them would break authentication for every seeded account. Verified by extracting every permission literal ever inserted across all Liquibase changelogs, not just by grepping Java call sites.
 - **`ADMIN` can manage roles** (`MANAGE_ROLE` is seeded on it): an `ADMIN` can therefore grant itself `SUPER_ADMIN` via `/v1/authorities`. That follows the seeded intent; narrowing it to `SUPER_ADMIN` is a product decision, not a bug fix.
-- **Foreign leftovers**: `DataNotifierAspect`'s pointcut targets `com.worldline.tapandgo`, and the `Permission` enum carries ~20 values from that unrelated domain. The aspect can never fire.
+- ~~**Foreign leftovers**: `DataNotifierAspect`'s pointcut targets `com.worldline.tapandgo`, and the `Permission` enum carries ~20 values from that unrelated domain. The aspect can never fire.~~ — **removed 2026-08-08** (explicit validation obtained): `DataNotifierAspect`, the `Notifiable` annotation it targeted, and the unrelated-but-similarly-inert `SleuthTraceJmsListener` are gone. `Permission` still carries 5 `worldline/tapandgo`-named values (`USER_VIEW`, `ACCESS_ADMIN`, `MANAGE_ROLE`, `CREATE_USER`, `ACCESS_MY_ACTIVITIES`) — kept deliberately, they are real seeded authorities (see the `SecurityRule` bullet above), not dead code. The other ~30 were removed.
 - `HistoryEntity` is a hollow stub (one `@Id`) dragging a DTO, mapper, repository, service and controller.
 - ⚠️ `src/main/resources/schema.sql` begins with `DROP DATABASE`. It is neutralised (`spring.sql.init.mode: never`) and must never be re-enabled.
 - The Liquibase changelogs `2.0.0` and `2.1.0` are **destructive** (BIGINT → uuid): they purge the referential and all accounts. Assumed — the dev database is disposable.

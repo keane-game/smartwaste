@@ -114,7 +114,7 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 ### P1-7 · Frontières de contexte (Spring Modulith) + découplage des entités
 - **Objectif** : matérialiser les bounded contexts et remplacer les associations JPA **cross-contexte** par des références par identifiant.
 - **Justification** : condition de faisabilité de l'évolution microservices ; réduit le couplage fort et les N+1 (R3, R7).
-- **Fichiers** : réorganisation en **5 modules** (`identite-acces`, `referentiel-territorial`, `collecte` [sous-domaines `points-collecte`/`ingestion-iot`/`alertes`/`circuits-tournees`], `communication`, `supervision`) — cf. `docs/architecture-cible.md` ; `pom.xml` (Spring Modulith), `model/DepotoirEntity`/`CircuitCollectEntity`/`CircuitBalayageEntity`/`AlertEntity` (FK objet → `…Id`), mappers/services impactés, changelogs Liquibase.
+- **Fichiers** : ~~réorganisation en 5 modules — cf. `docs/architecture-cible.md`~~ **caduc** : cette tâche P1-7 décrit le découpage ADR-0010 (5 modules), remplacé par l'ADR-0013 (7 contextes bornés + 3 non-contextes sous `sn.smartwaste.collect`), **déjà réalisé** (migration terminée le 2026-07-28, `docs/IMPLEMENTATION_LOG.md`). `docs/architecture-cible.md` porte son propre bandeau obsolète — ne plus y renvoyer comme référence de cible. `pom.xml` (Spring Modulith) et le découplage par identifiant (FK objet → `…Id`) sont faits ; changelogs Liquibase associés déjà joués.
 - **Impact** : structurant ; refactoring progressif contexte par contexte, testé par Modulith. **Pas de suppression massive sans validation.**
 - **Complexité** : L · **ADR-0010**, **ADR-0012**.
 
