@@ -5,57 +5,28 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Permission {
 
-
-   USER_VIEW ("USER_VIEW"),
+    // =====================================================================================
+    // Cinq valeurs heritees d'un AUTRE produit (com.worldline.tapandgo), conservees : chacune a
+    // des lignes reelles dans authorityPermission (seed Liquibase, changelogs 1.0.0/2.1.0/2.13.0)
+    // et devient un vrai SimpleGrantedAuthority a chaque authentification
+    // (UserEntity.getAuthorities()). Les retirer casserait la connexion des comptes qui les
+    // portent (SUPER_ADMIN, ADMIN, USER, AGENT) sans une migration de purge dediee — verifie le
+    // 2026-08-08 par recherche exhaustive de chaque valeur dans tous les changelogs/seeds.
+    // ACCESS_MY_ACTIVITIES est le nom emprunte que porte l'agent de collecte, qui ne dit pas ce
+    // qu'il a le droit de faire — a renommer un jour, mais pas a supprimer.
+    // =====================================================================================
+    USER_VIEW ("USER_VIEW"),
     ACCESS_ADMIN ("ACCESS_ADMIN"),
     MANAGE_ROLE ("MANAGE_ROLE"),
     CREATE_USER ( "CREATE_USER"),
-    ACCESS_MY_USER ("ACCESS_MY_USER"),
-    ACCESS_ALL_USERS ("ACCESS_ALL_USERS"),
-    ACCESS_CONTROLS ("ACCESS_CONTROLS"),
-    ACCESS_MY_ACCOUNT ("ACCESS_MY_ACCOUNT"),
     ACCESS_MY_ACTIVITIES ("ACCESS_MY_ACTIVITIES"),
-    ACCESS_MY_ADDRESS ("ACCESS_MY_ADDRESS"),
-    ACCESS_MY_CONSENT ("ACCESS_MY_CONSENT"),
-    ACCESS_MY_CONTRACTS ("ACCESS_MY_CONTRACTS"),
-    ACCESS_MY_SUBSCRIPTIONS ("ACCESS_MY_SUBSCRIPTIONS"),
-
-    ACCESS_PRODUCT ("ACCESS_PRODUCT"),
-    ACCESS_TERMINAL_INFO ("ACCESS_TERMINAL_INFO"),
-    DISTRIBUTE_PRODUCT ("DISTRIBUTE_PRODUCT"),
-    LOGIN_CONTROLER ("LOGIN_CONTROLER"),
-    VALIDATE_ADDRESSES ("VALIDATE_ADDRESSES"),
-    VALIDATE_IDENTITY ("VALIDATE_IDENTITY"),
-    VALIDATE_PAYMENT_MEAN ("VALIDATE_PAYMENT_MEAN"),
-    ACCESS_STATISTICS ("ACCESS_STATISTICS"),
-    ACCESS_TOPOLOGY ("ACCESS_TOPOLOGY"),
-    MANAGE_VALIDATION_REQUEST ("MANAGE_VALIDATION_REQUEST"),
-    ACCESS_ALL_EVENTS ("ACCESS_ALL_EVENTS"),
-    ACCESS_MY_EVENTS ("ACCESS_MY_EVENTS"),
-    CONFIGURE_MY_USER("CONFIGURE_MY_USER"),
-    MANAGE_ALARM("MANAGE_ALARM"),
-    MANAGE_STATISTICS("MANAGE_STATISTICS"),
-    REMOVE_ACCOUNT("REMOVE_ACCOUNT"),
-    ACCESS_MONITORING_MYCOMPANY_TERMINAL("ACCESS_MONITORING_MYCOMPANY_TERMINAL"),
-    ACCESS_MYCOMPANY_STATISTICS("ACCESS_MYCOMPANY_STATISTICS"),
-    ACCESS_MYCOMPANY_USERS("ACCESS_MYCOMPANY_USERS"),
-    ACCESS_STATISTICS_MYCOMPANY_TERMINAL("ACCESS_STATISTICS_MYCOMPANY_TERMINAL"),
-    MANAGE_ROLES ("MANAGE_ROLES"),
-    ACCESS_RULES_PARAMETERS ("ACCESS_RULES_PARAMETERS"),
 
     // =====================================================================================
-    // Permissions du domaine « gestion des dechets ».
-    //
-    // Toutes celles qui precedent viennent d'un AUTRE produit (com.worldline.tapandgo) :
-    // DISTRIBUTE_PRODUCT, VALIDATE_PAYMENT_MEAN, ACCESS_TERMINAL_INFO… Elles ne decrivent rien
-    // d'ici. L'agent de collecte portait ainsi ACCESS_MY_ACTIVITIES — un nom emprunte qui ne dit
-    // pas ce qu'il a le droit de faire, et qu'aucun lecteur du code ne peut relier a une tournee.
-    //
-    // Celles-ci nomment les actes reels du metier. Les etrangeres ne sont PAS supprimees ici :
-    // leur retrait est une suppression de code — validation requise (regle projet), independamment
-    // du fait que plus rien ne les reference. AuthorityRules et UserRules (seuls lecteurs restants,
-    // avec MANAGE_ROLE) ont ete retires le 2026-08-06 : MANAGE_ROLE reste utilisee reellement
-    // (@PreAuthorize, AuthorityController) ; ACCESS_ADMIN et USER_VIEW n'ont plus aucun lecteur.
+    // Permissions du domaine « gestion des dechets ». Celles-ci nomment les actes reels du
+    // metier. Les ~30 autres valeurs heritees de com.worldline.tapandgo (ACCESS_MY_USER,
+    // DISTRIBUTE_PRODUCT, VALIDATE_PAYMENT_MEAN, ACCESS_TERMINAL_INFO…) ont ete retirees le
+    // 2026-08-08 (validation explicite obtenue) : aucun lecteur en code, aucune ligne en base
+    // dans aucun changelog — contrairement au bloc ci-dessus.
     // =====================================================================================
 
     /** Consulter la tournee d'une commune. */

@@ -8,13 +8,10 @@
  * <p>Rien de métier ici : ce module ne doit contenir que ce qui sert à démarrer et à câbler
  * l'application. Il ne publie aucune interface — personne n'est censé en dépendre.
  *
- * <p><b>Deux vestiges connus</b>, conservés faute de validation pour les retirer :
- * <ul>
- *   <li>{@code DataNotifierAspect} — son pointcut vise
- *       {@code com.worldline.tapandgo.user.annotations.Notifiable}, un projet <b>étranger</b>.
- *       Il ne peut donc jamais intercepter le {@code @Notifiable} local : l'aspect est mort.</li>
- *   <li>{@code SleuthTraceJmsListener} — Spring Cloud Sleuth n'est pas une dépendance du projet.</li>
- * </ul>
+ * <p>{@code DataNotifierAspect} (pointcut mort visant un projet étranger,
+ * {@code com.worldline.tapandgo}), l'annotation {@code @Notifiable} qu'il ciblait, et
+ * {@code SleuthTraceJmsListener} (Spring Cloud Sleuth n'est pas une dépendance du projet) ont été
+ * retirés le 2026-08-08 — validation explicite obtenue, zéro lecteur en dehors d'eux-mêmes.
  */
 @org.springframework.modulith.ApplicationModule(displayName = "Configuration")
 package sn.smartwaste.collect.config;
