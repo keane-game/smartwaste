@@ -42,6 +42,15 @@ import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
  * <p><b>3. À urgence égale, le plus ancien passe devant.</b> Sans cela, un point à 85 % mesuré à
  * l'instant repasserait indéfiniment devant un point à 82 % qui attend depuis deux jours : le second
  * ne serait jamais servi. C'est de la famine, et c'est ce qui fait abandonner ce genre d'outil.
+ *
+ * <p><b>4. À urgence égale et à distance proche, le plus plein passe devant.</b> Le chaînage
+ * géographique (ADR-0017) ne départageait jusqu'ici deux points de même tranche que par la
+ * distance : un point à 99 % pouvait attendre derrière un point à 82 % simplement parce qu'il était
+ * un peu plus loin, alors que les deux sont dans la même tranche d'urgence. {@code
+ * fillLevelBonusMeters} donne à un point très plein une « proximité virtuelle » — jusqu'à ce nombre
+ * de mètres de détour supplémentaire pour un point à 100 %, la moitié pour un point à 50 %. Un point
+ * nettement plus loin reste néanmoins desservi après : ce n'est qu'un départage de proximité, pas un
+ * nouveau niveau de priorité — sans quoi on retrouverait le zigzag qu'ADR-0017 corrigeait.
  */
 @Service
 @Transactional(readOnly = true)
@@ -53,6 +62,8 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
     private final Duration measurementValidity;
     /** Au-dela de cet age d'information, un point repasse devant malgre la geographie. */
     private final Duration maxStaleness;
+    /** Combien de metres de detour un point a 100% de remplissage "vaut" au chainage geographique. */
+    private final double fillLevelBonusMeters;
 
     private final CollectionPassageRepository passageRepository;
     private final TerritorialAccessGuard accessGuard;
@@ -63,7 +74,8 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
                                       Clock clock,
                                       @Value("${sonaged.alerting.fill-threshold-percent:80}") int fillThresholdPercent,
                                       @Value("${sonaged.routing.measurement-validity-hours:24}") long validityHours,
-                                      @Value("${sonaged.routing.max-staleness-hours:72}") long maxStalenessHours) {
+                                      @Value("${sonaged.routing.max-staleness-hours:72}") long maxStalenessHours,
+                                      @Value("${sonaged.routing.fill-level-bonus-meters:200}") double fillLevelBonusMeters) {
         this.depotoirRepository = depotoirRepository;
         this.passageRepository = passageRepository;
         this.accessGuard = accessGuard;
@@ -71,6 +83,7 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
         this.fillThresholdPercent = fillThresholdPercent;
         this.measurementValidity = Duration.ofHours(validityHours);
         this.maxStaleness = Duration.ofHours(maxStalenessHours);
+        this.fillLevelBonusMeters = fillLevelBonusMeters;
     }
 
     @Override
@@ -198,9 +211,23 @@ public class CollectionRouteServiceImpl implements CollectionRouteService {
                     .orElseThrow();
         }
         return candidats.stream()
-                .min(Comparator.comparingDouble(s -> GeoDistance.metersBetween(
-                        depuis[0], depuis[1], s.latitude(), s.longitude())))
+                .min(Comparator.comparingDouble(s -> effectiveDistance(s, depuis)))
                 .orElseThrow();
+    }
+
+    /**
+     * Distance de chaînage, ajustée par le remplissage réel (règle 4 de la javadoc de classe).
+     *
+     * <p>{@code fillLevelBonusMeters == 0} désactive l'ajustement (comportement historique,
+     * distance brute) — c'est la valeur utilisée par les cas qui testent le chaînage géographique
+     * seul, pour ne dépendre d'aucune hypothèse sur ce nouveau réglage.
+     */
+    private double effectiveDistance(RouteStop stop, double[] depuis) {
+        double raw = GeoDistance.metersBetween(depuis[0], depuis[1], stop.latitude(), stop.longitude());
+        if (fillLevelBonusMeters == 0 || stop.fillLevelPercent() == null) {
+            return raw;
+        }
+        return raw - (stop.fillLevelPercent() / 100.0) * fillLevelBonusMeters;
     }
 
     /** Position du point de collecte, {@code null} tant qu'aucune geometrie ne lui est attachee. */

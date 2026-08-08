@@ -50,8 +50,10 @@ class CollectionRouteServiceImplTest {
     private CollectionRouteServiceImpl service() {
         // Anti-famine desactive (age maximal tres eleve) : ces cas-ci verifient le tri par urgence
         // et par anciennete, sans que le rattrapage des delaisses ne s'en mele.
+        // Bonus de remplissage a 0 : ces cas testent le tri par urgence/anciennete, pas le
+        // departage geographique pondere (couvert par CollectionRouteGeographyTest).
         return new CollectionRouteServiceImpl(depotoirRepository, passageRepository, accessGuard,
-                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650);
+                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 24 * 3650, 0);
     }
 
     /** UUID stable dérivé d'un petit entier : les cas restent lisibles (`point(1, ...)`), l'entité est en UUID. */

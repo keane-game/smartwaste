@@ -60,8 +60,15 @@ class CollectionRouteGeographyTest {
     };
 
     private CollectionRouteServiceImpl service() {
+        // Bonus de remplissage a 0 : ces cas isolent le chainage geographique pur (ADR-0017).
+        // Le departage pondere par le remplissage est couvert plus bas, avec un bonus explicite.
         return new CollectionRouteServiceImpl(depotoirRepository, passageRepository, accessGuard,
-                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 72);
+                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 72, 0);
+    }
+
+    private CollectionRouteServiceImpl serviceWithFillBonus(double fillLevelBonusMeters) {
+        return new CollectionRouteServiceImpl(depotoirRepository, passageRepository, accessGuard,
+                Clock.fixed(NOW, ZoneId.of("UTC")), THRESHOLD, 24, 72, fillLevelBonusMeters);
     }
 
     @Test
@@ -149,6 +156,42 @@ class CollectionRouteGeographyTest {
 
         assertThat(stop.latitude()).isEqualTo(14.7400);
         assertThat(stop.longitude()).isEqualTo(-17.4200);
+    }
+
+    @Test
+    @DisplayName("à distance proche, un point bien plus plein passe devant malgré un léger détour")
+    void fillLevelBreaksNearTiesInFavorOfTheFullerPoint() {
+        // "tres plein" (~111 m du depart) est presque deux fois plus loin que "proche" (~56 m),
+        // mais nettement plus rempli (99 % contre 82 %) : sans ponderation, l'ordre resterait
+        // purement geographique (proche avant tres plein), comme le verifie deja
+        // chainsByProximityWithinAPriority avec des remplissages egaux. Avec un bonus de 1000 m
+        // par tranche de 100 %, 99 % "vaut" 990 m de proximite virtuelle contre 820 m pour 82 % —
+        // l'ecart (170 m) depasse largement l'ecart de distance reel (~55 m), donc le point le plus
+        // plein passe devant malgre le detour.
+        given(point(1L, "depart", 95, hoursAgo(1), 14.7400, -17.4200),
+              point(2L, "tres plein, un peu plus loin", 99, hoursAgo(1), 14.7410, -17.4200),
+              point(3L, "proche mais moins plein", 82, hoursAgo(1), 14.7405, -17.4200));
+
+        var plan = serviceWithFillBonus(1000.0).planForCommune(COMMUNE);
+
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(1), uuid(2), uuid(3));
+    }
+
+    @Test
+    @DisplayName("un écart de distance important prime toujours sur le remplissage")
+    void largeDistanceGapStillDominatesFillLevel() {
+        // Meme ecart de remplissage que le cas precedent (99 % contre 82 %), mais "loin" est cette
+        // fois a l'autre bout de la commune (~14 km, cf. priorityStillDominatesDistance) : le bonus
+        // de proximite virtuelle (990 m max) ne peut pas rattraper un tel ecart. Sans ce garde-fou,
+        // le departage par remplissage degenererait en un second niveau de priorite et
+        // reproduirait le zigzag qu'ADR-0017 corrigeait.
+        given(point(1L, "depart", 95, hoursAgo(1), 14.7400, -17.4200),
+              point(2L, "tres plein mais loin", 99, hoursAgo(1), 14.7800, -17.3000),
+              point(3L, "proche mais moins plein", 82, hoursAgo(1), 14.7405, -17.4200));
+
+        var plan = serviceWithFillBonus(1000.0).planForCommune(COMMUNE);
+
+        assertThat(plan).extracting(RouteStop::depotoirId).containsExactly(uuid(1), uuid(3), uuid(2));
     }
 
     // ---------------------------------------------------------------- fixtures
