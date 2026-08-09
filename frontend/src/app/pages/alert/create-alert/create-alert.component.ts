@@ -8,9 +8,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import * as L from 'leaflet';
 
 @Component({
-  selector: 'app-create-alert',
-  templateUrl: './create-alert.component.html',
-  styleUrl: './create-alert.component.scss'
+    selector: 'app-create-alert',
+    templateUrl: './create-alert.component.html',
+    styleUrl: './create-alert.component.scss',
+    standalone: false
 })
 export class CreateAlertComponent {
 [x: string]: any;

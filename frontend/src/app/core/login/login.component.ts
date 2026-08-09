@@ -8,9 +8,10 @@ import { first } from 'rxjs';
 import { succesAlert, errorAlert } from '../../services/alert.service';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss'],
+    standalone: false
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   hide = true;

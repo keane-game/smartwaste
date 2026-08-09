@@ -40,9 +40,10 @@ const PRIORITY_META: Record<StopPriority, { label: string; badgeClass: string }>
 const LAST_COMMUNE_KEY = 'collectionRoute.lastCommuneId';
 
 @Component({
-  selector: 'app-collection-route',
-  templateUrl: './collection-route.component.html',
-  styleUrls: ['./collection-route.component.scss']
+    selector: 'app-collection-route',
+    templateUrl: './collection-route.component.html',
+    styleUrls: ['./collection-route.component.scss'],
+    standalone: false
 })
 export class CollectionRouteComponent implements OnInit {
 

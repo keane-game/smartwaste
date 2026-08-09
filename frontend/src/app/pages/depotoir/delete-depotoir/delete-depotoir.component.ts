@@ -6,9 +6,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-depotoir',
-  templateUrl: './delete-depotoir.component.html',
-  styleUrl: './delete-depotoir.component.scss'
+    selector: 'app-delete-depotoir',
+    templateUrl: './delete-depotoir.component.html',
+    styleUrl: './delete-depotoir.component.scss',
+    standalone: false
 })
 export class DeleteDepotoirComponent {
 

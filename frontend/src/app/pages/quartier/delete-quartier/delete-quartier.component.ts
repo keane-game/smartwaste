@@ -6,9 +6,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-quartier',
-  templateUrl: './delete-quartier.component.html',
-  styleUrl: './delete-quartier.component.scss'
+    selector: 'app-delete-quartier',
+    templateUrl: './delete-quartier.component.html',
+    styleUrl: './delete-quartier.component.scss',
+    standalone: false
 })
 export class DeleteQuartierComponent {
 

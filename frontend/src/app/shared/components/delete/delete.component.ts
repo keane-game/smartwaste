@@ -5,9 +5,10 @@ import { first } from 'rxjs';
 import { succesAlert, errorAlert } from '../../../services/alert.service';
 
 @Component({
-  selector: 'app-delete',
-  templateUrl: './delete.component.html',
-  styleUrl: './delete.component.scss'
+    selector: 'app-delete',
+    templateUrl: './delete.component.html',
+    styleUrl: './delete.component.scss',
+    standalone: false
 })
 export class DeleteComponent {
 

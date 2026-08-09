@@ -4,14 +4,13 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { SharedService } from '../../../services/shared.service';
 
 @Component({
-  selector: 'app-multiselect',
-  standalone: true,
-  imports: [
-    CommonModule,
-    NgMultiSelectDropDownModule
-  ],
-  templateUrl: './multiselect.component.html',
-  styleUrls: ['./multiselect.component.scss']
+    selector: 'app-multiselect',
+    imports: [
+        CommonModule,
+        NgMultiSelectDropDownModule
+    ],
+    templateUrl: './multiselect.component.html',
+    styleUrls: ['./multiselect.component.scss']
 })
 export class MultiselectComponent implements OnInit {
   @Input() url!: string;

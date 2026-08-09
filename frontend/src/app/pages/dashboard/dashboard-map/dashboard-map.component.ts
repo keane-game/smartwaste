@@ -16,11 +16,10 @@ import { AlertStreamService } from '../../../services/alert-stream.service';
  * les deux évite de faire porter à un composant partagé deux intentions différentes.
  */
 @Component({
-  selector: 'app-dashboard-map',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './dashboard-map.component.html',
-  styleUrls: ['./dashboard-map.component.scss']
+    selector: 'app-dashboard-map',
+    imports: [CommonModule],
+    templateUrl: './dashboard-map.component.html',
+    styleUrls: ['./dashboard-map.component.scss']
 })
 export class DashboardMapComponent implements AfterViewInit, OnDestroy {
 

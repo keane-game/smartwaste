@@ -39,9 +39,10 @@ interface Vehicle {
  * et explicitement fermée par l'utilisateur, plutôt qu'un simple toast qui disparaît seul.
  */
 @Component({
-  selector: 'app-device',
-  templateUrl: './device.component.html',
-  styleUrls: ['./device.component.scss']
+    selector: 'app-device',
+    templateUrl: './device.component.html',
+    styleUrls: ['./device.component.scss'],
+    standalone: false
 })
 export class DeviceComponent implements OnInit {
 

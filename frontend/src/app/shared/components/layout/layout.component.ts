@@ -8,9 +8,10 @@ import { AlertStreamService } from '../../../services/alert-stream.service';
 declare var $: any;
 
 @Component({
-  selector: 'app-layout',
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss']
+    selector: 'app-layout',
+    templateUrl: './layout.component.html',
+    styleUrls: ['./layout.component.scss'],
+    standalone: false
 })
 export class LayoutComponent implements AfterContentChecked, OnInit, OnDestroy {
 isClicked = false;

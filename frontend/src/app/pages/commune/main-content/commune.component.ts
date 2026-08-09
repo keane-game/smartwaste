@@ -12,9 +12,10 @@ import { ModalService } from '../../../services/modal.service';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
-  selector: 'app-commune',
-  templateUrl: './commune.component.html',
-  styleUrl: './commune.component.scss'
+    selector: 'app-commune',
+    templateUrl: './commune.component.html',
+    styleUrl: './commune.component.scss',
+    standalone: false
 })
 export class CommuneComponent {
 

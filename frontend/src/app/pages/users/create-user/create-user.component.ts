@@ -8,9 +8,10 @@ import { succesAlert, errorAlert } from "../../../services/alert.service";
 
 
 @Component({
-  selector: 'app-create-user',
-  templateUrl: './create-user.component.html',
-  styleUrls: ['./create-user.component.scss']
+    selector: 'app-create-user',
+    templateUrl: './create-user.component.html',
+    styleUrls: ['./create-user.component.scss'],
+    standalone: false
 })
 export class CreateUserComponent implements OnInit {
 

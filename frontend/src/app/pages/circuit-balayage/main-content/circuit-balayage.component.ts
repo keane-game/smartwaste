@@ -6,9 +6,10 @@ import { SharedService } from '../../../services/shared.service';
 
 
 @Component({
-  selector: 'app-circuit-balayage',
-  templateUrl: './circuit-balayage.component.html',
-  styleUrl: './circuit-balayage.component.scss'
+    selector: 'app-circuit-balayage',
+    templateUrl: './circuit-balayage.component.html',
+    styleUrl: './circuit-balayage.component.scss',
+    standalone: false
 })
 export class CircuitBalayageComponent {
 

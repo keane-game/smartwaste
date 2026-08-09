@@ -8,9 +8,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-create-depotoir',
-  templateUrl: './create-depotoir.component.html',
-  styleUrls: ['./create-depotoir.component.scss']
+    selector: 'app-create-depotoir',
+    templateUrl: './create-depotoir.component.html',
+    styleUrls: ['./create-depotoir.component.scss'],
+    standalone: false
 })
 export class CreateDepotoirComponent {
 

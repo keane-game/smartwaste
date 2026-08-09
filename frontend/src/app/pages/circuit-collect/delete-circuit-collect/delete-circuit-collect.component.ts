@@ -6,9 +6,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-circuit-collect',
-  templateUrl: './delete-circuit-collect.component.html',
-  styleUrl: './delete-circuit-collect.component.scss'
+    selector: 'app-delete-circuit-collect',
+    templateUrl: './delete-circuit-collect.component.html',
+    styleUrl: './delete-circuit-collect.component.scss',
+    standalone: false
 })
 export class DeleteCircuitCollectComponent {
 

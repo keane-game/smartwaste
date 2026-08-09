@@ -10,9 +10,10 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
-  selector: 'app-alert',
-  templateUrl: './alert.component.html',
-  styleUrl: './alert.component.scss'
+    selector: 'app-alert',
+    templateUrl: './alert.component.html',
+    styleUrl: './alert.component.scss',
+    standalone: false
 })
 export class AlertComponent {
 

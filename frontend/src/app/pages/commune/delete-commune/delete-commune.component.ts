@@ -6,9 +6,10 @@ import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-commune',
-  templateUrl: './delete-commune.component.html',
-  styleUrl: './delete-commune.component.scss'
+    selector: 'app-delete-commune',
+    templateUrl: './delete-commune.component.html',
+    styleUrl: './delete-commune.component.scss',
+    standalone: false
 })
 export class DeleteCommuneComponent {
   id:any;

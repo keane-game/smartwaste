@@ -6,9 +6,10 @@ import { SharedService } from '../../../services/shared.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-circuit-balayage',
-  templateUrl: './delete-circuit-balayage.component.html',
-  styleUrl: './delete-circuit-balayage.component.scss'
+    selector: 'app-delete-circuit-balayage',
+    templateUrl: './delete-circuit-balayage.component.html',
+    styleUrl: './delete-circuit-balayage.component.scss',
+    standalone: false
 })
 export class DeleteCircuitBalayageComponent {
 

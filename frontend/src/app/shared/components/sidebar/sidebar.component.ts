@@ -4,10 +4,11 @@ import { AuthService } from '../../../core/services/auth.service';
 declare var $: any;
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
-  animations: sidebarAnimations
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
+    animations: sidebarAnimations,
+    standalone: false
 })
 export class SidebarComponent implements AfterViewInit{
 

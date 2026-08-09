@@ -12,9 +12,10 @@ interface MoblierUrbain {
 }
 
 @Component({
-  selector: 'app-moblier-urbain',
-  templateUrl: './moblier-urbain.component.html',
-  styleUrls: ['./moblier-urbain.component.scss']
+    selector: 'app-moblier-urbain',
+    templateUrl: './moblier-urbain.component.html',
+    styleUrls: ['./moblier-urbain.component.scss'],
+    standalone: false
 })
 export class MoblierUrbainComponent implements OnInit {
 

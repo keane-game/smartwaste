@@ -7,9 +7,10 @@ import { SharedService } from "../../../services/shared.service";
 import { API_ENDPOINTS } from "../../../shared/constants/api-endpoints";
 
 @Component({
-  selector: 'app-update-user',
-  templateUrl: './update-user.component.html',
-  styleUrls: ['./update-user.component.scss']
+    selector: 'app-update-user',
+    templateUrl: './update-user.component.html',
+    styleUrls: ['./update-user.component.scss'],
+    standalone: false
 })
 export class UpdateUserComponent implements OnInit {
 

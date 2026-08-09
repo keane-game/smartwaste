@@ -9,9 +9,10 @@ import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 import { Geometry } from '../../../models/geometry.model';
 
 @Component({
-  selector: 'app-create-department',
-  templateUrl: './create-department.component.html',
-  styleUrl: './create-department.component.scss'
+    selector: 'app-create-department',
+    templateUrl: './create-department.component.html',
+    styleUrl: './create-department.component.scss',
+    standalone: false
 })
 export class CreateDepartmentComponent {
 

@@ -17,9 +17,10 @@ interface Vehicle {
 }
 
 @Component({
-  selector: 'app-vehicle',
-  templateUrl: './vehicle.component.html',
-  styleUrls: ['./vehicle.component.scss']
+    selector: 'app-vehicle',
+    templateUrl: './vehicle.component.html',
+    styleUrls: ['./vehicle.component.scss'],
+    standalone: false
 })
 export class VehicleComponent implements OnInit {
 

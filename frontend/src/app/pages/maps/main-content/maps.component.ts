@@ -4,9 +4,10 @@ import 'esri-leaflet';
 import { MapsService, DepotoirMap } from '../../../services/maps.service';
 
 @Component({
-  selector: 'app-maps',
-  templateUrl: './maps.component.html',
-  styleUrls: ['./maps.component.scss']
+    selector: 'app-maps',
+    templateUrl: './maps.component.html',
+    styleUrls: ['./maps.component.scss'],
+    standalone: false
 })
 export class MapsComponent implements OnInit, AfterViewInit {
 

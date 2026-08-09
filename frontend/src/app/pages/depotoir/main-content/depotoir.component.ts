@@ -11,9 +11,10 @@ import { CreateDepotoirComponent } from '../create-depotoir/create-depotoir.comp
 import { ModalService } from '../../../services/modal.service';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component'; 
 @Component({
-  selector: 'app-depotoir',
-  templateUrl: './depotoir.component.html',
-  styleUrls: ['./depotoir.component.scss']
+    selector: 'app-depotoir',
+    templateUrl: './depotoir.component.html',
+    styleUrls: ['./depotoir.component.scss'],
+    standalone: false
 })
 export class DepotoirComponent {
 

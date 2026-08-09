@@ -12,9 +12,10 @@ import { first } from 'rxjs';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-notifcation',
-  templateUrl: './notifcation.component.html',
-  styleUrl: './notifcation.component.scss'
+    selector: 'app-notifcation',
+    templateUrl: './notifcation.component.html',
+    styleUrl: './notifcation.component.scss',
+    standalone: false
 })
 export class NotifcationComponent {
 OpenUpdateCommuneModal(arg0: any) {

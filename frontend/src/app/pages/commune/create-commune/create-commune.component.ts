@@ -7,9 +7,10 @@ import { first } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-create-commune',
-  templateUrl: './create-commune.component.html',
-  styleUrl: './create-commune.component.scss'
+    selector: 'app-create-commune',
+    templateUrl: './create-commune.component.html',
+    styleUrl: './create-commune.component.scss',
+    standalone: false
 })
 export class CreateCommuneComponent {
 

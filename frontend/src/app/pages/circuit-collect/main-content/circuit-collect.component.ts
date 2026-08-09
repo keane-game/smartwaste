@@ -13,9 +13,10 @@ import { CreateCircuitCollectComponent } from '../create-circuit-collect/create-
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
-  selector: 'app-circuit-collect',
-  templateUrl: './circuit-collect.component.html',
-  styleUrl: './circuit-collect.component.scss'
+    selector: 'app-circuit-collect',
+    templateUrl: './circuit-collect.component.html',
+    styleUrl: './circuit-collect.component.scss',
+    standalone: false
 })
 
 export class CircuitCollectComponent {

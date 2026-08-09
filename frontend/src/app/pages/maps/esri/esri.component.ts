@@ -12,9 +12,10 @@ import { headerTitleService } from '../../../services/headerTitle.service';
 
 
 @Component({
-  selector: 'app-esri',
-  templateUrl: './esri.component.html',
-  styleUrl: './esri.component.scss'
+    selector: 'app-esri',
+    templateUrl: './esri.component.html',
+    styleUrl: './esri.component.scss',
+    standalone: false
 })
 export class EsriComponent implements OnInit, AfterViewInit {
 

@@ -40,11 +40,10 @@ const STATUT_LABELS: Record<AvisMine['statut'], string> = {
  * `/v1` — comme `/auth` et `/data`. Les abonnements et la sensibilisation, eux, sont sous `/v1`.
  */
 @Component({
-  selector: 'app-avis',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  templateUrl: './avis.component.html',
-  styleUrls: ['./avis.component.scss']
+    selector: 'app-avis',
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
+    templateUrl: './avis.component.html',
+    styleUrls: ['./avis.component.scss']
 })
 export class AvisComponent implements OnInit {
 

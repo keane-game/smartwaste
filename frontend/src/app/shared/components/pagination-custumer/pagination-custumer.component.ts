@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-pagination-custumer',
-  templateUrl: './pagination-custumer.component.html',
-  styleUrls: ['./pagination-custumer.component.scss']
+    selector: 'app-pagination-custumer',
+    templateUrl: './pagination-custumer.component.html',
+    styleUrls: ['./pagination-custumer.component.scss'],
+    standalone: false
 })
 export class PaginationCustumerComponent implements OnInit {
   @Input() length: number = 0;

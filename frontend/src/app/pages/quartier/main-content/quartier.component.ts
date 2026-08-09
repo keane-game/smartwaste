@@ -13,9 +13,10 @@ import { ModalService } from '../../../services/modal.service';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 
 @Component({
-  selector: 'app-quartier',
-  templateUrl: './quartier.component.html',
-  styleUrl: './quartier.component.scss'
+    selector: 'app-quartier',
+    templateUrl: './quartier.component.html',
+    styleUrl: './quartier.component.scss',
+    standalone: false
 })
 export class QuartierComponent {
 

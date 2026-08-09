@@ -39,11 +39,10 @@ interface ActivityItem {
 }
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, DashboardMapComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+    selector: 'app-dashboard',
+    imports: [CommonModule, DashboardMapComponent],
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnDestroy {
 

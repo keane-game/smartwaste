@@ -6,9 +6,10 @@ import { SharedService } from '../../../services/shared.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-delete-user',
-  templateUrl: './delete-user.component.html',
-  styleUrl: './delete-user.component.scss'
+    selector: 'app-delete-user',
+    templateUrl: './delete-user.component.html',
+    styleUrl: './delete-user.component.scss',
+    standalone: false
 })
 export class DeleteUserComponent {
 

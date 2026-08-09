@@ -10,9 +10,10 @@ import { ModalService } from '../../../services/modal.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
-  selector: 'app-create-quartier',
-  templateUrl: './create-quartier.component.html',
-  styleUrl: './create-quartier.component.scss'
+    selector: 'app-create-quartier',
+    templateUrl: './create-quartier.component.html',
+    styleUrl: './create-quartier.component.scss',
+    standalone: false
 })
 export class CreateQuartierComponent {
 
