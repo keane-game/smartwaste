@@ -1,5 +1,6 @@
 package sn.smartwaste.collect.tenant.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,6 @@ import sn.smartwaste.collect.tenant.domain.model.OrganizationMembership;
 public interface OrganizationMembershipRepository extends JpaRepository<OrganizationMembership, UUID> {
 
     Optional<OrganizationMembership> findByUserId(UUID userId);
+
+    List<OrganizationMembership> findByOrganizationId(UUID organizationId);
 }

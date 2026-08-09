@@ -34,4 +34,5 @@
     <include file="config/liquibase/changelog/2.22.0_depotoir_alert_uuid.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.23.0_awareness_campaigns_quiz.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.24.0_avis_uuid.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.25.0_manage_organizations_permission.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

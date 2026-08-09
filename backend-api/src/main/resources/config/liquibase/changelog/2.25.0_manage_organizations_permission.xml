@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Permission MANAGE_ORGANIZATIONS — API /v1/organizations (docs/TENANT_ORGANIZATIONS_PLAN.md).
+
+      Semee UNIQUEMENT sur SUPER_ADMIN, deliberement pas sur ADMIN : un ADMIN opere pour le compte
+      d'UNE collectivite (via son rattachement), il n'a pas de raison legitime de creer ou
+      d'administrer d'AUTRES collectivites — c'est une capacite de plateforme, pas de gestion
+      d'une seule collectivite (a la difference de MANAGE_ROLE, partagee par choix produit).
+    -->
+
+    <changeSet author="claude" id="2.25.0-1-manage-organizations-permission">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM authoritypermission
+                WHERE authorityid = '01983c4f-0000-7000-8000-000000000001'
+                  AND permission = 'MANAGE_ORGANIZATIONS'
+            </sqlCheck>
+        </preConditions>
+        <comment>MANAGE_ORGANIZATIONS pour SUPER_ADMIN uniquement.</comment>
+        <sql>
+            INSERT INTO authoritypermission (authorityid, permission)
+            VALUES ('01983c4f-0000-7000-8000-000000000001', 'MANAGE_ORGANIZATIONS');
+        </sql>
+        <rollback>
+            DELETE FROM authoritypermission
+            WHERE authorityid = '01983c4f-0000-7000-8000-000000000001'
+              AND permission = 'MANAGE_ORGANIZATIONS';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -38,7 +38,9 @@ public enum Permission {
     /** Enroler et revoquer capteurs et traceurs. */
     MANAGE_DEVICES ("MANAGE_DEVICES"),
     /** Rediger et programmer un message de sensibilisation. */
-    SEND_AWARENESS ("SEND_AWARENESS");
+    SEND_AWARENESS ("SEND_AWARENESS"),
+    /** Creer/administrer les collectivites clientes (tenant) — reservee SUPER_ADMIN, voir changelog. */
+    MANAGE_ORGANIZATIONS ("MANAGE_ORGANIZATIONS");
 
 
     private String value;
