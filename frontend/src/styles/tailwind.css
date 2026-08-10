@@ -1,0 +1,56 @@
+/*
+ * Entree Tailwind, fichier CSS pur (pas .scss) : Tailwind v4 attend la syntaxe @import native
+ * traitee par son plugin PostCSS (postcss.config.json), et le compilateur Sass d Angular
+ * reinterpreterait cette syntaxe s il tombait dessus en premier.
+ *
+ * SANS preflight (le reset de base de Tailwind) : l app compte encore une quarantaine d ecrans
+ * sur Bootstrap (migration progressive, section 33 du cahier des charges de refonte). Le reset
+ * de Tailwind casserait leur mise en page du jour au lendemain. Seuls le theme et les
+ * utilitaires sont charges ; reintroduire preflight sera pertinent une fois Bootstrap retire.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/*
+ * Pont vers les tokens existants (assets/scss/variables.scss). Tailwind exige ses propres
+ * variables color/font/spacing a l interieur de @theme pour generer les classes utilitaires
+ * (bg-primary, text-primary, font-heading) ; ce ne sont pas de nouvelles valeurs, seulement la
+ * meme palette verte redite ici car Tailwind ne peut pas les referencer par indirection (le nom
+ * serait alors auto-referent). A garder synchronise avec variables.scss tant que les deux
+ * fichiers coexistent ; a fusionner en une seule source une fois Bootstrap retire.
+ */
+@theme {
+  --color-primary: #15803D;
+  --color-primary-dark: #14532D;
+  --color-primary-light: #22C55E;
+  --color-accent: #A16207;
+  --color-accent-dark: #854D0E;
+  --color-accent-light: #FEF3C7;
+
+  --color-background: #F0FDF4;
+  --color-surface: #FFFFFF;
+  --color-muted-surface: #E8F0F1;
+
+  --color-foreground: #14532D;
+  --color-text: #334155;
+  --color-muted: #64748B;
+
+  --color-border: #BBF7D0;
+  --color-destructive: #DC2626;
+  --color-warning: #D97706;
+  --color-success: #15803D;
+
+  --font-heading: "Lexend", sans-serif;
+  --font-body: "Source Sans 3", sans-serif;
+
+  --radius-DEFAULT: 0.75em;
+  --radius-sm: 6px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+}
