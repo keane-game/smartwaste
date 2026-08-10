@@ -20,6 +20,7 @@ import sn.smartwaste.collect.waste.application.service.AlertService;
 import sn.smartwaste.collect.waste.application.service.ImageService;
 import sn.smartwaste.collect.shared.domain.event.AlertRaisedEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +38,18 @@ public class AlertServiceImpl implements AlertService {
     private final ImageService imageService;
     // P2-1 / ADR-0007 : publication de l'événement « alerte levée » → diffusion SSE.
     private final ApplicationEventPublisher eventPublisher;
+    private final CurrentTenantProvider currentTenantProvider;
+
+    /**
+     * ADR-0020 : jamais depuis le DTO client — une alerte saisie manuellement (au contraire d'une
+     * alerte automatique, cf. {@code FillLevelProjector}) est créée par un compte authentifié, donc
+     * son organisation vient de ce compte.
+     */
+    private UUID currentOrganizationIdOrThrow() {
+        return currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer une alerte"));
+    }
 
     @Override
     @Transactional
@@ -70,7 +83,9 @@ public class AlertServiceImpl implements AlertService {
             alert.setImage (imageService.store(file));
         }
         log.info ("alert {}",alert);
-        var savedAlert = alertRepository.save(AlertMapper.AMP.asModel(alert));
+        var toCreate = AlertMapper.AMP.asModel(alert);
+        toCreate.setOrganizationId(currentOrganizationIdOrThrow());
+        var savedAlert = alertRepository.save(toCreate);
         return publishRaised(savedAlert);
     }
 
@@ -90,7 +105,9 @@ public class AlertServiceImpl implements AlertService {
                 Objects.equals(alertMapper.getCoordinate().getLongitude(), "")) {
             alertMapper.setCoordinate(null);
         }
-        var savedAlert = alertRepository.save(AlertMapper.AMP.asModel(alertMapper));
+        var toCreate = AlertMapper.AMP.asModel(alertMapper);
+        toCreate.setOrganizationId(currentOrganizationIdOrThrow());
+        var savedAlert = alertRepository.save(toCreate);
         return publishRaised(savedAlert);
     }
 
@@ -105,6 +122,7 @@ public class AlertServiceImpl implements AlertService {
         alerts.setObject (alert.getObject ( ));
         alerts.setCode (alert.getCode ());
         alerts.setMessage (alert.getMessage ( ));
+        alerts.setOrganizationId(currentOrganizationIdOrThrow());
         log.info ("alerts {}",alert);
         return publishRaised(alertRepository.save(alerts));
     }

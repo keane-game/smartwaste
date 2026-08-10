@@ -7,6 +7,7 @@ import sn.smartwaste.collect.waste.domain.repository.CircuitRepository;
 import sn.smartwaste.collect.waste.application.dto.Circuit;
 import sn.smartwaste.collect.waste.application.mapper.CircuitMapper;
 import sn.smartwaste.collect.waste.application.service.CircuitService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class CircuitServiceImpl implements CircuitService {
 
     private final CircuitRepository circuitRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
 
     @Override
@@ -37,7 +39,12 @@ public class CircuitServiceImpl implements CircuitService {
 
     @Override
     public Circuit createCircuit(Circuit circuit) {
-        var savedCircuit = circuitRepository.save(CircuitMapper.CIMP.asModel(circuit));
+        var toCreate = CircuitMapper.CIMP.asModel(circuit);
+        // ADR-0020 : jamais depuis le DTO client.
+        toCreate.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un circuit")));
+        var savedCircuit = circuitRepository.save(toCreate);
         return CircuitMapper.CIMP.asDto(savedCircuit);
     }
 

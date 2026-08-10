@@ -9,13 +9,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sn.smartwaste.collect.identity.application.dto.User;
+import sn.smartwaste.collect.identity.application.service.SessionService;
 import sn.smartwaste.collect.identity.domain.model.UserEntity;
 import sn.smartwaste.collect.identity.domain.repository.AuthorityRepository;
 import sn.smartwaste.collect.identity.domain.repository.UserRepository;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,6 +47,10 @@ class UserServiceImplTest {
     private AuthorityRepository authorityRepository;
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Mock
+    private SessionService sessionService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -97,5 +105,36 @@ class UserServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).save(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("desactiver un compte le marque inactif et ferme toutes ses sessions ouvertes")
+    void deactivateUserClosesAllSessions() {
+        UUID userId = UUID.randomUUID();
+        UserEntity existing = new UserEntity();
+        existing.setUserId(userId);
+        existing.setActivated(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        userService.deactivateUser(userId);
+
+        ArgumentCaptor<UserEntity> saved = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepository).save(saved.capture());
+        assertThat(saved.getValue().isActivated()).isFalse();
+        // Le point du correctif (audit 2026-08-09, ADR-0021) : revokeAllForUser n'avait jusqu'ici
+        // aucun appelant — une desactivation qui n'y ferait pas appel laisserait les jetons deja
+        // emis fonctionner jusqu'a leur expiration.
+        verify(sessionService).revokeAllForUser(userId);
+    }
+
+    @Test
+    @DisplayName("reactiver un compte inconnu echoue plutot que de silencieusement ne rien faire")
+    void activateUnknownUserFails() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.activateUser(userId))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 }

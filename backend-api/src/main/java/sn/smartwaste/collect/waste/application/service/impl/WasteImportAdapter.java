@@ -18,6 +18,7 @@ import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
 import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
 import sn.smartwaste.collect.waste.domain.repository.TypeDepotoirRepository;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 /**
  * Traduit les entités brutes d'un fichier GeoJSON en entités du cœur métier déchets.
@@ -77,6 +78,9 @@ public class WasteImportAdapter implements WasteImportPort {
         circuit.setSectection(feature.text("Sectection"));
         // ADR-0012 : référence par identifiant vers le référentiel territorial.
         circuit.setCommuneId(communeId);
+        // ADR-0020 : import système, sans utilisateur authentifié à interroger — les fichiers
+        // sources (datas/) ne décrivent que le territoire de Pikine.
+        circuit.setOrganizationId(CurrentTenantProvider.PIKINE_ORGANIZATION_ID);
         stamp(circuit::setCreatedBy, circuit::setLastModifiedBy,
               circuit::setCreatedDate, circuit::setLastModifiedDate, circuit::setArchived);
         circuit.setGeometry(territory.newGeometry(feature));
@@ -91,6 +95,7 @@ public class WasteImportAdapter implements WasteImportPort {
         circuit.setShift(parseShift(feature.text("shift")));
         circuit.setLength(feature.text("longueur"));
         circuit.setCommuneId(communeId);
+        circuit.setOrganizationId(CurrentTenantProvider.PIKINE_ORGANIZATION_ID);
         stamp(circuit::setCreatedBy, circuit::setLastModifiedBy,
               circuit::setCreatedDate, circuit::setLastModifiedDate, circuit::setArchived);
         circuit.setGeometry(territory.newGeometry(feature));
@@ -102,6 +107,7 @@ public class WasteImportAdapter implements WasteImportPort {
         var depotoir = new DepotoirEntity();
         depotoir.setAddress(feature.text("Adresse_de"));
         depotoir.setCommuneId(communeId);
+        depotoir.setOrganizationId(CurrentTenantProvider.PIKINE_ORGANIZATION_ID);
         depotoir.setTypeDepotoir(resolveOrCreateType(feature.text("Type_de_Mo")));
         stamp(depotoir::setCreatedBy, depotoir::setLastModifiedBy,
               depotoir::setCreatedDate, depotoir::setLastModifiedDate, depotoir::setArchived);

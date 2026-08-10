@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import sn.smartwaste.collect.identity.application.api.CurrentUserProvider;
 import sn.smartwaste.collect.identity.application.dto.Authentification;
 import sn.smartwaste.collect.identity.application.dto.User;
 import sn.smartwaste.collect.identity.application.dto.ActivationCode;
 import sn.smartwaste.collect.identity.application.dto.AuthTokens;
 import sn.smartwaste.collect.identity.application.service.AuthService;
+import sn.smartwaste.collect.identity.application.service.PasswordResetService;
 import sn.smartwaste.collect.identity.application.service.SessionService;
 import sn.smartwaste.collect.identity.infrastructure.security.JwtService;
 
@@ -24,6 +26,8 @@ public class AuthController {
     private AuthService authService;
     private SessionService sessionService;
     private JwtService jwtService;
+    private PasswordResetService passwordResetService;
+    private CurrentUserProvider currentUserProvider;
 
     @PostMapping(path = "register")
     public void register(@RequestBody User user) {
@@ -76,5 +80,47 @@ public class AuthController {
     /** Corps de {@code POST /auth/refresh}. */
     public record RefreshRequest(String refresh) { }
 
+    /**
+     * Change le mot de passe du compte authentifié.
+     *
+     * <p>Sous {@code /auth/**}, mais protégé explicitement dans {@code SecurityConfiguration} (règle
+     * posée avant le {@code permitAll} général du préfixe) : contrairement au reste de ce
+     * controller, cette opération exige une identité — c'est un geste sur SON PROPRE compte, jamais
+     * sur celui d'un tiers désigné par le corps de la requête.
+     */
+    @PostMapping(path = "change-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(@RequestBody ChangePasswordRequest request) {
+        authService.changePassword(currentUserProvider.requireCurrentUserId(),
+                request.currentPassword(), request.newPassword());
+    }
+
+    /** Corps de {@code POST /auth/change-password}. */
+    public record ChangePasswordRequest(String currentPassword, String newPassword) { }
+
+    /**
+     * Déclenche l'envoi d'un jeton de réinitialisation si l'adresse correspond à un compte.
+     *
+     * <p>Répond toujours 204 : que l'e-mail existe ou non, un appelant anonyme ne doit pas pouvoir
+     * énumérer les comptes en observant la réponse.
+     */
+    @PostMapping(path = "password-reset/request")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void requestPasswordReset(@RequestBody PasswordResetRequestBody request) {
+        passwordResetService.requestReset(request.email());
+    }
+
+    /** Corps de {@code POST /auth/password-reset/request}. */
+    public record PasswordResetRequestBody(String email) { }
+
+    /** Consomme un jeton de réinitialisation et applique le nouveau mot de passe. */
+    @PostMapping(path = "password-reset/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmPasswordReset(@RequestBody PasswordResetConfirmRequest request) {
+        passwordResetService.confirmReset(request.token(), request.newPassword());
+    }
+
+    /** Corps de {@code POST /auth/password-reset/confirm}. */
+    public record PasswordResetConfirmRequest(String token, String newPassword) { }
 
 }

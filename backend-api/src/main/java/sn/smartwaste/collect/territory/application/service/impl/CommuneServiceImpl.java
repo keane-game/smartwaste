@@ -14,6 +14,7 @@ import sn.smartwaste.collect.territory.application.dto.Commune;
 import sn.smartwaste.collect.territory.application.mapper.CommuneMapper;
 import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
 import sn.smartwaste.collect.territory.application.service.CommuneService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class CommuneServiceImpl implements CommuneService {
     private final DepartmentRepository departmentRepository;
 
     private final CommuneRepository communeRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
 
     @Override
@@ -54,6 +56,11 @@ public class CommuneServiceImpl implements CommuneService {
         // Au passage, l'ancien code déréférençait `getDepartment()` sans garde et levait
         // une NullPointerException dès qu'une commune était créée sans département.
         var communeEntity = CommuneMapper.COMP.asModel(commune);
+        // ADR-0020 : jamais depuis le DTO client — la même règle que pour userId/authority
+        // ailleurs (AuthServiceImpl.register).
+        communeEntity.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer une commune")));
         if (commune.getDepartmentId() != null) {
             var department = departmentRepository.findById(commune.getDepartmentId()).orElseThrow(
                     () -> new ResourceNotFoundException(

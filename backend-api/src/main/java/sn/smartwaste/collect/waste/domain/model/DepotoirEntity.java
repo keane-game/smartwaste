@@ -28,12 +28,20 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
 
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : {@code organizationId} posé côté serveur, jamais depuis
+ * le client. Le filtre reste inerte tant qu'aucune session ne l'active explicitement.
+ * {@code @FilterDef} n'est déclaré qu'une fois, sur {@code CommuneEntity} (Hibernate refuse deux
+ * définitions du même nom de filtre) — cette entité ne porte que la référence {@code @Filter}.
+ */
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @NoArgsConstructor
@@ -48,6 +56,10 @@ public class DepotoirEntity extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "DepotoirId")
     UUID depotoirId;
+
+    /** Collectivité propriétaire (ADR-0020). */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     @Column(name = "Address")
     String address;

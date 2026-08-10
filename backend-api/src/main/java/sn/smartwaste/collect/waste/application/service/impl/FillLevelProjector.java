@@ -158,6 +158,10 @@ public class FillLevelProjector {
         alert.setCode(code);
         // ADR-0005 : l'alerte automatique est, elle, TOUJOURS rattachee a son point de collecte.
         alert.setDepotoirId(depotoir.getDepotoirId());
+        // ADR-0020 : une alerte automatique herite de la collectivite du point qu'elle concerne —
+        // il n'y a pas d'utilisateur authentifie ici (declenchee par une mesure IoT), donc pas de
+        // CurrentTenantProvider a interroger.
+        alert.setOrganizationId(depotoir.getOrganizationId());
         alert.setCreatedDate(LocalDateTime.ofInstant(measuredAt, ZoneId.systemDefault()));
         AlertEntity saved = alertRepository.save(alert);
 

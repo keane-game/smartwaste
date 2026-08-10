@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import sn.smartwaste.collect.iot.domain.model.Sensor;
 import sn.smartwaste.collect.iot.domain.repository.SensorRepository;
 import sn.smartwaste.collect.iot.domain.repository.VehicleTrackerRepository;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.application.api.WasteReadModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,13 +52,14 @@ class OrphanedSensorTest {
     @Mock private SensorRepository sensorRepository;
     @Mock private VehicleTrackerRepository trackerRepository;
     @Mock private WasteReadModel waste;
+    @Mock private CurrentTenantProvider currentTenantProvider;
 
     private static UUID uuid(long n) {
         return UUID.fromString(String.format("00000000-0000-0000-0000-%012d", n));
     }
 
     private DeviceProvisioningServiceImpl service() {
-        return new DeviceProvisioningServiceImpl(sensorRepository, trackerRepository, waste);
+        return new DeviceProvisioningServiceImpl(sensorRepository, trackerRepository, waste, currentTenantProvider);
     }
 
     private Sensor sensor(UUID depotoirId) {
@@ -87,6 +89,7 @@ class OrphanedSensorTest {
     @DisplayName("un point existant laisse l'enrolement se faire")
     void enrollmentAcceptsAKnownPoint() {
         when(waste.collectionPointExists(POINT)).thenReturn(true);
+        when(currentTenantProvider.currentOrganizationId()).thenReturn(java.util.Optional.of(UUID.randomUUID()));
         when(sensorRepository.findByDeviceCode("CAPTEUR-NEUF"))
                 .thenReturn(java.util.Optional.empty());
         when(sensorRepository.save(any(Sensor.class)))

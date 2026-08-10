@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
+import sn.smartwaste.collect.identity.domain.model.Permission;
 import sn.smartwaste.collect.identity.domain.repository.AuthorityRepository;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.shared.domain.model.DeletionStatus;
@@ -104,6 +105,41 @@ class AuthorityServiceImplTest {
         // Un champ nul est une absence de modification, pas un effacement.
         AuthorityEntity untouched = authorityService.updateAuthority(id, authority(null, null));
         assertThat(untouched.getName()).isEqualTo("ADMIN_V2");
+    }
+
+    @Test
+    @DisplayName("updateAuthority applique aussi les permissions envoyees, plus seulement le nom")
+    void updateAuthority_patchesPermissions() {
+        // Defaut releve par audit (2026-08-09, ADR-0021) : seul `name` etait recopie, les
+        // permissions du corps de la requete etaient ignorees en silence — un administrateur
+        // modifiant les droits d'un role existant n'avait donc aucun effet observable.
+        UUID id = UUID.randomUUID();
+        AuthorityEntity existing = authority(id, "AGENT");
+        existing.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE));
+        when(authorityRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorityEntity request = authority(null, null);
+        request.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE, Permission.DECLARE_COLLECTION));
+
+        AuthorityEntity updated = authorityService.updateAuthority(id, request);
+
+        assertThat(updated.getPermissions())
+                .containsExactlyInAnyOrder(Permission.VIEW_COLLECTION_ROUTE, Permission.DECLARE_COLLECTION);
+    }
+
+    @Test
+    @DisplayName("updateAuthority sans permissions dans la requete laisse les permissions existantes intactes")
+    void updateAuthority_missingPermissionsLeavesExistingUntouched() {
+        UUID id = UUID.randomUUID();
+        AuthorityEntity existing = authority(id, "AGENT");
+        existing.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE));
+        when(authorityRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorityEntity updated = authorityService.updateAuthority(id, authority(null, "AGENT_V2"));
+
+        assertThat(updated.getPermissions()).containsExactly(Permission.VIEW_COLLECTION_ROUTE);
     }
 
     @Test

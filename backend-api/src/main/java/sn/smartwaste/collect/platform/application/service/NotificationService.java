@@ -1,6 +1,7 @@
 package sn.smartwaste.collect.platform.application.service;
 
 import sn.smartwaste.collect.shared.domain.event.ActivationCodeIssued;
+import sn.smartwaste.collect.shared.domain.event.PasswordResetRequested;
 
 /**
  * Envoi des notifications sortantes (contexte <b>Communication</b>).
@@ -12,6 +13,9 @@ public interface NotificationService {
 
     /** Envoie le code d'activation au destinataire décrit par l'événement. */
     void sendActivationCode(ActivationCodeIssued event);
+
+    /** Envoie le jeton de réinitialisation de mot de passe au destinataire décrit par l'événement. */
+    void sendPasswordResetToken(PasswordResetRequested event);
 
     /**
      * Previent un habitant du passage imminent du camion dans son quartier.

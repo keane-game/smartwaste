@@ -17,6 +17,7 @@ import sn.smartwaste.collect.iot.domain.repository.SensorRepository;
 import sn.smartwaste.collect.iot.domain.repository.VehicleTrackerRepository;
 import sn.smartwaste.collect.iot.infrastructure.security.DeviceApiKeys;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 /**
  * Enrôlement des équipements.
@@ -41,13 +42,23 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
 
     /** Seul {@code waste} sait si un point de collecte existe : ce contexte ne le voit pas. */
     private final sn.smartwaste.collect.waste.application.api.WasteReadModel waste;
+    private final CurrentTenantProvider currentTenantProvider;
 
     public DeviceProvisioningServiceImpl(SensorRepository sensorRepository,
                                          VehicleTrackerRepository trackerRepository,
-                                         sn.smartwaste.collect.waste.application.api.WasteReadModel waste) {
+                                         sn.smartwaste.collect.waste.application.api.WasteReadModel waste,
+                                         CurrentTenantProvider currentTenantProvider) {
         this.sensorRepository = sensorRepository;
         this.trackerRepository = trackerRepository;
         this.waste = waste;
+        this.currentTenantProvider = currentTenantProvider;
+    }
+
+    /** ADR-0020 : l'équipement hérite de la collectivité de qui l'enrôle, jamais du corps de la requête. */
+    private UUID currentOrganizationIdOrThrow() {
+        return currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Aucune collectivité rattachée au compte courant : impossible d'enrôler un équipement"));
     }
 
     @Override
@@ -72,6 +83,7 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
         sensor.setDepotoirId(depotoirId);
         sensor.setApiKeyHash(DeviceApiKeys.hash(apiKey));
         sensor.setActive(true);
+        sensor.setOrganizationId(currentOrganizationIdOrThrow());
         var saved = sensorRepository.save(sensor);
         return new ProvisionedDevice(saved.getSensorId(), saved.getDeviceCode(), apiKey);
     }
@@ -88,6 +100,7 @@ public class DeviceProvisioningServiceImpl implements DeviceProvisioningService 
         tracker.setVehicleId(vehicleId);
         tracker.setApiKeyHash(DeviceApiKeys.hash(apiKey));
         tracker.setActive(true);
+        tracker.setOrganizationId(currentOrganizationIdOrThrow());
         var saved = trackerRepository.save(tracker);
         return new ProvisionedDevice(saved.getTrackerId(), saved.getDeviceCode(), apiKey);
     }

@@ -32,12 +32,31 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : {@code Commune} est l'ancre du référentiel territorial
+ * d'une collectivité — tout ce qui en dépend (quartiers, dépotoirs, circuits) hérite implicitement
+ * de son organisation, mais {@code organizationId} reste dénormalisé ici (pas dérivé par jointure) :
+ * un filtre Hibernate ne peut pas résoudre efficacement un ancêtre à chaque ligne.
+ *
+ * <p>Le filtre est inerte tant qu'aucune session ne l'active explicitement
+ * ({@code Session.enableFilter}) — sa seule présence ici ne change aucun comportement observable.
+ *
+ * <p><b>{@code @FilterDef} n'est déclaré qu'ici</b> — Hibernate refuse deux définitions du même nom
+ * de filtre dans une même unité de persistance ({@code AnnotationException: Multiple '@FilterDef'
+ * annotations define a filter named 'organizationFilter'}, constaté au premier démarrage réel).
+ * Les onze autres entités cloisonnées ne portent que {@code @Filter}, qui référence celle-ci.
+ */
+@FilterDef(name = "organizationFilter", parameters = @ParamDef(name = "organizationId", type = UUID.class))
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @NoArgsConstructor
@@ -52,6 +71,10 @@ public class CommuneEntity extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "CommuneId")
      UUID communeId;
+
+    /** Collectivité propriétaire (ADR-0020) — posée côté serveur, jamais depuis le client. */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     @Column(name = "Name")
     String name;

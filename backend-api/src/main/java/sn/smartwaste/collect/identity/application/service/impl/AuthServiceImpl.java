@@ -2,12 +2,14 @@ package sn.smartwaste.collect.identity.application.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sn.smartwaste.collect.shared.domain.event.UserAccountCreated;
 import sn.smartwaste.collect.identity.application.dto.Authentification;
 import sn.smartwaste.collect.identity.application.dto.User;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
@@ -27,6 +29,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Slf4j
@@ -48,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private AuthorityRepository authorityRepository;
     private SessionService sessionService;
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * Inscription d'un citoyen — <b>atomique</b> : compte, code d'activation et envoi du courriel
@@ -129,6 +133,10 @@ public class AuthServiceImpl implements AuthService {
         // Dans la MEME transaction que la creation du compte (cf. javadoc de la methode) : si le
         // code d'activation ne part pas, le compte ne doit pas subsister.
         this.validationService.registerUserCode(userEntity);
+        // ADR-0020 : rattache le nouveau compte a la collectivite de demarrage, dans la meme
+        // transaction — un compte sans organisation deviendrait invisible a lui-meme des que le
+        // filtre organizationFilter sera actif.
+        this.eventPublisher.publishEvent(new UserAccountCreated(userEntity.getUserId()));
     }
 
     private AuthorityEntity defaultRegistrationAuthority() {
@@ -172,6 +180,27 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new  ResourceNotFoundException("Email ou mot de passe incorrect!"));
     }
 
-
+    /**
+     * Changement de mot de passe self-service (ADR-0021, pont avant Keycloak).
+     *
+     * <p>Exige le mot de passe actuel : un jeton d'accès volé ne suffit pas à lui seul à prendre le
+     * compte définitivement. Révoque ensuite <b>toutes</b> les sessions, y compris celle de l'appel
+     * courant — plus simple et plus sûr qu'une exception « sauf la session courante ».
+     */
+    @Override
+    @Transactional
+    public void changePassword(UUID userId, String currentPassword, String newPassword) {
+        UserEntity user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur inconnu"));
+        if (currentPassword == null || !this.passwordEncoder.matches(currentPassword, user.getUserPassword())) {
+            throw new ResourceNotFoundException("Mot de passe actuel incorrect");
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new ResourceNotFoundException("Le nouveau mot de passe est obligatoire");
+        }
+        user.setUserPassword(this.passwordEncoder.encode(newPassword));
+        this.userRepository.save(user);
+        this.sessionService.revokeAllForUser(userId);
+    }
 
 }

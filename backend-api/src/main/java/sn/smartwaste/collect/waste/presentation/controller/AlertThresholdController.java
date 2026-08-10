@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.domain.model.AlertThreshold;
 import sn.smartwaste.collect.waste.domain.repository.AlertThresholdRepository;
 
@@ -36,9 +37,11 @@ import sn.smartwaste.collect.waste.domain.repository.AlertThresholdRepository;
 public class AlertThresholdController {
 
     private final AlertThresholdRepository repository;
+    private final CurrentTenantProvider currentTenantProvider;
 
-    public AlertThresholdController(AlertThresholdRepository repository) {
+    public AlertThresholdController(AlertThresholdRepository repository, CurrentTenantProvider currentTenantProvider) {
         this.repository = repository;
+        this.currentTenantProvider = currentTenantProvider;
     }
 
     @Operation(summary = "Lister les seuils (le seuil par defaut en premier)")
@@ -53,6 +56,10 @@ public class AlertThresholdController {
     public AlertThreshold create(@RequestBody AlertThreshold threshold) {
         threshold.setThresholdId(null);
         threshold.setActive(true);
+        // ADR-0020 : jamais depuis le corps de la requête.
+        threshold.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un seuil")));
         return repository.save(threshold);
     }
 

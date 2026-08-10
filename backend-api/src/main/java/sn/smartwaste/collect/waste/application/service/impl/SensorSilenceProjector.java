@@ -58,20 +58,23 @@ public class SensorSilenceProjector {
     @EventListener
     @Transactional
     public void on(SensorSilenceDetected event) {
-        String adresse = depotoirRepository.findById(event.depotoirId())
-                .map(d -> d.getAddress())
-                .orElse(null);
+        var depotoir = depotoirRepository.findById(event.depotoirId());
 
         AlertEntity alert = new AlertEntity();
         alert.setObject(OBJET_SILENCE);
         alert.setMessage("Le capteur %s n'a plus emis depuis le %s. Le niveau de remplissage de ce "
                 + "point n'est plus connu."
                 .formatted(event.deviceCode(), event.silentSince()));
-        alert.setAddress(adresse);
+        alert.setAddress(depotoir.map(d -> d.getAddress()).orElse(null));
         // DANGER et non WARNING : un capteur mort ne se repare pas tout seul, et tant qu'il l'est
         // le point est un angle mort. Le debordement, lui, se resout au prochain passage.
         alert.setCode(AlertCode.DANGER);
         alert.setDepotoirId(event.depotoirId());
+        // ADR-0020 : herite de la collectivite du point concerne — pas d'utilisateur authentifie
+        // ici (declenche par un planificateur). Repli sur Pikine si le point a disparu entre-temps
+        // (suppression concurrente) : plus vraisemblable que d'echouer une alerte de maintenance.
+        alert.setOrganizationId(depotoir.map(d -> d.getOrganizationId())
+                .orElse(sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider.PIKINE_ORGANIZATION_ID));
         alert.setCreatedDate(LocalDateTime.ofInstant(event.detectedAt(), ZoneId.systemDefault()));
         AlertEntity saved = alertRepository.save(alert);
 

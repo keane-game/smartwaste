@@ -7,6 +7,7 @@ import sn.smartwaste.collect.waste.application.dto.MoblierUrbain;
 import sn.smartwaste.collect.waste.application.mapper.MoblierUrbainMapper;
 import sn.smartwaste.collect.waste.domain.repository.MoblierUrbainRepository;
 import sn.smartwaste.collect.waste.application.service.MoblierUrbainService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
     private final MoblierUrbainRepository moblierUrbainRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
 
     @Override
@@ -37,9 +39,13 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
 
     @Override
     public MoblierUrbain createMoblierUrbain(MoblierUrbain moblierUrbain) {
-        var savedMoblierUrbain = moblierUrbainRepository.save(MoblierUrbainMapper.MUMP.asModel(moblierUrbain ));
-        return MoblierUrbainMapper.MUMP.asDto(moblierUrbainRepository.save(savedMoblierUrbain));
-
+        var toCreate = MoblierUrbainMapper.MUMP.asModel(moblierUrbain);
+        // ADR-0020 : jamais depuis le DTO client.
+        toCreate.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un mobilier urbain")));
+        var savedMoblierUrbain = moblierUrbainRepository.save(toCreate);
+        return MoblierUrbainMapper.MUMP.asDto(savedMoblierUrbain);
     }
 
 

@@ -45,6 +45,12 @@ class AuthorityServiceImpl implements AuthorityService {
         if(authority.getName() != null){
             existedAuthority.setName(authority.getName());
         }
+        // Corrige un defaut releve par audit (2026-08-09, ADR-0021) : les permissions envoyees
+        // dans le corps de la requete etaient ignorees en silence, seul `name` etait applique — un
+        // administrateur modifiant les droits d'un role existant n'avait donc aucun effet.
+        if (authority.getPermissions() != null) {
+            existedAuthority.setPermissions(authority.getPermissions());
+        }
         return authorityRepository.save(existedAuthority);
     }
 

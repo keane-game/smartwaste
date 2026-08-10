@@ -232,6 +232,31 @@ class AdministrationAuthorizationTest {
     }
 
     @Test
+    @WithAnonymousUser
+    @DisplayName("changer son mot de passe exige une identite, meme si /auth/** est public par defaut")
+    void changePasswordRequiresAuthentication() throws Exception {
+        // ADR-0021 : seule exception au permitAll de /auth/** — un jeton d'acces expire ou absent
+        // ne doit pas suffire a changer le mot de passe d'un compte quelconque.
+        mockMvc.perform(post("/auth/change-password").with(csrf())
+                        .contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("un habitant ne voit pas le catalogue des permissions")
+    void citizenCannotReadPermissions() throws Exception {
+        mockMvc.perform(get("/v1/permissions")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_ADMIN", "MANAGE_ROLE"})
+    @DisplayName("qui porte MANAGE_ROLE lit le catalogue des permissions")
+    void manageRoleCanReadPermissions() throws Exception {
+        mockMvc.perform(get("/v1/permissions")).andExpect(status().isOk());
+    }
+
+    @Test
     @WithMockUser(roles = "SUPERVISEUR")
     @DisplayName("le superviseur lit la supervision mais n'administre pas")
     void supervisorReadsSupervisionButNotAdministration() throws Exception {

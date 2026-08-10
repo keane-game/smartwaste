@@ -17,6 +17,7 @@ import sn.smartwaste.collect.iot.domain.model.VehicleTracker;
 import sn.smartwaste.collect.iot.domain.repository.SensorRepository;
 import sn.smartwaste.collect.iot.domain.repository.VehicleTrackerRepository;
 import sn.smartwaste.collect.iot.infrastructure.security.DeviceApiKeys;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,12 +59,15 @@ class DeviceProvisioningServiceImplTest {
      *  (OrphanedSensorTest). On se place donc dans le cas nominal : le point existe. */
     @Mock
     private sn.smartwaste.collect.waste.application.api.WasteReadModel waste;
+    @Mock
+    private CurrentTenantProvider currentTenantProvider;
 
     @InjectMocks
     private DeviceProvisioningServiceImpl service;
 
     private void sensorSavesEcho() {
         lenient().when(waste.collectionPointExists(any())).thenReturn(true);
+        lenient().when(currentTenantProvider.currentOrganizationId()).thenReturn(Optional.of(UUID.randomUUID()));
         lenient().when(sensorRepository.findByDeviceCode(any())).thenReturn(Optional.empty());
         lenient().when(sensorRepository.save(any(Sensor.class))).thenAnswer(i -> {
             Sensor s = i.getArgument(0);

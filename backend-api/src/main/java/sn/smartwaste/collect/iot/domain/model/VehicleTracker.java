@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UuidGenerator;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
@@ -28,6 +29,11 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
  * <p>{@code vehicleId} est une <b>référence par identifiant</b> vers le contexte « Déchets »
  * (ADR-0012) : le véhicule est un actif de la flotte, pas un objet de la chaîne d'ingestion.
  */
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : filtre inerte tant qu'aucune session ne l'active.
+ * {@code @FilterDef} n'est déclaré qu'une fois, sur {@code CommuneEntity}.
+ */
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @Entity
 @Table(name = "vehicletracker")
 @Getter
@@ -40,6 +46,10 @@ public class VehicleTracker extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "trackerId")
     UUID trackerId;
+
+    /** Collectivité propriétaire (ADR-0020). */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     @Column(name = "deviceCode", nullable = false, unique = true)
     String deviceCode;

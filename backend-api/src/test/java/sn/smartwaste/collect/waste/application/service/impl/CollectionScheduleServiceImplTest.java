@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.application.dto.CollectionScheduleDto;
 import sn.smartwaste.collect.waste.application.service.CrossContextReferenceValidator;
 import sn.smartwaste.collect.waste.domain.model.CollectionSchedule;
@@ -45,6 +46,8 @@ class CollectionScheduleServiceImplTest {
     private CollectionScheduleRepository repository;
     @Mock
     private CrossContextReferenceValidator referenceValidator;
+    @Mock
+    private CurrentTenantProvider currentTenantProvider;
 
     @InjectMocks
     private CollectionScheduleServiceImpl service;
@@ -62,6 +65,7 @@ class CollectionScheduleServiceImplTest {
     @Test
     @DisplayName("un horaire valide est créé actif, à la minute près")
     void validScheduleIsCreatedActive() {
+        when(currentTenantProvider.currentOrganizationId()).thenReturn(java.util.Optional.of(UUID.randomUUID()));
         when(repository.save(any(CollectionSchedule.class))).thenAnswer(i -> i.getArgument(0));
 
         service.create(dto(QUARTIER, DayOfWeek.TUESDAY, LocalTime.of(7, 30, 45)));

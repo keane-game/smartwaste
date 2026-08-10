@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UuidGenerator;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
@@ -31,6 +32,11 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
  * <p>{@code depotoirId} est une <b>référence par identifiant</b> vers le contexte « Déchets »
  * (ADR-0012) : aucune FK ne traverse la frontière.
  */
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : filtre inerte tant qu'aucune session ne l'active.
+ * {@code @FilterDef} n'est déclaré qu'une fois, sur {@code CommuneEntity}.
+ */
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @Entity
 @Table(name = "sensor")
 @Getter
@@ -43,6 +49,10 @@ public class Sensor extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "sensorId")
     UUID sensorId;
+
+    /** Collectivité propriétaire (ADR-0020). */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     /** Identifiant physique gravé sur le module (utile au terrain, pas à l'authentification). */
     @Column(name = "deviceCode", nullable = false, unique = true)

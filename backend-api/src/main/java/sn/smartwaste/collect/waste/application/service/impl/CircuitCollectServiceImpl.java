@@ -9,6 +9,7 @@ import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.waste.application.dto.CircuitCollect;
 import sn.smartwaste.collect.waste.application.mapper.CircuitCollectMapper;
 import sn.smartwaste.collect.waste.application.service.CircuitCollectService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     private final CircuitCollectRepository circuitCollectRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
     @Override
     public CircuitCollect readCircuitCollect(UUID circuitCollectId) {
@@ -42,7 +44,12 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     @Override
     public CircuitCollect createCircuitCollect(CircuitCollect circuitCollect) {
-        var savedCircuitCollect = circuitCollectRepository.save (CircuitCollectMapper.CCMP.asModel (circuitCollect ));
+        var toCreate = CircuitCollectMapper.CCMP.asModel(circuitCollect);
+        // ADR-0020 : jamais depuis le DTO client.
+        toCreate.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un circuit de collecte")));
+        var savedCircuitCollect = circuitCollectRepository.save(toCreate);
         return CircuitCollectMapper.CCMP.asDto (savedCircuitCollect);
     }
 

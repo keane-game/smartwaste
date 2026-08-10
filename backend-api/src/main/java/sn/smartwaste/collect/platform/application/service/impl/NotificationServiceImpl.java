@@ -9,6 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.shared.domain.event.ActivationCodeIssued;
+import sn.smartwaste.collect.shared.domain.event.PasswordResetRequested;
 
 /**
  * Envoi des e-mails sortants (contexte <b>Communication</b>).
@@ -49,6 +50,24 @@ public class NotificationServiceImpl implements NotificationService {
         javaMailSender.send(message);
         // Le code lui-même n'est jamais journalisé : c'est un secret d'activation.
         log.info("Code d'activation envoyé à {}", event.recipientEmail());
+    }
+
+    @Override
+    @EventListener
+    public void sendPasswordResetToken(PasswordResetRequested event) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("no-reply@sonaged.sn");
+        message.setTo(event.recipientEmail());
+        message.setSubject("Réinitialisation de votre mot de passe");
+        message.setText(String.format(
+                "Bonjour %s, %nVoici votre jeton de réinitialisation : %s%nIl expire rapidement — s'il n'a pas été demandé par vous, ignorez ce message.",
+                event.recipientLastname(),
+                event.token()
+        ));
+
+        javaMailSender.send(message);
+        // Le jeton lui-même n'est jamais journalisé : c'est un secret de réinitialisation.
+        log.info("Jeton de réinitialisation envoyé à {}", event.recipientEmail());
     }
 
     @Override

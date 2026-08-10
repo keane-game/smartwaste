@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UuidGenerator;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
@@ -28,6 +29,11 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
  * trace. Conserver l'historique complet des positions serait un tout autre volume — un camion émet
  * plusieurs fois par minute — et un autre besoin (reconstitution de tournée).
  */
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : filtre inerte tant qu'aucune session ne l'active.
+ * {@code @FilterDef} n'est déclaré qu'une fois, sur {@code CommuneEntity}.
+ */
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @Entity
 @Table(name = "vehicle")
 @Getter
@@ -40,6 +46,10 @@ public class Vehicle extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "vehicleId")
     UUID vehicleId;
+
+    /** Collectivité propriétaire (ADR-0020). */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     /** Immatriculation — identifiant que le terrain utilise réellement. */
     @Column(name = "registration", nullable = false, unique = true)

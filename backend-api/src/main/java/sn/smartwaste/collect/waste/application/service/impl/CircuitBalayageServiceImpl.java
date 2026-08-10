@@ -11,6 +11,7 @@ import sn.smartwaste.collect.waste.application.dto.CircuitBalayage;
 import sn.smartwaste.collect.waste.application.mapper.CircuitBalayageMapper;
 import sn.smartwaste.collect.waste.domain.model.CircuitBalayageEntity;
 import sn.smartwaste.collect.waste.application.service.CircuitBalayageService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
     private final CircuitBalayageRepository circuitBalayageRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
     @Override
     public CircuitBalayage readCircuitBalayage(UUID circuitBalayageId) {
@@ -42,7 +44,12 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
     @Override
     public CircuitBalayage createCircuitBalayage(CircuitBalayage circuitBalayage) {
-        var savedCircuitBalayage = circuitBalayageRepository.save(CircuitBalayageMapper.CBMP.asModel (circuitBalayage));
+        var toCreate = CircuitBalayageMapper.CBMP.asModel(circuitBalayage);
+        // ADR-0020 : jamais depuis le DTO client.
+        toCreate.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un circuit de balayage")));
+        var savedCircuitBalayage = circuitBalayageRepository.save(toCreate);
         return CircuitBalayageMapper.CBMP.asDto(savedCircuitBalayage);
     }
 

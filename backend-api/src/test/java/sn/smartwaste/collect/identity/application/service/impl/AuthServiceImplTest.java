@@ -10,10 +10,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sn.smartwaste.collect.identity.application.dto.User;
+import sn.smartwaste.collect.identity.application.service.SessionService;
 import sn.smartwaste.collect.identity.application.service.ValidationService;
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
 import sn.smartwaste.collect.identity.domain.model.UserEntity;
@@ -59,6 +61,10 @@ class AuthServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private AuthorityRepository authorityRepository;
+    @Mock
+    private SessionService sessionService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -185,5 +191,41 @@ class AuthServiceImplTest {
                 .hasMessageContaining("USER");
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("changer son mot de passe exige le mot de passe actuel et revoque toutes les sessions")
+    void changePassword_hashesNewPasswordAndRevokesAllSessions() {
+        UUID userId = UUID.randomUUID();
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+        user.setUserPassword("$2a$ancien");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("ancien-mdp", "$2a$ancien")).thenReturn(true);
+        when(passwordEncoder.encode("nouveau-mdp")).thenReturn("$2a$nouveau");
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        authService.changePassword(userId, "ancien-mdp", "nouveau-mdp");
+
+        assertThat(captureSavedUser().getUserPassword()).isEqualTo("$2a$nouveau");
+        // Le point du correctif (ADR-0021) : un changement de mot de passe deconnecte partout.
+        verify(sessionService).revokeAllForUser(userId);
+    }
+
+    @Test
+    @DisplayName("un mot de passe actuel incorrect est refuse avant toute ecriture")
+    void changePassword_rejectsWrongCurrentPassword() {
+        UUID userId = UUID.randomUUID();
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+        user.setUserPassword("$2a$ancien");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("faux-mdp", "$2a$ancien")).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.changePassword(userId, "faux-mdp", "nouveau-mdp"))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(userRepository, never()).save(any());
+        verify(sessionService, never()).revokeAllForUser(any());
     }
 }

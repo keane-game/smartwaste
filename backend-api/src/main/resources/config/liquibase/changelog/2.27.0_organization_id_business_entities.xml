@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      ADR-0020 §2-3 — Discriminant organizationId sur les agrégats métier cloisonnés.
+
+      Chaque table reçoit sa propre colonne (pas de dérivation par jointure : un filtre Hibernate
+      de session ne peut pas résoudre efficacement un ancêtre à chaque ligne). Backfill vers
+      « Ville de Pikine » (01983c4f-0001-7000-8000-000000000001, semée en 2.2.0-3) : c'est la seule
+      collectivité active, et ADR-0020 en fait explicitement la référence de démarrage — aucune
+      donnée existante ne doit se retrouver orpheline de collectivité.
+
+      Colonne posée `nullable` puis verrouillée `NOT NULL` dans le même changeset (pas une expansion
+      en deux temps sur plusieurs releases) : cohérent avec le reste de ce projet, où la base de
+      développement est assumée jetable (cf. 2.0.0/2.1.0, destructeurs).
+
+      ⚠️ Ce changelog ajoute la COLONNE et le backfill. Il n'active AUCUN filtre applicatif : le
+      filtre Hibernate `organizationFilter` défini sur chaque entité reste inerte tant qu'aucune
+      session ne l'active explicitement (ADR-0020 §4, non câblé à cette étape).
+    -->
+
+    <property name="pikineOrgId" value="01983c4f-0001-7000-8000-000000000001"/>
+
+    <changeSet author="claude" id="2.27.0-1-commune">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="commune" columnName="organizationid"/></not>
+        </preConditions>
+        <comment>Commune : ancre du référentiel territorial d'une collectivité.</comment>
+        <addColumn tableName="commune"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE commune SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="commune" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_commune_organizationid" tableName="commune">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-2-depotoir">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="depotoir" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="depotoir"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE depotoir SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="depotoir" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_depotoir_organizationid" tableName="depotoir">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-3-moblierurbain">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="moblierurbain" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="moblierurbain"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE moblierurbain SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="moblierurbain" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_moblierurbain_organizationid" tableName="moblierurbain">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-4-circuit">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="circuit" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="circuit"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE circuit SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="circuit" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_circuit_organizationid" tableName="circuit">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-5-circuitbalayage">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="circuitbalayage" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="circuitbalayage"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE circuitbalayage SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="circuitbalayage" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_circuitbalayage_organizationid" tableName="circuitbalayage">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-6-circuitcollect">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="circuitcollect" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="circuitcollect"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE circuitcollect SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="circuitcollect" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_circuitcollect_organizationid" tableName="circuitcollect">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-7-alert">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alert" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="alert"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE alert SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="alert" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_alert_organizationid" tableName="alert">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-8-alertthreshold">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="alertthreshold" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="alertthreshold"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE alertthreshold SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="alertthreshold" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_alertthreshold_organizationid" tableName="alertthreshold">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-9-vehicle">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="vehicle" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="vehicle"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE vehicle SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="vehicle" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_vehicle_organizationid" tableName="vehicle">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-10-collectionschedule">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="collectionschedule" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="collectionschedule"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE collectionschedule SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="collectionschedule" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_collectionschedule_organizationid" tableName="collectionschedule">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-11-sensor">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="sensor" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="sensor"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE sensor SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="sensor" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_sensor_organizationid" tableName="sensor">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="claude" id="2.27.0-12-vehicletracker">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="vehicletracker" columnName="organizationid"/></not>
+        </preConditions>
+        <addColumn tableName="vehicletracker"><column name="organizationid" type="uuid"/></addColumn>
+        <sql>UPDATE vehicletracker SET organizationid = '${pikineOrgId}' WHERE organizationid IS NULL</sql>
+        <addNotNullConstraint tableName="vehicletracker" columnName="organizationid" columnDataType="uuid"/>
+        <createIndex indexName="idx_vehicletracker_organizationid" tableName="vehicletracker">
+            <column name="organizationid"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      Rattachement de tous les comptes existants à Pikine.
+
+      Sans cette ligne, activer un jour le filtre `organizationFilter` par défaut fermé rendrait
+      TOUT invisible à TOUT utilisateur existant (aucun rattachement n'a jamais été semé — 2.2.0-3
+      le documentait déjà comme délibéré, tant que rien ne consommait `CurrentTenantProvider`).
+      Ce n'est plus vrai à partir d'ici : le référentiel devient réellement cloisonné, donc chaque
+      compte a besoin d'une collectivité pour continuer à voir quoi que ce soit. Un utilisateur
+      déjà rattaché (cas futur, table non vide) n'est pas touché.
+    -->
+    <changeSet author="claude" id="2.27.0-13-backfill-memberships">
+        <!--
+          Pas de précondition de garde ici : la clause `WHERE NOT EXISTS` ci-dessous rend cette
+          instruction naturellement idempotente (ré-exécutée, elle n'insère plus rien une fois tous
+          les comptes rattachés) — contrairement à un `sqlCheck expectedResult="0"`, qui aurait
+          l'effet inverse de celui recherché : il faudrait qu'il n'y ait PLUS aucun compte à
+          rattacher pour que le changeset s'exécute, ce qui est exactement le cas où il n'y a rien à
+          faire.
+        -->
+        <comment>Rattache tout compte existant, sans exception, à Ville de Pikine.</comment>
+        <!--
+          `gen_random_uuid()` produit un UUID v4, pas le v7 maison (UuidV7Generator) utilisé
+          partout ailleurs dans ce projet pour la localité d'insertion en B-tree. Exception
+          assumée : ce backfill est borné (une ligne par compte existant), exécuté une seule fois,
+          pas un chemin d'écriture à chaud — l'argument de localité ne s'applique pas ici. Ne pas
+          reproduire ce choix pour un chemin d'insertion applicatif.
+        -->
+        <sql>
+            INSERT INTO organizationmembership (membershipid, userid, organizationid, archived,
+                                                 createdby, lastmodifiedby, createddate, lastmodifieddate,
+                                                 deletionstatus)
+            SELECT gen_random_uuid(), u.userid, '${pikineOrgId}', false,
+                   'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'
+            FROM users u
+            WHERE NOT EXISTS (SELECT 1 FROM organizationmembership m WHERE m.userid = u.userid);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

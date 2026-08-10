@@ -23,6 +23,7 @@ import sn.smartwaste.collect.waste.domain.repository.TypeDepotoirRepository;
 import sn.smartwaste.collect.waste.application.service.CrossContextReferenceValidator;
 import sn.smartwaste.collect.waste.application.service.DepotoirService;
 import sn.smartwaste.collect.shared.domain.service.SoftDeleteService;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class DepotoirServiceImpl implements DepotoirService {
     private final DepotoirRepository depotoirRepository;
     private final SoftDeleteService softDeleteService;
     private final CrossContextReferenceValidator crossContextReferenceValidator;
+    private final CurrentTenantProvider currentTenantProvider;
 
     @Override
     public Depotoir readDepotoir(UUID depotoirId) {
@@ -110,7 +112,12 @@ public class DepotoirServiceImpl implements DepotoirService {
         // leur existence est vérifiée ici, au niveau applicatif.
         crossContextReferenceValidator.requireCommuneExists(depotoir.getCommuneId());
         crossContextReferenceValidator.requireQuartierExists(depotoir.getQuartierId());
-        var savedDepotoir = depotoirRepository.save(DepotoirMapper.DETMP.asModel(depotoir));
+        var depotoirToCreate = DepotoirMapper.DETMP.asModel(depotoir);
+        // ADR-0020 : jamais depuis le DTO client.
+        depotoirToCreate.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un dépotoir")));
+        var savedDepotoir = depotoirRepository.save(depotoirToCreate);
         return DepotoirMapper.DETMP.asDto(savedDepotoir);
     }
 

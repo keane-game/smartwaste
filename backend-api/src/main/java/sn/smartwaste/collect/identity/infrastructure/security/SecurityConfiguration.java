@@ -101,6 +101,13 @@ public class SecurityConfiguration{
                                                 // le détail nommerait la base et son état.
                                                 .requestMatchers(GET, "/actuator/health",
                                                         "/actuator/health/**").permitAll()
+                                                // Exception au permitAll de /auth/** ci-dessous : changer son propre
+                                                // mot de passe exige une identite, a la difference du reste de ce
+                                                // prefixe (login, refresh, activation, register — tous concus pour
+                                                // fonctionner sans jeton valide). Doit rester AVANT la regle
+                                                // generale, sinon cette derniere gagnerait (premiere regle qui
+                                                // correspond).
+                                                .requestMatchers(POST, "/auth/change-password").authenticated()
                                                 .requestMatchers(POST,"/auth/").permitAll()
                                                 .requestMatchers(POST,"/auth/**").permitAll()
                                                 // 🔴 `/data/**` était ouvert TOUTES MÉTHODES CONFONDUES.
@@ -156,6 +163,7 @@ public class SecurityConfiguration{
                                                 // autant que les écritures la modifient.
                                                 .requestMatchers("/v1/users*", "/v1/users/**",
                                                                  "/v1/authorities*", "/v1/authorities/**",
+                                                                 "/v1/permissions", "/v1/permissions/**",
                                                                  "/v1/deletions", "/v1/deletions/**",
                                                                  "/v1/admin/**").hasAnyRole(ADMINISTRATION)
                                                 // Stats/rapports/journal : le superviseur de circuit les lit

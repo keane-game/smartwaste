@@ -100,4 +100,27 @@ public class UserController {
         return "Successfully delete";
     }
 
+    @Operation(summary = "Reactiver un compte utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Compte reactive"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/{id}/activate")
+    public User activateUser(@PathVariable("id") UUID id) {
+        return userService.activateUser(id);
+    }
+
+    @Operation(summary = "Desactiver un compte utilisateur",
+            description = "Ferme immediatement toutes les sessions ouvertes du compte")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Compte desactive"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/{id}/deactivate")
+    public User deactivateUser(@PathVariable("id") UUID id) {
+        return userService.deactivateUser(id);
+    }
+
 }

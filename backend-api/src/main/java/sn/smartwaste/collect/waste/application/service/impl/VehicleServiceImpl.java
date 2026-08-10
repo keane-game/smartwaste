@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.application.service.VehicleService;
 import sn.smartwaste.collect.waste.domain.model.Vehicle;
 import sn.smartwaste.collect.waste.domain.repository.VehicleRepository;
@@ -26,9 +27,11 @@ import sn.smartwaste.collect.waste.domain.repository.VehicleRepository;
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final CurrentTenantProvider currentTenantProvider;
 
-    public VehicleServiceImpl(VehicleRepository vehicleRepository) {
+    public VehicleServiceImpl(VehicleRepository vehicleRepository, CurrentTenantProvider currentTenantProvider) {
         this.vehicleRepository = vehicleRepository;
+        this.currentTenantProvider = currentTenantProvider;
     }
 
     @Override
@@ -49,6 +52,10 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.setLabel(dto.label());
         vehicle.setCircuitCollectId(dto.circuitCollectId());
         vehicle.setActive(dto.active() == null || dto.active());
+        // ADR-0020 : jamais depuis le DTO client.
+        vehicle.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un véhicule")));
         return toDto(vehicleRepository.save(vehicle));
     }
 

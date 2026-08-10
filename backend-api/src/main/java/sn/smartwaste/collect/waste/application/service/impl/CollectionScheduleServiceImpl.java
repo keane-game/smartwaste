@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.application.dto.CollectionScheduleDto;
 import sn.smartwaste.collect.waste.application.service.CollectionScheduleService;
 import sn.smartwaste.collect.waste.application.service.CrossContextReferenceValidator;
@@ -34,11 +35,14 @@ public class CollectionScheduleServiceImpl implements CollectionScheduleService 
 
     private final CollectionScheduleRepository repository;
     private final CrossContextReferenceValidator referenceValidator;
+    private final CurrentTenantProvider currentTenantProvider;
 
     public CollectionScheduleServiceImpl(CollectionScheduleRepository repository,
-                                         CrossContextReferenceValidator referenceValidator) {
+                                         CrossContextReferenceValidator referenceValidator,
+                                         CurrentTenantProvider currentTenantProvider) {
         this.repository = repository;
         this.referenceValidator = referenceValidator;
+        this.currentTenantProvider = currentTenantProvider;
     }
 
     @Override
@@ -59,6 +63,10 @@ public class CollectionScheduleServiceImpl implements CollectionScheduleService 
         var schedule = new CollectionSchedule();
         apply(dto, schedule);
         schedule.setActive(dto.active() == null || dto.active());
+        // ADR-0020 : jamais depuis le DTO client.
+        schedule.setOrganizationId(currentTenantProvider.currentOrganizationId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Aucune collectivité rattachée au compte courant : impossible de créer un horaire")));
         return toDto(repository.save(schedule));
     }
 

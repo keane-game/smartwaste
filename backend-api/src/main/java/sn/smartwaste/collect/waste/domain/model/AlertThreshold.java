@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UuidGenerator;
 
 import sn.smartwaste.collect.shared.domain.model.AbstractAuditingEntity;
@@ -32,6 +33,11 @@ import sn.smartwaste.collect.shared.infrastructure.persistence.UuidV7Generator;
  * <p>Un seuil {@code null} signifie « ne pas surveiller cette grandeur » — c'est différent de zéro,
  * qui alerterait en permanence.
  */
+/**
+ * Cloisonnement multi-tenant (ADR-0020) : filtre inerte tant qu'aucune session ne l'active.
+ * {@code @FilterDef} n'est déclaré qu'une fois, sur {@code CommuneEntity}.
+ */
+@Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @Entity
 @Table(name = "alertthreshold")
 @Getter
@@ -44,6 +50,10 @@ public class AlertThreshold extends AbstractAuditingEntity<UUID> {
     @UuidGenerator(algorithm = UuidV7Generator.class)
     @Column(name = "thresholdId")
     UUID thresholdId;
+
+    /** Collectivité propriétaire (ADR-0020). */
+    @Column(name = "organizationId", nullable = false)
+    UUID organizationId;
 
     /**
      * Type de point de collecte visé. {@code null} = <b>seuil par défaut</b>, appliqué aux types

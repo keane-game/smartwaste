@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import sn.smartwaste.collect.shared.domain.event.AlertRaisedEvent;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 import sn.smartwaste.collect.waste.application.dto.Alert;
 import sn.smartwaste.collect.waste.application.service.ImageService;
 import sn.smartwaste.collect.waste.domain.model.AlertCode;
@@ -23,6 +25,7 @@ import sn.smartwaste.collect.waste.domain.repository.AlertRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,12 +50,20 @@ class AlertRaisedEventPayloadTest {
     private ImageService imageService;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private CurrentTenantProvider currentTenantProvider;
 
     /** Le service reçoit un vrai ObjectMapper : c'est aussi celui qui sérialisera l'événement. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private AlertServiceImpl alertService;
+
+    @BeforeEach
+    void stubCurrentOrganization() {
+        lenient().when(currentTenantProvider.currentOrganizationId())
+                .thenReturn(java.util.Optional.of(uuid(1)));
+    }
 
     /** UUID stable dérivé d'un petit entier : les cas restent lisibles, l'entité est en UUID. */
     private static UUID uuid(long n) {

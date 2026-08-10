@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.identity.application.dto.User;
+import sn.smartwaste.collect.shared.domain.event.UserAccountCreated;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
 import sn.smartwaste.collect.identity.domain.model.UserEntity;
@@ -19,6 +21,7 @@ import sn.smartwaste.collect.identity.domain.repository.AuthorityRepository;
 import sn.smartwaste.collect.identity.domain.repository.UserRepository;
 import sn.smartwaste.collect.identity.application.dto.User;
 import sn.smartwaste.collect.identity.application.mapper.UserMapper;
+import sn.smartwaste.collect.identity.application.service.SessionService;
 import sn.smartwaste.collect.identity.application.service.UserService;
 
 import java.time.Instant;
@@ -39,6 +42,9 @@ public class UserServiceImpl  implements UserService {
     // une dépendance posée par réflexion après construction ne peut pas être fournie par un test
     // sans démarrer un contexte Spring — l'encodage du mot de passe restait donc non testable.
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final SessionService sessionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public User readUser(UUID userId) {
@@ -86,6 +92,10 @@ public class UserServiceImpl  implements UserService {
         // vers l'élévation de privilège en plus de celui déjà connu sur /v1/authorities.
         userToCreate.setUserId(null);
         var userSave = userRepository.save(userToCreate);
+        // ADR-0020 : rattache le compte a la collectivite de demarrage — un compte sans
+        // organisation deviendrait invisible a lui-meme des que le filtre organizationFilter sera
+        // actif. Meme evenement que l'inscription publique (AuthServiceImpl.register).
+        eventPublisher.publishEvent(new UserAccountCreated(userSave.getUserId()));
         return UserMapper.UMP.asDto(userSave);
     }
 
@@ -131,6 +141,38 @@ public class UserServiceImpl  implements UserService {
                         "User with id [%s] not found to delete".formatted(userId)
                 ));
         userRepository.delete(user);
+    }
+
+    @Override
+    public User activateUser(UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id [%s] not found to activate".formatted(userId)
+                ));
+        user.setActivated(true);
+        return UserMapper.UMP.asDto(userRepository.save(user));
+    }
+
+    /**
+     * Désactive le compte et ferme immédiatement toutes ses sessions ouvertes.
+     *
+     * <p>Réparation d'un défaut relevé par audit (2026-08-09, ADR-0021) : {@code activated} existait
+     * dans le DTO et l'entité sans qu'aucun chemin de l'API ne le fasse jamais passer de {@code true}
+     * à {@code false}. {@link SessionService#revokeAllForUser} existait déjà, testé, mais n'avait
+     * aucun appelant — une désactivation qui laisserait les jetons déjà émis fonctionner jusqu'à leur
+     * expiration ne désactiverait le compte qu'en apparence.
+     */
+    @Override
+    @Transactional
+    public User deactivateUser(UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id [%s] not found to deactivate".formatted(userId)
+                ));
+        user.setActivated(false);
+        var saved = userRepository.save(user);
+        sessionService.revokeAllForUser(userId);
+        return UserMapper.UMP.asDto(saved);
     }
 
     /**

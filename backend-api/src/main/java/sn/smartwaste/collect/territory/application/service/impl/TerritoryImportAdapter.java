@@ -22,6 +22,7 @@ import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
 import sn.smartwaste.collect.territory.domain.repository.DepartmentRepository;
 import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sn.smartwaste.collect.territory.domain.repository.RegionRepository;
+import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 /**
  * Traduit les entités brutes d'un fichier GeoJSON en entités du référentiel territorial.
@@ -103,6 +104,9 @@ public class TerritoryImportAdapter implements TerritoryImportPort {
         commune.setLength(feature.text("Shape_Leng"));
         commune.setArea(feature.text("Shape_Area"));
         commune.setDepartment(department);
+        // ADR-0020 : import système, sans utilisateur authentifié à interroger — les fichiers
+        // sources (datas/) ne décrivent que le territoire de Pikine.
+        commune.setOrganizationId(CurrentTenantProvider.PIKINE_ORGANIZATION_ID);
         stamp(commune::setCreatedBy, commune::setLastModifiedBy,
               commune::setCreatedDate, commune::setLastModifiedDate, commune::setArchived);
         commune.setGeometry(toGeometry(feature));

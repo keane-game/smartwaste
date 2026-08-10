@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.identity.infrastructure.security.SecurityConstants;
 import sn.smartwaste.collect.identity.domain.model.UserEntity;
-import sn.smartwaste.collect.identity.application.service.UserService;
 import sn.smartwaste.collect.identity.domain.repository.UserRepository;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 
@@ -26,7 +25,6 @@ public class JwtService {
     /** Nom du claim portant l'identifiant de session — le point d'accroche de la révocation. */
     public static final String SESSION_CLAIM = "sid";
 
-    private final UserService userService;
     private final UserRepository userRepository;
 
     /**
@@ -39,11 +37,9 @@ public class JwtService {
      */
     private final long accessTokenTtlMs;
 
-    public JwtService(UserService userService,
-                      UserRepository userRepository,
+    public JwtService(UserRepository userRepository,
                       @Value("${sonaged.security.jwt.access-ttl-ms:" + SecurityConstants.EXPIRATION_TIME + "}")
                       long accessTokenTtlMs) {
-        this.userService = userService;
         this.userRepository = userRepository;
         this.accessTokenTtlMs = accessTokenTtlMs;
     }

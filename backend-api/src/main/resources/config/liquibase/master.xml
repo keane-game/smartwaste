@@ -35,4 +35,6 @@
     <include file="config/liquibase/changelog/2.23.0_awareness_campaigns_quiz.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.24.0_avis_uuid.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2.25.0_manage_organizations_permission.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.26.0_password_reset_token.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2.27.0_organization_id_business_entities.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>
