@@ -1,15 +1,36 @@
 # Migration vers Keycloak (P0-A / ADR-0011) — blueprint
 
-> Statut : **AJOURNÉ** (2026-07-29, cf. ADR-0011). Aucune bascule effectuée. Ce document reste la
-> référence d'implémentation **le jour où la bascule est décidée**.
+> Statut : **REPRISE DÉCIDÉE** (2026-08-09, cf. ADR-0011 §Décision de reprise). L'ajournement du
+> 2026-07-29 est levé, mais **aucune bascule n'est encore effectuée** — ce document reste la
+> référence d'implémentation, à exécuter une fois le préalable ci-dessous vérifié.
+>
+> ⚠️ **Préalable non vérifié avant toute étape de ce blueprint** : confirmer qu'un démon Docker est
+> réellement disponible dans l'environnement où Keycloak doit tourner. `backend-api/src/main/resources/docker-compose.yml`
+> déclare des services, mais `docs/IMPLEMENTATION_LOG.md` (2026-08-06) note encore l'absence de démon
+> Docker dans les sessions où ce fichier a été écrit/étendu — l'existence du fichier ne prouve pas
+> qu'il tourne. C'était le blocage opérationnel qui avait motivé l'ajournement ; il doit être
+> explicitement revérifié, pas supposé résolu.
 >
 > ⚠️ **Ne pas appliquer le §4 en l'état.** Il prévoit de supprimer `JwtService`, `JwtFilter` et
-> `SecurityConstants` — or ces classes portent désormais les **sessions révocables**, qui sont la
-> solution d'authentification en vigueur. Les supprimer aujourd'hui retirerait la révocation sans
-> rien mettre à la place.
+> `SecurityConstants` — or ces classes portent désormais les **sessions révocables**, qui restent la
+> solution d'authentification en vigueur **jusqu'à ce que le resource server Keycloak soit validé en
+> conditions réelles** (étape de vérification en bas de page). Les supprimer avant cette validation
+> retirerait la révocation sans rien mettre à la place.
 > Le code de référence du §3 reste **non compilé/non vérifié** — un JDK est disponible depuis (voir
 > `docs/IMPLEMENTATION_LOG.md`), mais personne n'a tenté de compiler ce blueprint spécifique tant
-> que la bascule elle-même n'est pas décidée.
+> que la bascule elle-même n'était pas décidée. C'est désormais fait (décision), mais la vérification
+> technique reste à faire.
+>
+> **Coordination avec ADR-0020** (cloisonnement multi-tenant) : `OrganizationMembership.userId`
+> référence l'identifiant `UserEntity` **local**, pas le `sub` Keycloak. Le §5 ci-dessous (profil
+> local conservé, résolu depuis `sub`) rend les deux chantiers indépendants — ADR-0020 n'a rien à
+> changer quand cette bascule aura lieu.
+>
+> **En attendant** : `docs/adr/0021-completion-api-identite-pont-keycloak.md` couvre les correctifs
+> et endpoints pont (reset/changement de mot de passe, désactivation de compte) à traiter côté auth
+> maison pendant que ce chantier se prépare — explicitement destinés à disparaître une fois ce
+> blueprint exécuté.
+>
 > Étapes marquées 🔧 = code à ajouter ; ⛔ = code à retirer ; 🖥️ = infra ; 📱 = clients.
 
 ## Principe
@@ -73,8 +94,8 @@ Conserver un `UserEntity` **profil** référencé par le `sub` Keycloak (`keyclo
 Créer/rapprocher le profil à la première requête authentifiée (claim `sub`).
 
 ## 📱 6. Clients
-- Angular : `angular-oauth2-oidc` (Code + PKCE), intercepteur ajoutant le Bearer.
-- Flutter : `flutter_appauth` (PKCE), stockage sécurisé du token.
+- Angular (`sonaged_web/`, renommé depuis `angular/` le 2026-08-06) : `angular-oauth2-oidc` (Code + PKCE), intercepteur ajoutant le Bearer.
+- Flutter (`mobileFlutter/`) : `flutter_appauth` (PKCE), stockage sécurisé du token.
 
 ## 👥 7. Migration des comptes
 Importer les utilisateurs existants dans Keycloak (import LDIF/JSON ou script Admin API) ;

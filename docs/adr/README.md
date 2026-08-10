@@ -28,7 +28,7 @@ Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` 
 | [0008](0008-strategie-fetch-et-multitenant.md) | Stratégie de fetch · multi-tenant | 🟠 **Partiel** — perf faite, cloisonnement non appliqué | P1-2, P2-3 |
 | [0009](0009-nettoyage-dependances.md) | Nettoyage des dépendances backend | 🟠 **Quasi complet** — reste `allow-circular-references` | P1-1 |
 | [0010](0010-evolution-microservices-monolithe-modulaire.md) | Monolithe modulaire en 5 modules | ⛔ **Remplacé par 0013** | — |
-| [0011](0011-keycloak-identity-provider.md) | Keycloak comme fournisseur d'identité (OIDC) | ❌ **Non implémenté** — ⚠️ en tension avec le chantier « sessions » | P0 |
+| [0011](0011-keycloak-identity-provider.md) | Keycloak comme fournisseur d'identité (OIDC) | 🟢 **Reprise décidée (2026-08-09)** — non implémenté, infra Docker non vérifiée | P0 |
 | [0012](0012-decouplage-entites-references-par-id.md) | Références par identifiant entre contextes | ✅ **Implémenté** | P1 |
 | [0013](0013-architecture-ddd-smartwaste.md) | Architecture DDD `sn.smartwaste.collect` (8 contextes) | 🟢 **En cours, très avancé** | structurant |
 | [0014](0014-amorcage-du-systeme.md) | Amorçage : racine territoriale semée · compte d'administration par l'environnement | 🔵 **Proposé** | P0 |
@@ -37,6 +37,8 @@ Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` 
 | [0017](0017-ordre-de-passage-geographique.md) | Ordre de passage : l'urgence découpe, la géographie ordonne | ✅ **Implémenté** | P1 |
 | [0018](0018-rattachement-territorial-par-la-geometrie.md) | Commune d'un point : par la position, non par le libellé — ⛔ remplace 0015 §4 | ✅ **Implémenté** — 70/71 rattachés | P0 |
 | [0019](0019-remplissage-predictif-cadrage.md) | Remplissage prédictif : cadrage (G4) | 🔵 **Proposé** — cadrage seul, gate par point non ouvert | Lot 8 / G4 |
+| [0020](0020-cloisonnement-multi-tenant-et-api-organisation.md) | Cloisonnement multi-tenant complet + API Organisation | ✅ **Implémenté** — discriminant (12 entités), API tenant, filtre Hibernate activé, rattachement automatique à Pikine | P2-3 → structurant |
+| [0021](0021-completion-api-identite-pont-keycloak.md) | Complétion API Identité & Accès (pont avant Keycloak) | ✅ **Implémenté (vagues 1+2)** — désactivation, permissions de rôle, reset/changement mdp, catalogue permissions | P0/P1 |
 
 ## Décisions structurantes prises **hors ADR**
 

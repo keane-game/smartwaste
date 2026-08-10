@@ -14,10 +14,18 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 
 ### P0-A · Mettre en place Keycloak + backend en OAuth2 Resource Server
 - **Objectif** : externaliser l'identité (OIDC) ; le backend valide les tokens Keycloak au lieu d'en fabriquer.
-- **Justification** : supprime d'un coup les 3 failles d'auth (secret versionné, mint maison, mot de passe codé en dur) et centralise l'auth pour le futur maillage (R1, R2).
-- **Fichiers** : `pom.xml` (`spring-boot-starter-oauth2-resource-server`), `security/SecurityConfiguration.java`, **suppression** `security/JwtService.java` / `JwtFilter.java` / `constant/SecurityConstants.java`, converter de rôles, `docker-compose` (Keycloak), realm exporté versionné ; clients `angular/` et `mobileFlutter/` (flux PKCE).
+- **Justification** : supprime d'un coup les 3 failles d'auth (secret versionné, mint maison, mot de passe codé en dur) et centralise l'auth pour le futur maillage (R1, R2). **Reprise décidée le 2026-08-09** (ADR-0011, addendum) suite à l'audit `docs/API_AUDIT_AUTH_USERS_TENANT_RBAC` : l'auth maison n'atteint pas seule la complétude attendue par un frontend (pas de reset/changement de mot de passe).
+- **Préalable non vérifié** : disponibilité réelle d'un démon Docker dans l'environnement cible — `docs/IMPLEMENTATION_LOG.md` (2026-08-06) ne le confirme toujours pas. À vérifier **avant** toute bascule de code, pas supposé.
+- **Fichiers** : `pom.xml` (`spring-boot-starter-oauth2-resource-server`), `security/SecurityConfiguration.java`, **suppression** `security/JwtService.java` / `JwtFilter.java` / `constant/SecurityConstants.java`, converter de rôles, `docker-compose` (Keycloak), realm exporté versionné ; clients `sonaged_web/` et `mobileFlutter/` (flux PKCE).
 - **Impact** : remplace l'auth maison ; migration des comptes ; adaptation des 3 clients. **Suppression de code sécurité → validation requise.**
-- **Complexité** : L · **ADR-0011**.
+- **Complexité** : L · **ADR-0011** · plan détaillé : `docs/PLAN_IDENTITE_TENANT_RBAC.md`, blueprint : `docs/keycloak-migration.md`.
+
+### P0-B · Pont Identité & Accès en attendant Keycloak — ✅ **fait le 2026-08-09**
+- **Objectif** : combler les manques et bugs relevés par l'audit sans attendre le chantier L ci-dessus.
+- **Justification** : désactivation de compte inopérante (bug), `revokeAllForUser` jamais appelé, modification des permissions d'un rôle sans effet, aucun reset/changement de mot de passe.
+- **Fichiers** : `UserController`/`UserServiceImpl` (activation/désactivation), `AuthorityServiceImpl` (permissions), `AuthController` (`change-password`, `password-reset/*`), `PasswordResetToken` (+ changeset `2.26.0`), `PermissionController`.
+- **Impact** : vague 1 (bugs) et vague 2 (nouveaux endpoints) livrées le même jour. Suite complète (295 tests) verte contre H2 et contre la base réelle.
+- **Complexité** : S (vague 1) / M (vague 2) · **ADR-0021**.
 
 ### P0-1 · (Stopgap) Hacher le mot de passe fourni à l'inscription
 - **Objectif** : correctif immédiat **si** Keycloak (P0-A) n'est pas déployable tout de suite.
@@ -136,12 +144,25 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Impact** : non-régression.
 - **Complexité** : L.
 
-### P2-3 · Multi-tenant (plusieurs collectivités)
-- **Objectif** : isoler les données par collectivité.
+### P2-3 · Multi-tenant (plusieurs collectivités) — **cadrage détaillé le 2026-08-09**
+- **Objectif** : isoler les données par collectivité + exposer une API Organisation.
+- **Mise à jour 2026-08-09** : l'API Organisation (`OrganizationController`, `/v1/organizations*`,
+  permission `MANAGE_ORGANIZATIONS`) a été livrée en parallèle de ce cadrage — voir
+  `docs/TENANT_ORGANIZATIONS_PLAN.md` et ADR-0020 §5. **Reste non livré** : le discriminant
+  `organizationId` sur les agrégats métier et le filtre Hibernate (ADR-0020 §2-4) — c'est la partie
+  qui isole réellement les données, pas seulement la relation utilisateur↔organisation.
 - **Justification** : évolution cible « plusieurs collectivités ».
-- **Fichiers** : entités (colonne `tenantId`/`organizationId`), filtres Hibernate, sécurité.
-- **Impact** : structurant — à cadrer tôt même si implémenté plus tard.
-- **Complexité** : XL · **ADR-0008**.
+- **Fichiers** : `Commune` + `Depotoir`/`MoblierUrbain`/`Circuit*`/`Alert`/`Vehicle`/`Sensor`/
+  `VehicleTracker`/`CollectionSchedule`/`AlertThreshold` (colonne `organizationId`), filtre Hibernate
+  activé après authentification, nouveau `tenant/presentation/controller/OrganizationController`.
+- **Impact** : discriminant `organizationId` posé sur 12 entités, API `/v1/organizations*` et filtre
+  Hibernate d'isolation activés le 2026-08-10 (changelog `2.27.0`, appliqué contre la base réelle,
+  300 tests). Tout nouveau compte est rattaché automatiquement à Pikine
+  (`UserAccountCreated`/`DefaultOrganizationEnrollmentListener`) pour que le filtre par défaut fermé
+  ne vide pas le référentiel pour un habitant qui vient de s'inscrire — décision produit validée le
+  2026-08-10. **Non fait** : test bout-en-bout multi-collectivités (nécessiterait une authentification
+  `MockMvc` portée par un vrai `UserEntity`) — le comportement du composant est vérifié unitairement.
+- **Complexité** : XL, réalisée · **ADR-0008**, **ADR-0020** · plan détaillé : `docs/PLAN_IDENTITE_TENANT_RBAC.md`.
 
 ### P2-4 · Nettoyage & documentation
 - **Objectif** : README racine réel, `endpoint.md` correct, retrait des restes de template Flutter, homogénéiser UCG/SONAGED.
@@ -158,3 +179,7 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 
 ## Séquencement recommandé
 `P0-1 → P0-2 → P0-3` (sécurité, faible risque) → `P0-4` (schéma) → `P0-5 → P0-6` (cœur métier) → `P1-1..P1-4` (fiabilité/échelle/fronts) → `P1-5/P1-6` → `P2`.
+
+**Ajout 2026-08-09** : `P0-B` (pont identité, vague 1 faite) → vérification infra Docker → `P0-A`
+(Keycloak) en parallèle de `P2-3` (multi-tenant, ADR-0020) — les deux sont indépendants et
+n'ont pas à être séquencés l'un après l'autre (ADR-0020 §7).
