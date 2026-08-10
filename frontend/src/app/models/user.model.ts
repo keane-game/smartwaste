@@ -1,13 +1,21 @@
 
+/** Authority telle que renvoyee par /v1/authorities (voir backend AuthorityEntity). */
+export interface UserAuthority {
+  authorityId: string;
+  name: string;
+  description?: string;
+}
+
 export abstract class User {
-     userId!: number;
+     /** UUID v7 depuis la migration ADR-0012 (2026-08-07) — plus un number depuis longtemps. */
+     userId!: string;
      userLastname!: string;
      userFirstname!: string
      password!: string;
      userEmail!: string;
      userAddress!: string;
      userPhone!: string;
-     role!:any
+     role!: UserAuthority | null;
 
 
     constructor(user: User) {

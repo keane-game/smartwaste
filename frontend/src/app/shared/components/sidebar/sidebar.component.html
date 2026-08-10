@@ -1,189 +1,65 @@
-<aside id="sidebar" class="sidebar" #sidebar>
-  <div class="align-items-center justify-content-center">
-    <a [routerLink]="['/']" class="logo d-flex align-items-center">
-      <img src="../../assets/images/SONAGED.png" alt="" />
+<aside id="sidebar" class="sidebar flex flex-col h-full bg-surface border-r border-border" #sidebar>
+  <a [routerLink]="['/']" class="flex items-center justify-center gap-spacing-sm py-spacing-lg">
+    <img src="../../assets/images/SONAGED.png" alt="SONAGED" class="h-9 w-auto" />
+  </a>
+
+  <div class="px-spacing-md pb-spacing-xs">
+    <h1 class="text-xs font-semibold tracking-wide text-muted uppercase">Menu</h1>
+  </div>
+
+  <ul class="sidebar-nav flex-1 overflow-y-auto px-spacing-xs" id="sidebar-nav">
+    @for (item of items(); track item.route + item.label) {
+      <li class="nav-item">
+        @if (item.children) {
+          <a
+            class="nav-link collapsed flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-text
+                   hover:bg-muted-surface cursor-pointer"
+            data-bs-target="#components-nav"
+            data-bs-toggle="collapse"
+            href="#"
+          >
+            <i [class]="item.icon"></i>
+            <span class="flex-1">{{ item.label }}</span>
+            <i class="bi bi-chevron-down text-xs"></i>
+          </a>
+          <ul id="components-nav" class="nav-content collapse pl-spacing-lg" data-bs-parent="#sidebar-nav">
+            @for (child of item.children; track child.route) {
+              <li>
+                <a
+                  [routerLink]="child.route"
+                  routerLinkActive="active-link"
+                  class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-sm text-text
+                         hover:bg-muted-surface"
+                >
+                  <i [class]="child.icon + ' text-xs'"></i>
+                  <span>{{ child.label }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active-link"
+            class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-text
+                   hover:bg-muted-surface"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </li>
+    }
+  </ul>
+
+  <div class="px-spacing-xs pb-spacing-md">
+    <a
+      (click)="logout()"
+      class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-destructive
+             hover:bg-muted-surface cursor-pointer"
+    >
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Se déconnecter</span>
     </a>
-
-    <!-- <div class="d-none d-lg-block description">
-        UNITE DE COORDINATION DE LA DES DECHETS SOLIDES
-    </div> -->
   </div>
-  <!-- End Logo -->
-
-  <div class="brand-menu">
-    <h1>MENU</h1>
-  </div>
-  <ul class="sidebar-nav" id="sidebar-nav">
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        [routerLink]="['/']"
-        routerLinkActive="active-link"
-      >
-        <i class="bi bi-grid"></i>
-        <span>Dashboard</span>
-      </a>
-    </li>
-  
-    <li class="nav-item">
-      <a  class="nav-link collapsed" routerLink="/departements" routerLinkActive="active-link">
-        <i class="bi bi-building"></i>
-        <span>Département Pikine</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        data-bs-target="#components-nav"
-        data-bs-toggle="collapse"
-        href="#"
-      >
-        <i class="ri-file-settings-line"></i><span>Gestion des ressources</span
-        ><i class="bi bi-chevron-down ms-auto"></i>
-      </a>
-      <ul
-        id="components-nav"
-        class="nav-content collapse"
-        data-bs-parent="#sidebar-nav"
-      >
-
-        <li>
-          <a routerLink="/users" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Utilisateurs</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/communes" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Communes</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/quartiers" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Quartiers</span>
-          </a>
-        </li>
-
-        <li>
-          <a routerLink="/depotoirs" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Dépotoirs</span>
-          </a>
-        </li>
-
-        <li>
-          <a routerLink="/circuit-balayages" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Circuits de balayage</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/circuit-collects" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Circuits de collecte</span>
-          </a>
-        </li>
-
-        <li>
-          <a routerLink="/moblier-urbains" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Mobiliers urbains</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/reports" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Rapports</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/vehicles" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Flotte</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/devices" routerLinkActive="active-link">
-            <i class="bi bi-circle"></i>
-            <span>Capteurs &amp; traceurs</span>
-          </a>
-        </li>
-
-      </ul>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        routerLink="/maps"
-        routerLinkActive="active-link"
-      >
-        <i class="bi bi-map"></i>
-        <span>Carte</span>
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        routerLink="/collection-routes"
-        routerLinkActive="active-link"
-      >
-        <i class="bi bi-signpost-2"></i>
-        <span>Tournée agent</span>
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        routerLink="/notifications"
-        routerLinkActive="active-link"
-      >
-        <i class="bi bi-bell"></i>
-        <span>Notifications</span>
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        routerLink="/alerts"
-        routerLinkActive="active-link"
-      >
-        <i class="ri-alert-line"></i>
-        <span>Alertes</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        class="nav-link collapsed"
-        [routerLink]="['/profil']"
-        routerLinkActive="active-link"
-      >
-        <i class="bi bi-person"></i>
-        <span>Profil</span>
-      </a>
-    </li>
-  </ul>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <ul >
-    <li class="nav-item btn-disconnect">
-      <a class="nav-link collapsed" (click)="logout()" style="cursor: pointer;">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Se déconnecter</span>
-      </a>
-    </li>
-  </ul>
 </aside>
-<!-- End Sidebar-->

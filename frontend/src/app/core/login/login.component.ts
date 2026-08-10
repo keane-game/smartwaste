@@ -1,121 +1,80 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { first } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs';
-import { succesAlert, errorAlert } from '../../services/alert.service';
+import { SessionService } from '../services/session.service';
+import { errorAlert } from '../../services/alert.service';
 
+/**
+ * Connexion — reconstruite en Phase 2 de la refonte (docs/FRONTEND_UI_AUDIT.md).
+ *
+ * <p>Corrige un bug réel de l'ancienne version : elle traitait le claim JWT `role` comme un
+ * tableau d'objets ({@code decodedToken.role[0].authority}), alors que le serveur émet une
+ * chaîne unique ({@code "ROLE_SUPER_ADMIN"}) — vérifié sur un jeton réel. `role[0]` sur une
+ * chaîne renvoie son premier caractère, pas un rôle : le `switch` qui suivait ne correspondait
+ * donc jamais, et les trois branches (`ROLE_ADMIN`/`ROLE_USER`/`default`) faisaient de toute
+ * façon la même navigation — du code mort qui donnait l'illusion d'un aiguillage par rôle.
+ * `SessionService` décode maintenant le jeton une seule fois, correctement, pour toute l'app.
+ */
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss'],
-    standalone: false
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit, AfterViewInit {
-  hide = true;
-  form: any = {};
-  isLoggedIn = false;
-  isLoginFailed = false;
-  error!: { 'errorTitle': any; 'errorDesc': any; };
-  imageUrl: string = '../assets/images/loginImg1.png';
-  email : any;
-  password : any;
-  connexion_success = false;
-  display_error = false;
-  verified_users : any;
-  verified_user_simulation = [{
-    "email": "mouhamed.dieng@atos.net",
-    "password" : "password"
-  }]
+export class LoginComponent {
 
+  readonly loading = signal(false);
+  readonly showPassword = signal(false);
 
+  form = this.fb.group({
+    username: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private sessionService: SessionService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
+  togglePasswordVisibility(): void {
+    this.showPassword.update(v => !v);
   }
 
-  ngOnInit(): void {
-    // console.log(this.authService.getAuthToken());
-
-  }
-
-
-  onSubmit(): any {
-    this.isLoggedIn = true;
-
-    this.authService.login(this.form)
-    .pipe(first())
-        .subscribe({
-          next:  (userData) => {
-            succesAlert("La mise à jour a bien réussie")
-          
-              const helper = new JwtHelperService();
-              console.log(userData);
-
-              // Décodage du token
-              const decodedToken = helper.decodeToken(userData['bearer']);
-              if (decodedToken && decodedToken.role && decodedToken.role[0]) {
-                  const expirationDate = decodedToken.exp;
-                  const isExpired = decodedToken.sub;
-                  console.log(decodedToken.role[0]);
-
-                  // Gestion des rôles
-                  const role = decodedToken.role[0].authority || decodedToken.role[0];
-                  switch (role) {
-                      case 'ROLE_ADMIN':
-                          console.log(decodedToken);
-                          this.router.navigate(['/']);
-                          break;
-                      case 'ROLE_USER':
-                          this.router.navigate(['/']);
-                          break;
-                      default:
-                          this.router.navigate(['/']);
-                          break;
-                  }
-              } else {
-                  console.error('Token décodé invalide');
-                  // Ajoutez ici la gestion de l'erreur, par exemple afficher un message d'erreur à l'utilisateur
-              }
-          
-          },
-          error: (error) => {
-            console.log(error)
-            errorAlert('Erreur ' + error.error.message)
-          },
-            
-        });
-}
-
-
-
-
-
-
-
-  ngAfterViewInit(): void {
-    // Get the elements
-    const eye = document.getElementById('eye');
-    const eyeoff = document.getElementById('eyeoff');
-    const passwordField = document.getElementById('passwordField') as HTMLInputElement;
-
-    if (eye && eyeoff && passwordField) {
-      // Event listeners
-      eye.addEventListener('click', () => {
-        eye.style.display = 'none';
-        eyeoff.style.display = 'block';
-        passwordField.type = 'text';
-      });
-
-      eyeoff.addEventListener('click', () => {
-        eye.style.display = 'block';
-        eyeoff.style.display = 'none';
-        passwordField.type = 'password';
-      });
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-  }
+    this.loading.set(true);
 
- 
+    this.authService.login(this.form.value)
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          // AuthService.login() a deja ecrit le jeton en localStorage et notifie
+          // currentUser ; SessionService s'y est abonne, mais on force une lecture
+          // synchrone avant de decider ou naviguer, pour ne pas dependre de l'ordre
+          // d'execution des abonnements RxJS.
+          this.sessionService.refresh();
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? this.authService.redirectUrl;
+          this.router.navigateByUrl(returnUrl || '/');
+        },
+        error: (error) => {
+          this.loading.set(false);
+          const message = error?.status === 401
+            ? 'Identifiants incorrects.'
+            : "Impossible de se connecter pour le moment. Réessayez plus tard.";
+          errorAlert(message);
+        },
+      });
+  }
 }

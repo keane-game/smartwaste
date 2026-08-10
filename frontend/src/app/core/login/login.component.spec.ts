@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 import { LoginComponent } from './login.component';
 
@@ -7,8 +9,11 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
 
   beforeEach(() => {
+    // Composant standalone depuis la Phase 2 de la refonte : `imports`, plus `declarations`.
+    // provideHttpClient/provideRouter : AuthService/SessionService/Router en dependent.
     TestBed.configureTestingModule({
-      declarations: [LoginComponent]
+      imports: [LoginComponent],
+      providers: [provideHttpClient(), provideRouter([])],
     });
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;

@@ -4,15 +4,19 @@ import { HomeComponent } from './pages/general/home/home.component';
 import { NotFoundComponent } from './pages/general/not-found/not-found.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
-import { AuthGuard } from './core/helpers/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { EsriComponent } from './pages/maps/esri/esri.component';
+
+/** Memes 4 roles que sidebar.component.ts (SUPER_ADMIN/ADMIN/SUPERVISEUR/TECHNICIEN_IOT). */
+const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'SUPERVISEUR', 'TECHNICIEN_IOT'];
 
 export const routes: Routes = [
 
   {
     path:'', component: LayoutComponent,
-    canActivate: [AuthGuard],
-    canActivateChild: [AuthGuard],
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',component:DashboardComponent,
@@ -46,12 +50,13 @@ export const routes: Routes = [
   { path: 'map', component: EsriComponent },
 
   {
-    // Seule route de connexion : c'est celle-ci que `AuthGuard` et `AuthService.logout()`
+    // Seule route de connexion : c'est celle-ci que `authGuard` et `AuthService.logout()`
     // ciblent. `pages/login/` (routé jadis sur `/logins`) est un doublon jamais référencé
     // ailleurs dans l'app — retiré du routage, fichiers conservés (suppression = validation).
+    // Composant standalone (Phase 2 de la refonte) : plus de NgModule intermédiaire.
     path: 'login',
-    loadChildren: () => import('./core/login/login.module')
-      .then(mod => mod.LoginModule)
+    loadComponent: () => import('./core/login/login.component')
+      .then(mod => mod.LoginComponent)
   },
   {
     path: 'signup',

@@ -1,8 +1,7 @@
 import { Component, ElementRef, Renderer2 ,AfterContentChecked, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import { AuthService } from '../../../core/services/auth.service';
+import { SessionService } from '../../../core/services/session.service';
 import { AlertStreamService } from '../../../services/alert-stream.service';
 
 declare var $: any;
@@ -22,7 +21,7 @@ isClicked = false;
     private elRef: ElementRef,
     private renderer: Renderer2,
     private changeDetector: ChangeDetectorRef,
-    private authService: AuthService,
+    private sessionService: SessionService,
     private alertStreamService: AlertStreamService,
   ) {}
 
@@ -30,7 +29,14 @@ isClicked = false;
     // `GET /v1/alerts/stream` exige ADMIN ou SUPER_ADMIN (SecurityConfiguration) — se
     // connecter sans vérifier le rôle enverrait chaque session non-admin dans une boucle de
     // reconnexion 403 perpétuelle (le service refait une tentative avec un back-off jusqu'à 30s).
-    if (!this.isAdmin()) {
+    //
+    // Corrige un bug réel trouvé pendant la refonte (Phase 0/2) : l'ancienne version décodait le
+    // JWT à la main et traitait `role` comme un tableau (`roles.some(...)`), alors que le claim
+    // est une chaîne unique (`"ROLE_SUPER_ADMIN"`) — vérifié sur un jeton réel. `.some` n'existe
+    // pas sur une chaîne, l'appel levait une exception silencieusement rattrapée : `isAdmin()`
+    // renvoyait toujours `false`, pour tout le monde. Le flux temps réel ne s'est donc jamais
+    // connecté, y compris pour un compte SUPER_ADMIN, depuis son introduction.
+    if (!this.sessionService.hasAnyRole('ADMIN', 'SUPER_ADMIN')) {
       return;
     }
     this.alertStreamService.connect();
@@ -51,23 +57,6 @@ isClicked = false;
   ngOnDestroy(): void {
     this.alertsSubscription?.unsubscribe();
     this.alertStreamService.disconnect();
-  }
-
-  private isAdmin(): boolean {
-    const token = this.authService.getAuthToken();
-    if (!token) {
-      return false;
-    }
-    try {
-      const decoded = new JwtHelperService().decodeToken(token);
-      const roles: any[] = decoded?.role ?? [];
-      return roles.some(r => {
-        const name = typeof r === 'string' ? r : r?.authority;
-        return name === 'ROLE_ADMIN' || name === 'ROLE_SUPER_ADMIN';
-      });
-    } catch {
-      return false;
-    }
   }
 
 

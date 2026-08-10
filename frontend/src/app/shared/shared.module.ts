@@ -16,9 +16,12 @@ import { ModalService } from '../services/modal.service';
 import { DeleteComponent } from './components/delete/delete.component';
 
 
+// SidebarComponent est standalone depuis la Phase 2 de la refonte (filtrage de navigation par
+// role) : un composant standalone ne peut plus figurer dans `declarations`, il s'importe comme
+// un module. Reste expose via `exports` pour que les consommateurs de SharedModule n'aient rien
+// a changer.
 const COMPONENTS : any[]= [
     HeaderComponent,
-    SidebarComponent,
     LayoutComponent,
     ErrorComponent,
     PaginationCustumerComponent,
@@ -33,7 +36,8 @@ const BASE_MODULES = [
     CoreModule,
     ReactiveFormsModule,
     TranslateModule,
-    BubblePaginationDirective
+    BubblePaginationDirective,
+    SidebarComponent,
   ];
 
 
