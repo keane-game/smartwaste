@@ -27,24 +27,39 @@
   --color-accent-dark: #854D0E;
   --color-accent-light: #FEF3C7;
 
-  --color-background: #F0FDF4;
+  /*
+   * Fond de page neutre et bordures neutres, d apres les maquettes de reference
+   * (frontend/mockup) : le vert est reserve aux actions et aux etats, pas aux surfaces.
+   * A garder synchronise avec assets/scss/variables.scss (meme duplication temporaire).
+   */
+  --color-background: #F7F7F7;
   --color-surface: #FFFFFF;
-  --color-muted-surface: #E8F0F1;
+  --color-muted-surface: #F3F4F6;
 
   --color-foreground: #14532D;
   --color-text: #334155;
   --color-muted: #64748B;
 
-  --color-border: #BBF7D0;
+  --color-border: #E5E7EB;
   --color-destructive: #DC2626;
+  --color-destructive-soft: #FEE2E2;
   --color-warning: #D97706;
   --color-success: #15803D;
+
+  /* Barre laterale sombre des maquettes, declinee dans le vert de marque. */
+  --color-sidebar: #14532D;
+  --color-sidebar-hover: #1B6B3A;
+  --color-sidebar-active: #22703F;
+  --color-sidebar-text: #D1E7DA;
 
   --font-heading: "Lexend", sans-serif;
   --font-body: "Source Sans 3", sans-serif;
 
   --radius-DEFAULT: 0.75em;
   --radius-sm: 6px;
+  /* Coins genereux des cartes et pilules (boutons, onglets de filtre) des maquettes. */
+  --radius-card: 14px;
+  --radius-pill: 9999px;
 
   /*
    * Prefixees "gutter-" (pas juste xs/sm/md/lg/xl/2xl/3xl) : ce sont exactement les noms que

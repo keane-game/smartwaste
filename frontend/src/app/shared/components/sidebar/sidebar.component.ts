@@ -31,7 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Tableau de bord', icon: 'bi-grid', route: '/', roles: ADMIN_ROLES },
   { label: 'Département Pikine', icon: 'bi-building', route: '/departements', roles: ADMIN_ROLES },
   {
-    label: 'Gestion des ressources', icon: 'ri-file-settings-line', route: '', roles: ADMIN_ROLES,
+    label: 'Gestion des ressources', icon: 'bi-folder2-open', route: '', roles: ADMIN_ROLES,
     children: [
       { label: 'Utilisateurs', icon: 'bi-circle', route: '/users', roles: ADMIN_ROLES },
       { label: 'Communes', icon: 'bi-circle', route: '/communes', roles: ADMIN_ROLES },
@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Carte', icon: 'bi-map', route: '/maps', roles: ADMIN_ROLES },
-  { label: 'Alertes', icon: 'ri-alert-line', route: '/alerts', roles: ADMIN_ROLES },
+  { label: 'Alertes', icon: 'bi-exclamation-triangle', route: '/alerts', roles: ADMIN_ROLES },
   { label: 'Notifications', icon: 'bi-bell', route: '/notifications', roles: ADMIN_ROLES },
 
   { label: 'Ma tournée', icon: 'bi-signpost-2', route: '/collection-routes', roles: [...ADMIN_ROLES, 'AGENT'] },

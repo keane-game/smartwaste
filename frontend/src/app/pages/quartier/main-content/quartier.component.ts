@@ -11,6 +11,7 @@ import { first } from 'rxjs';
 import { CreateQuartierComponent } from '../create-quartier/create-quartier.component';
 import { ModalService } from '../../../services/modal.service';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
+import { ListUiState } from '../../../shared/ui/list-ui-state';
 
 @Component({
     selector: 'app-quartier',
@@ -23,7 +24,10 @@ export class QuartierComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['quartierName', 'quartierCode', 'quartierLength', 'quartierArea', 'quartierZoneCoron', 'action'];
+  displayedColumns: string[] = ['select', 'quartierName', 'quartierCode', 'quartierLength', 'quartierArea', 'quartierZoneCoron', 'action'];
+
+  /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
+  readonly ui = new ListUiState();
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
 
@@ -110,5 +114,10 @@ export class QuartierComponent {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
   }
 }

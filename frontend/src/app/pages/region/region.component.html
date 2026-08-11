@@ -13,14 +13,13 @@
     <button
       type="button"
       (click)="openCreateRegionModal()"
-      class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
-             hover:bg-primary-dark transition-colors duration-200 cursor-pointer"
+      class="sw-btn-primary"
     >
       + Ajouter région
     </button>
   </div>
 
-  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
+  <div class="sw-card">
     <table mat-table [dataSource]="dataSource" aria-describedby="liste des régions"
       class="w-full"
       matSort matSortActive="created"
@@ -73,7 +72,7 @@
     </table>
 
     @if (totalRegions <= 0) {
-      <div class="text-center py-gutter-xl text-sm text-muted">
+      <div class="sw-empty">
         Aucune région n'est disponible.
       </div>
     }

@@ -8,6 +8,7 @@ import { ModalService } from '../../../services/modal.service';
 import { CreateCircuitCollectComponent } from '../create-circuit-collect/create-circuit-collect.component';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
+import { ListUiState } from '../../../shared/ui/list-ui-state';
 
 /**
  * Circuits de collecte.
@@ -30,7 +31,10 @@ export class CircuitCollectComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['name', 'code', 'type', 'frequency', 'rotation', 'length', 'action'];
+  displayedColumns: string[] = ['select', 'name', 'code', 'type', 'frequency', 'rotation', 'length', 'action'];
+
+  /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
+  readonly ui = new ListUiState();
   dataSource = new MatTableDataSource<any>([]);
 
   totalPages: number = 1;
@@ -96,5 +100,10 @@ export class CircuitCollectComponent {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
   }
 }

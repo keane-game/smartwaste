@@ -9,9 +9,9 @@
 
   <div class="bg-surface border border-border rounded-DEFAULT shadow-lg divide-y divide-border">
     @if (loading) {
-      <div class="text-center py-gutter-xl text-sm text-muted">Chargement du fil…</div>
+      <div class="sw-empty">Chargement du fil…</div>
     } @else if (entries.length === 0) {
-      <div class="text-center py-gutter-xl text-sm text-muted">Aucune notification pour le moment.</div>
+      <div class="sw-empty">Aucune notification pour le moment.</div>
     } @else {
       @for (entry of entries; track $index) {
         <div [class]="'flex items-start gap-gutter-md px-gutter-lg py-gutter-md'

@@ -42,6 +42,13 @@ export class HeaderComponent implements AfterContentChecked {
     return (this.user()?.role ?? '').replace(/^ROLE_/, '');
   }
 
+  /** Initiales de l'avatar — l'API ne fournit pas de photo de profil. */
+  get initials(): string {
+    const u = this.user();
+    if (!u) { return '?'; }
+    return ((u.firstname || u.email || '?').charAt(0) + (u.lastname || '').charAt(0)).toUpperCase();
+  }
+
   ngAfterContentChecked(): void {
     this.changeDetector.detectChanges();
   }

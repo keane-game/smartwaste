@@ -1,13 +1,12 @@
 <div class="flex flex-col gap-gutter-md">
 
-  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-md md:p-gutter-lg">
+  <div class="sw-card sw-card-pad">
     <div class="flex flex-col md:grid md:grid-cols-3 gap-gutter-md md:items-end">
-      <div class="flex flex-col gap-gutter-xs">
-        <label class="text-sm font-medium text-text" for="communeSelect">Commune</label>
+      <div class="sw-field">
+        <label class="sw-label" for="communeSelect">Commune</label>
         <!-- min-h-11 (44px) : cible tactile minimale, l'agent est sur le terrain. -->
         <select id="communeSelect" [(ngModel)]="communeId" (ngModelChange)="onCommuneChange()"
-          class="w-full min-h-11 rounded-sm border border-border px-3 py-2 text-base md:text-sm text-text bg-surface
-                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+          class="sw-input">
           <option [ngValue]="null" disabled>Choisir une commune…</option>
           @for (commune of communes; track commune.communeId) {
             <option [ngValue]="commune.communeId">{{ commune.name }}</option>
@@ -31,22 +30,22 @@
   </div>
 
   @if (errorMessage) {
-    <div class="rounded-DEFAULT border border-destructive bg-destructive/10 px-gutter-md py-gutter-md text-sm text-destructive">
+    <div class="sw-card" style="border-color:var(--color-destructive);background:var(--color-destructive-soft);color:var(--color-destructive);padding:var(--space-md)">
       {{ errorMessage }}
     </div>
   }
 
   @if (loading) {
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
-      <p class="text-center py-gutter-xl text-sm text-muted">Chargement…</p>
+    <div class="sw-card">
+      <p class="sw-empty">Chargement…</p>
     </div>
   } @else if (!communeId) {
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
-      <p class="text-center py-gutter-xl text-sm text-muted">Choisissez une commune pour afficher la tournée.</p>
+    <div class="sw-card">
+      <p class="sw-empty">Choisissez une commune pour afficher la tournée.</p>
     </div>
   } @else if (stops.length === 0 && !errorMessage) {
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
-      <p class="text-center py-gutter-xl text-sm text-muted">Aucun point à desservir aujourd'hui sur cette commune.</p>
+    <div class="sw-card">
+      <p class="sw-empty">Aucun point à desservir aujourd'hui sur cette commune.</p>
     </div>
   } @else {
 
@@ -82,7 +81,7 @@
 
           @if (reasonForStopId === stop.depotoirId) {
             <div class="flex flex-col gap-gutter-sm border-t border-border pt-gutter-sm">
-              <label class="text-sm font-medium text-text" [attr.for]="'reason-' + stop.depotoirId">
+              <label class="sw-label" [attr.for]="'reason-' + stop.depotoirId">
                 Motif d'inaccessibilité
               </label>
               <input [id]="'reason-' + stop.depotoirId" type="text" [(ngModel)]="reasonText"

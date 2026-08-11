@@ -23,7 +23,10 @@ export class CommuneComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['communeName', 'communeCode', 'department', 'totalResident', 'womanResident', 'manResident', 'communeLength', 'communeArea', 'action'];
+  // `select` (cases à cocher) et `communeArea` réaffecté au statut, d'après les maquettes.
+  // `communeLength` retiré : une longueur de commune n'aide personne à décider, et la maquette
+  // privilégie moins de colonnes mais lisibles.
+  displayedColumns: string[] = ['select', 'communeName', 'communeCode', 'department', 'totalResident', 'womanResident', 'manResident', 'communeArea', 'action'];
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
 
@@ -34,6 +37,22 @@ export class CommuneComponent {
   itemsPerPage: number = 10;
   currentPage: number = 0;
   error = '';
+
+  /** Ligne dont le menu `…` est ouvert (`null` = aucun). Patron des maquettes. */
+  openRowMenu: string | null = null;
+
+  /**
+   * Position à l'écran du menu `…`, en coordonnées de fenêtre.
+   *
+   * <p>Le menu est positionné en `fixed` et non en `absolute` dans la cellule : le tableau vit
+   * dans un conteneur `overflow-x-auto`, et dès qu'un axe n'est pas `visible` l'autre passe à
+   * `auto` — le menu en `absolute` était donc rogné par le conteneur et restait invisible bien
+   * que présent dans le DOM (vérifié : élément mesuré 176×106 mais jamais affiché).
+   */
+  rowMenuPos = { top: 0, left: 0 };
+
+  /** Sélection par cases à cocher (colonne de gauche des maquettes). */
+  selectedIds = new Set<string>();
 
   @Input() communeChangeEvent = new EventEmitter<number>();
 
@@ -89,14 +108,65 @@ export class CommuneComponent {
   }
  
   applyFilter(event: Event) {
-    // console.log((event.target as HTMLInputElement).value)
      const filterValue = (event.target as HTMLInputElement).value;
      this.dataSource.filter = filterValue.trim().toLowerCase();
- 
+
      if (this.dataSource.paginator) {
        this.dataSource.paginator.firstPage();
      }
    }
+
+  toggleRowMenu(id: string, event: MouseEvent): void {
+    if (this.openRowMenu === id) {
+      this.openRowMenu = null;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    // Aligné sur le bord droit du bouton (largeur du menu : 176px), juste en dessous.
+    this.rowMenuPos = { top: rect.bottom + 4, left: rect.right - 176 };
+    this.openRowMenu = id;
+  }
+
+  closeRowMenu(): void {
+    this.openRowMenu = null;
+  }
+
+  toggleSelection(id: string): void {
+    if (this.selectedIds.has(id)) {
+      this.selectedIds.delete(id);
+    } else {
+      this.selectedIds.add(id);
+    }
+  }
+
+  get allSelected(): boolean {
+    const rows = this.dataSource.data;
+    return rows.length > 0 && rows.every((r: any) => this.selectedIds.has(r.communeId));
+  }
+
+  toggleSelectAll(): void {
+    if (this.allSelected) {
+      this.selectedIds.clear();
+    } else {
+      this.dataSource.data.forEach((r: any) => this.selectedIds.add(r.communeId));
+    }
+  }
+
+  /** Bornes affichées par la pagination des maquettes (« 1-10 sur 12 »). */
+  get rangeStart(): number {
+    return this.totalCommunes === 0 ? 0 : this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get rangeEnd(): number {
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalCommunes);
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) {
+      return;
+    }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
  
    /** Announce the change in sort state for assistive technology. */
    announceSortChange(sortState: Sort) {

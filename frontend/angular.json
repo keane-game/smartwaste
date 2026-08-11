@@ -45,7 +45,8 @@
               "src/assets/vendor/simple-datatables/style.css",
               "src/styles.scss",
               "node_modules/leaflet/dist/leaflet.css",
-              "src/styles/tailwind.css"
+              "src/styles/tailwind.css",
+              "src/styles/components.css"
             ],
             "scripts": [
               "src/assets/vendor/apexcharts/apexcharts.min.js",
@@ -124,7 +125,8 @@
             ],
             "styles": [
               "src/styles.scss",
-              "src/styles/tailwind.css"
+              "src/styles/tailwind.css",
+              "src/styles/components.css"
             ],
             "scripts": []
           }

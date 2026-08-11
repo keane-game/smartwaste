@@ -147,8 +147,9 @@ mat-drawer-content{
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
+  // Fond posé par le composant (`bg-sidebar`, vert profond des maquettes). L'ancien
+  // `background-color: var(--color-surface) !important` forçait le blanc et écrasait la classe.
   box-shadow: var(--shadow-lg);
-  background-color: var(--color-surface) !important;
 }
 
 

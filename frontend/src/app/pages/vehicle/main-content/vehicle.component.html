@@ -1,34 +1,29 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-gutter-md">
 
   <div class="lg:col-span-2">
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-lg">
-      <h2 class="font-heading text-base font-semibold text-foreground mb-gutter-md">
+    <div class="sw-card sw-card-pad">
+      <h2 class="sw-card-title mb-gutter-md">
         {{ editingId === null ? 'Ajouter un véhicule' : 'Modifier le véhicule' }}
       </h2>
       <form (ngSubmit)="submit()" class="flex flex-col gap-gutter-sm">
-        <div class="flex flex-col gap-gutter-xs">
-          <label class="text-sm font-medium text-text" for="registration">Immatriculation</label>
+        <div class="sw-field">
+          <label class="sw-label" for="registration">Immatriculation</label>
           <input id="registration" name="registration" [(ngModel)]="form.registration" required
-            class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
-                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+            class="sw-input" />
         </div>
-        <div class="flex flex-col gap-gutter-xs">
-          <label class="text-sm font-medium text-text" for="label">Libellé</label>
+        <div class="sw-field">
+          <label class="sw-label" for="label">Libellé</label>
           <input id="label" name="label" [(ngModel)]="form.label" required
-            class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
-                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+            class="sw-input" />
         </div>
         <div class="flex items-center gap-gutter-sm">
           <button type="submit" [disabled]="submitting"
-            class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
-                   hover:bg-primary-dark transition-colors duration-200 cursor-pointer
-                   disabled:opacity-50 disabled:cursor-not-allowed">
+            class="sw-btn-primary">
             {{ editingId === null ? 'Créer' : 'Enregistrer' }}
           </button>
           @if (editingId !== null) {
             <button type="button" (click)="cancelEdit()"
-              class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
-                     hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+              class="sw-btn-danger">
               Annuler
             </button>
           }
@@ -38,13 +33,13 @@
   </div>
 
   <div class="lg:col-span-3">
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
-      <h2 class="font-heading text-base font-semibold text-foreground px-gutter-lg pt-gutter-lg pb-gutter-sm">Flotte</h2>
+    <div class="sw-card">
+      <h2 class="sw-card-title px-gutter-lg pt-gutter-lg pb-gutter-sm">Flotte</h2>
 
       @if (loading) {
-        <p class="text-center py-gutter-xl text-sm text-muted">Chargement…</p>
+        <p class="sw-empty">Chargement…</p>
       } @else if (vehicles.length === 0) {
-        <p class="text-center py-gutter-xl text-sm text-muted">Aucun véhicule enregistré.</p>
+        <p class="sw-empty">Aucun véhicule enregistré.</p>
       } @else {
         <div class="overflow-x-auto">
           <table class="w-full text-sm">

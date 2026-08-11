@@ -23,21 +23,32 @@ $theme-colors: (
     --color-accent-dark: #854D0E;
     --color-accent-light: #FEF3C7;
 
-    // Surfaces
-    --color-background: #F0FDF4;
+    // Surfaces — fond de page NEUTRE (gris clair) et non plus teinté vert, d'après les maquettes
+    // de référence (frontend/mockup) : les cartes blanches ne ressortaient pas sur un fond
+    // lui-même coloré, et le vert saturait l'écran alors qu'il doit servir aux actions.
+    --color-background: #F7F7F7;
     --color-surface: #FFFFFF;
-    --color-muted-surface: #E8F0F1;
+    --color-muted-surface: #F3F4F6;
 
     // Texte
     --color-foreground: #14532D;
     --color-text: #334155;
     --color-muted: #64748B;
 
-    // États
-    --color-border: #BBF7D0;
+    // États — bordures neutres (le vert est réservé aux actions et aux états « succès »)
+    --color-border: #E5E7EB;
     --color-destructive: #DC2626;
     --color-warning: #D97706;
     --color-success: #15803D;
+    // Fond des actions destructives/annulation : pilule rouge très pâle à texte rouge (maquettes).
+    --color-destructive-soft: #FEE2E2;
+
+    // Barre latérale sombre (maquettes) — déclinée dans le vert de marque plutôt qu'en noir,
+    // pour garder l'identité SONAGED.
+    --color-sidebar: #14532D;
+    --color-sidebar-hover: #1B6B3A;
+    --color-sidebar-active: #22703F;
+    --color-sidebar-text: #D1E7DA;
 
     // Typographie
     --font-heading: 'Lexend', sans-serif;
@@ -48,14 +59,19 @@ $theme-colors: (
     // Profondeur — ombres douces à deux couches (« Soft UI Evolution ») plutôt que le flat-shadow
     // unique d'origine : plus de matière sans tomber dans le skeuomorphisme. Teinte verte
     // (21,128,61 = --color-primary) plutôt que neutre, pour rester dans la même famille de couleur.
-    --shadow-sm: 0 1px 2px rgba(21, 128, 61, 0.06);
-    --shadow-md: 0 4px 16px rgba(21, 128, 61, 0.08), 0 1px 3px rgba(21, 128, 61, 0.06);
-    --shadow-lg: 0 12px 32px rgba(21, 128, 61, 0.10), 0 2px 6px rgba(21, 128, 61, 0.06);
+    // Ombres NEUTRES et discrètes : sur fond gris, une ombre teintée vert virait au sale. Les
+    // maquettes s'appuient sur une bordure fine + une ombre à peine perceptible, pas sur du relief.
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-md: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-lg: 0 4px 12px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04);
     --focus-ring: 0 0 0 3px rgba(21, 128, 61, 0.15);
 
     --radius: 0.75em;
     --radius-h: 0.375em;
     --radius-sm: 6px;
+    // Coins généreux des cartes + pilules (boutons, onglets de filtre) des maquettes.
+    --radius-card: 14px;
+    --radius-pill: 9999px;
     --text-color: #fff !important;
 
     // Échelle d'espacement (densité « standard/tableau de bord », skill ui-ux-pro-max --density 7)

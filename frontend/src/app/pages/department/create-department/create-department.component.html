@@ -1,6 +1,6 @@
-<div class="bg-surface">
-  <div class="flex items-center justify-between px-gutter-lg pt-gutter-lg pb-gutter-sm border-b border-border">
-    <h3 class="font-heading text-lg font-semibold text-foreground">
+<div class="sw-dialog">
+  <div class="sw-dialog-head">
+    <h3 class="sw-dialog-title">
       {{ id ? 'Modifier le département' : 'Nouveau département' }}
     </h3>
     <button type="button" [mat-dialog-close]="true" class="text-muted hover:text-text cursor-pointer">
@@ -8,59 +8,54 @@
     </button>
   </div>
 
-  <form [formGroup]="departForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md p-gutter-lg" novalidate>
+  <form [formGroup]="departForm" (ngSubmit)="onSubmit()" class="sw-dialog-body" novalidate>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
-      <div class="flex flex-col gap-gutter-xs">
-        <label for="departmentName" class="text-sm font-medium text-text">Nom</label>
+    <div class="sw-grid-2">
+      <div class="sw-field">
+        <label for="departmentName" class="sw-label">Nom</label>
         <input id="departmentName" type="text" formControlName="departmentName" placeholder="Nom du département"
-          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
-                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+          class="sw-input" />
         @if (submitted && f['departmentName'].invalid) {
-          <p class="text-xs text-destructive">Nom requis.</p>
+          <p class="sw-error">Nom requis.</p>
         }
       </div>
 
-      <div class="flex flex-col gap-gutter-xs">
-        <label for="departmentCode" class="text-sm font-medium text-text">Code</label>
+      <div class="sw-field">
+        <label for="departmentCode" class="sw-label">Code</label>
         <input id="departmentCode" type="text" formControlName="departmentCode" placeholder="Code du département"
-          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
-                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+          class="sw-input" />
         @if (submitted && f['departmentCode'].invalid) {
-          <p class="text-xs text-destructive">Code requis.</p>
+          <p class="sw-error">Code requis.</p>
         }
       </div>
     </div>
 
-    <div class="flex flex-col gap-gutter-xs">
-      <label for="regionId" class="text-sm font-medium text-text">Région</label>
+    <div class="sw-field">
+      <label for="regionId" class="sw-label">Région</label>
       <select id="regionId" formControlName="regionId"
-        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
-               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+        class="sw-input">
         <option [ngValue]="null" disabled>Sélectionner une région…</option>
         @for (region of listRegions; track region.regionId) {
           <option [ngValue]="region.regionId">{{ region.name }}</option>
         }
       </select>
       @if (submitted && f['regionId'].invalid) {
-        <p class="text-xs text-destructive">Région requise.</p>
+        <p class="sw-error">Région requise.</p>
       }
     </div>
 
-    <div class="flex flex-col gap-gutter-xs">
-      <label class="text-sm font-medium text-text">Géométrie (optionnel)</label>
+    <div class="sw-field">
+      <label class="sw-label">Géométrie (optionnel)</label>
       <ng-container *ngComponentOutlet="fileUpload.component; inputs: fileUpload.inputs;" />
     </div>
 
-    <div class="flex justify-end gap-gutter-sm pt-gutter-sm border-t border-border">
+    <div class="sw-dialog-foot">
       <button type="button" [mat-dialog-close]="true"
-        class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
-               hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+        class="sw-btn-danger">
         Annuler
       </button>
       <button type="submit"
-        class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
-               hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+        class="sw-btn-primary">
         Enregistrer
       </button>
     </div>

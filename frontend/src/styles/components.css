@@ -1,0 +1,438 @@
+/*
+ * Primitives d interface SmartCollect, d apres les maquettes de reference (frontend/mockup).
+ *
+ * POURQUOI CE FICHIER. La conversion touche une trentaine d ecrans qui partagent tous les memes
+ * briques : titre de page, bouton primaire en pilule, carte, recherche, tableau, pastille de
+ * statut, menu de ligne, pagination, champ de formulaire. Les ecrire en utilitaires Tailwind
+ * repetait des chaines de vingt classes a chaque occurrence — illisible, et surtout impossible a
+ * corriger d un seul endroit. Ces classes sont ecrites en CSS simple avec les jetons de
+ * variables.scss : pas de dependance a l ordre de generation des utilitaires.
+ *
+ * TROIS PIEGES TRAITES ICI UNE FOIS POUR TOUTES (verifies au navigateur sur l ecran Communes) :
+ *  1. Le preflight de Tailwind est desactive (coexistence avec Bootstrap) : les `button` heritent
+ *     d un fond gris clair de Bootstrap et les `ul` gardent puces et retrait. Chaque classe de
+ *     bouton pose donc `background` explicitement, et `.sw-nav-list` remet la liste a plat.
+ *  2. Les bordures : sans preflight, `border-style` doit etre pose explicitement.
+ *  3. Les menus de ligne sont rendus en `position: fixed` par les composants, jamais en `absolute`
+ *     dans une cellule : le conteneur de tableau est en `overflow-x`, et des qu un axe n est pas
+ *     `visible` l autre passe a `auto`, ce qui rognait le menu.
+ */
+
+/* ---------------------------------------------------------------- Page */
+
+.sw-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sw-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.sw-page-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.sw-page-subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  margin: 2px 0 0;
+}
+
+/* ---------------------------------------------------------------- Boutons */
+
+.sw-btn,
+.sw-btn-primary,
+.sw-btn-ghost,
+.sw-btn-danger,
+.sw-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.sw-btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 10px 20px;
+}
+.sw-btn-primary:hover:not(:disabled) { background-color: var(--color-primary-dark); }
+
+.sw-btn-ghost {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+  padding: 9px 18px;
+}
+.sw-btn-ghost:hover:not(:disabled) { background-color: var(--color-muted-surface); }
+
+/* Annulation / destructif : pilule rouge tres pale a texte rouge (maquettes). */
+.sw-btn-danger {
+  background-color: var(--color-destructive-soft);
+  color: var(--color-destructive);
+  padding: 10px 20px;
+}
+.sw-btn-danger:hover:not(:disabled) { filter: brightness(0.97); }
+
+.sw-btn-icon {
+  background-color: transparent;
+  color: var(--color-muted);
+  height: 36px;
+  width: 36px;
+  padding: 0;
+}
+.sw-btn-icon:hover:not(:disabled) { background-color: var(--color-muted-surface); }
+
+.sw-btn-icon--bordered { border-color: var(--color-border); color: var(--color-text); }
+
+.sw-btn-primary:disabled,
+.sw-btn-ghost:disabled,
+.sw-btn-danger:disabled,
+.sw-btn-icon:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- Carte */
+
+.sw-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.sw-card-pad { padding: var(--space-lg); }
+
+.sw-card-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- Onglets de filtre */
+
+.sw-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sw-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background-color: transparent;
+  border-radius: var(--radius-pill);
+  padding: 6px 16px;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.sw-tab:hover { background-color: var(--color-muted-surface); }
+
+.sw-tab--active {
+  background-color: var(--color-primary);
+  color: #fff;
+  font-weight: 500;
+}
+
+.sw-tab-count {
+  border-radius: var(--radius-pill);
+  background-color: var(--color-muted-surface);
+  padding: 1px 8px;
+  font-size: var(--text-xs);
+}
+.sw-tab--active .sw-tab-count { background-color: rgba(255, 255, 255, 0.22); }
+
+/* ---------------------------------------------------------------- Barre d outils / recherche */
+
+.sw-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sw-search {
+  position: relative;
+  flex: 1;
+  max-width: 380px;
+}
+
+.sw-search > i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.sw-search > input {
+  width: 100%;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-muted-surface);
+  border: 1px solid transparent;
+  padding: 9px 16px 9px 40px;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+.sw-search > input:focus {
+  outline: none;
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+/* ---------------------------------------------------------------- Tableau */
+
+.sw-table-wrap { overflow-x: auto; }
+
+.sw-table { width: 100%; font-size: var(--text-sm); border-collapse: collapse; }
+
+.sw-table thead th,
+.sw-table th.mat-mdc-header-cell {
+  background-color: var(--color-surface) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: 500 !important;
+  color: var(--color-muted) !important;
+  text-align: left;
+  padding: 12px var(--space-md);
+  white-space: nowrap;
+}
+
+.sw-table tbody td,
+.sw-table td.mat-mdc-cell {
+  padding: 12px var(--space-md);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sw-table tbody tr:hover { background-color: var(--color-muted-surface); }
+
+.sw-table .sw-cell-strong { font-weight: 500; color: var(--color-foreground); }
+
+.sw-checkbox {
+  height: 16px;
+  width: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- Statut */
+
+.sw-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.sw-status::before {
+  content: "";
+  height: 8px;
+  width: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.sw-status--ok::before { background-color: var(--color-success); }
+.sw-status--warn::before { background-color: var(--color-warning); }
+.sw-status--danger::before { background-color: var(--color-destructive); }
+
+/* Etiquette pleine (gravite d alerte, statut de signalement). */
+.sw-badge {
+  display: inline-block;
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+.sw-badge--ok { background-color: rgba(21, 128, 61, 0.1); color: var(--color-success); }
+.sw-badge--warn { background-color: rgba(217, 119, 6, 0.1); color: var(--color-warning); }
+.sw-badge--danger { background-color: rgba(220, 38, 38, 0.1); color: var(--color-destructive); }
+.sw-badge--muted { background-color: var(--color-muted-surface); color: var(--color-muted); }
+
+/* ---------------------------------------------------------------- Menu de ligne */
+
+.sw-menu {
+  position: fixed;
+  z-index: 1200;
+  width: 180px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  padding: 4px 0;
+}
+
+.sw-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background-color: transparent;
+  padding: 9px 16px;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+.sw-menu-item:hover { background-color: var(--color-muted-surface); }
+.sw-menu-item > i { color: var(--color-muted); }
+
+.sw-menu-item--danger { color: var(--color-destructive); }
+.sw-menu-item--danger > i { color: var(--color-destructive); }
+.sw-menu-item--danger:hover { background-color: var(--color-destructive-soft); }
+
+/* ---------------------------------------------------------------- Pagination */
+
+.sw-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.sw-pagination-info { font-size: var(--text-sm); color: var(--color-muted); }
+
+/* ---------------------------------------------------------------- Formulaires */
+
+.sw-field { display: flex; flex-direction: column; gap: 6px; }
+
+.sw-label { font-size: var(--text-sm); font-weight: 500; color: var(--color-text); }
+.sw-label > .req { color: var(--color-destructive); }
+
+.sw-input,
+.sw-select,
+.sw-textarea {
+  width: 100%;
+  min-height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  padding: 9px 12px;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+.sw-textarea { resize: vertical; }
+
+.sw-input:focus,
+.sw-select:focus,
+.sw-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.sw-input:disabled, .sw-select:disabled, .sw-textarea:disabled {
+  background-color: var(--color-muted-surface);
+  cursor: not-allowed;
+}
+
+.sw-error { font-size: var(--text-xs); color: var(--color-destructive); }
+
+.sw-grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--space-md); }
+.sw-grid-3 { display: grid; grid-template-columns: 1fr; gap: var(--space-md); }
+@media (min-width: 768px) {
+  .sw-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .sw-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------------------------------------------------------------- Dialogue */
+
+.sw-dialog { background-color: var(--color-surface); }
+
+.sw-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-lg) var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sw-dialog-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.sw-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.sw-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------------------------------------------------------------- Etats vides */
+
+.sw-empty {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* ---------------------------------------------------------------- Divers */
+
+/* Remet a plat les listes de navigation : sans preflight, les `ul` gardent puces et retrait. */
+.sw-nav-list { list-style: none; padding-left: 0; margin: 0; }
+
+.sw-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+@media (min-width: 768px) { .sw-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .sw-kpi-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+.sw-kpi { display: flex; flex-direction: column; gap: 4px; padding: var(--space-md); }
+.sw-kpi-label { font-size: var(--text-xs); color: var(--color-muted); }
+.sw-kpi-value {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-foreground);
+}

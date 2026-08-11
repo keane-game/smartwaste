@@ -8,6 +8,7 @@ import { ModalService } from '../../../services/modal.service';
 import { CreateCircuitBalayageComponent } from '../create-circuit-balayage/create-circuit-balayage.component';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
+import { ListUiState } from '../../../shared/ui/list-ui-state';
 
 /**
  * Circuits de balayage. Le composant était entièrement vide (classe sans aucun membre) alors que
@@ -24,7 +25,10 @@ export class CircuitBalayageComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['name', 'code', 'shift', 'length', 'action'];
+  displayedColumns: string[] = ['select', 'name', 'code', 'shift', 'length', 'action'];
+
+  /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
+  readonly ui = new ListUiState();
   dataSource = new MatTableDataSource<any>([]);
 
   totalPages: number = 1;
@@ -89,5 +93,10 @@ export class CircuitBalayageComponent {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
   }
 }

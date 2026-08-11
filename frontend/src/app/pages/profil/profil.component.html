@@ -15,8 +15,8 @@
       </div>
     </div>
 
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
-      <h2 class="font-heading text-base font-semibold text-foreground px-gutter-lg pt-gutter-lg pb-gutter-sm">
+    <div class="sw-card">
+      <h2 class="sw-card-title px-gutter-lg pt-gutter-lg pb-gutter-sm">
         Informations du compte
       </h2>
       <dl class="divide-y divide-border border-t border-border">
@@ -44,22 +44,21 @@
     </div>
 
     <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-lg flex flex-col gap-gutter-sm">
-      <h2 class="font-heading text-base font-semibold text-foreground">Sécurité</h2>
+      <h2 class="sw-card-title">Sécurité</h2>
       <p class="text-sm text-muted">
         Le mot de passe se modifie via le parcours de réinitialisation, qui vous envoie un code par
         e-mail.
       </p>
       <div>
         <a routerLink="/password"
-          class="inline-flex items-center min-h-11 rounded-DEFAULT bg-primary text-white text-sm font-medium px-4
-                 hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+          class="sw-btn-primary">
           Modifier mon mot de passe
         </a>
       </div>
     </div>
   } @else {
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
-      <p class="text-center py-gutter-xl text-sm text-muted">Session introuvable. Reconnectez-vous.</p>
+    <div class="sw-card">
+      <p class="sw-empty">Session introuvable. Reconnectez-vous.</p>
     </div>
   }
 

@@ -1,115 +1,127 @@
-<div class="flex flex-col gap-gutter-md">
-  <div class="flex items-center justify-between flex-wrap gap-gutter-sm">
-    <div class="relative w-full max-w-xs">
-      <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
-      <input
-        type="text"
-        (keyup)="applyFilter($event)"
-        placeholder="Rechercher un circuit…"
-        class="w-full rounded-sm border border-border pl-9 pr-3 py-2 text-sm text-text bg-surface
-               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-      />
+<div class="sw-page" (document:click)="ui.closeRowMenu()">
+
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Circuits de collecte</h1>
+      <p class="sw-page-subtitle">Itinéraires de ramassage des déchets</p>
     </div>
-    <button
-      type="button"
-      (click)="openCreateCircuitCollecModal()"
-      class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
-             hover:bg-primary-dark transition-colors duration-200 cursor-pointer"
-    >
-      + Ajouter circuit
+    <button type="button" class="sw-btn-primary" (click)="openCreateCircuitCollecModal()">
+      <i class="bi bi-plus-lg text-xs"></i> Ajouter circuit
     </button>
   </div>
 
-  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-x-auto">
-    <table mat-table [dataSource]="dataSource" aria-describedby="liste des circuits de collecte"
-      class="w-full"
-      matSort matSortActive="created"
-      matSortDisableClear matSortDirection="asc"
-      (matSortChange)="announceSortChange($event)"
-    >
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par nom"
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Nom
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.name }} </td>
-      </ng-container>
+  <div class="sw-tabs">
+    <button type="button" class="sw-tab sw-tab--active">
+      Tous <span class="sw-tab-count">{{ totalCircuits }}</span>
+    </button>
+    <button type="button" class="sw-tab">
+      Sélectionnés <span class="sw-tab-count">{{ ui.selectedIds.size }}</span>
+    </button>
+  </div>
 
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par code"
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Code
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.code }} </td>
-      </ng-container>
+  <div class="sw-card">
+    <div class="sw-toolbar">
+      <div class="sw-search">
+        <i class="bi bi-search"></i>
+        <input type="text" (keyup)="applyFilter($event)" placeholder="Rechercher..." />
+      </div>
+      <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Filtrer">
+        <i class="bi bi-sliders"></i>
+      </button>
+    </div>
 
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Type
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.type || '—' }} </td>
-      </ng-container>
+    <div class="sw-table-wrap">
+      <table mat-table [dataSource]="dataSource" aria-describedby="liste des circuits de collecte"
+        class="sw-table" matSort matSortActive="created" matSortDisableClear matSortDirection="asc"
+        (matSortChange)="announceSortChange($event)">
 
-      <ng-container matColumnDef="frequency">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Fréquence
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.frequency || '—' }} </td>
-      </ng-container>
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef style="width:48px">
+            <input type="checkbox" class="sw-checkbox" aria-label="Tout selectionner"
+              [checked]="ui.allSelected(dataSource.data, 'circuitcollectId')"
+              (change)="ui.toggleSelectAll(dataSource.data, 'circuitcollectId')" />
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <input type="checkbox" class="sw-checkbox" [checked]="ui.isSelected(element.circuitcollectId)"
+              (change)="ui.toggleSelection(element.circuitcollectId)" aria-label="Selectionner la ligne" />
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="rotation">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Rotation
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.rotation || '—' }} </td>
-      </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier">Nom</th>
+          <td mat-cell *matCellDef="let element" class="sw-cell-strong">{{ element.name }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="length">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Longueur
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.length || '—' }} </td>
-      </ng-container>
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier">Code</th>
+          <td mat-cell *matCellDef="let element">{{ element.code }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Actions
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm">
-          <button type="button" (click)="openUpdateCircuitCollectModal(element.circuitcollectId)"
-            class="text-muted hover:text-primary cursor-pointer mr-3" title="Modifier">
-            <i class="bi bi-pencil-square"></i>
-          </button>
-          <button type="button" (click)="openDeleteCircuitCollecModal(element.circuitcollectId)"
-            class="text-muted hover:text-destructive cursor-pointer" title="Supprimer">
-            <i class="bi bi-trash-fill"></i>
-          </button>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let element">{{ element.type || '—' }}</td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:!bg-muted-surface"></tr>
-    </table>
+        <ng-container matColumnDef="frequency">
+          <th mat-header-cell *matHeaderCellDef>Fréquence</th>
+          <td mat-cell *matCellDef="let element">{{ element.frequency || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="rotation">
+          <th mat-header-cell *matHeaderCellDef>Rotation</th>
+          <td mat-cell *matCellDef="let element">{{ element.rotation || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="length">
+          <th mat-header-cell *matHeaderCellDef>Longueur</th>
+          <td mat-cell *matCellDef="let element">{{ element.length || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef style="width:48px"></th>
+          <td mat-cell *matCellDef="let element">
+            <button type="button" class="sw-btn-icon" aria-label="Actions"
+              (click)="ui.toggleRowMenu(element.circuitcollectId, $event); $event.stopPropagation()">
+              <i class="bi bi-three-dots"></i>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
 
     @if (totalCircuits <= 0) {
-      <div class="text-center py-gutter-xl text-sm text-muted">
-        Aucun circuit de collecte n'est disponible.
+      <div class="sw-empty">Aucun circuit de collecte n'est disponible.</div>
+    } @else {
+      <div class="sw-pagination">
+        <span class="sw-pagination-info">
+          {{ ui.rangeStart(currentPage, itemsPerPage, totalCircuits) }}-{{ ui.rangeEnd(currentPage, itemsPerPage, totalCircuits) }} sur {{ totalCircuits }}
+        </span>
+        <div class="flex items-center gap-1">
+          <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Page precedente"
+            [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+            <i class="bi bi-chevron-left text-xs"></i>
+          </button>
+          <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Page suivante"
+            [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="bi bi-chevron-right text-xs"></i>
+          </button>
+        </div>
       </div>
     }
-
-    <div class="border-t border-border">
-      <app-pagination-custumer
-        [length]="totalCircuits"
-        [pageSize]="itemsPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        [totalPages]="totalPages"
-        (pageChange)="onPaginatedChange($event)">
-      </app-pagination-custumer>
-    </div>
   </div>
 </div>
+
+@if (ui.openRowMenu) {
+  <div class="sw-menu" [style.top.px]="ui.rowMenuPos.top" [style.left.px]="ui.rowMenuPos.left"
+    (click)="$event.stopPropagation()">
+    <button type="button" class="sw-menu-item" (click)="openUpdateCircuitCollectModal(ui.openRowMenu); ui.closeRowMenu()">
+      <i class="bi bi-pencil-square"></i> Modifier
+    </button>
+    <button type="button" class="sw-menu-item sw-menu-item--danger" (click)="openDeleteCircuitCollecModal(ui.openRowMenu); ui.closeRowMenu()">
+      <i class="bi bi-trash"></i> Supprimer
+    </button>
+  </div>
+}

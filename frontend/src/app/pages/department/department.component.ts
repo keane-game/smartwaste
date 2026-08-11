@@ -10,6 +10,7 @@ import { headerTitleService } from '../../services/headerTitle.service';
 import { ModalService } from '../../services/modal.service';
 import { DeleteComponent } from '../../shared/components/delete/delete.component';
 import { CreateDepartmentComponent } from './create-department/create-department.component';
+import { ListUiState } from '../../shared/ui/list-ui-state';
 
 @Component({
     selector: 'app-department',
@@ -21,7 +22,10 @@ export class DepartmentComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['departmentName', 'departmentCode', 'region', 'commune', 'action'];
+  displayedColumns: string[] = ['select', 'departmentName', 'departmentCode', 'region', 'commune', 'action'];
+
+  /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
+  readonly ui = new ListUiState();
   dataSource = new MatTableDataSource<any>([]);
 
   totalPages: number = 1;
@@ -89,5 +93,10 @@ export class DepartmentComponent {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
   }
 }

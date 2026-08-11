@@ -1,34 +1,40 @@
 <!--
-  Les deux menus déroulants « 4 nouvelles notifications » / « 3 nouveaux messages » ont été retirés :
-  c'était du contenu de gabarit (Maria Hudson, « Lorem Ipsum », compteurs 4 et 3 en dur) que rien
-  n'alimentait, et leurs vignettes `<img src="">` déclenchaient une requête vers la page courante
-  plus une image cassée sur CHAQUE écran de l'application. La cloche pointe désormais vers l'écran
-  Notifications, qui existe réellement.
+  En-tête d'après les maquettes de référence (frontend/mockup) : titre de page à gauche, et à
+  droite une cloche en pastille ronde puis l'avatar + le nom de l'utilisateur. Les deux menus
+  déroulants « 4 nouvelles notifications » / « 3 nouveaux messages » d'origine étaient du contenu
+  de gabarit (noms fictifs, compteurs en dur) que rien n'alimentait, et leurs vignettes
+  `<img src="">` déclenchaient une image cassée sur chaque écran : la cloche pointe désormais vers
+  l'écran Notifications, qui existe réellement.
 -->
-<div class="header rectangle flex items-center gap-gutter-md px-gutter-md">
-  <div class="custom-menu">
-    <button type="button"
-      id="sidebarCollapse"
-      aria-controls="sidebar"
-      aria-label="Afficher ou masquer le menu"
-      class="btnt toggle-sidebar-btn"
-      (click)="triggerParentFunction()">
-      <i class="bi bi-filter-right"></i>
-    </button>
-  </div>
+<div class="header flex items-center gap-gutter-md px-gutter-lg">
+  <button type="button"
+    id="sidebarCollapse"
+    aria-controls="sidebar"
+    aria-label="Afficher ou masquer le menu"
+    class="toggle-sidebar-btn flex items-center justify-center h-9 w-9 rounded-pill
+           text-text hover:bg-muted-surface transition-colors duration-150 cursor-pointer"
+    (click)="triggerParentFunction()">
+    <i class="bi bi-list text-xl"></i>
+  </button>
 
-  <span class="px-4 d-none d-md-block page-title">| {{ pageTitle }}</span>
+  <span class="page-title font-heading text-lg font-semibold text-foreground truncate">{{ pageTitle }}</span>
 
-  <nav class="header-nav ms-auto flex items-center gap-gutter-md">
-    <a routerLink="/notifications" class="nav-link nav-icon oval" aria-label="Notifications">
-      <i class="bi bi-bell iconnotification"></i>
+  <div class="ms-auto flex items-center gap-gutter-sm">
+    <a routerLink="/notifications" aria-label="Notifications"
+      class="flex items-center justify-center h-9 w-9 rounded-pill bg-muted-surface text-text
+             hover:bg-border transition-colors duration-150">
+      <i class="bi bi-bell text-base"></i>
     </a>
 
     @if (user()) {
-      <div class="profil-name">
-        <span class="name">{{ displayName }}</span>
-        <span class="profile">{{ displayRole }}</span>
+      <div class="flex items-center gap-gutter-sm">
+        <span class="flex items-center justify-center h-9 w-9 rounded-pill bg-muted-surface
+                     text-xs font-semibold text-foreground">{{ initials }}</span>
+        <div class="hidden sm:flex flex-col leading-tight">
+          <span class="text-sm font-medium text-foreground">{{ displayName }}</span>
+          <span class="text-xs text-muted">{{ displayRole }}</span>
+        </div>
       </div>
     }
-  </nav>
+  </div>
 </div>
