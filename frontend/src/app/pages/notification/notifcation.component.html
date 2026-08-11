@@ -1,47 +1,110 @@
-<div class="flex flex-col gap-gutter-md">
-  <div class="flex items-center gap-gutter-sm">
-    <span class="relative flex h-2 w-2">
-      <span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-      <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-    </span>
-    <p class="text-sm text-muted">Flux temps réel connecté — les nouvelles alertes apparaissent en haut.</p>
+<!--
+  Fil des notifications, d'après la maquette « notifs » : onglets soulignés en tête, filtres
+  segmentés par gravité, puis la liste. Les entrées non lues portent un liseré vert.
+-->
+<div class="sw-page">
+
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Notifications</h1>
+      <p class="sw-page-subtitle">
+        <span class="inline-flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-pulse absolute inline-flex h-full w-full rounded-pill bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-pill h-2 w-2 bg-primary"></span>
+          </span>
+          Flux temps réel connecté — les nouvelles alertes apparaissent en haut.
+        </span>
+      </p>
+    </div>
+    @if (countFor('unread') > 0) {
+      <button type="button" class="sw-btn-ghost" (click)="markAllRead()">Tout marquer comme lu</button>
+    }
   </div>
 
-  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg divide-y divide-border">
+  <div class="sw-card">
+
+    <!-- Onglets soulignés (maquette) -->
+    <div class="flex items-center gap-gutter-lg px-gutter-lg pt-gutter-md border-b border-border">
+      <button type="button" (click)="selectTab('all')"
+        class="bg-transparent border-0 pb-2 text-sm cursor-pointer"
+        [class.text-foreground]="activeTab === 'all'"
+        [class.font-semibold]="activeTab === 'all'"
+        [class.text-muted]="activeTab !== 'all'"
+        [style.box-shadow]="activeTab === 'all' ? 'inset 0 -2px 0 var(--color-primary)' : 'none'">
+        Toutes ({{ countFor('all') }})
+      </button>
+      <button type="button" (click)="selectTab('unread')"
+        class="bg-transparent border-0 pb-2 text-sm cursor-pointer"
+        [class.text-foreground]="activeTab === 'unread'"
+        [class.font-semibold]="activeTab === 'unread'"
+        [class.text-muted]="activeTab !== 'unread'"
+        [style.box-shadow]="activeTab === 'unread' ? 'inset 0 -2px 0 var(--color-primary)' : 'none'">
+        Non lues ({{ countFor('unread') }})
+      </button>
+      <button type="button" (click)="selectTab('live')"
+        class="bg-transparent border-0 pb-2 text-sm cursor-pointer"
+        [class.text-foreground]="activeTab === 'live'"
+        [class.font-semibold]="activeTab === 'live'"
+        [class.text-muted]="activeTab !== 'live'"
+        [style.box-shadow]="activeTab === 'live' ? 'inset 0 -2px 0 var(--color-primary)' : 'none'">
+        Cette session ({{ countFor('live') }})
+      </button>
+    </div>
+
+    <!-- Filtres segmentés par gravité (maquette) -->
+    <div class="p-gutter-md">
+      <div class="inline-flex items-center gap-1 rounded-pill bg-muted-surface p-1">
+        @for (c of codes; track c.label) {
+          <button type="button" class="sw-tab" [class.sw-tab--active]="activeCode === c.code"
+            (click)="selectCode(c.code)">
+            {{ c.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Liste -->
     @if (loading) {
       <div class="sw-empty">Chargement du fil…</div>
-    } @else if (entries.length === 0) {
-      <div class="sw-empty">Aucune notification pour le moment.</div>
+    } @else if (visible.length === 0) {
+      <div class="sw-empty">Aucune notification pour ce filtre.</div>
     } @else {
-      @for (entry of entries; track $index) {
-        <div [class]="'flex items-start gap-gutter-md px-gutter-lg py-gutter-md'
-               + (entry.live ? ' bg-primary/5' : '')">
-          <div class="flex-shrink-0 pt-0.5">
-            <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium" [class]="codeClasses(entry.code)">
-              {{ entry.code || 'INFO' }}
-            </span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-gutter-sm">
-              <p class="text-sm font-medium text-foreground truncate">{{ entry.object || 'Alerte' }}</p>
-              @if (entry.live) {
-                <span class="text-xs text-primary font-medium">nouveau</span>
+      <ul class="sw-nav-list divide-y divide-border border-t border-border">
+        @for (entry of visible; track $index) {
+          <li class="flex items-start gap-gutter-md px-gutter-lg py-gutter-md"
+            [style.border-left]="entry.read ? '3px solid transparent' : '3px solid var(--color-primary)'">
+            <span [class]="codeClasses(entry.code)">{{ entry.code || 'INFO' }}</span>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-gutter-sm">
+                <p class="text-sm font-medium text-foreground truncate">{{ entry.object || 'Alerte' }}</p>
+                @if (entry.live) {
+                  <span class="text-xs text-primary font-medium">nouveau</span>
+                }
+              </div>
+              @if (entry.message) {
+                <p class="text-sm text-text mt-0.5">{{ entry.message }}</p>
+              }
+              @if (entry.address) {
+                <p class="text-xs text-muted mt-1"><i class="bi bi-geo-alt"></i> {{ entry.address }}</p>
               }
             </div>
-            @if (entry.message) {
-              <p class="text-sm text-text mt-0.5">{{ entry.message }}</p>
-            }
-            @if (entry.address) {
-              <p class="text-xs text-muted mt-1">
-                <i class="bi bi-geo-alt"></i> {{ entry.address }}
-              </p>
-            }
-          </div>
-          @if (entry.receivedAt) {
-            <div class="flex-shrink-0 text-xs text-muted">{{ entry.receivedAt | date:'HH:mm' }}</div>
-          }
-        </div>
-      }
+
+            <div class="flex items-center gap-gutter-sm flex-shrink-0">
+              @if (entry.receivedAt) {
+                <span class="text-xs text-muted">{{ entry.receivedAt | date:'HH:mm' }}</span>
+              }
+              @if (!entry.read) {
+                <button type="button" class="sw-btn-icon" title="Marquer comme lu"
+                  aria-label="Marquer comme lu" (click)="markRead(entry)">
+                  <i class="bi bi-check2"></i>
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
     }
   </div>
 </div>

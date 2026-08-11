@@ -1,131 +1,144 @@
-<div class="flex flex-col gap-gutter-md">
-  <div class="flex items-center justify-between flex-wrap gap-gutter-sm">
-    <div class="relative w-full max-w-xs">
-      <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
-      <input
-        type="text"
-        (keyup)="applyFilter($event)"
-        placeholder="Rechercher une alerte…"
-        class="w-full rounded-sm border border-border pl-9 pr-3 py-2 text-sm text-text bg-surface
-               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-      />
+<div class="sw-page" (document:click)="ui.closeRowMenu()">
+
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Alertes</h1>
+      <p class="sw-page-subtitle">Débordements détectés et signalements manuels</p>
     </div>
-    <button
-      type="button"
-      (click)="openCreateAlertModal()"
-      class="sw-btn-primary"
-    >
-      + Ajouter alerte
+    <button type="button" class="sw-btn-primary" (click)="openCreateAlertModal()">
+      <i class="bi bi-plus-lg text-xs"></i> Ajouter alerte
     </button>
   </div>
 
-  <div class="sw-card sw-table-wrap">
-    <table mat-table [dataSource]="dataSource" aria-describedby="liste des alertes"
-      class="w-full"
-      matSort matSortActive="created"
-      matSortDisableClear matSortDirection="asc"
-      (matSortChange)="announceSortChange($event)"
-    >
-      <ng-container matColumnDef="picture">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Image
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm">
-          @if (element.image?.data) {
-            <img
-              [src]="'data:image/png;base64,' + element.image.data"
-              alt="Photo de l'alerte"
-              (click)="openZoom(element)"
-              class="h-10 w-10 rounded-sm object-cover cursor-zoom-in hover:ring-2 hover:ring-primary/40"
-            />
-          } @else {
-            <span class="text-muted">—</span>
-          }
-        </td>
-      </ng-container>
+  <!-- Onglets de filtre à compteurs (maquettes). Le décompte porte sur l'ENSEMBLE des alertes,
+       pas sur la page affichée — voir `allAlerts` dans le composant. -->
+  <div class="sw-tabs">
+    @for (tab of tabs; track tab.label) {
+      <button type="button" class="sw-tab" [class.sw-tab--active]="activeTab === tab.code"
+        (click)="selectTab(tab.code)">
+        {{ tab.label }}
+        <span class="sw-tab-count">{{ countFor(tab.code) }}</span>
+      </button>
+    }
+  </div>
 
-      <ng-container matColumnDef="object">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par objet"
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Objet
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.object }} </td>
-      </ng-container>
+  <div class="sw-card">
+    <div class="sw-toolbar">
+      <div class="sw-search">
+        <i class="bi bi-search"></i>
+        <input type="text" (keyup)="applyFilter($event)" placeholder="Rechercher…" />
+      </div>
+      <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Filtrer">
+        <i class="bi bi-sliders"></i>
+      </button>
+    </div>
 
-      <ng-container matColumnDef="message">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Description
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text !max-w-xs !truncate"
-          [title]="element.message"> {{ element.message }} </td>
-      </ng-container>
+    <div class="sw-table-wrap">
+      <table mat-table [dataSource]="dataSource" aria-describedby="liste des alertes"
+        class="sw-table" matSort matSortActive="created" matSortDisableClear matSortDirection="asc"
+        (matSortChange)="announceSortChange($event)">
 
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Gravité
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm">
-          <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium" [class]="codeClasses(element.code)">
-            {{ element.code }}
-          </span>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef style="width:48px">
+            <input type="checkbox" class="sw-checkbox" aria-label="Tout sélectionner"
+              [checked]="ui.allSelected(dataSource.data, 'alertId')"
+              (change)="ui.toggleSelectAll(dataSource.data, 'alertId')" />
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <input type="checkbox" class="sw-checkbox" [checked]="ui.isSelected(element.alertId)"
+              (change)="ui.toggleSelection(element.alertId)" aria-label="Sélectionner l'alerte" />
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="adress">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Adresse
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element?.address }} </td>
-      </ng-container>
+        <ng-container matColumnDef="picture">
+          <th mat-header-cell *matHeaderCellDef style="width:64px">Image</th>
+          <td mat-cell *matCellDef="let element">
+            @if (element.image?.data) {
+              <img [src]="'data:image/png;base64,' + element.image.data" alt="Photo de l'alerte"
+                (click)="openZoom(element)"
+                class="h-10 w-10 rounded-sm object-cover cursor-zoom-in hover:ring-2 hover:ring-primary/40" />
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef
-          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
-          Actions
-        </th>
-        <td mat-cell *matCellDef="let element" class="!text-sm">
-          <button type="button" (click)="openUpdateAlertModal(element.alertId)"
-            class="text-muted hover:text-primary cursor-pointer mr-3" title="Modifier">
-            <i class="bi bi-pencil-square"></i>
-          </button>
-          <button type="button" (click)="openDeleteAlertModal(element.alertId)"
-            class="text-muted hover:text-destructive cursor-pointer" title="Supprimer">
-            <i class="bi bi-trash-fill"></i>
-          </button>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="object">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par objet">Objet</th>
+          <td mat-cell *matCellDef="let element" class="sw-cell-strong">{{ element.object }}</td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:!bg-muted-surface"></tr>
-    </table>
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let element" class="max-w-xs truncate" [title]="element.message">
+            {{ element.message }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Gravité</th>
+          <td mat-cell *matCellDef="let element">
+            <span [class]="codeClasses(element.code)">{{ element.code }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="adress">
+          <th mat-header-cell *matHeaderCellDef>Adresse</th>
+          <td mat-cell *matCellDef="let element">{{ element?.address }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef style="width:48px"></th>
+          <td mat-cell *matCellDef="let element">
+            <button type="button" class="sw-btn-icon" aria-label="Actions"
+              (click)="ui.toggleRowMenu(element.alertId, $event); $event.stopPropagation()">
+              <i class="bi bi-three-dots"></i>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
 
     @if (totalAlerts <= 0) {
-      <div class="sw-empty">
-        Aucune alerte n'est disponible.
+      <div class="sw-empty">Aucune alerte pour ce filtre.</div>
+    } @else {
+      <div class="sw-pagination">
+        <span class="sw-pagination-info">
+          {{ ui.rangeStart(currentPage, itemsPerPage, totalAlerts) }}-{{ ui.rangeEnd(currentPage, itemsPerPage, totalAlerts) }} sur {{ totalAlerts }}
+        </span>
+        <div class="flex items-center gap-1">
+          <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Page précédente"
+            [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+            <i class="bi bi-chevron-left text-xs"></i>
+          </button>
+          <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Page suivante"
+            [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="bi bi-chevron-right text-xs"></i>
+          </button>
+        </div>
       </div>
     }
-
-    <div class="border-t border-border">
-      <app-pagination-custumer
-        [length]="totalAlerts"
-        [pageSize]="itemsPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        [totalPages]="totalPages"
-        (pageChange)="onPaginatedChange($event)">
-      </app-pagination-custumer>
-    </div>
   </div>
 </div>
 
+@if (ui.openRowMenu) {
+  <div class="sw-menu" [style.top.px]="ui.rowMenuPos.top" [style.left.px]="ui.rowMenuPos.left"
+    (click)="$event.stopPropagation()">
+    <button type="button" class="sw-menu-item" (click)="openUpdateAlertModal(ui.openRowMenu); ui.closeRowMenu()">
+      <i class="bi bi-pencil-square"></i> Modifier
+    </button>
+    <button type="button" class="sw-menu-item sw-menu-item--danger" (click)="openDeleteAlertModal(ui.openRowMenu); ui.closeRowMenu()">
+      <i class="bi bi-trash"></i> Supprimer
+    </button>
+  </div>
+}
+
 @if (zoomedImage) {
-  <div
-    class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/70 cursor-zoom-out p-gutter-lg"
-    (click)="closeZoom()"
-  >
-    <img [src]="zoomedImage" alt="Photo de l'alerte agrandie" class="max-h-full max-w-full rounded-DEFAULT shadow-lg" />
+  <div class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/70 cursor-zoom-out p-gutter-lg"
+    (click)="closeZoom()">
+    <img [src]="zoomedImage" alt="Photo de l'alerte agrandie" class="max-h-full max-w-full rounded-card shadow-lg" />
   </div>
 }

@@ -1,33 +1,118 @@
-<div class="flex flex-col gap-3">
-  <div class="flex items-center justify-between">
+<!--
+  Carte d'après les maquettes de référence (frontend/mockup, « Carte » et « Carte_Vehicule_Detail ») :
+  panneau liste cherchable à gauche, carte à droite, élément sélectionné mis en évidence des deux
+  côtés, fiche de détail au clic.
+-->
+<div class="sw-page">
+
+  <div class="sw-page-head">
     <div>
       <h1 class="sw-page-title">Carte des points de collecte</h1>
-      <p class="text-sm text-muted">
+      <p class="sw-page-subtitle">
         @if (loading()) {
           Chargement des points…
         } @else {
-          {{ pointCount() }} point{{ pointCount() > 1 ? 's' : '' }} géolocalisé{{ pointCount() > 1 ? 's' : '' }}
+          {{ points().length }} point{{ points().length > 1 ? 's' : '' }} géolocalisé{{ points().length > 1 ? 's' : '' }}
         }
       </p>
     </div>
   </div>
 
-  <div class="relative rounded-DEFAULT border border-border shadow-lg overflow-hidden" style="height: 70vh;">
-    <div #map class="h-full w-full"></div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
 
-    @if (loading()) {
-      <div class="absolute inset-0 flex items-center justify-center bg-surface/70 z-[1000]">
-        <span class="text-sm text-muted">Chargement de la carte…</span>
+    <!-- ============ Panneau liste ============ -->
+    <div class="sw-card flex flex-col" style="height: 70vh">
+      <div class="flex items-center gap-2 px-gutter-md pt-gutter-md">
+        <h2 class="sw-subtitle" style="margin-bottom:0">Points de collecte</h2>
+        <span class="sw-tab-count">{{ filtered().length }}</span>
       </div>
-    }
 
-    <div class="absolute bottom-3 left-3 z-[1000] bg-surface/95 rounded-sm shadow-lg px-3 py-2 text-xs text-text flex flex-col gap-1">
-      @for (entry of legend; track entry.label) {
-        <div class="flex items-center gap-2">
-          <img [src]="entry.icon" alt="" class="h-4 w-4" />
-          <span>{{ entry.label }}</span>
+      <div class="p-gutter-md">
+        <div class="sw-search" style="max-width:none">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Rechercher une adresse…"
+            [ngModel]="search()" (ngModelChange)="onSearch($event)" />
+        </div>
+      </div>
+
+      <ul class="sw-nav-list flex-1 overflow-y-auto px-gutter-md pb-gutter-md flex flex-col gap-2">
+        @for (point of filtered(); track point.id) {
+          <li>
+            <button type="button" (click)="select(point.id)"
+              class="w-full flex items-center gap-3 rounded-card border border-solid px-3 py-2.5 text-left
+                     transition-colors duration-150 cursor-pointer"
+              [class.border-primary]="selectedId() === point.id"
+              [class.border-border]="selectedId() !== point.id"
+              [class.bg-muted-surface]="selectedId() === point.id"
+              [class.bg-surface]="selectedId() !== point.id">
+              <span class="h-2.5 w-2.5 rounded-pill flex-shrink-0" [style.background]="fillColor(point.depotoir)"></span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-medium text-foreground truncate">{{ point.depotoir.address }}</span>
+                <span class="block text-xs text-muted">{{ point.depotoir.typeDepot }}</span>
+              </span>
+              <span class="text-xs text-muted flex-shrink-0">Voir</span>
+            </button>
+          </li>
+        }
+        @if (!loading() && filtered().length === 0) {
+          <li class="sw-empty">Aucun point ne correspond.</li>
+        }
+      </ul>
+    </div>
+
+    <!-- ============ Carte ============ -->
+    <div class="lg:col-span-2 relative sw-card" style="height: 70vh">
+      <div #map class="h-full w-full"></div>
+
+      @if (loading()) {
+        <div class="absolute inset-0 flex items-center justify-center bg-surface/70 z-[1000]">
+          <span class="text-sm text-muted">Chargement de la carte…</span>
         </div>
       }
+
+      <!-- Fiche de détail du point sélectionné (maquette « Carte_Vehicule_Detail »). -->
+      @if (selected(); as point) {
+        <div class="absolute z-[1000] w-72 rounded-card border border-border bg-surface shadow-lg
+                    p-gutter-md flex flex-col gap-gutter-sm"
+          style="top: 16px; left: 16px">
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-sm font-semibold text-foreground break-words">{{ point.depotoir.address }}</span>
+            <button type="button" class="sw-btn-icon" aria-label="Fermer" (click)="clearSelection()">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+
+          <dl class="flex flex-col gap-1 text-sm">
+            <div class="flex items-center justify-between gap-2 py-1 border-b border-border">
+              <dt class="text-muted">Type</dt>
+              <dd class="text-text">{{ point.depotoir.typeDepot }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-2 py-1 border-b border-border">
+              <dt class="text-muted">Remplissage</dt>
+              <dd class="flex items-center gap-2 text-text">
+                <span class="h-2 w-2 rounded-pill" [style.background]="fillColor(point.depotoir)"></span>
+                {{ fillLabel(point.depotoir) }}
+              </dd>
+            </div>
+            <div class="flex items-center justify-between gap-2 py-1">
+              <dt class="text-muted">Dernière mesure</dt>
+              <dd class="text-text">
+                {{ point.depotoir.lastMeasuredAt ? (point.depotoir.lastMeasuredAt | date:'short') : '—' }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      }
+
+      <div class="absolute z-[1000] bg-surface/95 rounded-sm shadow-lg px-3 py-2 text-xs text-text
+                  flex flex-col gap-1" style="bottom: 16px; left: 16px">
+        @for (entry of legend; track entry.label) {
+          <div class="flex items-center gap-2">
+            <img [src]="entry.icon" alt="" class="h-4 w-4" />
+            <span>{{ entry.label }}</span>
+          </div>
+        }
+      </div>
     </div>
   </div>
 </div>
