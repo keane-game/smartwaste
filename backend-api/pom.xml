@@ -48,6 +48,23 @@
 
 	<dependencies>
 
+		<!--
+			Corrige un crash 500 reel trouve en verifiant l'app en conditions reelles (2026-08-11) :
+			`Department`/`Region` exposent encore des entites JPA brutes en DTO (gap deja documente,
+			docs/FRONTEND_API_MAPPING.md) — quand une relation lazy (`region`, `communes`) n'est pas
+			initialisee, Jackson tente de serialiser le proxy ByteBuddy genere par Hibernate et leve
+			"Type definition error: [simple type, class
+			org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor]". Ce module Jackson dedie
+			deballe le proxy vers l'entite reelle (ou ecrit `null` si non initialisee) plutot que de
+			planter — correctif standard, additif, ne change aucune forme de DTO ni aucun contrat
+			pour les endpoints deja fonctionnels (Commune/Quartier/... n'exposent deja plus
+			d'entites brutes, donc rien a deballer pour eux).
+		-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-hibernate6</artifactId>
+		</dependency>
+
 		<!-- Spring Modulith : structure modulaire + tests de frontières (cf. docs/architecture-cible.md) -->
 		<dependency>
 			<groupId>org.springframework.modulith</groupId>

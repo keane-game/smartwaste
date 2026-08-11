@@ -15,7 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -229,6 +231,20 @@ public class SecurityConfiguration{
                                                 // ce qu'un habitant vient consulter ; les fermer viderait
                                                 // l'application mobile de son contenu.
                                                 .anyRequest().authenticated()
+                        )
+                        // Sans point d'entrée explicite, Spring Security répond 403 à une requête
+                        // NON AUTHENTIFIÉE (jeton absent, expiré ou invalide) — sémantiquement faux,
+                        // et surtout cassant côté client : `ErrorInterceptor` ne tente le
+                        // renouvellement que sur 401. Résultat observé en conditions réelles
+                        // (2026-08-11) : passé l'expiration du jeton (15 min), chaque appel partait
+                        // en 403, aucun rafraîchissement n'était tenté, la session ne pouvait plus
+                        // se rétablir — le menu latéral se réduisait à « Profil » (plus aucun rôle
+                        // lisible) et une popup d'erreur s'affichait, jusqu'à reconnexion manuelle.
+                        // 401 = « je ne sais pas qui tu es » (rejouable après refresh) ; 403 reste
+                        // réservé à « je sais qui tu es, mais tu n'as pas le droit », qui passe par
+                        // l'AccessDeniedHandler et n'est donc pas affecté.
+                        .exceptionHandling(exceptions ->
+                                exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                         )
                         .sessionManagement(httpSecuritySessionManagementConfigurer ->
                                 httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
