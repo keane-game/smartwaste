@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
@@ -39,6 +39,18 @@ export function resetSessionEndedFlag(): void {
   sessionEnded = false;
 }
 
+/**
+ * Marque une requete dont l'appelant affiche lui-meme le message d'erreur.
+ *
+ * <p>Exemple : un 409 sur le rattachement d'un compte a une collectivite veut dire « deja rattache
+ * ailleurs, detachez-le d'abord » — une consigne actionnable, que le message generique remplacerait
+ * par « Une erreur est survenue ».
+ *
+ * <p>Usage : {@code http.post(url, body, { context: new HttpContext().set(HANDLES_OWN_ERRORS, true) })}.
+ * Opt-in : sans ce marqueur le comportement reste inchange pour tout le reste de l'application.
+ */
+export const HANDLES_OWN_ERRORS = new HttpContextToken<boolean>(() => false);
+
 export const ErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const authenticationService = inject(AuthService);
 
@@ -62,7 +74,13 @@ export const ErrorInterceptor: HttpInterceptorFn = (request, next) => {
       return throwError(() => err);
     }
 
-    notify(err);
+    // Un appelant qui sait expliquer SON erreur mieux que ce message generique peut le dire, et
+    // recoit alors l'erreur telle quelle. Sans cette sortie, tout message compose par un composant
+    // etait precede d'un « Une erreur est survenue » sans rapport — donc jamais lu, et souvent
+    // jamais affiche du tout, la popup generique occupant deja l'ecran.
+    if (!request.context.get(HANDLES_OWN_ERRORS)) {
+      notify(err);
+    }
     return throwError(() => err);
   }));
 };

@@ -1,0 +1,185 @@
+<div class="sw-page">
+
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Collectivités</h1>
+      <p class="sw-page-subtitle">
+        Unité de cloisonnement des données : chaque compte, point de collecte et circuit appartient
+        à une collectivité et une seule.
+      </p>
+    </div>
+    <button type="button" class="sw-btn-primary" (click)="openCreate()">
+      <i class="bi bi-plus-lg"></i> Nouvelle collectivité
+    </button>
+  </div>
+
+  <div class="sw-tabs">
+    <span class="sw-tab sw-tab--active">
+      Toutes <span class="sw-tab-count">{{ organizations.length }}</span>
+    </span>
+    <span class="sw-tab">
+      Actives <span class="sw-tab-count">{{ activeCount }}</span>
+    </span>
+  </div>
+
+  <div class="sw-card">
+    <table class="sw-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Code</th>
+          <th>Statut</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (org of organizations; track org.organizationId) {
+          <tr>
+            <td class="font-medium">{{ org.name }}</td>
+            <td><code class="text-xs">{{ org.code }}</code></td>
+            <td>
+              <span class="sw-status" [class.sw-status--ok]="org.status === 'ACTIVE'"
+                [class.sw-status--off]="org.status !== 'ACTIVE'">
+                {{ org.status === 'ACTIVE' ? 'Active' : 'Suspendue' }}
+              </span>
+            </td>
+            <td class="text-right whitespace-nowrap">
+              <button type="button" class="sw-btn-ghost" (click)="openMembers(org)">
+                <i class="bi bi-people"></i> Membres
+              </button>
+              <button type="button" class="sw-btn-ghost" (click)="openEdit(org)">
+                <i class="bi bi-pencil"></i> Renommer
+              </button>
+              @if (org.status === 'ACTIVE') {
+                <button type="button" class="sw-btn-ghost" (click)="setStatus(org, 'SUSPENDED')">
+                  <i class="bi bi-pause-circle"></i> Suspendre
+                </button>
+              } @else {
+                <button type="button" class="sw-btn-ghost" (click)="setStatus(org, 'ACTIVE')">
+                  <i class="bi bi-play-circle"></i> Réactiver
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="sw-empty">
+              {{ loading ? 'Chargement…' : 'Aucune collectivité.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sw-note">
+    <i class="bi bi-info-circle"></i>
+    Une collectivité ne se supprime pas : ses points de collecte, circuits, alertes et comptes
+    portent son identifiant, et la faire disparaître laisserait des données qu'aucun périmètre ne
+    pourrait plus atteindre. Suspendre la retire du sélecteur sans rien détruire.
+  </p>
+
+  <!-- ============================================================ Membres -->
+  @if (selected) {
+    <div class="sw-card sw-card-pad">
+      <div class="sw-page-head">
+        <h2 class="sw-card-title">Membres de « {{ selected.name }} »</h2>
+        <button type="button" class="sw-btn-icon" (click)="closeMembers()" aria-label="Fermer">
+          <i class="bi bi-x text-xl"></i>
+        </button>
+      </div>
+
+      <div class="sw-grid-2 items-end">
+        <div class="sw-field">
+          <label for="userToAttach" class="sw-label">Rattacher un compte</label>
+          <select id="userToAttach" class="sw-select" [(ngModel)]="userToAttach" name="userToAttach">
+            <option [ngValue]="null" disabled>Choisir un compte…</option>
+            @for (u of attachableUsers; track u.userId) {
+              <option [ngValue]="u.userId">{{ fullName(u) }} — {{ u.userEmail }}</option>
+            }
+          </select>
+        </div>
+        <!-- `items-start` : sans cela le bouton s'étire sur toute la largeur de sa colonne de
+             grille, ce qui lui donne l'allure d'une bannière plutôt que d'une action. -->
+        <div class="sw-field items-start">
+          <button type="button" class="sw-btn-primary" [disabled]="!userToAttach || attaching"
+            (click)="attach()">
+            {{ attaching ? 'Rattachement…' : 'Rattacher' }}
+          </button>
+        </div>
+      </div>
+
+      <table class="sw-table mt-gutter-md">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Adresse e-mail</th>
+            <th>Rôle</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of members; track m.userId) {
+            <tr>
+              <td class="font-medium">{{ fullName(m) }}</td>
+              <td>{{ m.userEmail }}</td>
+              <td>{{ m.authority?.name ?? '—' }}</td>
+              <td class="text-right">
+                <button type="button" class="sw-btn-ghost" (click)="detach(m)">
+                  <i class="bi bi-person-dash"></i> Détacher
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="sw-empty">
+                {{ loadingMembers ? 'Chargement…' : 'Aucun compte rattaché.' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- ============================================================ Création / renommage -->
+  @if (form) {
+    <div class="sw-card sw-card-pad">
+      <div class="sw-page-head">
+        <h2 class="sw-card-title">
+          {{ isEdit ? 'Renommer la collectivité' : 'Nouvelle collectivité' }}
+        </h2>
+        <button type="button" class="sw-btn-icon" (click)="closeForm()" aria-label="Fermer">
+          <i class="bi bi-x text-xl"></i>
+        </button>
+      </div>
+
+      <div class="sw-grid-2">
+        <div class="sw-field">
+          <label for="orgName" class="sw-label">Nom <span class="req">*</span></label>
+          <input id="orgName" type="text" class="sw-input" name="orgName"
+            [(ngModel)]="form.name" placeholder="Ex. : Ville de Guédiawaye" />
+        </div>
+
+        <div class="sw-field">
+          <label for="orgCode" class="sw-label">Code <span class="req">*</span></label>
+          <!-- Désactivé plutôt que masqué en modification : le code est immuable côté serveur,
+               autant que la règle se voie. -->
+          <input id="orgCode" type="text" class="sw-input" name="orgCode"
+            [(ngModel)]="form.code" [disabled]="isEdit" placeholder="GUEDIAWAYE" />
+          <p class="text-xs text-muted">
+            {{ isEdit ? "Le code ne se modifie pas après création."
+                      : "Identifiant court et unique, en majuscules." }}
+          </p>
+        </div>
+      </div>
+
+      <div class="sw-dialog-foot">
+        <button type="button" class="sw-btn-danger" (click)="closeForm()">Annuler</button>
+        <button type="button" class="sw-btn-primary" [disabled]="saving" (click)="save()">
+          {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

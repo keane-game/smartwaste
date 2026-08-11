@@ -43,6 +43,8 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Rapports', icon: 'bi-circle', route: '/reports', roles: ADMIN_ROLES },
       { label: 'Flotte', icon: 'bi-circle', route: '/vehicles', roles: ADMIN_ROLES },
       { label: 'Capteurs & traceurs', icon: 'bi-circle', route: '/devices', roles: ['SUPER_ADMIN', 'ADMIN', 'TECHNICIEN_IOT'] },
+      // SUPER_ADMIN seul : `MANAGE_ORGANIZATIONS` n'est semee que sur ce role.
+      { label: 'Collectivités', icon: 'bi-circle', route: '/organizations', roles: ['SUPER_ADMIN'] },
     ],
   },
   { label: 'Carte', icon: 'bi-map', route: '/maps', roles: ADMIN_ROLES },

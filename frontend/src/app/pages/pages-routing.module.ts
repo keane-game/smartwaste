@@ -106,6 +106,15 @@ const routes: Routes = [
     },
 
     {
+        // SUPER_ADMIN seul : `MANAGE_ORGANIZATIONS` n'est semee que sur ce role, l'API repond 403
+        // a un ADMIN. Ouvrir la route plus largement afficherait un ecran vide et un message
+        // d'echec au lieu de ne pas s'afficher.
+        path: 'organizations',
+        loadChildren: () => import('./organization/organization.module').then(m => m.OrganizationModule),
+        canActivate: [roleGuard], data: { roles: ['SUPER_ADMIN'] },
+    },
+
+    {
         path: 'devices',
         loadChildren: () => import('./device/device.module').then(m => m.DeviceModule),
         canActivate: [roleGuard], data: { roles: [...ADMIN_ROLES] },

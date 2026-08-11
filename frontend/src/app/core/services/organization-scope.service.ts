@@ -117,6 +117,19 @@ export class OrganizationScopeService {
       });
   }
 
+  /**
+   * Force un rechargement de la liste, après création, renommage ou suspension.
+   *
+   * <p>`load()` est volontairement à usage unique — il s'exécute à chaque changement de session, pas
+   * à chaque écran. L'écran de gestion des collectivités est le seul endroit d'où la liste peut
+   * changer sous les pieds du sélecteur ; sans ce point d'entrée, une collectivité créée n'y
+   * apparaîtrait qu'au prochain rechargement de page.
+   */
+  reload(): void {
+    this.loaded = false;
+    this.load();
+  }
+
   select(organizationId: string | null): void {
     this.selectedIdSignal.set(organizationId);
     if (organizationId) {

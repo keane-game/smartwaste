@@ -267,6 +267,9 @@
 .sw-status--ok::before { background-color: var(--color-success); }
 .sw-status--warn::before { background-color: var(--color-warning); }
 .sw-status--danger::before { background-color: var(--color-destructive); }
+/* Etat neutre, volontairement distinct de `--warn` : une collectivite suspendue ou un equipement
+ * desactive n'est pas une anomalie a signaler, c'est une decision qu'on a prise. */
+.sw-status--off::before { background-color: var(--color-muted); }
 
 /* Etiquette pleine (gravite d alerte, statut de signalement). */
 .sw-badge {
