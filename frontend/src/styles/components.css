@@ -484,6 +484,23 @@
 @media (min-width: 768px) { .sw-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 1280px) { .sw-kpi-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 
+/* Conteneur carre pour un camembert. Chart.js redimensionne le canvas d apres le parent : sans
+ * taille imposee ET canvas en absolu, il debordait la carte quand la legende voisine etait courte
+ * (constate : camembert « Alertes par gravite », a une seule entree, nettement plus grand que son
+ * voisin). */
+.sw-chart-square {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+.sw-chart-square > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .sw-kpi { display: flex; flex-direction: column; gap: 4px; padding: var(--space-md); }
 .sw-kpi-label { font-size: var(--text-xs); color: var(--color-muted); }
 .sw-kpi-value {

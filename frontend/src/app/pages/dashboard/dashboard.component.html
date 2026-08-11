@@ -1,631 +1,216 @@
-<section class="section dashboard">
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="row">
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card sales-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconCommune" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Communes</span>
-                  <h6>{{ departmentState?.totalCommunes }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div><!-- End Sales Card -->
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body  p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconPeople" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Habitants</span>
-                  <h6>{{ departmentState?.totalHabitants }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body  p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle  d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconBenne" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Bennes</span>
-                  <h6>{{ departmentState?.totalBennes }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconBacs" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Bacs</span>
-                  <h6>{{ departmentState?.totalBacs }}</h6>
-                </div>
-              </div>
-            </div>
+<!--
+  Tableau de bord d'après les maquettes de référence (frontend/mockup, « Dashboard ») :
+  grand graphe + carte de statuts en première ligne, cartes à trois chiffres ensuite,
+  camemberts à légende détaillée en dernier.
 
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconCircuit" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Circuits</span>
-                  <h6>{{ departmentState?.totalCircuits }}</h6>
-                </div>
-              </div>
-            </div>
+  Le fichier précédent (630 lignes) traînait de larges pans du gabarit d'origine — tableaux
+  « Recent Sales » / « Top Selling » et un fil d'activité de six entrées fictives (Brandon Jacob,
+  Bruce Wayne…). Ce contenu ne s'affichait pas mais restait dans le dépôt ; il est retiré.
+-->
+<div class="sw-page">
 
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-2 card-item">
-          <div class="card info-card customers-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <img [src]="imgConstants.iconPrn" class="rounded-circle" alt="Cinque Terre">
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="tmall pt-2 ps-1">Déchèteries</span>
-                  <h6>{{ departmentState?.totalDepotoirs }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row" *ngIf="supervisionStats as stats">
-        <div class="col-sm-6 col-md-4 col-lg-3 card-item">
-          <div class="card info-card sales-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-bell-fill"></i>
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Alertes actives</span>
-                  <h6>{{ stats.totalAlerts }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-3 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-calendar-week-fill"></i>
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Alertes (7 jours)</span>
-                  <h6>{{ stats.alertsLast7Days }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-3 card-item">
-          <div class="card info-card customers-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-wifi"></i>
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Flux temps réel ouverts</span>
-                  <h6>{{ stats.liveSubscribers }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-3 card-item">
-          <div class="card info-card revenue-card">
-            <div class="card-body p-0">
-              <div class="d-flex align-items-center justify-content-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div class="ps-3 text-end">
-                  <span class="small pt-2 ps-1">Capteurs muets</span>
-                  <h6>{{ stats.ingestion.silentSensors.length }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- <div class="col-lg-8">
-      <div class="row">
-
-
-        <div class="col-12">
-          <div class="card">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body p-0">
-              <h5 class="card-title">Reports <span>/Today</span></h5>
-
-             
-              <div id="reportsChart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  new ApexCharts(document.querySelector("#reportsChart"), {
-                    series: [{
-                      name: 'Sales',
-                      data: [31, 40, 28, 51, 42, 82, 56],
-                    }, {
-                      name: 'Revenue',
-                      data: [11, 32, 45, 32, 34, 52, 41]
-                    }, {
-                      name: 'Customers',
-                      data: [15, 11, 32, 18, 9, 24, 11]
-                    }],
-                    chart: {
-                      height: 350,
-                      type: 'area',
-                      toolbar: {
-                        show: false
-                      },
-                    },
-                    markers: {
-                      size: 4
-                    },
-                    colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                    fill: {
-                      type: "gradient",
-                      gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.3,
-                        opacityTo: 0.4,
-                        stops: [0, 90, 100]
-                      }
-                    },
-                    dataLabels: {
-                      enabled: false
-                    },
-                    stroke: {
-                      curve: 'smooth',
-                      width: 2
-                    },
-                    xaxis: {
-                      type: 'datetime',
-                      categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                    },
-                    tooltip: {
-                      x: {
-                        format: 'dd/MM/yy HH:mm'
-                      },
-                    }
-                  }).render();
-                });
-              </script>
-
-            </div>
-
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="card recent-sales overflow-auto">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Recent Sales <span>| Today</span></h5>
-
-              <table class="table table-borderless datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Customer</th>
-                    <th scope="col">Product</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row"><a href="#">#2457</a></th>
-                    <td>Brandon Jacob</td>
-                    <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                    <td>$64</td>
-                    <td><span class="badge bg-success">Approved</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2147</a></th>
-                    <td>Bridie Kessler</td>
-                    <td><a href="#" class="text-primary">Blanditiis dolor omnis similique</a></td>
-                    <td>$47</td>
-                    <td><span class="badge bg-warning">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2049</a></th>
-                    <td>Ashleigh Langosh</td>
-                    <td><a href="#" class="text-primary">At recusandae consectetur</a></td>
-                    <td>$147</td>
-                    <td><span class="badge bg-success">Approved</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2644</a></th>
-                    <td>Angus Grady</td>
-                    <td><a href="#" class="text-primar">Ut voluptatem id earum et</a></td>
-                    <td>$67</td>
-                    <td><span class="badge bg-danger">Rejected</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2644</a></th>
-                    <td>Raheem Lehner</td>
-                    <td><a href="#" class="text-primary">Sunt similique distinctio</a></td>
-                    <td>$165</td>
-                    <td><span class="badge bg-success">Approved</span></td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
-
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="card top-selling overflow-auto">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">Top Selling <span>| Today</span></h5>
-
-              <table class="table table-borderless">
-                <thead>
-                  <tr>
-                    <th scope="col">Preview</th>
-                    <th scope="col">Product</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Sold</th>
-                    <th scope="col">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                    <td>$64</td>
-                    <td class="fw-bold">124</td>
-                    <td>$5,828</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                    <td>$46</td>
-                    <td class="fw-bold">98</td>
-                    <td>$4,508</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                    <td>$59</td>
-                    <td class="fw-bold">74</td>
-                    <td>$4,366</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                    <td>$32</td>
-                    <td class="fw-bold">63</td>
-                    <td>$2,016</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                    <td>$79</td>
-                    <td class="fw-bold">41</td>
-                    <td>$3,239</td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
-
-          </div>
-        </div>
-
-
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
-
-        <div class="card-body">
-          <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-          <div class="activity">
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">32 min</div>
-              <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-              <div class="activity-content">
-                Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-              </div>
-            </div>
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">56 min</div>
-              <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-              <div class="activity-content">
-                Voluptatem blanditiis blanditiis eveniet
-              </div>
-            </div>
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">2 hrs</div>
-              <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-              <div class="activity-content">
-                Voluptates corrupti molestias voluptatem
-              </div>
-            </div>
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">1 day</div>
-              <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-              <div class="activity-content">
-                Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
-              </div>
-            </div>
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">2 days</div>
-              <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-              <div class="activity-content">
-                Est sit eum reiciendis exercitationem
-              </div>
-            </div>
-            <div class="activity-item d-flex">
-              <div class="activite-label">4 weeks</div>
-              <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-              <div class="activity-content">
-                Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
-
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
-
-        <div class="card-body pb-0">
-          <h5 class="card-title">Budget Report <span>| This Month</span></h5>
-
-          <div id="budgetChart" style="min-height: 400px;" class="echart"></div>
-
-          <script>
-            document.addEventListener("DOMContentLoaded", () => {
-              var budgetChart = echarts.init(document.querySelector("#budgetChart")).setOption({
-                legend: {
-                  data: ['Allocated Budget', 'Actual Spending']
-                },
-                radar: {
-                  // shape: 'circle',
-                  indicator: [{
-                    name: 'Sales',
-                    max: 6500
-                  },
-                  {
-                    name: 'Administration',
-                    max: 16000
-                  },
-                  {
-                    name: 'Information Technology',
-                    max: 30000
-                  },
-                  {
-                    name: 'Customer Support',
-                    max: 38000
-                  },
-                  {
-                    name: 'Development',
-                    max: 52000
-                  },
-                  {
-                    name: 'Marketing',
-                    max: 25000
-                  }
-                  ]
-                },
-                series: [{
-                  name: 'Budget vs spending',
-                  type: 'radar',
-                  data: [{
-                    value: [4200, 3000, 20000, 35000, 50000, 18000],
-                    name: 'Allocated Budget'
-                  },
-                  {
-                    value: [5000, 14000, 28000, 26000, 42000, 21000],
-                    name: 'Actual Spending'
-                  }
-                  ]
-                }]
-              });
-            });
-          </script>
-
-        </div>
-      </div>
-    </div> -->
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Carte en direct</h5>
-          <app-dashboard-map></app-dashboard-map>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Activité récente</h5>
-          <div class="activity" *ngIf="activity.length > 0; else noActivity">
-            <div class="activity-item d-flex" *ngFor="let item of activity">
-              <div class="activite-label">{{ item.at | date:'HH:mm' }}</div>
-              <i class="bi bi-circle-fill activity-badge align-self-start"
-                 [ngClass]="{
-                   'text-danger': item.code === 'DANGER',
-                   'text-warning': item.code === 'WARNING',
-                   'text-info': item.code !== 'DANGER' && item.code !== 'WARNING'
-                 }"></i>
-              <div class="activity-content">
-                <span class="fw-bold text-dark">{{ item.label }}</span>
-                <span *ngIf="item.detail"> — {{ item.detail }}</span>
-              </div>
-            </div>
-          </div>
-          <ng-template #noActivity>
-            <p class="text-muted small mb-0">Aucune alerte depuis l'ouverture de cette session.</p>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-body">
-          <div style="position: relative; height: 320px;">
-            <canvas #mychart></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="card">
-        <div class="card-body">
-          <div style="position: relative; height: 320px;">
-            <canvas #alertsByCodeChart></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-body">
-          <div style="position: relative; height: 280px;">
-            <canvas #fillLevelChart></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6" *ngIf="supervisionStats as stats">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Signalements citoyens</h5>
-          <div class="row">
-            <div class="col-6" *ngFor="let status of stats.citizenReports.byStatus | keyvalue">
-              <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="small">{{ status.key }}</span>
-                <span class="fw-bold">{{ status.value }}</span>
-              </div>
-            </div>
-          </div>
-          <hr>
-          <div class="d-flex align-items-center justify-content-between">
-            <span class="small">Délai médian de résolution</span>
-            <span class="fw-bold">
-              {{ stats.citizenReports.medianResolutionMinutes !== null
-                  ? (stats.citizenReports.medianResolutionMinutes + ' min')
-                  : '—' }}
-            </span>
-          </div>
-          <div class="d-flex align-items-center justify-content-between">
-            <span class="small">Signalements oubliés</span>
-            <span class="fw-bold" [class.text-danger]="stats.citizenReports.openOlderThanThreshold > 0">
-              {{ stats.citizenReports.openOlderThanThreshold }}
-            </span>
-          </div>
-        </div>
-      </div>
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Tableau de bord</h1>
+      <p class="sw-page-subtitle">Supervision de la collecte — département de Pikine</p>
     </div>
   </div>
-</section>
+
+  <!-- ============ Indicateurs du référentiel ============ -->
+  <div class="sw-kpi-grid">
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Communes</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalCommunes ?? '—' }}</span>
+    </div>
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Habitants</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalHabitants ?? '—' }}</span>
+    </div>
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Bacs</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalBacs ?? '—' }}</span>
+    </div>
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Bennes</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalBennes ?? '—' }}</span>
+    </div>
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Circuits</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalCircuits ?? '—' }}</span>
+    </div>
+    <div class="sw-card sw-kpi">
+      <span class="sw-kpi-label">Déchèteries</span>
+      <span class="sw-kpi-value">{{ departmentState?.totalDepotoirs ?? '—' }}</span>
+    </div>
+  </div>
+
+  <!-- ============ Graphe principal + état du parc ============ -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+
+    <div class="sw-card sw-card-pad lg:col-span-2 flex flex-col gap-gutter-md">
+      <div class="flex items-baseline justify-between gap-gutter-sm">
+        <h2 class="sw-card-title">Alertes par jour</h2>
+        <span class="text-sm text-muted">30 derniers jours</span>
+      </div>
+      <div class="h-64"><canvas #alertsChart></canvas></div>
+    </div>
+
+    <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+      <h2 class="sw-card-title">État du parc</h2>
+
+      @if (fillLevelLegend.length === 0) {
+        <p class="text-sm text-muted">Aucune mesure disponible.</p>
+      } @else {
+        <ul class="sw-nav-list flex flex-col divide-y divide-border">
+          @for (entry of fillLevelLegend; track entry.label) {
+            <li class="flex items-center justify-between gap-gutter-sm py-2.5">
+              <span class="flex items-center gap-2 text-sm text-text">
+                <span class="h-2 w-2 rounded-pill flex-shrink-0" [style.background]="entry.color"></span>
+                {{ entry.label }}
+              </span>
+              <span class="text-sm font-semibold text-foreground">{{ entry.value }}</span>
+            </li>
+          }
+        </ul>
+
+        <div class="mt-auto pt-gutter-sm border-t border-border flex items-baseline gap-2">
+          <span class="sw-kpi-value">{{ totalDepotoirs }}</span>
+          <span class="text-sm text-muted">points de collecte au total</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ============ Trois cartes à chiffres ============ -->
+  @if (supervisionStats; as stats) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md">
+
+      <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+        <h2 class="sw-card-title">Alertes ({{ stats.totalAlerts }})</h2>
+        <div class="grid grid-cols-3 gap-gutter-sm">
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ stats.alertsLast7Days }}</span>
+            <span class="sw-kpi-label">7 derniers jours</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ stats.liveSubscribers }}</span>
+            <span class="sw-kpi-label">Flux ouverts</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ stats.ingestion.silentSensors.length }}</span>
+            <span class="sw-kpi-label">Capteurs muets</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+        <h2 class="sw-card-title">Signalements citoyens</h2>
+        <div class="grid grid-cols-3 gap-gutter-sm">
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ count(stats.citizenReports.byStatus, 'SIGNALE') }}</span>
+            <span class="sw-kpi-label">Signalés</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ count(stats.citizenReports.byStatus, 'EN_COURS') }}</span>
+            <span class="sw-kpi-label">En cours</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ count(stats.citizenReports.byStatus, 'TRAITE') }}</span>
+            <span class="sw-kpi-label">Traités</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+        <h2 class="sw-card-title">Traitement</h2>
+        <div class="grid grid-cols-2 gap-gutter-sm">
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">
+              {{ stats.citizenReports.medianResolutionMinutes !== null
+                 ? stats.citizenReports.medianResolutionMinutes : '—' }}
+            </span>
+            <span class="sw-kpi-label">Délai médian (min)</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="sw-kpi-value">{{ stats.citizenReports.openOlderThanThreshold }}</span>
+            <span class="sw-kpi-label">Signalements oubliés</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ============ Carte en direct + activité ============ -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+    <div class="sw-card sw-card-pad lg:col-span-2 flex flex-col gap-gutter-md">
+      <h2 class="sw-card-title">Carte en direct</h2>
+      <app-dashboard-map></app-dashboard-map>
+    </div>
+
+    <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+      <h2 class="sw-card-title">Activité récente</h2>
+      @if (activity.length === 0) {
+        <p class="text-sm text-muted">Aucune alerte depuis l'ouverture de cette session.</p>
+      } @else {
+        <ul class="sw-nav-list flex flex-col divide-y divide-border">
+          @for (item of activity; track $index) {
+            <li class="flex items-start gap-gutter-sm py-2.5">
+              <span [class]="codeBadge(item.code)">{{ item.code }}</span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-foreground truncate">{{ item.label }}</p>
+                @if (item.detail) {
+                  <p class="text-xs text-muted truncate">{{ item.detail }}</p>
+                }
+              </div>
+              <span class="text-xs text-muted flex-shrink-0">{{ item.at | date:'HH:mm' }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  <!-- ============ Répartitions ============ -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter-md">
+
+    <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+      <h2 class="sw-card-title">Alertes par gravité</h2>
+      @if (codeLegend.length === 0) {
+        <p class="text-sm text-muted">Aucune alerte sur la période.</p>
+      } @else {
+        <div class="flex items-center gap-gutter-lg">
+          <ul class="sw-nav-list flex-1 flex flex-col gap-2">
+            @for (entry of codeLegend; track entry.label) {
+              <li class="flex items-center gap-2 text-sm text-text">
+                <span class="h-2 w-2 rounded-pill flex-shrink-0" [style.background]="entry.color"></span>
+                <span class="flex-1">{{ entry.label }}</span>
+                <span class="text-muted">{{ entry.value }} ({{ entry.percent }} %)</span>
+              </li>
+            }
+          </ul>
+          <div class="sw-chart-square"><canvas #alertsByCodeChart></canvas></div>
+        </div>
+      }
+    </div>
+
+    <div class="sw-card sw-card-pad flex flex-col gap-gutter-md">
+      <h2 class="sw-card-title">Points par type</h2>
+      @if (typeLegend.length === 0) {
+        <p class="text-sm text-muted">Aucun point de collecte.</p>
+      } @else {
+        <div class="flex items-center gap-gutter-lg">
+          <ul class="sw-nav-list flex-1 flex flex-col gap-2">
+            @for (entry of typeLegend; track entry.label) {
+              <li class="flex items-center gap-2 text-sm text-text">
+                <span class="h-2 w-2 rounded-pill flex-shrink-0" [style.background]="entry.color"></span>
+                <span class="flex-1 truncate">{{ entry.label }}</span>
+                <span class="text-muted flex-shrink-0">{{ entry.value }} ({{ entry.percent }} %)</span>
+              </li>
+            }
+          </ul>
+          <div class="sw-chart-square"><canvas #typeChart></canvas></div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
