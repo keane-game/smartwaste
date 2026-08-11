@@ -1,22 +1,25 @@
-<div  class="m-3 bg-white">
-    <div class="delete-section">
-      <div mat-dialog-content class="row px-0 p-1 no-gutters">
-        
-        <p>
-          {{ "MODAL.KPI.DELETE-MESSAGE" | translate }}
-        </p>
-        
-      </div>
-      <div mat-dialog-actions class="center p-0">
-          <span>
-            <button type="button" mat-flat-button [mat-dialog-close]="true" class="btn-annuler">
-              {{ "MODAL.NONE" | translate }}
-            </button>
-            <button type="submit" mat-stroked-button mat-dialog-close class="btn-enregister"
-            (click)="onSubmit()">
-              {{ "MODAL.OK" | translate }}
-            </button>
-          </span>
-      </div>
+<!--
+  Confirmation de suppression, partagée par toutes les listes. Reprend le patron des maquettes :
+  action destructive en pilule rouge, action neutre en pilule contournée. Le bouton destructif est
+  à DROITE et n'est pas le choix par défaut — une suppression ne doit pas se valider par réflexe.
+-->
+<div class="sw-dialog">
+  <div class="sw-dialog-body items-center text-center">
+    <span class="flex items-center justify-center h-12 w-12 rounded-pill mx-auto"
+      style="background: var(--color-destructive-soft)">
+      <i class="bi bi-exclamation-triangle text-xl" style="color: var(--color-destructive)"></i>
+    </span>
+
+    <h2 class="sw-dialog-title">Confirmer la suppression</h2>
+    <p class="text-sm text-muted">{{ "MODAL.KPI.DELETE-MESSAGE" | translate }}</p>
+
+    <div class="flex justify-center gap-gutter-sm pt-gutter-sm">
+      <button type="button" class="sw-btn-ghost" [mat-dialog-close]="false">
+        {{ "MODAL.NONE" | translate }}
+      </button>
+      <button type="button" class="sw-btn-danger" mat-dialog-close (click)="onSubmit()">
+        {{ "MODAL.OK" | translate }}
+      </button>
     </div>
   </div>
+</div>

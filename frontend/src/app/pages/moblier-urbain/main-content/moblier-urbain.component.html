@@ -1,68 +1,80 @@
-<section class="section">
-  <div class="row">
-    <div class="col-lg-5">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">{{ editingId === null ? 'Ajouter un mobilier urbain' : 'Modifier le mobilier urbain' }}</h5>
-          <form (ngSubmit)="submit()">
-            <div class="mb-3">
-              <label class="form-label" for="name">Nom</label>
-              <input id="name" class="form-control" [(ngModel)]="form.name" name="name" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="code">Code</label>
-              <input id="code" class="form-control" [(ngModel)]="form.code" name="code" required>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="submitting">
+<div class="sw-page">
+
+  <div class="sw-page-head">
+    <div>
+      <h1 class="sw-page-title">Mobiliers urbains</h1>
+      <p class="sw-page-subtitle">Types d'équipements installés sur la voie publique</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-gutter-md">
+
+    <div class="lg:col-span-2">
+      <div class="sw-card sw-card-pad">
+        <h2 class="sw-card-title mb-gutter-md">
+          {{ editingId === null ? 'Ajouter un mobilier' : 'Modifier le mobilier' }}
+        </h2>
+        <form (ngSubmit)="submit()" class="flex flex-col gap-gutter-sm">
+          <div class="sw-field">
+            <label class="sw-label" for="name">Nom</label>
+            <input id="name" name="name" class="sw-input" [(ngModel)]="form.name" required />
+          </div>
+          <div class="sw-field">
+            <label class="sw-label" for="code">Code</label>
+            <input id="code" name="code" class="sw-input" [(ngModel)]="form.code" required />
+          </div>
+          <div class="flex items-center gap-gutter-sm">
+            <button type="submit" class="sw-btn-primary" [disabled]="submitting">
               {{ editingId === null ? 'Créer' : 'Enregistrer' }}
             </button>
-            <button type="button" class="btn btn-outline-secondary ms-2" *ngIf="editingId !== null" (click)="cancelEdit()">
-              Annuler
-            </button>
-          </form>
-        </div>
+            @if (editingId !== null) {
+              <button type="button" class="sw-btn-ghost" (click)="cancelEdit()">Annuler</button>
+            }
+          </div>
+        </form>
       </div>
     </div>
 
-    <div class="col-lg-7">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Mobiliers urbains</h5>
+    <div class="lg:col-span-3">
+      <div class="sw-card">
+        <h2 class="sw-card-title px-gutter-lg pt-gutter-lg pb-gutter-sm">Mobiliers</h2>
 
-          <div *ngIf="loading" class="text-center py-4">
-            <span class="spinner-border spinner-border-sm"></span> Chargement…
+        @if (loading) {
+          <p class="sw-empty">Chargement…</p>
+        } @else if (items.length === 0) {
+          <p class="sw-empty">Aucun mobilier urbain enregistré.</p>
+        } @else {
+          <div class="sw-table-wrap">
+            <table class="sw-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Code</th>
+                  <th style="width:96px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of items; track item.moblierUrbainId) {
+                  <tr>
+                    <td class="sw-cell-strong">{{ item.name }}</td>
+                    <td>{{ item.code }}</td>
+                    <td class="whitespace-nowrap">
+                      <button type="button" class="sw-btn-icon" title="Modifier" aria-label="Modifier"
+                        (click)="startEdit(item)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" class="sw-btn-icon" title="Supprimer" aria-label="Supprimer"
+                        style="color: var(--color-destructive)" (click)="remove(item)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
-
-          <div *ngIf="!loading && items.length === 0" class="text-muted py-4">
-            Aucun mobilier urbain enregistré.
-          </div>
-
-          <table class="table table-borderless" *ngIf="!loading && items.length > 0">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Code</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of items">
-                <td>{{ item.name }}</td>
-                <td>{{ item.code }}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(item)">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="remove(item)">
-                    <i class="bi bi-trash-fill"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-        </div>
+        }
       </div>
     </div>
   </div>
-</section>
+</div>

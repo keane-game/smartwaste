@@ -9,7 +9,11 @@ import { Router } from '@angular/router';
 import { SharedService } from '../../../services/shared.service';
 import { CreateDepotoirComponent } from '../create-depotoir/create-depotoir.component';
 import { ModalService } from '../../../services/modal.service';
-import { DeleteComponent } from '../../../shared/components/delete/delete.component'; 
+import { DeleteComponent } from '../../../shared/components/delete/delete.component';
+import { ListUiState } from '../../../shared/ui/list-ui-state';
+import { ManagedColumn } from '../../../shared/components/column-manager/column-manager.component';
+import { ColumnPreferencesService } from '../../../shared/ui/column-preferences.service';
+
 @Component({
     selector: 'app-depotoir',
     templateUrl: './depotoir.component.html',
@@ -22,7 +26,30 @@ export class DepotoirComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['depotoirAddress', 'typeDepotoir', 'commune', 'longitude', 'latitude', 'action'];
+  /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
+  readonly ui = new ListUiState();
+
+  /**
+   * Inventaire des colonnes proposées par « Gérer les colonnes » (maquettes).
+   *
+   * <p>`select` et `action` sont verrouillées : les masquer priverait l'écran de la sélection et
+   * des actions de ligne.
+   */
+  readonly manageableColumns: ManagedColumn[] = [
+    { key: 'select', label: 'Sélection', locked: true },
+    { key: 'depotoirAddress', label: 'Adresse' },
+    { key: 'typeDepotoir', label: 'Type' },
+    { key: 'commune', label: 'Commune' },
+    { key: 'longitude', label: 'Longitude' },
+    { key: 'latitude', label: 'Latitude' },
+    { key: 'action', label: 'Actions', locked: true },
+  ];
+
+  /** Clé de persistance : le choix de colonnes est propre à l'utilisateur. */
+  private static readonly COLUMNS_KEY = 'depotoirs.columns';
+
+  // Renseignée dans `ngOnInit` : `columnPrefs` est injecté par le constructeur.
+  displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
 
@@ -41,11 +68,14 @@ export class DepotoirComponent {
     private router: Router,
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private columnPrefs: ColumnPreferencesService,
   ) { }
 
 
   ngOnInit() {
+    this.displayedColumns = this.columnPrefs.restore(
+      DepotoirComponent.COLUMNS_KEY, this.manageableColumns, ['longitude', 'latitude']);
     this.sharedService.url = '/depotoirs';
     this.loadDepotoirs();
     this.headerTitleService.setTitle('Gestion des dépotoirs');
@@ -72,17 +102,20 @@ export class DepotoirComponent {
   }
 
   openCreateDepotoirModal() {
-    this.modalService.openModal(CreateDepotoirComponent, { title: 'Create Depotoir' });
+    this.modalService.openModal(CreateDepotoirComponent, { title: 'Create Depotoir' })
+      .afterClosed().subscribe(() => this.loadDepotoirs(this.currentPage, this.itemsPerPage));
   }
 
   openUpdateDepotoirModal(id: any) {
     const currentDepotoir = this.dataSource.data.find((item: any) => item.depotoirId === id);
     //console.log(id)
-    this.modalService.openModal(CreateDepotoirComponent, { id: id, currentDepotoir: currentDepotoir });
+    this.modalService.openModal(CreateDepotoirComponent, { id: id, currentDepotoir: currentDepotoir })
+      .afterClosed().subscribe(() => this.loadDepotoirs(this.currentPage, this.itemsPerPage));
   }
 
   openDeleteDepotoirModal(id:any) {
-    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url });
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url })
+      .afterClosed().subscribe(() => this.loadDepotoirs(this.currentPage, this.itemsPerPage));
   }
 
   async closeDialog() {
@@ -121,4 +154,14 @@ export class DepotoirComponent {
    }
 
   
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
+    this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
+
+  openColumnManager(): void {
+    this.columnPrefs.open(DepotoirComponent.COLUMNS_KEY, this.manageableColumns, this.displayedColumns)
+      .subscribe(columns => { if (columns) { this.displayedColumns = columns; } });
+  }
 }
