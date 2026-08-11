@@ -20,6 +20,47 @@
   <span class="page-title font-heading text-lg font-semibold text-foreground truncate">{{ pageTitle }}</span>
 
   <div class="ms-auto flex items-center gap-gutter-sm">
+    <!--
+      Sélecteur de périmètre : visible du seul SUPER_ADMIN. Un ADMIN est déjà cloisonné sur sa
+      collectivité côté serveur, et l'en-tête y est ignoré — lui montrer un choix sans effet
+      serait mensonger.
+    -->
+    @if (canSelectScope()) {
+      <div class="relative">
+        <button type="button" class="sw-scope-btn" (click)="toggleScopeMenu()"
+          [attr.aria-expanded]="scopeMenuOpen" aria-haspopup="listbox"
+          aria-label="Choisir la collectivité observée">
+          <i class="bi bi-buildings text-sm"></i>
+          <span class="truncate max-w-[11rem]">{{ scopeLabel() }}</span>
+          <i class="bi bi-chevron-down text-xs"></i>
+        </button>
+
+        @if (scopeMenuOpen) {
+          <div class="sw-menu sw-scope-menu" role="listbox">
+            <button type="button" role="option" class="sw-menu-item"
+              [attr.aria-selected]="selectedScopeId() === null"
+              (click)="selectScope(null)">
+              <i class="bi" [class.bi-check2]="selectedScopeId() === null"></i>
+              <span>Toutes les collectivités</span>
+            </button>
+
+            @for (org of organizations(); track org.organizationId) {
+              <button type="button" role="option" class="sw-menu-item"
+                [attr.aria-selected]="selectedScopeId() === org.organizationId"
+                (click)="selectScope(org.organizationId)">
+                <i class="bi" [class.bi-check2]="selectedScopeId() === org.organizationId"></i>
+                <span>{{ org.name }}</span>
+              </button>
+            }
+
+            @if (!organizations().length) {
+              <p class="sw-menu-empty">Aucune collectivité active.</p>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <a routerLink="/notifications" aria-label="Notifications"
       class="flex items-center justify-center h-9 w-9 rounded-pill bg-muted-surface text-text
              hover:bg-border transition-colors duration-150">

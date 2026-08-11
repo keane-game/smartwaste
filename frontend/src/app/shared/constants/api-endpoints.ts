@@ -168,6 +168,12 @@ export const API_ENDPOINTS = {
   geometries: {
     basePath: '/geometries', listPath: '/geometries', idField: 'geometryId', idType: 'uuid',
     deletionResource: 'geometry'
+  },
+  organizations: {
+    basePath: '/organizations', listPath: '/organizations', idField: 'organizationId', idType: 'uuid',
+    notes: "Collectivités (multi-tenant, ADR-0020). La liste exige l'autorité MANAGE_ORGANIZATIONS, "
+      + "semée sur SUPER_ADMIN uniquement : un ADMIN reçoit 403. Pas de suppression — une "
+      + "collectivité se suspend (PUT status=SUSPENDED), d'où l'absence de `deletionResource`."
   }
 } as const satisfies Record<string, ResourceEndpoint>;
 

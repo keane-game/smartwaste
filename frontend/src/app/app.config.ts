@@ -8,6 +8,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AuthInterceptor } from './core/helpers/auth.interceptor';
 import { ErrorInterceptor } from './core/helpers/error.inerceptor';
+import { TenantScopeInterceptor } from './core/helpers/tenant-scope.interceptor';
 
 
 export function HttpLoaderFactory(http: HttpClient) {
@@ -31,6 +32,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([
         AuthInterceptor,
+        // Pose `X-Organization-Id` quand un SUPER_ADMIN observe une collectivite en particulier.
+        // Avant `ErrorInterceptor` pour que la requete rejouee apres renouvellement du jeton
+        // conserve le perimetre : la rejouer sans lui la ferait repondre sur toute la plateforme.
+        TenantScopeInterceptor,
         ErrorInterceptor,
       ]),
     ),
