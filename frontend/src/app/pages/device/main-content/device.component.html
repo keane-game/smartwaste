@@ -1,155 +1,201 @@
-<section class="section">
+<div class="flex flex-col gap-gutter-md">
 
-  <div class="row" *ngIf="revealedKey">
-    <div class="col-lg-12">
-      <div class="alert alert-warning d-flex justify-content-between align-items-start">
-        <div>
-          <strong>Clé d'API pour « {{ revealedKey.deviceCode }} »</strong>
-          <p class="mb-0">
-            Cette clé ne sera plus jamais affichée — copiez-la maintenant.
-            <br><code>{{ revealedKey.apiKey }}</code>
-          </p>
-        </div>
-        <button type="button" class="btn-close" (click)="dismissKey()"></button>
+  @if (revealedKey) {
+    <div class="flex items-start justify-between gap-gutter-md rounded-DEFAULT border border-warning bg-warning/10 px-gutter-lg py-gutter-md">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-foreground">Clé d'API pour « {{ revealedKey.deviceCode }} »</p>
+        <p class="text-sm text-text mt-1">Cette clé ne sera plus jamais affichée — copiez-la maintenant.</p>
+        <code class="mt-2 block rounded-sm bg-surface border border-border px-3 py-2 text-xs break-all">{{ revealedKey.apiKey }}</code>
       </div>
+      <button type="button" (click)="dismissKey()" class="text-muted hover:text-text cursor-pointer flex-shrink-0">
+        <i class="bi bi-x text-xl"></i>
+      </button>
     </div>
-  </div>
+  }
 
-  <div class="row">
-    <!-- Capteurs -->
-    <div class="col-lg-6">
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Enrôler un capteur</h5>
-          <form (ngSubmit)="enrollSensor()">
-            <div class="mb-3">
-              <label class="form-label" for="sensorCode">Code de l'appareil</label>
-              <input id="sensorCode" class="form-control" [(ngModel)]="sensorForm.deviceCode" name="sensorCode" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="sensorDepotoir">Point de collecte</label>
-              <select id="sensorDepotoir" class="form-select" [(ngModel)]="sensorForm.depotoirId" name="sensorDepotoir">
-                <option [ngValue]="null" disabled>Choisir…</option>
-                <option *ngFor="let d of depotoirs" [ngValue]="d.depotoirId">{{ d.address }}</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="enrollingSensor">Enrôler</button>
-          </form>
-        </div>
-      </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter-md">
 
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Capteurs</h5>
-          <div *ngIf="loadingSensors" class="text-center py-4">
-            <span class="spinner-border spinner-border-sm"></span> Chargement…
+    <!-- ============ Capteurs ============ -->
+    <div class="flex flex-col gap-gutter-md">
+      <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-lg">
+        <h2 class="font-heading text-base font-semibold text-foreground mb-gutter-md">Enrôler un capteur</h2>
+        <form (ngSubmit)="enrollSensor()" class="flex flex-col gap-gutter-sm">
+          <div class="flex flex-col gap-gutter-xs">
+            <label class="text-sm font-medium text-text" for="sensorCode">Code de l'appareil</label>
+            <input id="sensorCode" name="sensorCode" [(ngModel)]="sensorForm.deviceCode" required
+              class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
           </div>
-          <table class="table table-borderless" *ngIf="!loadingSensors && sensors.length > 0">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Point de collecte</th>
-                <th>État</th>
-                <th>Dernier signal</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let sensor of sensors">
-                <td>{{ sensor.deviceCode }}</td>
-                <td>
-                  {{ sensor.target }}
-                  <span class="badge bg-secondary" *ngIf="sensor.orphaned">orphelin</span>
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="sensor.active ? 'bg-success' : 'bg-secondary'">
-                    {{ sensor.active ? 'Actif' : 'Désactivé' }}
-                  </span>
-                  <span class="badge bg-warning text-dark" *ngIf="sensor.silenceReportedAt">muet</span>
-                </td>
-                <td>{{ sensor.lastSeenAt ? (sensor.lastSeenAt | date:'short') : 'Jamais' }}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-secondary me-1" (click)="rotateSensorKey(sensor)">
-                    <i class="bi bi-key"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" [disabled]="!sensor.active" (click)="deactivateSensor(sensor)">
-                    <i class="bi bi-slash-circle"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="text-muted py-4" *ngIf="!loadingSensors && sensors.length === 0">Aucun capteur enrôlé.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Traceurs véhicules -->
-    <div class="col-lg-6">
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Enrôler un traceur véhicule</h5>
-          <form (ngSubmit)="enrollTracker()">
-            <div class="mb-3">
-              <label class="form-label" for="trackerCode">Code de l'appareil</label>
-              <input id="trackerCode" class="form-control" [(ngModel)]="trackerForm.deviceCode" name="trackerCode" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="trackerVehicle">Véhicule</label>
-              <select id="trackerVehicle" class="form-select" [(ngModel)]="trackerForm.vehicleId" name="trackerVehicle">
-                <option [ngValue]="null" disabled>Choisir…</option>
-                <option *ngFor="let v of vehicles" [ngValue]="v.vehicleId">{{ v.registration }}</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="enrollingTracker">Enrôler</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Traceurs</h5>
-          <div *ngIf="loadingTrackers" class="text-center py-4">
-            <span class="spinner-border spinner-border-sm"></span> Chargement…
+          <div class="flex flex-col gap-gutter-xs">
+            <label class="text-sm font-medium text-text" for="sensorDepotoir">Point de collecte</label>
+            <select id="sensorDepotoir" name="sensorDepotoir" [(ngModel)]="sensorForm.depotoirId"
+              class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+              <option [ngValue]="null" disabled>Choisir…</option>
+              @for (d of depotoirs; track d.depotoirId) {
+                <option [ngValue]="d.depotoirId">{{ d.address }}</option>
+              }
+            </select>
           </div>
-          <table class="table table-borderless" *ngIf="!loadingTrackers && trackers.length > 0">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Véhicule</th>
-                <th>État</th>
-                <th>Dernier signal</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let tracker of trackers">
-                <td>{{ tracker.deviceCode }}</td>
-                <td>
-                  {{ tracker.target }}
-                  <span class="badge bg-secondary" *ngIf="tracker.orphaned">orphelin</span>
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="tracker.active ? 'bg-success' : 'bg-secondary'">
-                    {{ tracker.active ? 'Actif' : 'Désactivé' }}
-                  </span>
-                  <span class="badge bg-warning text-dark" *ngIf="tracker.silenceReportedAt">muet</span>
-                </td>
-                <td>{{ tracker.lastSeenAt ? (tracker.lastSeenAt | date:'short') : 'Jamais' }}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-secondary me-1" (click)="rotateTrackerKey(tracker)">
-                    <i class="bi bi-key"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" [disabled]="!tracker.active" (click)="deactivateTracker(tracker)">
-                    <i class="bi bi-slash-circle"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="text-muted py-4" *ngIf="!loadingTrackers && trackers.length === 0">Aucun traceur enrôlé.</p>
-        </div>
+          <div>
+            <button type="submit" [disabled]="enrollingSensor"
+              class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+                     hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+                     disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ enrollingSensor ? 'Enrôlement…' : 'Enrôler' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
+        <h2 class="font-heading text-base font-semibold text-foreground px-gutter-lg pt-gutter-lg pb-gutter-sm">Capteurs</h2>
+        @if (loadingSensors) {
+          <p class="text-center py-gutter-xl text-sm text-muted">Chargement…</p>
+        } @else if (sensors.length === 0) {
+          <p class="text-center py-gutter-xl text-sm text-muted">Aucun capteur enrôlé.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-muted-surface text-xs font-semibold text-muted uppercase tracking-wide">
+                  <th class="text-left px-gutter-md py-2">Code</th>
+                  <th class="text-left px-gutter-md py-2">Point de collecte</th>
+                  <th class="text-left px-gutter-md py-2">État</th>
+                  <th class="text-left px-gutter-md py-2">Dernier signal</th>
+                  <th class="text-left px-gutter-md py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (sensor of sensors; track sensor.deviceId) {
+                  <tr class="hover:bg-muted-surface">
+                    <td class="px-gutter-md py-2 text-text">{{ sensor.deviceCode }}</td>
+                    <td class="px-gutter-md py-2 text-text">
+                      {{ targetLabel(sensor.target, 'sensor') }}
+                      @if (sensor.orphaned) {
+                        <span class="ml-1 inline-block rounded-sm bg-muted-surface px-2 py-0.5 text-xs text-muted">orphelin</span>
+                      }
+                    </td>
+                    <td class="px-gutter-md py-2">
+                      <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium"
+                        [class]="sensor.active ? 'bg-success/10 text-success' : 'bg-muted-surface text-muted'">
+                        {{ sensor.active ? 'Actif' : 'Désactivé' }}
+                      </span>
+                      @if (sensor.silenceReportedAt) {
+                        <span class="ml-1 inline-block rounded-sm bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">muet</span>
+                      }
+                    </td>
+                    <td class="px-gutter-md py-2 text-text">{{ sensor.lastSeenAt ? (sensor.lastSeenAt | date:'short') : 'Jamais' }}</td>
+                    <td class="px-gutter-md py-2 whitespace-nowrap">
+                      <button type="button" (click)="rotateSensorKey(sensor)"
+                        class="text-muted hover:text-primary cursor-pointer mr-3" title="Renouveler la clé">
+                        <i class="bi bi-key"></i>
+                      </button>
+                      <button type="button" [disabled]="!sensor.active" (click)="deactivateSensor(sensor)"
+                        class="text-muted hover:text-destructive cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="Désactiver">
+                        <i class="bi bi-slash-circle"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     </div>
+
+    <!-- ============ Traceurs véhicules ============ -->
+    <div class="flex flex-col gap-gutter-md">
+      <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-lg">
+        <h2 class="font-heading text-base font-semibold text-foreground mb-gutter-md">Enrôler un traceur véhicule</h2>
+        <form (ngSubmit)="enrollTracker()" class="flex flex-col gap-gutter-sm">
+          <div class="flex flex-col gap-gutter-xs">
+            <label class="text-sm font-medium text-text" for="trackerCode">Code de l'appareil</label>
+            <input id="trackerCode" name="trackerCode" [(ngModel)]="trackerForm.deviceCode" required
+              class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+          </div>
+          <div class="flex flex-col gap-gutter-xs">
+            <label class="text-sm font-medium text-text" for="trackerVehicle">Véhicule</label>
+            <select id="trackerVehicle" name="trackerVehicle" [(ngModel)]="trackerForm.vehicleId"
+              class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+              <option [ngValue]="null" disabled>Choisir…</option>
+              @for (v of vehicles; track v.vehicleId) {
+                <option [ngValue]="v.vehicleId">{{ v.registration }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <button type="submit" [disabled]="enrollingTracker"
+              class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+                     hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+                     disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ enrollingTracker ? 'Enrôlement…' : 'Enrôler' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
+        <h2 class="font-heading text-base font-semibold text-foreground px-gutter-lg pt-gutter-lg pb-gutter-sm">Traceurs</h2>
+        @if (loadingTrackers) {
+          <p class="text-center py-gutter-xl text-sm text-muted">Chargement…</p>
+        } @else if (trackers.length === 0) {
+          <p class="text-center py-gutter-xl text-sm text-muted">Aucun traceur enrôlé.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-muted-surface text-xs font-semibold text-muted uppercase tracking-wide">
+                  <th class="text-left px-gutter-md py-2">Code</th>
+                  <th class="text-left px-gutter-md py-2">Véhicule</th>
+                  <th class="text-left px-gutter-md py-2">État</th>
+                  <th class="text-left px-gutter-md py-2">Dernier signal</th>
+                  <th class="text-left px-gutter-md py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (tracker of trackers; track tracker.deviceId) {
+                  <tr class="hover:bg-muted-surface">
+                    <td class="px-gutter-md py-2 text-text">{{ tracker.deviceCode }}</td>
+                    <td class="px-gutter-md py-2 text-text">
+                      {{ targetLabel(tracker.target, 'tracker') }}
+                      @if (tracker.orphaned) {
+                        <span class="ml-1 inline-block rounded-sm bg-muted-surface px-2 py-0.5 text-xs text-muted">orphelin</span>
+                      }
+                    </td>
+                    <td class="px-gutter-md py-2">
+                      <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium"
+                        [class]="tracker.active ? 'bg-success/10 text-success' : 'bg-muted-surface text-muted'">
+                        {{ tracker.active ? 'Actif' : 'Désactivé' }}
+                      </span>
+                      @if (tracker.silenceReportedAt) {
+                        <span class="ml-1 inline-block rounded-sm bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">muet</span>
+                      }
+                    </td>
+                    <td class="px-gutter-md py-2 text-text">{{ tracker.lastSeenAt ? (tracker.lastSeenAt | date:'short') : 'Jamais' }}</td>
+                    <td class="px-gutter-md py-2 whitespace-nowrap">
+                      <button type="button" (click)="rotateTrackerKey(tracker)"
+                        class="text-muted hover:text-primary cursor-pointer mr-3" title="Renouveler la clé">
+                        <i class="bi bi-key"></i>
+                      </button>
+                      <button type="button" [disabled]="!tracker.active" (click)="deactivateTracker(tracker)"
+                        class="text-muted hover:text-destructive cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="Désactiver">
+                        <i class="bi bi-slash-circle"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
   </div>
-</section>
+</div>

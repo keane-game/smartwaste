@@ -46,11 +46,18 @@
   --radius-DEFAULT: 0.75em;
   --radius-sm: 6px;
 
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  --spacing-3xl: 64px;
+  /*
+   * Prefixees "gutter-" (pas juste xs/sm/md/lg/xl/2xl/3xl) : ce sont exactement les noms que
+   * Tailwind reserve deja pour son echelle de taille integree (max-w-md, w-lg, etc, qui lit dans
+   * le meme espace de nommage --spacing-*). Les nommer pareil ECRASAIT silencieusement la valeur
+   * de Tailwind : max-w-md valait 16px au lieu d environ 28rem, d ou la page de connexion
+   * entierement ecrasee decouverte en testant l app en conditions reelles (Phase 2).
+   */
+  --spacing-gutter-xs: 4px;
+  --spacing-gutter-sm: 8px;
+  --spacing-gutter-md: 16px;
+  --spacing-gutter-lg: 24px;
+  --spacing-gutter-xl: 32px;
+  --spacing-gutter-2xl: 48px;
+  --spacing-gutter-3xl: 64px;
 }

@@ -1,18 +1,18 @@
 <aside id="sidebar" class="sidebar flex flex-col h-full bg-surface border-r border-border" #sidebar>
-  <a [routerLink]="['/']" class="flex items-center justify-center gap-spacing-sm py-spacing-lg">
-    <img src="../../assets/images/SONAGED.png" alt="SONAGED" class="h-9 w-auto" />
+  <a [routerLink]="['/']" class="flex items-center justify-center gap-gutter-sm py-gutter-lg">
+    <img src="/assets/images/SONAGED.png" alt="SONAGED" class="h-9 w-auto" />
   </a>
 
-  <div class="px-spacing-md pb-spacing-xs">
+  <div class="px-gutter-md pb-gutter-xs">
     <h1 class="text-xs font-semibold tracking-wide text-muted uppercase">Menu</h1>
   </div>
 
-  <ul class="sidebar-nav flex-1 overflow-y-auto px-spacing-xs" id="sidebar-nav">
+  <ul class="sidebar-nav flex-1 overflow-y-auto px-gutter-xs" id="sidebar-nav">
     @for (item of items(); track item.route + item.label) {
       <li class="nav-item">
         @if (item.children) {
           <a
-            class="nav-link collapsed flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-text
+            class="nav-link collapsed flex items-center gap-gutter-sm px-gutter-sm py-2 rounded-sm text-text
                    hover:bg-muted-surface cursor-pointer"
             data-bs-target="#components-nav"
             data-bs-toggle="collapse"
@@ -22,13 +22,13 @@
             <span class="flex-1">{{ item.label }}</span>
             <i class="bi bi-chevron-down text-xs"></i>
           </a>
-          <ul id="components-nav" class="nav-content collapse pl-spacing-lg" data-bs-parent="#sidebar-nav">
+          <ul id="components-nav" class="nav-content collapse pl-gutter-lg" data-bs-parent="#sidebar-nav">
             @for (child of item.children; track child.route) {
               <li>
                 <a
                   [routerLink]="child.route"
                   routerLinkActive="active-link"
-                  class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-sm text-text
+                  class="flex items-center gap-gutter-sm px-gutter-sm py-2 rounded-sm text-sm text-text
                          hover:bg-muted-surface"
                 >
                   <i [class]="child.icon + ' text-xs'"></i>
@@ -41,7 +41,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="active-link"
-            class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-text
+            class="flex items-center gap-gutter-sm px-gutter-sm py-2 rounded-sm text-text
                    hover:bg-muted-surface"
           >
             <i [class]="item.icon"></i>
@@ -52,10 +52,10 @@
     }
   </ul>
 
-  <div class="px-spacing-xs pb-spacing-md">
+  <div class="px-gutter-xs pb-gutter-md">
     <a
       (click)="logout()"
-      class="flex items-center gap-spacing-sm px-spacing-sm py-2 rounded-sm text-destructive
+      class="flex items-center gap-gutter-sm px-gutter-sm py-2 rounded-sm text-destructive
              hover:bg-muted-surface cursor-pointer"
     >
       <i class="bi bi-box-arrow-right"></i>

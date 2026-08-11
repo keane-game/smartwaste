@@ -1,14 +1,11 @@
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { HeaderComponent } from './components/header/header.component';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MAT_MATERIAL } from './materials/material.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { CoreModule } from 'keycloak-angular';
 import { PaginationCustumerComponent } from './components/pagination-custumer/pagination-custumer.component';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { LayoutComponent } from './components/layout/layout.component';
 import { ErrorComponent } from './components/error/error.component';
 
 import { BubblePaginationDirective } from '../directives/BubblePaginationDirective';
@@ -16,13 +13,14 @@ import { ModalService } from '../services/modal.service';
 import { DeleteComponent } from './components/delete/delete.component';
 
 
-// SidebarComponent est standalone depuis la Phase 2 de la refonte (filtrage de navigation par
-// role) : un composant standalone ne peut plus figurer dans `declarations`, il s'importe comme
-// un module. Reste expose via `exports` pour que les consommateurs de SharedModule n'aient rien
-// a changer.
+// `HeaderComponent`/`LayoutComponent`/`SidebarComponent` sont sortis de ce module : les router
+// routes vers un composant declare dans un NgModule (`component: LayoutComponent` dans
+// app.routes.ts) ne recoit jamais la portee de directives de ce NgModule dans un bootstrap
+// standalone (`bootstrapApplication`) — `LayoutComponent.ɵcmp.directiveDefs` restait `null` a
+// l'execution, donc `<app-sidebar>`/`<app-header>` ne s'instanciaient jamais (page blanche
+// silencieuse, aucune erreur), trouve en verifiant l'app en conditions reelles (Phase 2). Les
+// trois sont maintenant standalone et s'importent directement dans layout.component.ts.
 const COMPONENTS : any[]= [
-    HeaderComponent,
-    LayoutComponent,
     ErrorComponent,
     PaginationCustumerComponent,
     DeleteComponent
@@ -37,7 +35,6 @@ const BASE_MODULES = [
     ReactiveFormsModule,
     TranslateModule,
     BubblePaginationDirective,
-    SidebarComponent,
   ];
 
 

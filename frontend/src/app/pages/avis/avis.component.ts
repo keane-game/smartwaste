@@ -5,6 +5,7 @@ import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angu
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS, API_PATHS } from '../../shared/constants/api-endpoints';
 import { succesAlert, errorAlert } from '../../services/alert.service';
+import { headerTitleService } from '../../services/headerTitle.service';
 
 interface AvisMine {
   id: string;
@@ -73,9 +74,16 @@ export class AvisComponent implements OnInit {
    * au formulaire de dépôt. Ne bloque pas les autres sections : chargement indépendant par section. */
   sectionError = '';
 
-  constructor(private fb: FormBuilder, private http: HttpClient) { }
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private headerTitleService: headerTitleService,
+  ) { }
 
   ngOnInit(): void {
+    // Sans ça l'en-tête gardait « Dashboard », le titre par défaut de `HeaderComponent` : chaque
+    // autre écran appelle `setTitle`, celui-ci ne le faisait pas.
+    this.headerTitleService.setTitle('Espace citoyen');
     this.loadMesSignalements();
     this.loadAbonnements();
     this.loadSensibilisation();
@@ -127,6 +135,16 @@ export class AvisComponent implements OnInit {
 
   statutLabel(statut: AvisMine['statut']): string {
     return this.statutLabels[statut] ?? statut;
+  }
+
+  /** Couleur du badge de statut d'un signalement. */
+  statutClasses(statut: AvisMine['statut']): string {
+    switch (statut) {
+      case 'TRAITE': return 'bg-success/10 text-success';
+      case 'EN_COURS': return 'bg-warning/10 text-warning';
+      case 'REJETE': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-primary/10 text-primary';
+    }
   }
 
   private loadAbonnements(): void {

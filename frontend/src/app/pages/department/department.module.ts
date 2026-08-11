@@ -1,10 +1,10 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { AsyncPipe, CommonModule, NgComponentOutlet } from '@angular/common';
 
 import { DepartmentRoutingModule } from './department-routing.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MaterialsModule } from '../../shared/materials/material.module';
+import { SharedModule } from '../../shared/shared.module';
 import { DepartmentComponent } from './department.component';
 import { CreateDepartmentComponent } from './create-department/create-department.component';
 
@@ -13,10 +13,16 @@ import { CreateDepartmentComponent } from './create-department/create-department
         DepartmentComponent,
         CreateDepartmentComponent
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [CommonModule,
+    // `SharedModule` (comme Commune/Quartier) plutot que `MaterialsModule` seul + un
+    // `CUSTOM_ELEMENTS_SCHEMA` de complaisance : importer les deux a la fois embrouillait la
+    // portee de compilation Ivy — `app-pagination-custumer` (fourni par `SharedModule`) ne
+    // resolvait plus son type d'`@Output` correctement, `$event` retombait sur `Event` generique
+    // au lieu de `{pageIndex, pageSize}` (erreur TS2345 a la compilation, trouve en ajoutant la
+    // pagination serveur ici pour matcher Commune/Quartier).
+    imports: [CommonModule,
         DepartmentRoutingModule,
         ReactiveFormsModule,
         FormsModule,
-        MaterialsModule,
+        SharedModule,
         NgComponentOutlet, AsyncPipe], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class DepartmentModule { }

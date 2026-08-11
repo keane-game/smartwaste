@@ -1,17 +1,13 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 
 import { RegionRoutingModule } from './region-routing.module';
 
-
+// `RegionComponent`/`CreateRegionComponent` sont standalone (construits depuis un stub CLI vide,
+// "region works!" — jamais servi avant) : rien à déclarer ici, `region-routing.module.ts` les
+// référence directement.
 @NgModule({
-  declarations: [
-    
-  ],
   imports: [
-    CommonModule,
     RegionRoutingModule,
   ],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA],
 })
 export class RegionModule { }

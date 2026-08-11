@@ -1,151 +1,47 @@
-<div class="generalcontainer">
-    <div class="search-filter">
-      <div class="mat-form-field">
-        <mat-form-field appearance="outline" style="width: 100%">
-          <mat-label
-            style="display: flex; flex-direction: row; justify-content: center"
-          >
-            <mat-icon style="font-size: larger; margin-right: 0.5rem"
-              >search</mat-icon
-            >
-            Recherche
-          </mat-label>
-          <input matInput (keyup)="($event)" placeholder="" #input />
-        </mat-form-field>
-      </div>
-      <mat-form-field
-        appearance="outline"
-        style="width: 12%"
-        mat-stroked-button
-        class="btn-filter"
-      >
-        <mat-label>
-          <mat-icon style="padding-right: 2rem">filter_list</mat-icon>
-          Filter
-        </mat-label>
-        <mat-select>
-          <mat-option value="option1">h</mat-option>
-          <mat-option value="option2">n</mat-option>
-          <mat-option value="option3">n</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button
-        mat-flat-button
-        class="add-user-btn"
-        (click)="OpenCreateCommuneModal()"
-      >
-        Ajouter Dépotoir
-      </button>
-    </div>
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      aria-describedby="display departs"
-      class="mat-elevation-z0"
-      style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem"
-      matSort
-      matSortActive="created"
-      matSortDisableClear
-      matSortDirection="asc"
-      (matSortChange)="announceSortChange($event)"
-    >
-      <ng-container matColumnDef="depotoirAddress">
-        <th
-          style="border-top-left-radius: 1.25rem"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by name"
-        >
-          Adresse
-          <mat-icon type="button" class="swap-sort-header-arrow"
-            >swap_vert</mat-icon
-          >
-        </th>
-        <td mat-cell *matCellDef="let element">{{ element.depotoirAddress }}</td>
-      </ng-container>
-  
-      <ng-container matColumnDef="typeDepotoir">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by name"
-        >
-          Nom
-          <mat-icon type="button" class="swap-sort-header-arrow"
-            >swap_vert</mat-icon
-          >
-        </th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.typeDepotoir.typeDepotoirName }}
-        </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="quartier">
-        <th mat-header-cell *matHeaderCellDef>Quartier</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.quartier.quartierName }}
-        </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="longitude">
-        <th mat-header-cell *matHeaderCellDef>Longitude</th>
-        <td mat-cell *matCellDef="let element">{{ element.longitude }}</td>
-      </ng-container>
-  
-      <ng-container matColumnDef="latitude">
-        <th mat-header-cell *matHeaderCellDef>Latitude</th>
-        <td mat-cell *matCellDef="let element">{{ element.latitude }}</td>
-      </ng-container>
-  
-      <ng-container matColumnDef="action">
-        <th
-          style="border-top-right-radius: 1.25rem"
-          mat-header-cell
-          *matHeaderCellDef
-        >
-          Actions
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <i
-            class="bi bi-pencil-square"
-            (click)="OpenUpdateCommuneModal(element.depotoirId)"
-          ></i
-          >&nbsp;
-          <i
-            class="bi bi-trash-fill"
-            (click)="onDeleteUser(element.depotoirId)"
-          ></i>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-    <div class="text-center my-5 lg-text" *ngIf="dataSource?.length <= 0">
-      Auncune donnée n'est disponible sur ce tableau
-    </div>
-  
-    <mat-paginator
-      [hidePageSize]="true"
-      [pageSizeOptions]="[20, 40, 60]"
-      style="border: none; display: none"
-    ></mat-paginator>
-    <!-- <div class="custom-pagination">
-            <div class="pagination">
-              <div class="page-item" *ngIf="p > 1">
-                <mat-icon (click)="previousPage()">chevron_left</mat-icon>
-              </div>
-              <ng-container *ngFor="let page of getPages(p)">
-                <div class="page-item" [class.active]="page === p">
-                  <div (click)="goToPage(page)">{{ page }}</div>
-                </div>
-              </ng-container>
-              <div class="page-item" *ngIf="iSnextPage">
-                <mat-icon (click)="nextPage()">chevron_right</mat-icon>
-              </div>
-            </div>
-            <div class="tableInfos">{{(this.p - 1) * this.itemsPerPage}} - {{(this.p - 1) * this.itemsPerPage + this.itemsPerPage}} / {{totalUsers}} résultats</div>
-          </div> -->
+<div class="flex flex-col gap-gutter-md">
+  <div class="flex items-center gap-gutter-sm">
+    <span class="relative flex h-2 w-2">
+      <span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+    </span>
+    <p class="text-sm text-muted">Flux temps réel connecté — les nouvelles alertes apparaissent en haut.</p>
   </div>
-  
+
+  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg divide-y divide-border">
+    @if (loading) {
+      <div class="text-center py-gutter-xl text-sm text-muted">Chargement du fil…</div>
+    } @else if (entries.length === 0) {
+      <div class="text-center py-gutter-xl text-sm text-muted">Aucune notification pour le moment.</div>
+    } @else {
+      @for (entry of entries; track $index) {
+        <div [class]="'flex items-start gap-gutter-md px-gutter-lg py-gutter-md'
+               + (entry.live ? ' bg-primary/5' : '')">
+          <div class="flex-shrink-0 pt-0.5">
+            <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium" [class]="codeClasses(entry.code)">
+              {{ entry.code || 'INFO' }}
+            </span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-gutter-sm">
+              <p class="text-sm font-medium text-foreground truncate">{{ entry.object || 'Alerte' }}</p>
+              @if (entry.live) {
+                <span class="text-xs text-primary font-medium">nouveau</span>
+              }
+            </div>
+            @if (entry.message) {
+              <p class="text-sm text-text mt-0.5">{{ entry.message }}</p>
+            }
+            @if (entry.address) {
+              <p class="text-xs text-muted mt-1">
+                <i class="bi bi-geo-alt"></i> {{ entry.address }}
+              </p>
+            }
+          </div>
+          @if (entry.receivedAt) {
+            <div class="flex-shrink-0 text-xs text-muted">{{ entry.receivedAt | date:'HH:mm' }}</div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

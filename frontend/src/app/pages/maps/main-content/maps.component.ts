@@ -1,67 +1,70 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import 'esri-leaflet';
 import { MapsService, DepotoirMap } from '../../../services/maps.service';
 
+/**
+ * Vue "catalogue" des points de collecte (Priorité 5, section territoire/cartographie) : quels
+ * points existent et de quel type sont-ils ? Distincte de `DashboardMapComponent`
+ * (`pages/dashboard/dashboard-map`) qui répond à "où est le problème, maintenant ?" (remplissage,
+ * véhicules, alertes en direct) — voir le commentaire de ce composant pour le choix de ne pas
+ * fusionner les deux.
+ */
 @Component({
-    selector: 'app-maps',
-    templateUrl: './maps.component.html',
-    styleUrls: ['./maps.component.scss'],
-    standalone: false
+  selector: 'app-maps',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './maps.component.html',
+  styleUrls: ['./maps.component.scss'],
 })
-export class MapsComponent implements OnInit, AfterViewInit {
+export class MapsComponent implements AfterViewInit, OnDestroy {
 
-  @ViewChild('map', { static: false }) mapElementRef: ElementRef = null!;
-  private map: L.Map = null!;
-  senegalCoords: L.LatLngTuple = [14.4974, -14.4524];
-  departPikineCoords: L.LatLngTuple = [14.7739, -17.3684];
-  iconBacs = "../../assets/images/bacs.png";
-  iconPP =  "../../assets/images/iconclean.png";
-  iconPrn =  "../../assets/images/iconprn.png";
-  mapUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  @ViewChild('map', { static: false }) mapElementRef!: ElementRef;
+  private map!: L.Map;
 
-  customIconPP = L.icon({
-    iconUrl: this.iconPP,
-    iconSize: [28, 28], // size of the icon
-  });
+  readonly loading = signal(true);
+  readonly pointCount = signal(0);
 
-  customIconBacs = L.icon({
-    iconUrl: this.iconBacs,
-    iconSize: [28, 28], // size of the icon
-  });
-  customIconPrn = L.icon({
-    iconUrl: this.iconPrn,
-    iconSize: [28, 28], // size of the icon
-  });
+  private readonly departPikineCoords: L.LatLngTuple = [14.7739, -17.3684];
 
+  // Chemins absolus (racine du site) : une URL relative type `../../assets/...` dans une chaine
+  // TypeScript n'est jamais reecrite par le compilateur Angular (contrairement a un `src="..."`
+  // dans un template) — elle se resout par rapport a l'URL courante du navigateur, pas au fichier
+  // source, et cassait silencieusement des lors que la route n'etait pas a la racine.
+  private readonly customIconPP = L.icon({ iconUrl: '/assets/images/iconclean.png', iconSize: [28, 28] });
+  private readonly customIconBacs = L.icon({ iconUrl: '/assets/images/bacs.png', iconSize: [28, 28] });
+  private readonly customIconPrn = L.icon({ iconUrl: '/assets/images/iconprn.png', iconSize: [28, 28] });
 
-  constructor(
-    private mapsService: MapsService,) {
-  }
+  readonly legend = [
+    { icon: '/assets/images/bacs.png', label: 'Bac de rue' },
+    { icon: '/assets/images/iconclean.png', label: 'Point propre (PP)' },
+    { icon: '/assets/images/iconprn.png', label: 'Point de regroupement normalisé (PRN)' },
+  ];
 
-  ngOnInit(): void {
-  }
+  constructor(private mapsService: MapsService) {}
 
   ngAfterViewInit(): void {
     this.initMap();
-    this.addPolygon();
-    this.addMarkers();
+    this.addDepartmentPolygon();
+    this.addDepotoirMarkers();
+  }
+
+  ngOnDestroy(): void {
+    this.map?.remove();
   }
 
   private initMap(): void {
-    // Initialize the map
     this.map = L.map(this.mapElementRef.nativeElement, {
       center: this.departPikineCoords,
-      zoom: 13
-    }).setView([...this.departPikineCoords]);
-
-    // Add OpenStreetMap tile layer
+      zoom: 13,
+    });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
   }
 
-  private addPolygon(): void {
+  private addDepartmentPolygon(): void {
     // Les coordonnées `/v1/maps/departments` sont en WGS84 (ADR-0015), en chaînes — `toLatLng()`
     // fait le `parseFloat`, aucune projection à appliquer.
     this.mapsService.getDepartment().subscribe(department => {
@@ -69,33 +72,31 @@ export class MapsComponent implements OnInit, AfterViewInit {
       if (points.length === 0) {
         return;
       }
-      L.polygon([points], {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.5
-      }).addTo(this.map);
+      L.polygon([points], { color: '#15803D', weight: 1.5, fillOpacity: 0.03 }).addTo(this.map);
     });
   }
 
-  private addMarkers(): void {
-    this.mapsService.getDepotoirs().subscribe(depotoirs => {
-      depotoirs.forEach((d: DepotoirMap) => {
-        let icon = this.customIconBacs;
-        if (d.typeDepot === 'PP') {
-          icon = this.customIconPP;
-        } else if (d.typeDepot === 'PRN') {
-          icon = this.customIconPrn;
-        }
-
-        const points = MapsService.toLatLng(d.coordinates);
-        if (points.length === 0) {
-          return;
-        }
-        L.marker(points[0], { icon })
-          .addTo(this.map)
-          .bindPopup(`Address: ${d.address} <br> Type: ${d.typeDepot}`);
-      });
+  private addDepotoirMarkers(): void {
+    this.mapsService.getDepotoirs().subscribe({
+      next: depotoirs => {
+        let placed = 0;
+        depotoirs.forEach((d: DepotoirMap) => {
+          const points = MapsService.toLatLng(d.coordinates);
+          if (points.length === 0) {
+            return;
+          }
+          const icon = d.typeDepot === 'PP' ? this.customIconPP
+            : d.typeDepot === 'PRN' ? this.customIconPrn
+            : this.customIconBacs;
+          L.marker(points[0], { icon })
+            .addTo(this.map)
+            .bindPopup(`${d.address}<br>Type : ${d.typeDepot}`);
+          placed++;
+        });
+        this.pointCount.set(placed);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
     });
   }
-
 }

@@ -31,10 +31,10 @@ interface RouteCompletion {
 }
 
 const PRIORITY_META: Record<StopPriority, { label: string; badgeClass: string }> = {
-  DEBORDEMENT: { label: 'Débordement', badgeClass: 'bg-danger' },
-  ETAT_INCONNU: { label: 'État inconnu', badgeClass: 'bg-warning text-dark' },
-  A_SURVEILLER: { label: 'À surveiller', badgeClass: 'bg-info text-dark' },
-  RIEN_A_FAIRE: { label: 'Rien à faire', badgeClass: 'bg-secondary' },
+  DEBORDEMENT: { label: 'Débordement', badgeClass: 'bg-destructive/10 text-destructive' },
+  ETAT_INCONNU: { label: 'État inconnu', badgeClass: 'bg-warning/10 text-warning' },
+  A_SURVEILLER: { label: 'À surveiller', badgeClass: 'bg-primary/10 text-primary' },
+  RIEN_A_FAIRE: { label: 'Rien à faire', badgeClass: 'bg-muted-surface text-muted' },
 };
 
 const LAST_COMMUNE_KEY = 'collectionRoute.lastCommuneId';
@@ -58,6 +58,10 @@ export class CollectionRouteComponent implements OnInit {
   loading = false;
   errorMessage = '';
   actionInFlight: string | null = null;
+
+  /** Point dont on saisit le motif d'inaccessibilité (`null` = aucune saisie en cours). */
+  reasonForStopId: string | null = null;
+  reasonText = '';
 
   constructor(
     private http: HttpClient,
@@ -125,7 +129,7 @@ export class CollectionRouteComponent implements OnInit {
   }
 
   priorityBadgeClass(priority: StopPriority): string {
-    return PRIORITY_META[priority]?.badgeClass ?? 'bg-secondary';
+    return PRIORITY_META[priority]?.badgeClass ?? 'bg-muted-surface text-muted';
   }
 
   markCollected(stop: RouteStop): void {
@@ -136,16 +140,45 @@ export class CollectionRouteComponent implements OnInit {
     });
   }
 
-  markInaccessible(stop: RouteStop): void {
-    const reason = prompt(`Motif d'inaccessibilité pour ${stop.address} :`);
-    if (reason === null) {
-      return; // annulé
+  /**
+   * Ouvre la saisie du motif sous le point concerné.
+   *
+   * <p>Remplace un `prompt()` natif : sur mobile — le terrain, donc le cas normal pour un agent —
+   * il s'affiche en surcouche système, tronque les libellés longs, et certains navigateurs le
+   * bloquent purement et simplement. Une zone de saisie dans la carte reste visible à côté de
+   * l'adresse concernée.
+   */
+  askInaccessible(stop: RouteStop): void {
+    this.reasonForStopId = stop.depotoirId;
+    this.reasonText = '';
+  }
+
+  cancelInaccessible(): void {
+    this.reasonForStopId = null;
+    this.reasonText = '';
+  }
+
+  confirmInaccessible(stop: RouteStop): void {
+    const reason = this.reasonText.trim();
+    if (!reason) {
+      return;
     }
     this.actionInFlight = stop.depotoirId;
     this.http.post(`${this.baseUrl}${API_PATHS.stopInaccessible(stop.depotoirId)}`, { reason }).subscribe({
-      next: () => { this.actionInFlight = null; this.loadRoute(); },
+      next: () => {
+        this.actionInFlight = null;
+        this.cancelInaccessible();
+        this.loadRoute();
+      },
       error: () => { this.actionInFlight = null; this.errorMessage = `Échec de la déclaration pour ${stop.address}.`; }
     });
   }
 
+  /** Couleur du niveau de remplissage — même seuils que la carte du tableau de bord. */
+  fillLevelClass(percent: number | null): string {
+    if (percent === null) { return 'text-muted'; }
+    if (percent >= 80) { return 'text-destructive font-semibold'; }
+    if (percent >= 50) { return 'text-warning font-semibold'; }
+    return 'text-success';
+  }
 }

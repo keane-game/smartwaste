@@ -20,6 +20,8 @@ interface MoblierUrbain {
 export class MoblierUrbainComponent implements OnInit {
 
   private readonly baseUrl = `${environment.apiUrl}${API_ENDPOINTS['moblier-urbains'].basePath}`;
+  /** Lecture de la liste complète : `basePath` est paginé et exige page&size (500 sans eux). */
+  private readonly listUrl = `${environment.apiUrl}${API_ENDPOINTS['moblier-urbains'].listPath}`;
 
   items: MoblierUrbain[] = [];
   loading = false;
@@ -41,7 +43,7 @@ export class MoblierUrbainComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.http.get<MoblierUrbain[]>(this.baseUrl).subscribe({
+    this.http.get<MoblierUrbain[]>(this.listUrl).subscribe({
       next: (items) => { this.items = items; this.loading = false; },
       error: () => { this.loading = false; errorAlert('Impossible de charger les mobiliers urbains.'); }
     });

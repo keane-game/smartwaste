@@ -70,17 +70,19 @@ export class QuartierComponent {
   }
 
   openCreateQuartierModal() {
-    this.modalService.openModal(CreateQuartierComponent, { title: 'Create Quartier' });
+    this.modalService.openModal(CreateQuartierComponent, { title: 'Create Quartier' })
+      .afterClosed().subscribe(() => this.loadQuartiers(this.currentPage, this.itemsPerPage));
   }
 
   openUpdateQuartierModal(id: any) {
     const currentQuartier = this.dataSource.data.find((item: any) => item.quartierId === id);
-    //console.log(id)
-    this.modalService.openModal(CreateQuartierComponent, { id: id, currentQuartier: currentQuartier });
+    this.modalService.openModal(CreateQuartierComponent, { id: id, currentQuartier: currentQuartier })
+      .afterClosed().subscribe(() => this.loadQuartiers(this.currentPage, this.itemsPerPage));
   }
 
   openDeleteQuartierModal(id:any) {
-    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url });
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url })
+      .afterClosed().subscribe(() => this.loadQuartiers(this.currentPage, this.itemsPerPage));
   }
 
   async closeDialog() {

@@ -1,1 +1,79 @@
-<p>create-circuit-balayage works!</p>
+<div class="bg-surface">
+  <div class="flex items-center justify-between px-gutter-lg pt-gutter-lg pb-gutter-sm border-b border-border">
+    <h3 class="font-heading text-lg font-semibold text-foreground">
+      {{ id ? 'Modifier le circuit de balayage' : 'Nouveau circuit de balayage' }}
+    </h3>
+    <button type="button" [mat-dialog-close]="true" class="text-muted hover:text-text cursor-pointer">
+      <i class="bi bi-x text-xl"></i>
+    </button>
+  </div>
+
+  <form [formGroup]="circuitForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md p-gutter-lg" novalidate>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="name" class="text-sm font-medium text-text">Nom</label>
+        <input id="name" type="text" formControlName="name" placeholder="Nom du circuit"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['name'].invalid) {
+          <p class="text-xs text-destructive">Nom requis.</p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="code" class="text-sm font-medium text-text">Code</label>
+        <input id="code" type="text" formControlName="code" placeholder="Code du circuit"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['code'].invalid) {
+          <p class="text-xs text-destructive">Code requis.</p>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="communeId" class="text-sm font-medium text-text">Commune</label>
+      <select id="communeId" formControlName="communeId"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+        <option [ngValue]="null" disabled>Sélectionner une commune…</option>
+        @for (commune of listCommunes; track commune.communeId) {
+          <option [ngValue]="commune.communeId">{{ commune.name }}</option>
+        }
+      </select>
+      @if (submitted && f['communeId'].invalid) {
+        <p class="text-xs text-destructive">Commune requise.</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="shift" class="text-sm font-medium text-text">Shift</label>
+        <input id="shift" type="text" formControlName="shift"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="length" class="text-sm font-medium text-text">Longueur</label>
+        <input id="length" type="text" formControlName="length"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-gutter-sm pt-gutter-sm border-t border-border">
+      <button type="button" [mat-dialog-close]="true"
+        class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
+               hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+        Annuler
+      </button>
+      <button type="submit" [disabled]="saving"
+        class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+               hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+               disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </form>
+</div>

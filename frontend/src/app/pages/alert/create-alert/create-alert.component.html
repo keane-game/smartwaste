@@ -1,87 +1,90 @@
-
-
-
-  <div  class="m-3 bg-white">
-    <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel Alert</h3>
-    <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
-      <i class="bi bi-x"></i>
+<div class="bg-surface">
+  <div class="flex items-center justify-between px-gutter-lg pt-gutter-lg pb-gutter-sm border-b border-border">
+    <h3 class="font-heading text-lg font-semibold text-foreground">
+      {{ id ? "Modifier l'alerte" : 'Nouvelle alerte' }}
+    </h3>
+    <button type="button" [mat-dialog-close]="true" class="text-muted hover:text-text cursor-pointer">
+      <i class="bi bi-x text-xl"></i>
     </button>
-    <!-- <hr class="mt-0"> -->
-    <!-- <div class="horizontal-line"></div> -->
-    <div mat-dialog-content class="row px-0 p-1 no-gutters">
-      <div class="forms-style">
-  
-        <form  [formGroup]="alertForm" class="user-form-container" (ngSubmit)="onSubmit()">
-        
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="object"
-                formControlName="object"
-                placeholder="Votre objet" required >
-                <label for="object">Objet</label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating ">
-                <select type="text" class="form-select" id="code"
-                formControlName="code"
-                 placeholder="Code alert" required
-                 (change)="selectChange($event) "
-                 >
-                 <option *ngFor="let code of codes" [value]="code">{{code
-                  }}</option>
-                  </select>
-                <label for="code" class="label-select label_after" style="color: black !important;">Choisir un code</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-            <div class="custom-file-upload">
-              <input type="file" id="file-upload" class="file-input" (change)="onFileSelected($event)">
-              <label for="file-upload" class="file-label">
-                Choisir une image (optionnel)
-              </label><br>
-             <span style="color: #5D8B47 !important; font-weight:100 !important; background: #ccc; font-size: small; border-radius:5px ; padding: 0 2px;" bgcolor="grey" size="1" *ngIf="selectedFile">{{ selectedFile.name }}</span> 
-            </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="address"
-                formControlName="address"
-                placeholder="Adresse de localisation" required >
-                <label for="address">Adresse</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating textarea">
-                <textarea type="text" class="form-control" id="message"
-                
-                formControlName="message"
-                placeholder="Votre description" required ></textarea> 
-                <label for="message">Description</label>
-              </div>
-            </div>
-          </div>
-        
-       
-        
-          <br>
-          <div mat-dialog-actions class="float-end p-0">
-            <span>
-              <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
-                Annuler
-              </button>
-              <button type="submit" mat-flat-button class="btn-enregister">
-                Enregistrer
-              </button>
-            </span>
-          </div>
-        </form>
+  </div>
+
+  <form [formGroup]="alertForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md p-gutter-lg" novalidate>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="object" class="text-sm font-medium text-text">Objet</label>
+        <input id="object" type="text" formControlName="object" placeholder="Objet de l'alerte"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['object'].invalid) {
+          <p class="text-xs text-destructive">Objet requis.</p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="code" class="text-sm font-medium text-text">Gravité</label>
+        <select id="code" formControlName="code"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+          <option value="" disabled>Choisir un niveau…</option>
+          @for (code of codes; track code) {
+            <option [value]="code">{{ code }}</option>
+          }
+        </select>
+        @if (submitted && f['code'].invalid) {
+          <p class="text-xs text-destructive">Gravité requise.</p>
+        }
       </div>
     </div>
-  </div>
-  
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="address" class="text-sm font-medium text-text">Adresse</label>
+      <input id="address" type="text" formControlName="address" placeholder="Adresse de localisation"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      @if (submitted && f['address'].invalid) {
+        <p class="text-xs text-destructive">Adresse requise.</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="message" class="text-sm font-medium text-text">Description</label>
+      <textarea id="message" formControlName="message" rows="3" placeholder="Description de l'alerte"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface resize-y
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"></textarea>
+      @if (submitted && f['message'].invalid) {
+        <p class="text-xs text-destructive">Description requise.</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="file-upload" class="text-sm font-medium text-text">Photo (optionnel)</label>
+      <input id="file-upload" type="file" accept="image/*" (change)="onFileSelected($event)"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+               file:mr-3 file:rounded-sm file:border-0 file:bg-muted-surface file:px-3 file:py-1
+               file:text-sm file:text-text hover:file:bg-border file:cursor-pointer
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      @if (selectedFile) {
+        <p class="text-xs text-muted">{{ selectedFile.name }}</p>
+      }
+    </div>
+
+    @if (locationNotice) {
+      <p class="text-xs text-warning bg-warning/10 rounded-sm px-3 py-2">{{ locationNotice }}</p>
+    }
+
+    <div class="flex justify-end gap-gutter-sm pt-gutter-sm border-t border-border">
+      <button type="button" [mat-dialog-close]="true"
+        class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
+               hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+        Annuler
+      </button>
+      <button type="submit" [disabled]="saving"
+        class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+               hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+               disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </form>
+</div>

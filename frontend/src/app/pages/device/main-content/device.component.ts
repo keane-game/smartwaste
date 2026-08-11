@@ -83,6 +83,22 @@ export class DeviceComponent implements OnInit {
     this.revealedKey = null;
   }
 
+  /**
+   * Libellé lisible du point de collecte / véhicule visé par un équipement.
+   *
+   * <p>`DeviceSummary.target` est l'IDENTIFIANT brut (`String.valueOf(depotoirId)`), pas un
+   * libellé : le contexte `iot` ne peut pas lire les entités de `waste` (référence par
+   * identifiant, ADR-0012), il n'a donc pas de quoi composer une adresse côté serveur. La
+   * résolution se fait ici, où les deux listes sont déjà chargées pour les menus déroulants —
+   * sinon l'écran affichait un UUID nu, illisible pour choisir quel capteur désactiver.
+   */
+  targetLabel(target: string, kind: 'sensor' | 'tracker'): string {
+    if (kind === 'sensor') {
+      return this.depotoirs.find(d => d.depotoirId === target)?.address ?? target;
+    }
+    return this.vehicles.find(v => v.vehicleId === target)?.registration ?? target;
+  }
+
   private loadSensors(): void {
     this.loadingSensors = true;
     this.http.get<DeviceSummary[]>(`${this.baseUrl}${API_PATHS.devices.sensors}`).subscribe({

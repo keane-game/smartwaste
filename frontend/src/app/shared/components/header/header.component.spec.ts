@@ -7,8 +7,9 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
 
   beforeEach(() => {
+    // Composant standalone depuis la Phase 2 (correctif) : `imports`, plus `declarations`.
     TestBed.configureTestingModule({
-      declarations: [HeaderComponent]
+      imports: [HeaderComponent],
     });
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;

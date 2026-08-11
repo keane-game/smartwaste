@@ -1,18 +1,21 @@
-<div class="min-h-screen flex items-center justify-center bg-background px-spacing-md py-spacing-2xl">
+<div class="min-h-screen flex items-center justify-center bg-background px-gutter-md py-gutter-2xl">
   <div class="w-full max-w-md">
 
-    <div class="flex flex-col items-center gap-spacing-sm mb-spacing-xl">
-      <img src="assets/images/logo.png" alt="SONAGED" class="h-12 w-auto" onerror="this.style.display='none'" />
+    <div class="flex flex-col items-center gap-gutter-sm mb-gutter-xl">
+      <!-- `assets/images/logo.png` n'existe pas (404 dans la console à chaque chargement de la page
+           de connexion) : le fichier réellement livré est `SONAGED.png`, celui qu'utilise déjà la
+           barre latérale. Chemin absolu pour rester valide quelle que soit la profondeur de route. -->
+      <img src="/assets/images/SONAGED.png" alt="SONAGED" class="h-12 w-auto" />
       <h1 class="font-heading text-2xl font-bold text-foreground">Smart Collect</h1>
       <p class="text-sm text-muted">Supervision de la collecte des déchets — Pikine</p>
     </div>
 
-    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg px-spacing-xl py-spacing-xl">
-      <h2 class="font-heading text-lg font-semibold text-foreground mb-spacing-lg">Connexion</h2>
+    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg px-gutter-xl py-gutter-xl">
+      <h2 class="font-heading text-lg font-semibold text-foreground mb-gutter-lg">Connexion</h2>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-spacing-md" novalidate>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md" novalidate>
 
-        <div class="flex flex-col gap-spacing-xs">
+        <div class="flex flex-col gap-gutter-xs">
           <label for="username" class="text-sm font-medium text-text">Adresse e-mail</label>
           <input
             id="username"
@@ -31,7 +34,7 @@
           }
         </div>
 
-        <div class="flex flex-col gap-spacing-xs">
+        <div class="flex flex-col gap-gutter-xs">
           <label for="password" class="text-sm font-medium text-text">Mot de passe</label>
           <div class="relative">
             <input

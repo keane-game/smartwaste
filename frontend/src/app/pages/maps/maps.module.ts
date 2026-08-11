@@ -9,12 +9,12 @@ import { EsriComponent } from './esri/esri.component';
 
 @NgModule({
   declarations: [
-    MapsComponent,
     EsriComponent
   ],
   imports: [
     SharedModule,
-    MapsRoutingModule
+    MapsRoutingModule,
+    MapsComponent,
   ]
 })
 export class MapsModule { }

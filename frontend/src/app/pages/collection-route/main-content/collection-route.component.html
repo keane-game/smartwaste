@@ -1,92 +1,200 @@
-<section class="section">
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
+<div class="flex flex-col gap-gutter-md">
 
-          <div class="row align-items-end mb-3">
-            <div class="col-md-4">
-              <label class="form-label" for="communeSelect">Commune</label>
-              <select
-                id="communeSelect"
-                class="form-select"
-                [(ngModel)]="communeId"
-                (ngModelChange)="onCommuneChange()"
-              >
-                <option [ngValue]="null" disabled>Choisir une commune…</option>
-                <option *ngFor="let commune of communes" [ngValue]="commune.communeId">
-                  {{ commune.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="col-md-8" *ngIf="completion as c">
-              <div class="d-flex align-items-center gap-3">
-                <span><strong>{{ c.served }}</strong> / {{ c.stops }} points desservis</span>
-                <span><strong>{{ c.collected }}</strong> collectés</span>
-                <div class="progress flex-grow-1" style="height: 8px;">
-                  <div class="progress-bar" role="progressbar"
-                       [style.width.%]="completionRate * 100"></div>
-                </div>
-                <span>{{ completionRate * 100 | number:'1.0-0' }}%</span>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-
-          <div *ngIf="loading" class="text-center py-4">
-            <span class="spinner-border spinner-border-sm"></span> Chargement…
-          </div>
-
-          <div *ngIf="!loading && communeId && stops.length === 0 && !errorMessage" class="text-muted py-4">
-            Aucun point à desservir aujourd'hui sur cette commune.
-          </div>
-
-          <div class="table-responsive" *ngIf="!loading && stops.length > 0">
-            <table class="table table-borderless">
-              <thead>
-                <tr>
-                  <th>Priorité</th>
-                  <th>Adresse</th>
-                  <th>Type</th>
-                  <th>Niveau</th>
-                  <th>Dernière mesure</th>
-                  <th>Motif</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let stop of stops">
-                  <td>
-                    <span class="badge" [ngClass]="priorityBadgeClass(stop.priority)">
-                      {{ priorityLabel(stop.priority) }}
-                    </span>
-                  </td>
-                  <td>{{ stop.address }}</td>
-                  <td>{{ stop.typeName }}</td>
-                  <td>{{ stop.fillLevelPercent !== null ? stop.fillLevelPercent + '%' : 'Jamais mesuré' }}</td>
-                  <td>{{ stop.lastMeasuredAt ? (stop.lastMeasuredAt | date:'short') : '—' }}</td>
-                  <td>{{ stop.reason }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-success me-1"
-                      [disabled]="actionInFlight === stop.depotoirId"
-                      (click)="markCollected(stop)"
-                    >Collecté</button>
-                    <button
-                      class="btn btn-sm btn-outline-secondary"
-                      [disabled]="actionInFlight === stop.depotoirId"
-                      (click)="markInaccessible(stop)"
-                    >Inaccessible</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-        </div>
+  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-md md:p-gutter-lg">
+    <div class="flex flex-col md:grid md:grid-cols-3 gap-gutter-md md:items-end">
+      <div class="flex flex-col gap-gutter-xs">
+        <label class="text-sm font-medium text-text" for="communeSelect">Commune</label>
+        <!-- min-h-11 (44px) : cible tactile minimale, l'agent est sur le terrain. -->
+        <select id="communeSelect" [(ngModel)]="communeId" (ngModelChange)="onCommuneChange()"
+          class="w-full min-h-11 rounded-sm border border-border px-3 py-2 text-base md:text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+          <option [ngValue]="null" disabled>Choisir une commune…</option>
+          @for (commune of communes; track commune.communeId) {
+            <option [ngValue]="commune.communeId">{{ commune.name }}</option>
+          }
+        </select>
       </div>
+
+      @if (completion; as c) {
+        <div class="md:col-span-2 flex flex-col gap-gutter-xs">
+          <div class="flex items-center justify-between gap-gutter-sm text-sm">
+            <span class="text-text"><strong class="text-foreground">{{ c.served }}</strong> / {{ c.stops }} desservis</span>
+            <span class="text-text"><strong class="text-foreground">{{ c.collected }}</strong> collectés</span>
+            <span class="font-medium text-foreground">{{ completionRate * 100 | number:'1.0-0' }}%</span>
+          </div>
+          <div class="h-2 rounded-sm bg-muted-surface overflow-hidden">
+            <div class="h-full bg-primary transition-all duration-200" [style.width.%]="completionRate * 100"></div>
+          </div>
+        </div>
+      }
     </div>
   </div>
-</section>
+
+  @if (errorMessage) {
+    <div class="rounded-DEFAULT border border-destructive bg-destructive/10 px-gutter-md py-gutter-md text-sm text-destructive">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (loading) {
+    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
+      <p class="text-center py-gutter-xl text-sm text-muted">Chargement…</p>
+    </div>
+  } @else if (!communeId) {
+    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
+      <p class="text-center py-gutter-xl text-sm text-muted">Choisissez une commune pour afficher la tournée.</p>
+    </div>
+  } @else if (stops.length === 0 && !errorMessage) {
+    <div class="bg-surface border border-border rounded-DEFAULT shadow-lg">
+      <p class="text-center py-gutter-xl text-sm text-muted">Aucun point à desservir aujourd'hui sur cette commune.</p>
+    </div>
+  } @else {
+
+    <!-- ============ Mobile : une carte par point ============
+         Le tableau à 7 colonnes obligeait l'agent à faire défiler horizontalement pour
+         atteindre « Collecté »/« Inaccessible » — les deux seules actions de l'écran. -->
+    <div class="flex flex-col gap-gutter-sm md:hidden">
+      @for (stop of stops; track stop.depotoirId) {
+        <div class="bg-surface border border-border rounded-DEFAULT shadow-lg p-gutter-md flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-sm">
+            <div class="min-w-0">
+              <p class="font-medium text-foreground break-words">{{ stop.address }}</p>
+              <p class="text-xs text-muted mt-0.5">{{ stop.typeName }}</p>
+            </div>
+            <span class="flex-shrink-0 inline-block rounded-sm px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+              [class]="priorityBadgeClass(stop.priority)">
+              {{ priorityLabel(stop.priority) }}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-gutter-md text-sm">
+            <span [class]="fillLevelClass(stop.fillLevelPercent)">
+              {{ stop.fillLevelPercent !== null ? stop.fillLevelPercent + '%' : 'Jamais mesuré' }}
+            </span>
+            @if (stop.lastMeasuredAt) {
+              <span class="text-xs text-muted">{{ stop.lastMeasuredAt | date:'short' }}</span>
+            }
+          </div>
+
+          @if (stop.reason) {
+            <p class="text-xs text-muted">{{ stop.reason }}</p>
+          }
+
+          @if (reasonForStopId === stop.depotoirId) {
+            <div class="flex flex-col gap-gutter-sm border-t border-border pt-gutter-sm">
+              <label class="text-sm font-medium text-text" [attr.for]="'reason-' + stop.depotoirId">
+                Motif d'inaccessibilité
+              </label>
+              <input [id]="'reason-' + stop.depotoirId" type="text" [(ngModel)]="reasonText"
+                placeholder="Ex. : rue barrée, véhicule bloqué…"
+                class="w-full min-h-11 rounded-sm border border-border px-3 py-2 text-base text-text bg-surface
+                       focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+              <div class="grid grid-cols-2 gap-gutter-sm">
+                <button type="button" (click)="cancelInaccessible()"
+                  class="min-h-11 rounded-sm border border-border text-text text-sm font-medium px-3
+                         hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+                  Annuler
+                </button>
+                <button type="button" [disabled]="!reasonText.trim() || actionInFlight === stop.depotoirId"
+                  (click)="confirmInaccessible(stop)"
+                  class="min-h-11 rounded-sm bg-warning text-white text-sm font-medium px-3
+                         transition-colors duration-200 cursor-pointer
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+                  Confirmer
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="grid grid-cols-2 gap-gutter-sm">
+              <button type="button" [disabled]="actionInFlight === stop.depotoirId" (click)="markCollected(stop)"
+                class="min-h-11 rounded-sm bg-primary text-white text-sm font-medium px-3
+                       hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+                Collecté
+              </button>
+              <button type="button" [disabled]="actionInFlight === stop.depotoirId" (click)="askInaccessible(stop)"
+                class="min-h-11 rounded-sm border border-border text-text text-sm font-medium px-3
+                       hover:bg-muted-surface transition-colors duration-200 cursor-pointer
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+                Inaccessible
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ============ Desktop : tableau ============ -->
+    <div class="hidden md:block bg-surface border border-border rounded-DEFAULT shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-muted-surface text-xs font-semibold text-muted uppercase tracking-wide">
+              <th class="text-left px-gutter-md py-2">Priorité</th>
+              <th class="text-left px-gutter-md py-2">Adresse</th>
+              <th class="text-left px-gutter-md py-2">Type</th>
+              <th class="text-left px-gutter-md py-2">Niveau</th>
+              <th class="text-left px-gutter-md py-2">Dernière mesure</th>
+              <th class="text-left px-gutter-md py-2">Motif</th>
+              <th class="text-left px-gutter-md py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (stop of stops; track stop.depotoirId) {
+              <tr class="hover:bg-muted-surface">
+                <td class="px-gutter-md py-2">
+                  <span class="inline-block rounded-sm px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+                    [class]="priorityBadgeClass(stop.priority)">
+                    {{ priorityLabel(stop.priority) }}
+                  </span>
+                </td>
+                <td class="px-gutter-md py-2 text-text">{{ stop.address }}</td>
+                <td class="px-gutter-md py-2 text-text">{{ stop.typeName }}</td>
+                <td class="px-gutter-md py-2" [class]="fillLevelClass(stop.fillLevelPercent)">
+                  {{ stop.fillLevelPercent !== null ? stop.fillLevelPercent + '%' : 'Jamais mesuré' }}
+                </td>
+                <td class="px-gutter-md py-2 text-text">
+                  {{ stop.lastMeasuredAt ? (stop.lastMeasuredAt | date:'short') : '—' }}
+                </td>
+                <td class="px-gutter-md py-2 text-muted">{{ stop.reason }}</td>
+                <td class="px-gutter-md py-2 whitespace-nowrap">
+                  @if (reasonForStopId === stop.depotoirId) {
+                    <div class="flex items-center gap-2">
+                      <input type="text" [(ngModel)]="reasonText" placeholder="Motif…"
+                        class="w-40 rounded-sm border border-border px-2 py-1 text-xs text-text bg-surface
+                               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                      <button type="button" [disabled]="!reasonText.trim() || actionInFlight === stop.depotoirId"
+                        (click)="confirmInaccessible(stop)"
+                        class="rounded-sm bg-warning text-white text-xs font-medium px-3 py-1.5 cursor-pointer
+                               disabled:opacity-50 disabled:cursor-not-allowed">
+                        OK
+                      </button>
+                      <button type="button" (click)="cancelInaccessible()"
+                        class="rounded-sm border border-border text-text text-xs font-medium px-3 py-1.5
+                               hover:bg-muted-surface cursor-pointer">
+                        Annuler
+                      </button>
+                    </div>
+                  } @else {
+                    <button type="button" [disabled]="actionInFlight === stop.depotoirId" (click)="markCollected(stop)"
+                      class="rounded-sm bg-primary text-white text-xs font-medium px-3 py-1.5 mr-2
+                             hover:bg-primary-dark transition-colors duration-200 cursor-pointer
+                             disabled:opacity-50 disabled:cursor-not-allowed">
+                      Collecté
+                    </button>
+                    <button type="button" [disabled]="actionInFlight === stop.depotoirId" (click)="askInaccessible(stop)"
+                      class="rounded-sm border border-border text-text text-xs font-medium px-3 py-1.5
+                             hover:bg-muted-surface transition-colors duration-200 cursor-pointer
+                             disabled:opacity-50 disabled:cursor-not-allowed">
+                      Inaccessible
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

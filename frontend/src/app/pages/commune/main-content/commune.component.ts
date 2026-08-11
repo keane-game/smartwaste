@@ -70,17 +70,22 @@ export class CommuneComponent {
   }
 
   openCreateCommuneModal() {
-    this.modalService.openModal(CreateCommuneComponent, { title: 'Create Commune' });
+    this.modalService.openModal(CreateCommuneComponent, { title: 'Create Commune' })
+      .afterClosed().subscribe(() => this.loadCommuns(this.currentPage, this.itemsPerPage));
   }
 
   openUpdateCommuneModal(id: any) {
-    const currentCommune = this.dataSource.data.find((item: any) => item.communId === id);
-    //console.log(id)
-    this.modalService.openModal(CreateCommuneComponent, { id: id, currentCommun: currentCommune });
+    // Deux fautes de frappe corrigees ici : `communId` (le champ reel est `communeId`, la
+    // recherche ne trouvait donc jamais rien) et `currentCommun` (`CreateCommuneComponent`
+    // attend `currentCommune`) — le formulaire d'edition ne se pre-remplissait jamais.
+    const currentCommune = this.dataSource.data.find((item: any) => item.communeId === id);
+    this.modalService.openModal(CreateCommuneComponent, { id: id, currentCommune: currentCommune })
+      .afterClosed().subscribe(() => this.loadCommuns(this.currentPage, this.itemsPerPage));
   }
 
   openDeleteCommuneModal(id:any) {
-    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url});
+    this.modalService.openModal(DeleteComponent, { id: id, url: this.sharedService.url})
+      .afterClosed().subscribe(() => this.loadCommuns(this.currentPage, this.itemsPerPage));
   }
  
   applyFilter(event: Event) {

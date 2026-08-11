@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 import { LayoutComponent } from './layout.component';
 
@@ -7,8 +9,10 @@ describe('LayoutComponent', () => {
   let fixture: ComponentFixture<LayoutComponent>;
 
   beforeEach(() => {
+    // Composant standalone depuis la Phase 2 (correctif) : `imports`, plus `declarations`.
     TestBed.configureTestingModule({
-      declarations: [LayoutComponent]
+      imports: [LayoutComponent],
+      providers: [provideHttpClient(), provideRouter([])],
     });
     fixture = TestBed.createComponent(LayoutComponent);
     component = fixture.componentInstance;

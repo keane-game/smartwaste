@@ -1,1 +1,99 @@
-<p>circuit-balayage works!</p>
+<div class="flex flex-col gap-gutter-md">
+  <div class="flex items-center justify-between flex-wrap gap-gutter-sm">
+    <div class="relative w-full max-w-xs">
+      <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
+      <input
+        type="text"
+        (keyup)="applyFilter($event)"
+        placeholder="Rechercher un circuit…"
+        class="w-full rounded-sm border border-border pl-9 pr-3 py-2 text-sm text-text bg-surface
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+      />
+    </div>
+    <button
+      type="button"
+      (click)="openCreateModal()"
+      class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+             hover:bg-primary-dark transition-colors duration-200 cursor-pointer"
+    >
+      + Ajouter circuit
+    </button>
+  </div>
+
+  <div class="bg-surface border border-border rounded-DEFAULT shadow-lg overflow-x-auto">
+    <table mat-table [dataSource]="dataSource" aria-describedby="liste des circuits de balayage"
+      class="w-full"
+      matSort matSortActive="created"
+      matSortDisableClear matSortDirection="asc"
+      (matSortChange)="announceSortChange($event)"
+    >
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par nom"
+          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
+          Nom
+        </th>
+        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Trier par code"
+          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
+          Code
+        </th>
+        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.code }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="shift">
+        <th mat-header-cell *matHeaderCellDef
+          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
+          Shift
+        </th>
+        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.shift || '—' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="length">
+        <th mat-header-cell *matHeaderCellDef
+          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
+          Longueur
+        </th>
+        <td mat-cell *matCellDef="let element" class="!text-sm !text-text"> {{ element.length || '—' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef
+          class="!bg-muted-surface !text-xs !font-semibold !text-muted !uppercase !tracking-wide">
+          Actions
+        </th>
+        <td mat-cell *matCellDef="let element" class="!text-sm">
+          <button type="button" (click)="openUpdateModal(element.circuitbalayageId)"
+            class="text-muted hover:text-primary cursor-pointer mr-3" title="Modifier">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <button type="button" (click)="openDeleteModal(element.circuitbalayageId)"
+            class="text-muted hover:text-destructive cursor-pointer" title="Supprimer">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:!bg-muted-surface"></tr>
+    </table>
+
+    @if (totalCircuits <= 0) {
+      <div class="text-center py-gutter-xl text-sm text-muted">
+        Aucun circuit de balayage n'est disponible.
+      </div>
+    }
+
+    <div class="border-t border-border">
+      <app-pagination-custumer
+        [length]="totalCircuits"
+        [pageSize]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        [totalPages]="totalPages"
+        (pageChange)="onPaginatedChange($event)">
+      </app-pagination-custumer>
+    </div>
+  </div>
+</div>

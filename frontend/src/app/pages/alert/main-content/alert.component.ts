@@ -1,5 +1,4 @@
-import { Component, EventEmitter, Input, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, ViewChild } from '@angular/core';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { SharedService } from '../../../services/shared.service';
@@ -8,6 +7,7 @@ import { ModalService } from '../../../services/modal.service';
 import { CreateAlertComponent } from '../create-alert/create-alert.component';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
+import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
 @Component({
     selector: 'app-alert',
@@ -17,35 +17,29 @@ import { DeleteComponent } from '../../../shared/components/delete/delete.compon
 })
 export class AlertComponent {
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = [ 'picture', 'object', 'message', 'code',  'adress', 'action'];
+  displayedColumns: string[] = ['picture', 'object', 'message', 'code', 'adress', 'action'];
   dataSource = new MatTableDataSource<any>([]);
 
-
-  alerts:  any;
   totalPages: number = 1;
   totalAlerts: number = 0;
-  pageSizeOptions: number[] = [5,10, 20];
-  itemsPerPage: number = 5;
+  pageSizeOptions: number[] = [5, 10, 20];
+  itemsPerPage: number = 10;
   currentPage: number = 0;
-  zoomStyle = {};
 
-  
-  @Input() alertChangeEvent = new EventEmitter<number>();
-
+  /** Agrandissement au survol d'une vignette : `null` = aucune. */
+  zoomedImage: string | null = null;
 
   constructor (
     private sharedService: SharedService,
     private headerTitleServie: headerTitleService,
     private modalServie: ModalService,
-    private _liveAnnouncer: LiveAnnouncer
+    private _liveAnnouncer: LiveAnnouncer,
+  ) {}
 
-  ){}
-
-  ngOnInit(){
-    this.sharedService.url = '/alerts';
+  ngOnInit() {
+    this.sharedService.url = API_ENDPOINTS.alerts.basePath;
     this.loadAlerts(this.currentPage, this.itemsPerPage);
     this.headerTitleServie.setTitle('Gestion des alertes');
   }
@@ -55,32 +49,44 @@ export class AlertComponent {
       this.dataSource.data = resp.content;
       this.totalAlerts = resp.totalElements;
       this.totalPages = Math.ceil(this.totalAlerts / this.itemsPerPage);
-      this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-     //console.log(resp.content, this.totalAlerts);
-  
-    })
+    });
   }
-  
+
   onPaginatedChange(event: { pageIndex: number, pageSize: number }) {
     this.currentPage = event.pageIndex;
     this.itemsPerPage = event.pageSize;
     this.loadAlerts(this.currentPage, this.itemsPerPage);
-   // console.log(event);
   }
 
-  openCreateAlertModal(){
+  openCreateAlertModal() {
     this.modalServie.openModal(CreateAlertComponent)
+      .afterClosed().subscribe(() => this.loadAlerts(this.currentPage, this.itemsPerPage));
   }
 
-  openUpdateAlertModal(id: any){
-    const currentAlert = this.dataSource.data.find((item: any ) => item.alertId === id);
-   // console.log(id, currentAlert);
-    this.modalServie.openModal(CreateAlertComponent, {id: id, currentAlert: currentAlert})
+  openUpdateAlertModal(id: any) {
+    const currentAlert = this.dataSource.data.find((item: any) => item.alertId === id);
+    this.modalServie.openModal(CreateAlertComponent, { id: id, currentAlert: currentAlert })
+      .afterClosed().subscribe(() => this.loadAlerts(this.currentPage, this.itemsPerPage));
   }
 
-  openDeleteAlertModal(id: any){
-    this.modalServie.openModal(DeleteComponent, {id: id, url: this.sharedService.url })
+  openDeleteAlertModal(id: any) {
+    this.modalServie.openModal(DeleteComponent, { id: id, url: API_ENDPOINTS.alerts.basePath })
+      .afterClosed().subscribe(() => this.loadAlerts(this.currentPage, this.itemsPerPage));
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  /** Classes du badge de sévérité — DANGER/WARNING/INFO sont les trois seules valeurs d'`AlertCode`. */
+  codeClasses(code: string): string {
+    switch (code) {
+      case 'DANGER': return 'bg-destructive/10 text-destructive';
+      case 'WARNING': return 'bg-warning/10 text-warning';
+      default: return 'bg-primary/10 text-primary';
+    }
   }
 
   /** Announce the change in sort state for assistive technology. */
@@ -91,42 +97,18 @@ export class AlertComponent {
       this._liveAnnouncer.announce('Sorting cleared');
     }
   }
- 
 
-  onMouseMove(event: MouseEvent, element: any): void {
-    if (!element || !element.image) {
-      return; // Exit if the element or image is not defined
+  // Remplace `onMouseMove`/`onMouseLeave`, qui repositionnaient la vignette en absolute avec un
+  // `scale(8)` et des pourcentages en dur : l'image agrandie sortait de la ligne, se faisait
+  // rogner par le tableau et laissait un trou dans la cellule. Une lightbox au clic est
+  // previsible et n'affecte pas la mise en page du tableau.
+  openZoom(element: any): void {
+    if (element?.image?.data) {
+      this.zoomedImage = 'data:image/png;base64,' + element.image.data;
     }
-
-    const imageContainer = event.currentTarget as HTMLElement;
-    const image = imageContainer.querySelector('img') as HTMLElement;
-    const rect = image.getBoundingClientRect();
-    const x = event.clientX / 4; // x position within the container
-    const y = event.clientY /3;  // y position within the container
-    // Calculate percentage position within the image=
-
-    const bodyRect = document.body.getBoundingClientRect();
-    image.style.top = '40%'
-    image.style.left = '40%'
-    image.style.bottom = '0px'
-    image.style.right = '0px'
-    image.style.position = 'absolute'
-    image.style.transformOrigin = `${30}% ${50}%`;
-    image.style.transform = 'scale(8)'; // Adjust the scale factor as needed
-    //image.style.transform = ' translate(12px, 70%)'
   }
 
-  onMouseLeave(event: MouseEvent, element: any): void {
-    if (!element || !element.image) {
-      return; // Exit if the element or image is not defined
-    }
-    const imageContainer = event.currentTarget as HTMLElement;
-    const image = imageContainer.querySelector('img') as HTMLElement;
-   // image.style.transformOrigin = 'center center';
-    image.style.transform = 'scale(1)';
-    image.style.top = '0px'
-    image.style.left = '0px'
-    image.style.position = 'relative'
+  closeZoom(): void {
+    this.zoomedImage = null;
   }
-
 }

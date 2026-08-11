@@ -1,16 +1,20 @@
 import { Component, ElementRef, Renderer2 ,AfterContentChecked, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { SessionService } from '../../../core/services/session.service';
 import { AlertStreamService } from '../../../services/alert-stream.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { HeaderComponent } from '../header/header.component';
 
 declare var $: any;
 
 @Component({
     selector: 'app-layout',
+    standalone: true,
+    imports: [RouterOutlet, SidebarComponent, HeaderComponent],
     templateUrl: './layout.component.html',
     styleUrls: ['./layout.component.scss'],
-    standalone: false
 })
 export class LayoutComponent implements AfterContentChecked, OnInit, OnDestroy {
 isClicked = false;

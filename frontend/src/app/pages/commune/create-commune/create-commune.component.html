@@ -1,134 +1,99 @@
-
-<div  class="m-3 bg-white">
-    <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel commune</h3>
-    <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
-      <i class="bi bi-x"></i>
+<div class="bg-surface">
+  <div class="flex items-center justify-between px-gutter-lg pt-gutter-lg pb-gutter-sm border-b border-border">
+    <h3 class="font-heading text-lg font-semibold text-foreground">
+      {{ id ? 'Modifier la commune' : 'Nouvelle commune' }}
+    </h3>
+    <button type="button" [mat-dialog-close]="true" class="text-muted hover:text-text cursor-pointer">
+      <i class="bi bi-x text-xl"></i>
     </button>
-    <!-- <hr class="mt-0"> -->
-    <!-- <div class="horizontal-line"></div> -->
-    <div mat-dialog-content class="row px-0 p-1 no-gutters">
-      <div class="forms-style">
-  
-        <form  [formGroup]="communeForm" class="user-form-container" (ngSubmit)="onSubmit()">
-        
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="nom"
-                formControlName="communeName"
-                placeholder="Nom commune" required >
-                <label for="nom">Nom</label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="code"
-                formControlName="communeCode"
-                 placeholder="Code commune" required>
-                <label for="code">Code</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="womanResident"
-                formControlName="womanResident"
-                placeholder="Nbres de femmes" required >
-                <label for="womanResident">Nbre de femmes</label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="manResident"
-                formControlName="manResident"
-                 placeholder="Nbres d'hommes" required>
-                <label for="manResident">Nbres d'hommes</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="communeLength"
-                formControlName="communeLength"
-                placeholder="Longueur de la commune" required >
-                <label for="communeLength">Longueur </label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="communeArea"
-                formControlName="communeArea"
-                 placeholder="Surface de la commune" required>
-                <label for="communeArea">Surface</label>
-              </div>
-            </div>
-          </div>
+  </div>
 
-          <div class="row gx-3"> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="totalResident"
-                formControlName="totalResident"
-                 placeholder="[78, 89]" >
-                <label for="geometry">Géometrie</label>
-              </div>
-            </div> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                
-              <label for="department" class="label-Depart" >Département</label>
-                <ng-multiselect-dropdown
-                formControlName="department"
-                required="true"
-                placeholder=""
-                id="department"
-                [settings]="dpartSettings"
-                [data]="listDeparts"
-                (onSelect)="onItemSelectDepart($event)"
-                (onDropDownClose)="onDropDownCloseDepart()"
-                (onDeSelect)="onItemDeSelectDepart($event)"
-                >
-                
-              </ng-multiselect-dropdown>
-              </div>
-            </div>
-          </div>
-            <!-- 
-            <div class="col-md-6 sm-pb-3">
-              <div class="form-floating">
-                <label for="projet" class="label-projet">Project</label>
-                  <ng-multiselect-dropdown
-                  formControlName="projects"
-                  required="true"
-                  [placeholder]="''"
-                  id="projet"
-                  [settings]="projetSettings"
-                  [data]="listProjets"
-                  (onSelect)="onItemSelectProjet($event)"
-                  (onDropDownClose)="onDropDownCloseProjet()"
-                  (onDeSelect)="onItemDeSelectProjet($event)"
-                  >
-                  
-                </ng-multiselect-dropdown>
-            </div>
-            </div>
-          </div> -->
-        
-          <br>
-          <div mat-dialog-actions class="float-end p-0">
-            <span>
-              <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
-                Annuler
-              </button>
-              <button type="submit" mat-flat-button class="btn-enregister">
-                Enregistrer
-              </button>
-            </span>
-          </div>
-        </form>
+  <form [formGroup]="communeForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md p-gutter-lg" novalidate>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="name" class="text-sm font-medium text-text">Nom</label>
+        <input id="name" type="text" formControlName="name" placeholder="Nom de la commune"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['name'].invalid) {
+          <p class="text-xs text-destructive">Nom requis.</p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="code" class="text-sm font-medium text-text">Code</label>
+        <input id="code" type="text" formControlName="code" placeholder="Code de la commune"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['code'].invalid) {
+          <p class="text-xs text-destructive">Code requis.</p>
+        }
       </div>
     </div>
-  </div>
-  
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="departmentId" class="text-sm font-medium text-text">Département</label>
+      <select id="departmentId" formControlName="departmentId"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+        <option [ngValue]="null" disabled>Sélectionner un département…</option>
+        @for (department of listDeparts; track department.departmentId) {
+          <option [ngValue]="department.departmentId">{{ department.name }}</option>
+        }
+      </select>
+      @if (submitted && f['departmentId'].invalid) {
+        <p class="text-xs text-destructive">Département requis.</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="total" class="text-sm font-medium text-text">Habitants</label>
+        <input id="total" type="text" formControlName="total"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="women" class="text-sm font-medium text-text">Femmes</label>
+        <input id="women" type="text" formControlName="women"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="men" class="text-sm font-medium text-text">Hommes</label>
+        <input id="men" type="text" formControlName="men"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="length" class="text-sm font-medium text-text">Longueur</label>
+        <input id="length" type="text" formControlName="length"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="area" class="text-sm font-medium text-text">Surface</label>
+        <input id="area" type="text" formControlName="area"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-gutter-sm pt-gutter-sm border-t border-border">
+      <button type="button" [mat-dialog-close]="true"
+        class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
+               hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+        Annuler
+      </button>
+      <button type="submit"
+        class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+               hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</div>

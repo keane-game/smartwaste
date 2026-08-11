@@ -77,12 +77,17 @@ export interface ResourceEndpoint {
 
 export const API_ENDPOINTS = {
   regions: {
-    basePath: '/regions', listPath: '/regions', idField: 'regionId', idType: 'uuid',
+    // `/regions` (chemin nu) exige desormais page&size (P1-2, meme patron que Commune/Quartier/
+    // Department) ; `/regions/s` reste la liste complete pour peupler un select. Sans page/size,
+    // le chemin nu renvoie une erreur — trouve en verifiant le formulaire de creation departement.
+    basePath: '/regions', listPath: '/regions/s', idField: 'regionId', idType: 'uuid',
     deletionResource: 'region',
-    notes: "Le backend n'expose ni PUT ni DELETE sur /v1/regions. Il n'existe pas de /regions/all."
+    notes: "Le backend n'expose ni PUT ni DELETE sur /v1/regions."
   },
   departments: {
-    basePath: '/departments', listPath: '/departments', idField: 'departmentId', idType: 'uuid',
+    // `/departments` (chemin nu) exige desormais page&size lui aussi ; `/departments/s` est la
+    // liste complete. Meme piege que regions ci-dessus, meme correctif.
+    basePath: '/departments', listPath: '/departments/s', idField: 'departmentId', idType: 'uuid',
     deletionResource: 'department'
   },
   communes: {
@@ -122,17 +127,22 @@ export const API_ENDPOINTS = {
     deletionResource: 'circuit'
   },
   'circuit-collects': {
-    basePath: '/circuit-collects', listPath: '/circuit-collects', idField: 'circuitcollectId', idType: 'uuid',
+    // `/s` pour la liste complète : le chemin nu est paginé et exige page&size (même patron que
+    // communes/quartiers/departments/regions).
+    basePath: '/circuit-collects', listPath: '/circuit-collects/s', idField: 'circuitcollectId', idType: 'uuid',
     deletionResource: 'circuitcollect'
   },
   'circuit-balayages': {
-    basePath: '/circuit-balayages', listPath: '/circuit-balayages', idField: 'circuitbalayageId', idType: 'uuid',
+    basePath: '/circuit-balayages', listPath: '/circuit-balayages/s', idField: 'circuitbalayageId', idType: 'uuid',
     deletionResource: 'circuitbalayage',
     getByIdPathTemplate: (id: string) => `/circuit-balayages/circuit-balayage/${id}`,
     notes: "GET par id sur /circuit-balayages/circuit-balayage/{id} (pas ${basePath}/{id})."
   },
   'moblier-urbains': {
-    basePath: '/moblier-urbains', listPath: '/moblier-urbains', idField: 'moblierUrbainId', idType: 'uuid',
+    // `/s` pour la liste complète : le chemin nu est paginé et répond 500 sans page&size
+    // (« Required request parameter 'page' ... is not present ») — l'écran Mobiliers urbains
+    // était donc en erreur au chargement.
+    basePath: '/moblier-urbains', listPath: '/moblier-urbains/s', idField: 'moblierUrbainId', idType: 'uuid',
     deletionResource: 'moblierurbain'
   },
   vehicles: {

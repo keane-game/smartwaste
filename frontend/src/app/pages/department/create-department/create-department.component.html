@@ -1,76 +1,68 @@
-
-<div  class="my-3 bg-white">
-    <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel départemant</h3>
-    <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
-      <i class="bi bi-x"></i>
+<div class="bg-surface">
+  <div class="flex items-center justify-between px-gutter-lg pt-gutter-lg pb-gutter-sm border-b border-border">
+    <h3 class="font-heading text-lg font-semibold text-foreground">
+      {{ id ? 'Modifier le département' : 'Nouveau département' }}
+    </h3>
+    <button type="button" [mat-dialog-close]="true" class="text-muted hover:text-text cursor-pointer">
+      <i class="bi bi-x text-xl"></i>
     </button>
-    <hr class="mt-">
-    <div mat-dialog-content class="row px-0 p-1 no-gutters">
-      <div class="forms-style px-3">
-  
-        <form  [formGroup]="departForm" class="user-form-container" (ngSubmit)="onSubmit()">
-        
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="nom"
-                formControlName="departmentName"
-                placeholder="Nom departemant" required >
-                <label for="nom">Nom</label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="code"
-                formControlName="departmentCode"
-                 placeholder="Code departemant" required>
-                <label for="code">Code</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3"> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <ng-container *ngComponentOutlet="
-                  fileUpload.component;
-                  inputs: fileUpload.inputs;
-                  " 
-                  
-                />
-              </div>
-            </div> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                
-              <label for="role" class="label-role " >Région</label>
-                <ng-multiselect-dropdown
-                formControlName="region"
-                required="true"
-                placeholder=""
-                id="role"
-                [settings]="regionSettings"
-                [data]="listRegions"
-                (onSelect)="onItemSelectRegion($event)"
-                (onDropDownClose)="onDropDownCloseRegion()"
-                (onDeSelect)="onItemDeSelectRegion($event)"
-                >
-                
-              </ng-multiselect-dropdown>
-              </div>
-            </div>
-          </div>
-          <br>
-          <div mat-dialog-actions class="float-end p-0">
-            <span>
-              <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
-                Annuler
-              </button>
-              <button type="submit" mat-flat-button class="btn-enregister">
-                Enregistrer
-              </button>
-            </span>
-          </div>
-        </form>
+  </div>
+
+  <form [formGroup]="departForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-gutter-md p-gutter-lg" novalidate>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="departmentName" class="text-sm font-medium text-text">Nom</label>
+        <input id="departmentName" type="text" formControlName="departmentName" placeholder="Nom du département"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['departmentName'].invalid) {
+          <p class="text-xs text-destructive">Nom requis.</p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="departmentCode" class="text-sm font-medium text-text">Code</label>
+        <input id="departmentCode" type="text" formControlName="departmentCode" placeholder="Code du département"
+          class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        @if (submitted && f['departmentCode'].invalid) {
+          <p class="text-xs text-destructive">Code requis.</p>
+        }
       </div>
     </div>
-  </div>
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label for="regionId" class="text-sm font-medium text-text">Région</label>
+      <select id="regionId" formControlName="regionId"
+        class="w-full rounded-sm border border-border px-3 py-2 text-sm text-text bg-surface
+               focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+        <option [ngValue]="null" disabled>Sélectionner une région…</option>
+        @for (region of listRegions; track region.regionId) {
+          <option [ngValue]="region.regionId">{{ region.name }}</option>
+        }
+      </select>
+      @if (submitted && f['regionId'].invalid) {
+        <p class="text-xs text-destructive">Région requise.</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-gutter-xs">
+      <label class="text-sm font-medium text-text">Géométrie (optionnel)</label>
+      <ng-container *ngComponentOutlet="fileUpload.component; inputs: fileUpload.inputs;" />
+    </div>
+
+    <div class="flex justify-end gap-gutter-sm pt-gutter-sm border-t border-border">
+      <button type="button" [mat-dialog-close]="true"
+        class="rounded-sm border border-border text-text text-sm font-medium px-4 py-2
+               hover:bg-muted-surface transition-colors duration-200 cursor-pointer">
+        Annuler
+      </button>
+      <button type="submit"
+        class="rounded-DEFAULT bg-primary text-white text-sm font-medium px-4 py-2
+               hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</div>
