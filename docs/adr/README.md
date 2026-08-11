@@ -39,6 +39,9 @@ Besoins effectifs pour que l'existant fonctionne : `../PLAN_MISE_EN_SERVICE.md` 
 | [0019](0019-remplissage-predictif-cadrage.md) | Remplissage prédictif : cadrage (G4) | 🔵 **Proposé** — cadrage seul, gate par point non ouvert | Lot 8 / G4 |
 | [0020](0020-cloisonnement-multi-tenant-et-api-organisation.md) | Cloisonnement multi-tenant complet + API Organisation | ✅ **Implémenté** — discriminant (12 entités), API tenant, filtre Hibernate activé, rattachement automatique à Pikine | P2-3 → structurant |
 | [0021](0021-completion-api-identite-pont-keycloak.md) | Complétion API Identité & Accès (pont avant Keycloak) | ✅ **Implémenté (vagues 1+2)** — désactivation, permissions de rôle, reset/changement mdp, catalogue permissions | P0/P1 |
+| [0022](0022-groupes-de-collecte-zone-et-rotation.md) | Groupes de collecte : équipe, zone dérivée, rotation | 🔵 **Proposé** — cadrage seul | G6 étendu |
+| [0023](0023-affectations-datees-et-desaffectation.md) | Affectations datées (véhicule, chauffeur, rotation) et désaffectation | 🔵 **Proposé** — cadrage seul | G6 étendu |
+| [0024](0024-evenements-d-affectation-et-acyclicite.md) | Événements d'affectation, notifications et acyclicité des modules | 🔵 **Proposé** — cadrage seul | G6 étendu |
 
 ## Décisions structurantes prises **hors ADR**
 
