@@ -18,7 +18,7 @@ import sn.smartwaste.collect.identity.domain.model.UserEntity;
 import sn.smartwaste.collect.identity.domain.model.UserSession;
 import sn.smartwaste.collect.identity.domain.repository.UserSessionRepository;
 import sn.smartwaste.collect.identity.infrastructure.security.JwtService;
-import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,6 +43,12 @@ import static org.mockito.Mockito.when;
  *       de l'extérieur ;</li>
  *   <li>{@code isActive} — appelé à chaque requête par {@code JwtFilter} — dit non dès la révocation.</li>
  * </ol>
+ *
+ * <p><b>Le refus est une {@link BadCredentialsException}, plus une {@code ResourceNotFoundException}</b>
+ * (2026-08-11). Un jeton de rafraîchissement mort n'est pas une ressource absente : la première se
+ * traduit en 401, la seconde en 404. Le frontend ne déclenchait donc jamais sa procédure de fin de
+ * session sur un rafraîchissement échoué — il réessayait en boucle, ce qui produisait la tempête de
+ * popups d'erreur constatée côté navigateur.
  */
 @ExtendWith(MockitoExtension.class)
 class SessionServiceImplTest {
@@ -151,7 +157,7 @@ class SessionServiceImplTest {
                 .thenReturn(Optional.of(session));
 
         assertThatThrownBy(() -> newService().refresh(presented))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(BadCredentialsException.class)
                 // Message identique à celui d'un jeton inconnu : distinguer les deux renseignerait
                 // un attaquant sur la validité d'un jeton en sa possession.
                 .hasMessage("Session invalide ou expirée");
@@ -168,7 +174,7 @@ class SessionServiceImplTest {
                 .thenReturn(Optional.of(session));
 
         assertThatThrownBy(() -> newService().refresh(presented))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Session invalide ou expirée");
     }
 
@@ -177,13 +183,13 @@ class SessionServiceImplTest {
     void unknownOrMissingTokenIsRejected() {
         SessionServiceImpl service = newService();
 
-        assertThatThrownBy(() -> service.refresh(null)).isInstanceOf(ResourceNotFoundException.class);
-        assertThatThrownBy(() -> service.refresh("  ")).isInstanceOf(ResourceNotFoundException.class);
+        assertThatThrownBy(() -> service.refresh(null)).isInstanceOf(BadCredentialsException.class);
+        assertThatThrownBy(() -> service.refresh("  ")).isInstanceOf(BadCredentialsException.class);
         verify(sessionRepository, never()).findByRefreshTokenHash(any());
 
         when(sessionRepository.findByRefreshTokenHash(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> service.refresh("inconnu"))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Session invalide ou expirée");
     }
 

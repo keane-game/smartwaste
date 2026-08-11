@@ -55,6 +55,13 @@ spring:
 
   jpa:
     show-sql: ${JPA_SHOW_SQL:true}
+    # false parce que le mecanisme est repris explicitement par
+    # config/PersistenceSessionBindingConfig, qui enregistre OpenEntityManagerInViewFilter avec un
+    # ordre maitrise. L'intercepteur de Spring Boot s'appliquait APRES toute la chaine de filtres,
+    # ce qui rendait le filtre de cloisonnement multi-tenant inoperant (voir la javadoc de cette
+    # classe). Comportement fonctionnel inchange : meme mecanisme, plus tot dans la chaine.
+    # Ne PAS remettre a true sans supprimer ce bean, sous peine de double enregistrement.
+    open-in-view: false
     hibernate:
       # validate : Liquibase est la source unique du schéma. Ne PAS remettre update/create.
       ddl-auto: validate

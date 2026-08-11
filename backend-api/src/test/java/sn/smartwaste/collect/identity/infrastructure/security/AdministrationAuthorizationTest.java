@@ -239,7 +239,7 @@ class AdministrationAuthorizationTest {
         // ne doit pas suffire a changer le mot de passe d'un compte quelconque.
         mockMvc.perform(post("/auth/change-password").with(csrf())
                         .contentType("application/json").content("{}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -254,6 +254,31 @@ class AdministrationAuthorizationTest {
     @DisplayName("qui porte MANAGE_ROLE lit le catalogue des permissions")
     void manageRoleCanReadPermissions() throws Exception {
         mockMvc.perform(get("/v1/permissions")).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("consulter son profil exige une identite")
+    void currentUserProfileRequiresAuthentication() throws Exception {
+        mockMvc.perform(get("/auth/me")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("consulter ses propres permissions exige une identite")
+    void ownPermissionsRequireAuthentication() throws Exception {
+        mockMvc.perform(get("/v1/permissions/mine")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("un habitant peut consulter SES PROPRES permissions, contrairement au catalogue entier")
+    void citizenCanReadOwnPermissions() throws Exception {
+        // Seul le 403 est disqualifiant ici : @WithMockUser ne porte pas de UserEntity reel, donc
+        // CurrentUserProvider echouera plus loin — le point du test est l'autorisation, pas la
+        // resolution complete (meme raisonnement que les autres cas "assertNotForbidden" de cette
+        // classe).
+        assertNotForbidden(get("/v1/permissions/mine"));
     }
 
     @Test

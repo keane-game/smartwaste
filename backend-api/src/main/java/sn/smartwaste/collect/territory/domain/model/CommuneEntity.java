@@ -55,7 +55,18 @@ import java.util.Objects;
  * annotations define a filter named 'organizationFilter'}, constaté au premier démarrage réel).
  * Les onze autres entités cloisonnées ne portent que {@code @Filter}, qui référence celle-ci.
  */
-@FilterDef(name = "organizationFilter", parameters = @ParamDef(name = "organizationId", type = UUID.class))
+@FilterDef(name = "organizationFilter",
+        parameters = @ParamDef(name = "organizationId", type = UUID.class),
+        // Un @Filter ne couvre par défaut QUE les requêtes HQL et les chargements de collections :
+        // pas EntityManager.find(), donc pas le findById hérité de Spring Data. Le cloisonnement
+        // était étanche en liste et grand ouvert à l'unité — mesuré le 2026-08-11, un ADMIN d'une
+        // autre collectivité voyait 0 dépotoir en liste mais lisait, MODIFIAIT et supprimait par
+        // identifiant un point de Pikine, en 200. Connaître un identifiant suffisait à écrire chez
+        // le voisin. `applyToLoadByKey` (Hibernate 6.5+) étend le filtre à l'accès par clé
+        // primaire : findById rend alors `empty`, et les services répondent 404 — le même code
+        // qu'une ressource absente, ce qui est voulu : « hors périmètre » ne doit pas être
+        // distinguable d'« inexistant », sous peine de confirmer l'activité d'un tiers.
+        applyToLoadByKey = true)
 @Filter(name = "organizationFilter", condition = "organizationid = :organizationId")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
