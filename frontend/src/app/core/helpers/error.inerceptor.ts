@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
@@ -8,31 +8,36 @@ import { AuthService } from '../services/auth.service';
 /**
  * Gestion des erreurs HTTP, et surtout du renouvellement transparent de l'accès.
  *
- * <p><b>Pourquoi ce n'est plus une simple déconnexion sur 401.</b> Le jeton d'accès est passé de
- * dix jours à quelques minutes (le backend sait désormais révoquer une session). Sans
- * renouvellement, l'utilisateur serait éjecté toutes les quelques minutes. Sur 401, on tente donc
- * un `POST /auth/refresh` et on rejoue la requête <b>une seule fois</b> ; si le rafraîchissement
- * échoue, la session est réellement finie et on déconnecte.
+ * <p><b>Pourquoi ce n'est pas une simple déconnexion sur 401.</b> Le jeton d'accès dure quelques
+ * minutes (le backend sait révoquer une session). Sans renouvellement, l'utilisateur serait éjecté
+ * en permanence. Sur 401, on tente donc un `POST /auth/refresh` et on rejoue la requête <b>une
+ * seule fois</b> ; si le rafraîchissement échoue, la session est réellement finie.
  *
  * <p><b>Le verrou n'est pas décoratif.</b> Un écran déclenche facilement plusieurs appels
  * simultanés ; sans lui, chacun lancerait son propre rafraîchissement. Comme le backend
- * <b>fait tourner</b> le jeton à chaque appel, le premier invaliderait celui des autres et
- * déconnecterait l'utilisateur — précisément le bug que la rotation est censée détecter. Un seul
- * rafraîchissement est donc en vol, les autres requêtes l'attendent. L'état du verrou vit au
- * niveau du module (et non d'une instance de classe) : un intercepteur fonctionnel est une
- * fonction simple, réinvoquée à chaque requête, sans instance propre où le poser.
+ * <b>fait tourner</b> le jeton à chaque appel, le premier invaliderait celui des autres.
  *
- * <p><b>Pourquoi une fonction plutôt qu'une classe `HTTP_INTERCEPTORS`.</b> Cette classe
- * injectait `AuthService` au constructeur ; `AuthService` injecte `HttpClient` — cycle : la
- * construction de `HttpClient` réclame `HTTP_INTERCEPTORS`, qui réclame cet intercepteur, qui
- * réclame `AuthService`, qui réclame `HttpClient` (`NG0200`, jamais détecté par `tsc`/`ng build`
- * puisque c'est un cycle du graphe d'injection à l'exécution, pas une erreur de type). Un
- * intercepteur fonctionnel (`withInterceptors`) résout ses dépendances via `inject()` au moment
- * de la requête, après que `HttpClient` existe déjà — le cycle ne se forme jamais.
+ * <p><b>Pourquoi une fonction plutôt qu'une classe `HTTP_INTERCEPTORS`.</b> Cette classe injectait
+ * `AuthService`, qui injecte `HttpClient` — cycle de DI (`NG0200`). Un intercepteur fonctionnel
+ * résout ses dépendances via `inject()` au moment de la requête, après que `HttpClient` existe.
  */
 
 let refreshing = false;
 const refreshed$ = new BehaviorSubject<string | null>(null);
+
+/**
+ * Session définitivement close (rafraîchissement refusé). Sans ce drapeau, les appels périodiques
+ * qui tournent en fond — sondage des véhicules du tableau de bord toutes les 30 s, reconnexion du
+ * flux SSE — relançaient CHACUN un rafraîchissement condamné, et chaque échec affichait une popup
+ * d'erreur : d'où les popups « à tout instant » signalées en usage réel une fois le jeton de
+ * rafraîchissement périmé. On ne tente plus rien tant qu'une nouvelle authentification n'a pas eu
+ * lieu, et `AuthService.login` remet le drapeau à zéro.
+ */
+let sessionEnded = false;
+
+export function resetSessionEndedFlag(): void {
+  sessionEnded = false;
+}
 
 export const ErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const authenticationService = inject(AuthService);
@@ -42,11 +47,18 @@ export const ErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const isAuthCall = request.url.includes('/auth/');
 
   return next(request).pipe(catchError((err: HttpErrorResponse) => {
-    if (err.status === 401 && !isAuthCall && authenticationService.getRefreshToken()) {
+    // Un échec sur `/auth/**` ne doit JAMAIS produire de popup ici : soit c'est le formulaire de
+    // connexion, qui affiche lui-même son message, soit c'est un rafraîchissement/déconnexion,
+    // dont l'échec est une fin de session normale — pas un incident à signaler bruyamment.
+    if (isAuthCall) {
+      return throwError(() => err);
+    }
+
+    if (err.status === 401 && !sessionEnded && authenticationService.getRefreshToken()) {
       return handleUnauthorized(request, next, authenticationService);
     }
-    if (err.status === 401 && !isAuthCall) {
-      authenticationService.logout();
+    if (err.status === 401) {
+      endSession(authenticationService);
       return throwError(() => err);
     }
 
@@ -80,13 +92,23 @@ function handleUnauthorized(
       return next(withToken(request, user.bearer));
     }),
     catchError(refreshError => {
-      // Session réellement close (révoquée, expirée, ou jeton déjà rejoué) : il n'y a
-      // plus rien à tenter.
+      // Session réellement close (révoquée, expirée, ou jeton déjà rejoué) : plus rien à tenter.
+      // Le backend répond 404 sur un jeton de rafraîchissement inconnu (ResourceNotFoundException)
+      // et non 401 : on ne teste donc pas le code, tout échec ici clôt la session.
       refreshing = false;
-      authenticationService.logout();
+      endSession(authenticationService);
       return throwError(() => refreshError);
     })
   );
+}
+
+/** Ferme la session une seule fois, sans popup — les appels en fond peuvent échouer en rafale. */
+function endSession(authenticationService: AuthService): void {
+  if (sessionEnded) {
+    return;
+  }
+  sessionEnded = true;
+  authenticationService.logout();
 }
 
 function withToken(request: HttpRequest<any>, token: string): HttpRequest<any> {

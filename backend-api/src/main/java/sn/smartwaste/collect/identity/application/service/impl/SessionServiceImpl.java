@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,19 +74,28 @@ public class SessionServiceImpl implements SessionService {
         return new AuthTokens(jwtService.issueAccessToken(user, saved.getSessionId()), refreshToken);
     }
 
+    /**
+     * Échoue en {@code 401}, jamais en {@code 404}.
+     *
+     * <p>Un jeton de rafraîchissement inconnu, expiré ou déjà rejoué ne décrit pas une ressource
+     * absente : il décrit un appelant qui n'est pas (ou plus) authentifié. Le {@code 404} que
+     * produisait {@code ResourceNotFoundException} était trompeur pour le client — et il l'était
+     * pour l'utilisateur : le front n'y reconnaissait pas une fin de session, affichait une popup
+     * « Requête refusée par le serveur » et laissait les appels périodiques réessayer en boucle.
+     */
     @Override
     public AuthTokens refresh(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new ResourceNotFoundException("Jeton de rafraîchissement absent");
+            throw new BadCredentialsException("Session invalide ou expirée");
         }
         Instant now = Instant.now();
         UserSession session = sessionRepository.findByRefreshTokenHash(hash(refreshToken))
                 // Message volontairement identique dans tous les cas d'échec : distinguer
                 // « inconnu » de « expiré » renseignerait un attaquant sur la validité d'un jeton.
-                .orElseThrow(() -> new ResourceNotFoundException("Session invalide ou expirée"));
+                .orElseThrow(() -> new BadCredentialsException("Session invalide ou expirée"));
 
         if (!session.isActive(now)) {
-            throw new ResourceNotFoundException("Session invalide ou expirée");
+            throw new BadCredentialsException("Session invalide ou expirée");
         }
 
         UserEntity user = jwtService.loadUser(session.getUserId());

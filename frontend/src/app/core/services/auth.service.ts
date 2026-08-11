@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
+import { resetSessionEndedFlag } from '../helpers/error.inerceptor';
 
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,9 @@ export class AuthService {
 
   errorData: {} | undefined;
   redirectUrl: string | undefined;
+
+  /** Empêche les déconnexions en rafale (voir `logout`). */
+  private loggingOut = false;
 
   baseUrl = environment.authUrl;
 
@@ -87,6 +91,10 @@ export class AuthService {
       // store user details and jwt token in local storage to keep user logged in between page refreshes
       if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user));
+      // Rouvre la porte au renouvellement : `ErrorInterceptor` avait pu marquer la session
+      // comme close après un rafraîchissement refusé.
+      resetSessionEndedFlag();
+      this.loggingOut = false;
       this.currentUserSubject.next(user);
       return user;
       }
@@ -105,7 +113,22 @@ export class AuthService {
    * on purge localement. La purge a lieu <b>quoi qu'il arrive</b> — un serveur injoignable ne
    * doit pas laisser l'utilisateur « connecté » dans son navigateur.
    */
+  /**
+   * Déconnexion.
+   *
+   * <p>Vider le stockage local ne suffit pas : le jeton resterait valide côté serveur jusqu'à son
+   * expiration. On ferme donc d'abord la session (`POST /auth/logout`), puis on purge localement.
+   * La purge a lieu <b>quoi qu'il arrive</b> — un serveur injoignable ne doit pas laisser
+   * l'utilisateur « connecté » dans son navigateur.
+   *
+   * <p><b>Idempotent</b> : plusieurs appels en fond (sondage du tableau de bord, flux SSE) peuvent
+   * échouer en rafale et demander chacun la déconnexion. Sans ce garde-fou, chacun repartait en
+   * `POST /auth/logout` et relançait une navigation vers `/login`.
+   */
   logout(): void {
+    if (this.loggingOut) { return; }
+    this.loggingOut = true;
+
     const token = this.getAuthToken();
     const purge = () => {
       localStorage.removeItem('currentUser');
