@@ -1,12 +1,28 @@
-import { Component, OnInit, ElementRef, Inject } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { ActivatedRoute, Router } from "@angular/router";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { first } from "rxjs";
 import { SharedService } from "../../../services/shared.service";
 import { succesAlert, errorAlert } from "../../../services/alert.service";
+import { API_ENDPOINTS } from "../../../shared/constants/api-endpoints";
 
-
+/**
+ * Création / modification d'un compte.
+ *
+ * <p><b>Le mot de passe est désormais saisi.</b> Le formulaire n'avait aucun champ pour lui, mais
+ * le contrôle valait {@code 'user'} EN DUR — et `UserServiceImpl.createUser` hache ce qu'on lui
+ * soumet. Tout compte créé depuis cet écran recevait donc le mot de passe « user ». Il est
+ * maintenant demandé, et exigé uniquement à la création.
+ *
+ * <p><b>Il n'est jamais renvoyé à la modification.</b> Le backend ne recopie pas le mot de passe
+ * lors d'un `PUT` (il ne fait suivre que les champs non nuls qu'il liste explicitement), donc rien
+ * n'était cassé ; mais transporter un mot de passe en clair sur une requête qui n'en a pas besoin
+ * n'a aucune raison d'être.
+ *
+ * <p>Le rôle passe d'un `ng-multiselect-dropdown` à un `select` simple : le composant rendait une
+ * valeur en TABLEAU, d'où le `authority[0]` du code d'origine — qui redevenait `undefined` en
+ * modification, puisque `patchValue` y injectait l'objet `authority` de l'API, pas un tableau.
+ */
 @Component({
     selector: 'app-create-user',
     templateUrl: './create-user.component.html',
@@ -15,155 +31,92 @@ import { succesAlert, errorAlert } from "../../../services/alert.service";
 })
 export class CreateUserComponent implements OnInit {
 
-  isSelected: any = "label_after";
-  selected: boolean = false;
-  listRoles: any;
-  selectedItemsRole: any[] = [];
-  roleSettings = {};
   submitted = false;
+  saving = false;
   userForm!: FormGroup;
   currentUser: any;
   id: any;
-  
+  listRoles: any[] = [];
+
   constructor(
     private createUserModal: MatDialogRef<CreateUserComponent>,
-    private el: ElementRef,
-    private matDialog: MatDialog,
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
     private sharedService: SharedService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) {
+    this.id = data?.id;
+    this.currentUser = data?.currentUser;
+  }
 
-    @Inject(MAT_DIALOG_DATA) public data:any,
-  ) { 
-    this.id = data.id
-    this.currentUser = data.currentUser
-    console.log(data)
+  get isEdit(): boolean {
+    return this.id != undefined;
   }
 
   ngOnInit(): void {
     this.userForm = this.formBuilder.group({
       userFirstname: ['', Validators.required],
       userLastname: ['', Validators.required],
-      userEmail: ['', Validators.required],
-      userPassword: ['user', Validators.required],
-      userAddress: ['', Validators.required],
-      userPhone: ['', Validators.required],
-      authority: [null, Validators.required],
+      userEmail: ['', [Validators.required, Validators.email]],
+      // Requis à la création seulement : à la modification le champ n'est pas affiché et le mot
+      // de passe n'est pas transmis.
+      userPassword: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(8)]],
+      userAddress: [''],
+      userPhone: [''],
+      authorityId: [null, Validators.required],
+      // Coché par défaut : un compte créé ici est verrouillé sans cela (`isAccountNonLocked()`
+      // renvoie `activated`), et la connexion échoue sur « User account is locked ». Le parcours
+      // d'activation par e-mail ne dessert que l'inscription publique — un compte ouvert par un
+      // administrateur, dont il transmet lui-même le mot de passe, n'y passe jamais.
+      // `updateUser` ne recopie pas ce champ : il ne vaut donc qu'à la création.
+      activated: [true],
     });
 
-
-    console.log(this.id);
-    if (this.id != undefined) {
-      this.userForm.patchValue(this.currentUser);
+    if (this.isEdit) {
+      this.userForm.patchValue({
+        ...this.currentUser,
+        // L'API expose le rôle sous `authority.name`/`authority.authorityId` ; le formulaire ne
+        // manipule que l'identifiant.
+        authorityId: this.currentUser?.authority?.authorityId ?? null,
+      });
     }
 
-    this.selectedItemsRole = [];
-
-    this.roleSettings = {
-      singleSelection: true,
-      idField: 'authorityId',
-      textField: 'name',
-      itemsShowLimit: 3,
-      allowSearchFilter: false,
-      enableCheckAll: false,
-    }
-
+    this.sharedService.url = API_ENDPOINTS.authorities.listPath;
+    this.sharedService.getAll().subscribe(roles => this.listRoles = roles ?? []);
   }
-
-
-
-  // Event drop down to select role
-  onDropDownCloseRole() {
-    let myTag = this.el.nativeElement.querySelector("label.label-role");
-    if (this.selectedItemsRole.length != 0) {
-      console.log(this.selectedItemsRole.length);
-      myTag.classList.add('label_after');
-    } else {
-      myTag.classList.remove('label_after');
-    }
-    this.sharedService.url = "/authorities"
-    this.sharedService.getAll()
-      .subscribe(roles => this.listRoles = roles);
-    console.log("AfterView" + JSON.stringify(this.listRoles));
-  }
-
-
-  // select methods for role
-  onItemSelectRole(item: any) {
-    this.selectedItemsRole.push(item)
-    //console.log('form model', this.selectedItemsRole);
-  }
-
-  onItemDeSelectRole(item: any) {
-    this.selectedItemsRole = this.selectedItemsRole.filter(itm => itm.item_id !== item.item_id)
-    //console.log('form model', this.selectedItemsRole);
-  }
-
-
-
 
   // convenience getter for easy access to form fields
   get f() { return this.userForm.controls; }
 
   onSubmit() {
     this.submitted = true;
-    this.sharedService.url = '/users';
-    console.log(this.userForm.value)
-    // this.userForm.value.fullName = `${this.fieldPrenom} ${this.fieldNom}`;;
-    // if (this.userForm.invalid) {
-    //   console.log(this.userForm.invalid)
-    //   return;
-    // }
-
-    if (this.id != undefined){
-
-      this.updateUser();
-      console.log(this.userForm.invalid)
+    // La garde était COMMENTÉE dans la version d'origine : un formulaire incomplet partait quand
+    // même au serveur, qui répondait par une erreur peu parlante.
+    if (this.userForm.invalid) {
+      return;
     }
-      
-    else
-      this.createUser();
+    this.saving = true;
 
+    const { userPassword, authorityId, ...rest } = this.userForm.value;
+    const payload: any = { ...rest, authority: { authorityId } };
+    if (!this.isEdit) {
+      payload.userPassword = userPassword;
+    }
 
-  }
+    this.sharedService.url = API_ENDPOINTS.users.basePath;
+    const request$ = this.isEdit
+      ? this.sharedService.update(payload, this.id)
+      : this.sharedService.create(payload);
 
-
-  createUser() {
- 
-    this.userForm.value.authority = this.userForm.value.authority[0];
-    this.sharedService.create(this.userForm.value)
-    .pipe(first())
-    .subscribe({
-      next:  () => {
-        succesAlert("La creation a bien réussie")
+    request$.pipe(first()).subscribe({
+      next: () => {
+        this.saving = false;
+        succesAlert(this.isEdit ? 'Le compte a bien été mis à jour' : 'Le compte a bien été créé');
+        this.createUserModal.close(true);
       },
       error: (error) => {
-        errorAlert('Erreur' + error.message)
-      }
-    })
+        this.saving = false;
+        errorAlert('Erreur : ' + (error?.message ?? error));
+      },
+    });
   }
-
-
-  updateUser() {
-
-    this.userForm.value.authority = this.userForm.value.authority[0];
-    this.sharedService.update(this.userForm.value, this.id)
-    .pipe(first())
-      .subscribe({
-        next:  () => {
-          succesAlert("La mise à jour a bien réussie")
-        },
-        error: (error) => {
-          errorAlert('Erreur' + error.message)
-        }
-      })
-  }
-
-  async reload(url: string): Promise<boolean> {
-    await this.router.navigateByUrl('/', { skipLocationChange: true });
-    console.log(this.userForm.invalid)
-    return this.router.navigateByUrl(url);
-  }
-
 }

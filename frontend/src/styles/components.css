@@ -406,6 +406,26 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Encart d'information dans un formulaire : signale ce que l'ecran ne fait PAS (limite connue,
+ * champ pilote ailleurs). Ton neutre, jamais alarmant — ce n'est pas une erreur. */
+.sw-note {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-muted-surface);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.sw-note i {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 /* ---------------------------------------------------------------- Etats vides */
 
 .sw-empty {

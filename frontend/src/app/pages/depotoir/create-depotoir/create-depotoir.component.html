@@ -1,105 +1,65 @@
-
-<div  class="m-3 bg-white">
-    <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel départemant</h3>
-    <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
-      <i class="bi bi-x"></i>
+<div class="sw-dialog">
+  <div class="sw-dialog-head">
+    <h3 class="sw-dialog-title">{{ isEdit ? 'Modifier le point de collecte' : 'Nouveau point de collecte' }}</h3>
+    <button type="button" [mat-dialog-close]="true" class="sw-btn-icon" aria-label="Fermer">
+      <i class="bi bi-x text-xl"></i>
     </button>
-    <!-- <hr class="mt-0"> -->
-    <!-- <div class="horizontal-line"></div> -->
-    <div mat-dialog-content class="row px-0 p-1 no-gutters">
-      <div class="forms-style">
-  
-        <form  [formGroup]="depotoirForm" class="user-form-container" (ngSubmit)="onSubmit()">
-        
-          <div class="row gx-3 form-row">
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="address"
-                formControlName="depotoirAddress"
-                placeholder="Adresse " required >
-                <label for="address">Adresse</label>
-              </div>
-            </div>
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="longitude"
-                formControlName="longitude"
-                 placeholder="Longitude du dépotoir" required>
-                <label for="longitude">Longitude</label>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3"> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="latitude"
-                formControlName="latitude"
-                 placeholder="latitude du dépotoir" >
-                <label for="latitude">Latitude</label>
-              </div>
-            </div> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                
-              <label for="typeDepotoir" class="label-tdepotoir " >Nom</label>
-                <ng-multiselect-dropdown
-                formControlName="typeDepotoir"
-                required="true"
-                placeholder=""
-                id="typeDepotoir"
-                [settings]="tdepotoirSettings"
-                [data]="listTDepotoirs"
-                (onSelect)="onItemSelectTDepotoir($event)"
-                (onDropDownClose)="onDropDownCloseTDepotoir()"
-                (onDeSelect)="onItemDeSelectTDepotoir($event)"
-                >
-                
-              </ng-multiselect-dropdown>
-              </div>
-            </div>
-          </div>
-          <div class="row gx-3"> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="latitude"
-                formControlName="latitude"
-                 placeholder="latitude du dépotoir" >
-                <label for="geometry">Latitude</label>
-              </div>
-            </div> 
-            <div class="col-md sm-pb-3">
-              <div class="form-floating">
-                
-              <label for="quartier" class="label-quartier " >Quartier</label>
-                <ng-multiselect-dropdown
-                formControlName="quartier"
-                required="true"
-                placeholder=""
-                id="quartier"
-                [settings]="quartierSettings"
-                [data]="listQuartiers"
-                (onSelect)="onItemSelectQuartier($event)"
-                (onDropDownClose)="onDropDownCloseQuartier()"
-                (onDeSelect)="onItemDeSelectQuartier($event)"
-                >
-                
-              </ng-multiselect-dropdown>
-              </div>
-            </div>
-          </div>
-          <br>
-          <div mat-dialog-actions class="float-end p-0">
-            <span>
-              <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
-                Annuler
-              </button>
-              <button type="submit" mat-flat-button class="btn-enregister">
-                Enregistrer
-              </button>
-            </span>
-          </div>
-        </form>
+  </div>
+
+  <form [formGroup]="depotoirForm" (ngSubmit)="onSubmit()" class="sw-dialog-body" novalidate>
+
+    <div class="sw-field">
+      <label for="address" class="sw-label">Adresse <span class="req">*</span></label>
+      <input id="address" type="text" class="sw-input" formControlName="address"
+        placeholder="Ex. : Marché Zac Mbao" />
+      @if (submitted && f['address'].invalid) {
+        <p class="sw-error">Adresse requise.</p>
+      }
+    </div>
+
+    <div class="sw-grid-2">
+      <div class="sw-field">
+        <label for="typeDepotoirId" class="sw-label">Type <span class="req">*</span></label>
+        <select id="typeDepotoirId" class="sw-select" formControlName="typeDepotoirId" [attr.disabled]="loadingTypes ? '' : null">
+          <option [ngValue]="null" disabled>
+            {{ loadingTypes ? 'Chargement des types…' : 'Sélectionner un type…' }}
+          </option>
+          @for (type of listTypes; track type.typeDepotoirId) {
+            <option [ngValue]="type.typeDepotoirId">{{ type.name }}</option>
+          }
+        </select>
+        @if (submitted && f['typeDepotoirId'].invalid) {
+          <p class="sw-error">Type requis.</p>
+        }
+      </div>
+
+      <div class="sw-field">
+        <label for="quartierId" class="sw-label">Quartier <span class="req">*</span></label>
+        <select id="quartierId" class="sw-select" formControlName="quartierId" [attr.disabled]="loadingQuartiers ? '' : null">
+          <option [ngValue]="null" disabled>
+            {{ loadingQuartiers ? 'Chargement des quartiers…' : 'Sélectionner un quartier…' }}
+          </option>
+          @for (quartier of listQuartiers; track quartier.quartierId) {
+            <option [ngValue]="quartier.quartierId">{{ quartier.name }}</option>
+          }
+        </select>
+        @if (submitted && f['quartierId'].invalid) {
+          <p class="sw-error">Quartier requis.</p>
+        }
       </div>
     </div>
-  </div>
-  
+
+    <p class="sw-note">
+      <i class="bi bi-info-circle"></i>
+      La position géographique ne se saisit pas ici : elle provient de l'import GeoJSON. Un point
+      créé depuis cet écran n'apparaîtra donc pas sur la carte tant qu'il n'aura pas été localisé.
+    </p>
+
+    <div class="sw-dialog-foot">
+      <button type="button" class="sw-btn-danger" [mat-dialog-close]="true">Annuler</button>
+      <button type="submit" class="sw-btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </form>
+</div>

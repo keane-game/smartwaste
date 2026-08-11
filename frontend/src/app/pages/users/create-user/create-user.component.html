@@ -1,114 +1,94 @@
-
-<div  class="m-3 bg-white">
-  <h3 mat-dialog-title class=" p-0 ps-3 p-title">Nouvel utilisateur</h3>
-  <button type="button"  [mat-dialog-close]="true" class=" float-end btn-close-dialog">
-    <i class="bi bi-x"></i>
-  </button>
-  <!-- <hr class="mt-0"> -->
-  <!-- <div class="horizontal-line"></div> -->
-  <div mat-dialog-content class="row px-0 p-1 no-gutters">
-    <div class="forms-style">
-
-      <form  [formGroup]="userForm" class="user-form-container" (ngSubmit)="onSubmit()">
-      
-        <div class="row gx-3 form-row">
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="prenom"
-              formControlName="userFirstname"
-              placeholder="Prénom" required >
-              <label for="prenom">Prénom</label>
-            </div>
-          </div>
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="nom"
-              formControlName="userLastname"
-               placeholder="Nom" required>
-              <label for="nom">Nom</label>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row gx-3  ">
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              <input matInput type="email" class="form-control" id="email" formControlName="userEmail" placeholder="name@example.com">
-              <mat-error *ngIf="userForm.controls['userAddress'].hasError('equired')">
-                First name is <strong>required</strong>
-              </mat-error>
-              <label for="email">Email address</label>
-            </div>
-          </div>
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control" formControlName="userPhone" id="userPhone" placeholder="770006767">
-              <label for="userPhone">Téléphone</label>
-            </div>
-          </div>
-        </div>
-        <div class="row gx-3"> 
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="userAddress"
-              formControlName="userAddress"
-               placeholder="Hamo 6" required>
-              <label for="userAddress">Adresse</label>
-            </div>
-          </div> 
-          <div class="col-md sm-pb-3">
-            <div class="form-floating">
-              
-            <label for="role" class="label-role " >Role</label>
-              <ng-multiselect-dropdown
-              formControlName="authority"
-              required="true"
-              placeholder=""
-              id="role"
-              [settings]="roleSettings"
-              [data]="listRoles"
-              (onSelect)="onItemSelectRole($event)"
-              (onDropDownClose)="onDropDownCloseRole()"
-              (onDeSelect)="onItemDeSelectRole($event)"
-              >
-              
-            </ng-multiselect-dropdown>
-            </div>
-          </div>
-        </div>
-          <!-- 
-          <div class="col-md-6 sm-pb-3">
-            <div class="form-floating">
-              <label for="projet" class="label-projet">Project</label>
-                <ng-multiselect-dropdown
-                formControlName="projects"
-                required="true"
-                [placeholder]="''"
-                id="projet"
-                [settings]="projetSettings"
-                [data]="listProjets"
-                (onSelect)="onItemSelectProjet($event)"
-                (onDropDownClose)="onDropDownCloseProjet()"
-                (onDeSelect)="onItemDeSelectProjet($event)"
-                >
-                
-              </ng-multiselect-dropdown>
-          </div>
-          </div>
-        </div> -->
-      
-        <br>
-        <div mat-dialog-actions class="float-end p-0">
-          <span>
-            <button type="button" mat-stroked-button [mat-dialog-close]="true"  class="btn-annuler">
-              Annuler
-            </button>
-            <button type="submit" mat-flat-button mat-dialog-close class="btn-enregister">
-              Enregistrer
-            </button>
-          </span>
-        </div>
-      </form>
-    </div>
+<div class="sw-dialog">
+  <div class="sw-dialog-head">
+    <h3 class="sw-dialog-title">{{ isEdit ? 'Modifier le compte' : 'Nouvel utilisateur' }}</h3>
+    <button type="button" [mat-dialog-close]="true" class="sw-btn-icon" aria-label="Fermer">
+      <i class="bi bi-x text-xl"></i>
+    </button>
   </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="sw-dialog-body" novalidate>
+
+    <div class="sw-grid-2">
+      <div class="sw-field">
+        <label for="prenom" class="sw-label">Prénom <span class="req">*</span></label>
+        <input id="prenom" type="text" class="sw-input" formControlName="userFirstname" placeholder="Prénom" />
+        @if (submitted && f['userFirstname'].invalid) {
+          <p class="sw-error">Prénom requis.</p>
+        }
+      </div>
+
+      <div class="sw-field">
+        <label for="nom" class="sw-label">Nom <span class="req">*</span></label>
+        <input id="nom" type="text" class="sw-input" formControlName="userLastname" placeholder="Nom" />
+        @if (submitted && f['userLastname'].invalid) {
+          <p class="sw-error">Nom requis.</p>
+        }
+      </div>
+    </div>
+
+    <div class="sw-grid-2">
+      <div class="sw-field">
+        <label for="email" class="sw-label">Adresse e-mail <span class="req">*</span></label>
+        <input id="email" type="email" class="sw-input" formControlName="userEmail"
+          autocomplete="email" placeholder="nom@sonaged.sn" />
+        @if (submitted && f['userEmail'].invalid) {
+          <p class="sw-error">Adresse e-mail requise et valide.</p>
+        }
+      </div>
+
+      <div class="sw-field">
+        <label for="userPhone" class="sw-label">Téléphone</label>
+        <input id="userPhone" type="text" class="sw-input" formControlName="userPhone" placeholder="770006767" />
+      </div>
+    </div>
+
+    <!-- Champ affiché à la CRÉATION uniquement : le mot de passe ne se modifie pas depuis cet
+         écran (le backend ne le recopie pas sur un PUT), il se réinitialise via /password. -->
+    @if (!isEdit) {
+      <div class="sw-field">
+        <label for="userPassword" class="sw-label">Mot de passe <span class="req">*</span></label>
+        <input id="userPassword" type="password" class="sw-input" formControlName="userPassword"
+          autocomplete="new-password" placeholder="Au moins 8 caractères" />
+        @if (submitted && f['userPassword'].invalid) {
+          <p class="sw-error">Mot de passe requis, 8 caractères minimum.</p>
+        }
+        <p class="text-xs text-muted">Communiquez-le à la personne concernée ; il n'est plus consultable ensuite.</p>
+      </div>
+
+      <label class="sw-field flex-row items-center gap-2 cursor-pointer">
+        <input type="checkbox" class="sw-checkbox" formControlName="activated" />
+        <span class="sw-label mb-0">Activer le compte immédiatement</span>
+      </label>
+      <p class="text-xs text-muted -mt-2">
+        Décoché, le compte est créé mais la connexion est refusée tant qu'il n'est pas activé.
+      </p>
+    }
+
+    <div class="sw-grid-2">
+      <div class="sw-field">
+        <label for="userAddress" class="sw-label">Adresse</label>
+        <input id="userAddress" type="text" class="sw-input" formControlName="userAddress" placeholder="Hamo 6" />
+      </div>
+
+      <div class="sw-field">
+        <label for="authorityId" class="sw-label">Rôle <span class="req">*</span></label>
+        <select id="authorityId" class="sw-select" formControlName="authorityId">
+          <option [ngValue]="null" disabled>Sélectionner un rôle…</option>
+          @for (role of listRoles; track role.authorityId) {
+            <option [ngValue]="role.authorityId">{{ role.name }}</option>
+          }
+        </select>
+        @if (submitted && f['authorityId'].invalid) {
+          <p class="sw-error">Rôle requis.</p>
+        }
+      </div>
+    </div>
+
+    <div class="sw-dialog-foot">
+      <button type="button" class="sw-btn-danger" [mat-dialog-close]="true">Annuler</button>
+      <button type="submit" class="sw-btn-primary" [disabled]="saving">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </form>
 </div>

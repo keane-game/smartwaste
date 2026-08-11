@@ -104,7 +104,9 @@ export const API_ENDPOINTS = {
     notes: 'Seule ressource à exposer aussi /depotoirs/deletions et /depotoirs/{id}/restore.'
   },
   typedepotoirs: {
-    basePath: '/typedepotoirs', listPath: '/typedepotoirs', idField: 'typeDepotoirId', idType: 'uuid',
+    // `/s` pour la liste complète : le chemin nu est paginé et répond 500 sans page&size
+    // (vérifié). C'est cette liste qui alimente le menu « type » du formulaire Point de collecte.
+    basePath: '/typedepotoirs', listPath: '/typedepotoirs/s', idField: 'typeDepotoirId', idType: 'uuid',
     deletionResource: 'typedepotoir'
   },
   users: {

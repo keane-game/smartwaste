@@ -1,12 +1,30 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 import { SharedService } from '../../../services/shared.service';
 import { first } from 'rxjs';
 import { succesAlert, errorAlert } from '../../../services/alert.service';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 
+/**
+ * Création / modification d'un point de collecte.
+ *
+ * <p><b>Les noms de champs ne correspondaient à rien.</b> Le formulaire envoyait
+ * {@code depotoirAddress}, {@code quartier}, {@code longitude} et {@code latitude}, alors que le
+ * DTO `Depotoir` attend {@code address}, {@code quartierId} et une liste {@code coordinates} —
+ * seul {@code typeDepotoir} coïncidait. Le serveur acceptait la requête et enregistrait un point
+ * sans adresse ni quartier : l'écran paraissait fonctionner, les données étaient vides. Même
+ * classe de défaut que sur les formulaires Commune et Quartier.
+ *
+ * <p>Les listes déroulantes passent d'un `ng-multiselect-dropdown` à des `select` simples, comme
+ * les autres dialogues : le composant rendait des tableaux, ce que le DTO n'attend pas.
+ *
+ * <p><b>Pas de saisie de latitude/longitude.</b> Le DTO expose bien une liste {@code coordinates},
+ * mais elle n'est câblée dans aucun sens : {@code DepotoirServiceImpl.createDepotoir} ne la lit
+ * pas (la position est portée par {@code geometry}) et elle ressort vide sur les 72 points en base,
+ * import GeoJSON compris. Deux champs qui n'écrivent ni ne relisent rien seraient exactement le
+ * défaut corrigé plus haut ; ils sont remplacés par une mention de ce que l'écran ne fait pas.
+ */
 @Component({
     selector: 'app-create-depotoir',
     templateUrl: './create-depotoir.component.html',
@@ -15,175 +33,94 @@ import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 })
 export class CreateDepotoirComponent {
 
-
-  isSelected: any = "label_after";
-  selected: boolean = false;
-  listTDepotoirs: any;
-  listQuartiers: any;
-  selectedItemsDepotoir: any[] = [];
-  tdepotoirSettings = {};
-  selectedItemsQuartier: any[] = [];
-  quartierSettings = {};
   submitted = false;
+  saving = false;
   depotoirForm!: FormGroup;
   currentDepotoir: any;
   id: any;
 
+  listTypes: any[] = [];
+  listQuartiers: any[] = [];
+
+  /** Chargement des menus déroulants — voir le commentaire de `ngOnInit` sur la lenteur des quartiers. */
+  loadingTypes = true;
+  loadingQuartiers = true;
+
   constructor(
     private createDepotoirModal: MatDialogRef<CreateDepotoirComponent>,
-    private el: ElementRef,
-    private matDialog: MatDialog,
     private formBuilder: FormBuilder,
-    private router: Router,
     private sharedService: SharedService,
-
   ) { }
+
+  get isEdit(): boolean {
+    return this.id != undefined;
+  }
 
   ngOnInit(): void {
     this.depotoirForm = this.formBuilder.group({
-      depotoirAddress: ['', Validators.required],
-      typeDepotoir: ['', Validators.required],
-      quartier: ['', Validators.required],
-      longitude:[''],
-      latitude: [''],
-      geometry: [null]
+      address: ['', Validators.required],
+      typeDepotoirId: [null, Validators.required],
+      quartierId: [null, Validators.required],
     });
-    if (this.id != undefined){
-      this.depotoirForm.patchValue(this.currentDepotoir);
-      this.depotoirForm.controls['geometry'].setValue(null)
-      this.depotoirForm.controls['geometry'].disabled
+
+    if (this.isEdit) {
+      this.depotoirForm.patchValue({
+        address: this.currentDepotoir?.address ?? '',
+        typeDepotoirId: this.currentDepotoir?.typeDepotoir?.typeDepotoirId ?? null,
+        quartierId: this.currentDepotoir?.quartierId ?? null,
+      });
     }
 
-    this.selectedItemsDepotoir = [];
+    // `listPath` (`/s`) : liste complète pour peupler les menus — le chemin nu est paginé.
+    this.sharedService.url = API_ENDPOINTS.typedepotoirs.listPath;
+    this.sharedService.getAll().subscribe({
+      next: types => { this.listTypes = types ?? []; this.loadingTypes = false; },
+      error: () => this.loadingTypes = false,
+    });
 
-    this.tdepotoirSettings = {
-      singleSelection: true,
-      idField: 'typeDepotoirId',
-      textField: 'typeDepotoirName',
-      itemsShowLimit: 3,
-      allowSearchFilter: false,
-      enableCheckAll: false,
-    }
-
-
-    this.selectedItemsQuartier = [];
-
-    this.quartierSettings = {
-      singleSelection: true,
-      idField: 'quartierId',
-      textField: 'quartierName',
-      itemsShowLimit: 3,
-      allowSearchFilter: false,
-      enableCheckAll: false,
-    }
-    
-
+    // `GET /v1/quartiers/s` met environ 5 secondes et pèse ~194 Ko : les 357 quartiers sont
+    // renvoyés avec leur géométrie complète, dont ce menu n'a aucun usage. Sans indicateur, le
+    // champ restait vide sans explication et paraissait cassé. Le vrai correctif serait un
+    // read-model léger (id + nom) côté serveur — hors périmètre de cette passe.
+    this.sharedService.url = API_ENDPOINTS.quartiers.listPath;
+    this.sharedService.getAll().subscribe({
+      next: quartiers => { this.listQuartiers = quartiers ?? []; this.loadingQuartiers = false; },
+      error: () => this.loadingQuartiers = false,
+    });
   }
 
+  // convenience getter for easy access to form fields
+  get f() { return this.depotoirForm.controls; }
 
-    // Event drop down to select role
-    onDropDownCloseQuartier() {
-      let myTag = this.el.nativeElement.querySelector("label.label-quartier");
-      if (this.selectedItemsQuartier.length != 0) {
-        console.log(this.selectedItemsQuartier.length);
-        myTag.classList.add('label_after');
-      } else {
-        myTag.classList.remove('label_after');
-      }
-      this.sharedService.url = API_ENDPOINTS.quartiers.listPath;
-      this.sharedService.getAll()
-        .subscribe(quartier => this.listQuartiers = quartier);
-      console.log("AfterView" + JSON.stringify(this.listQuartiers));
+  onSubmit() {
+    this.submitted = true;
+    if (this.depotoirForm.invalid) {
+      return;
     }
-  
-  
-    // select methods for role
-    onItemSelectQuartier(item: any) {
-      this.selectedItemsDepotoir.push(item)
-      //console.log('form model', this.selectedItemsDepotoir);
-    }
-  
-    onItemDeSelectQuartier(item: any) {
-      this.selectedItemsDepotoir = this.selectedItemsDepotoir.filter(itm => itm.item_id !== item.item_id)
-      //console.log('form model', this.selectedItemsDepotoir);
-    }
+    this.saving = true;
 
+    const { typeDepotoirId, quartierId, address } = this.depotoirForm.value;
+    const payload: any = {
+      address,
+      quartierId,
+      typeDepotoir: { typeDepotoirId },
+    };
 
-    // Event drop down to select role
-    onDropDownCloseTDepotoir() {
-      let myTag = this.el.nativeElement.querySelector("label.label-tdepotoir");
-      if (this.selectedItemsQuartier.length != 0) {
-        console.log(this.selectedItemsQuartier.length);
-        myTag.classList.add('label_after');
-      } else {
-        myTag.classList.remove('label_after');
-      }
-      this.sharedService.url = API_ENDPOINTS.typedepotoirs.basePath;
-      this.sharedService.getAll()
-        .subscribe(tdepotoirs => this.listTDepotoirs = tdepotoirs);
-      console.log("AfterView" + JSON.stringify(this.listTDepotoirs));
-    }
-  
-  
-    // select methods for role
-    onItemSelectTDepotoir(item: any) {
-      this.selectedItemsDepotoir.push(item)
-      //console.log('form model', this.selectedItemsDepotoir);
-    }
-  
-    onItemDeSelectTDepotoir(item: any) {
-      this.selectedItemsDepotoir = this.selectedItemsDepotoir.filter(itm => itm.item_id !== item.item_id)
-      //console.log('form model', this.selectedItemsDepotoir);
-    }
+    this.sharedService.url = API_ENDPOINTS.depotoirs.basePath;
+    const request$ = this.isEdit
+      ? this.sharedService.update(payload, this.id)
+      : this.sharedService.create(payload);
 
-  
- // convenience getter for easy access to form fields
- get f() { return this.depotoirForm.controls; }
-
- onSubmit() {
-   this.submitted = true;
-   this.sharedService.url = API_ENDPOINTS.depotoirs.basePath;
-   console.log(this.depotoirForm.value)
-
-   if (this.id != undefined)
-     this.updateDepotoir();
-   else
-     this.createDepotoir();
-
- }
-
- createDepotoir() {
-
-  this.sharedService.create(this.depotoirForm.value)
-     .pipe(first())
-     .subscribe({
-      next:  () => {
-        succesAlert("La creation a bien réussie")
+    request$.pipe(first()).subscribe({
+      next: () => {
+        this.saving = false;
+        succesAlert(this.isEdit ? 'Le point a bien été mis à jour' : 'Le point a bien été créé');
+        this.createDepotoirModal.close(true);
       },
       error: (error) => {
-        errorAlert('Erreur' + error.message)
-      }
-     })
- }
-
- updateDepotoir() {
-
-   //this.depotoirForm.value.authority = this.depotoirForm.value.authority[0];
-   this.sharedService.update(this.depotoirForm.value, this.id)
-     .pipe(first())
-     .subscribe({
-      next:  () => {
-        succesAlert("La creation a bien réussie")
+        this.saving = false;
+        errorAlert('Erreur : ' + (error?.message ?? error));
       },
-      error: (error) => {
-        errorAlert('Erreur' + error.message)
-      }
-     })
- }
-
- async reload(url: string): Promise<boolean> {
-   await this.router.navigateByUrl('/', { skipLocationChange: true });
-   return this.router.navigateByUrl(url);
- }
-
+    });
+  }
 }
