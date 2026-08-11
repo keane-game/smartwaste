@@ -11,6 +11,8 @@ import { ModalService } from '../../services/modal.service';
 import { DeleteComponent } from '../../shared/components/delete/delete.component';
 import { CreateDepartmentComponent } from './create-department/create-department.component';
 import { ListUiState } from '../../shared/ui/list-ui-state';
+import { ManagedColumn } from '../../shared/components/column-manager/column-manager.component';
+import { ColumnPreferencesService } from '../../shared/ui/column-preferences.service';
 
 @Component({
     selector: 'app-department',
@@ -22,7 +24,27 @@ export class DepartmentComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['select', 'departmentName', 'departmentCode', 'region', 'commune', 'action'];
+  /**
+   * Inventaire des colonnes proposées par « Gérer les colonnes » (maquettes).
+   *
+   * <p>`select` et `action` sont verrouillées : les masquer priverait l'écran de la sélection
+   * et des actions de ligne sans que l'utilisateur comprenne pourquoi.
+   */
+  readonly manageableColumns: ManagedColumn[] = [
+    { key: 'select', label: 'Sélection', locked: true },
+    { key: 'departmentName', label: 'Nom' },
+    { key: 'departmentCode', label: 'Code' },
+    { key: 'region', label: 'Région' },
+    { key: 'commune', label: 'Communes' },
+    { key: 'action', label: 'Actions', locked: true },
+  ];
+
+  /** Clé de persistance : le choix de colonnes est propre à l'utilisateur. */
+  private static readonly COLUMNS_KEY = 'departments.columns';
+
+  // Renseignée dans `ngOnInit` : `columnPrefs` est injecté par le constructeur et n'existe
+  // pas encore au moment où les champs s'initialisent.
+  displayedColumns: string[] = [];
 
   /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
   readonly ui = new ListUiState();
@@ -40,9 +62,12 @@ export class DepartmentComponent {
     private modalService: ModalService,
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService,
+    private columnPrefs: ColumnPreferencesService,
   ) { }
 
   ngOnInit() {
+    this.displayedColumns = this.columnPrefs.restore(
+      DepartmentComponent.COLUMNS_KEY, this.manageableColumns, []);
     // `basePath` (chemin nu paginé), pas `listPath` (`/s`, liste complète) : `loadDeparts` a
     // besoin de la réponse `Page<Department>` avec `content`/`totalElements`.
     this.sharedService.url = API_ENDPOINTS.departments.basePath;
@@ -98,5 +123,10 @@ export class DepartmentComponent {
   goToPage(pageIndex: number): void {
     if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
     this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
+
+  openColumnManager(): void {
+    this.columnPrefs.open(DepartmentComponent.COLUMNS_KEY, this.manageableColumns, this.displayedColumns)
+      .subscribe(columns => { if (columns) { this.displayedColumns = columns; } });
   }
 }

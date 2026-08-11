@@ -9,6 +9,8 @@ import { CreateCircuitBalayageComponent } from '../create-circuit-balayage/creat
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 import { ListUiState } from '../../../shared/ui/list-ui-state';
+import { ManagedColumn } from '../../../shared/components/column-manager/column-manager.component';
+import { ColumnPreferencesService } from '../../../shared/ui/column-preferences.service';
 
 /**
  * Circuits de balayage. Le composant était entièrement vide (classe sans aucun membre) alors que
@@ -25,7 +27,27 @@ export class CircuitBalayageComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['select', 'name', 'code', 'shift', 'length', 'action'];
+  /**
+   * Inventaire des colonnes proposées par « Gérer les colonnes » (maquettes).
+   *
+   * <p>`select` et `action` sont verrouillées : les masquer priverait l'écran de la sélection
+   * et des actions de ligne sans que l'utilisateur comprenne pourquoi.
+   */
+  readonly manageableColumns: ManagedColumn[] = [
+    { key: 'select', label: 'Sélection', locked: true },
+    { key: 'name', label: 'Nom' },
+    { key: 'code', label: 'Code' },
+    { key: 'shift', label: 'Shift' },
+    { key: 'length', label: 'Longueur' },
+    { key: 'action', label: 'Actions', locked: true },
+  ];
+
+  /** Clé de persistance : le choix de colonnes est propre à l'utilisateur. */
+  private static readonly COLUMNS_KEY = 'circuitBalayages.columns';
+
+  // Renseignée dans `ngOnInit` : `columnPrefs` est injecté par le constructeur et n'existe
+  // pas encore au moment où les champs s'initialisent.
+  displayedColumns: string[] = [];
 
   /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
   readonly ui = new ListUiState();
@@ -42,9 +64,12 @@ export class CircuitBalayageComponent {
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService,
     private modalService: ModalService,
+    private columnPrefs: ColumnPreferencesService,
   ) { }
 
   ngOnInit() {
+    this.displayedColumns = this.columnPrefs.restore(
+      CircuitBalayageComponent.COLUMNS_KEY, this.manageableColumns, []);
     this.headerTitleService.setTitle('Gestion des circuits de balayage');
     this.loadCircuits(this.currentPage, this.itemsPerPage);
   }
@@ -98,5 +123,10 @@ export class CircuitBalayageComponent {
   goToPage(pageIndex: number): void {
     if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
     this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
+
+  openColumnManager(): void {
+    this.columnPrefs.open(CircuitBalayageComponent.COLUMNS_KEY, this.manageableColumns, this.displayedColumns)
+      .subscribe(columns => { if (columns) { this.displayedColumns = columns; } });
   }
 }

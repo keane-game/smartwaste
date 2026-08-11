@@ -9,6 +9,8 @@ import { CreateCircuitCollectComponent } from '../create-circuit-collect/create-
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints';
 import { ListUiState } from '../../../shared/ui/list-ui-state';
+import { ManagedColumn } from '../../../shared/components/column-manager/column-manager.component';
+import { ColumnPreferencesService } from '../../../shared/ui/column-preferences.service';
 
 /**
  * Circuits de collecte.
@@ -31,7 +33,29 @@ export class CircuitCollectComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['select', 'name', 'code', 'type', 'frequency', 'rotation', 'length', 'action'];
+  /**
+   * Inventaire des colonnes proposées par « Gérer les colonnes » (maquettes).
+   *
+   * <p>`select` et `action` sont verrouillées : les masquer priverait l'écran de la sélection
+   * et des actions de ligne sans que l'utilisateur comprenne pourquoi.
+   */
+  readonly manageableColumns: ManagedColumn[] = [
+    { key: 'select', label: 'Sélection', locked: true },
+    { key: 'name', label: 'Nom' },
+    { key: 'code', label: 'Code' },
+    { key: 'type', label: 'Type' },
+    { key: 'frequency', label: 'Fréquence' },
+    { key: 'rotation', label: 'Rotation' },
+    { key: 'length', label: 'Longueur' },
+    { key: 'action', label: 'Actions', locked: true },
+  ];
+
+  /** Clé de persistance : le choix de colonnes est propre à l'utilisateur. */
+  private static readonly COLUMNS_KEY = 'circuitCollects.columns';
+
+  // Renseignée dans `ngOnInit` : `columnPrefs` est injecté par le constructeur et n'existe
+  // pas encore au moment où les champs s'initialisent.
+  displayedColumns: string[] = [];
 
   /** Menu `…`, sélection et bornes de pagination — voir `ListUiState`. */
   readonly ui = new ListUiState();
@@ -48,9 +72,12 @@ export class CircuitCollectComponent {
     private _liveAnnouncer: LiveAnnouncer,
     private headerTitleService: headerTitleService,
     private modalService: ModalService,
+    private columnPrefs: ColumnPreferencesService,
   ) { }
 
   ngOnInit() {
+    this.displayedColumns = this.columnPrefs.restore(
+      CircuitCollectComponent.COLUMNS_KEY, this.manageableColumns, []);
     this.sharedService.url = API_ENDPOINTS['circuit-collects'].basePath;
     this.headerTitleService.setTitle('Gestion des circuits de collecte');
     this.loadCircuits(this.currentPage, this.itemsPerPage);
@@ -105,5 +132,10 @@ export class CircuitCollectComponent {
   goToPage(pageIndex: number): void {
     if (pageIndex < 0 || pageIndex >= this.totalPages) { return; }
     this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
+
+  openColumnManager(): void {
+    this.columnPrefs.open(CircuitCollectComponent.COLUMNS_KEY, this.manageableColumns, this.displayedColumns)
+      .subscribe(columns => { if (columns) { this.displayedColumns = columns; } });
   }
 }
