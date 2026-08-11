@@ -415,10 +415,66 @@
   color: var(--color-muted);
 }
 
+/* Intertitre de panneau. En classe et non en utilitaire : Bootstrap impose une taille aux
+ * `h1`-`h6` (`h3` = 1.75rem) qui l'emportait sur `text-sm`, d'ou des titres surdimensionnes. */
+.sw-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0 0 var(--space-md);
+}
+
 /* ---------------------------------------------------------------- Divers */
 
 /* Remet a plat les listes de navigation : sans preflight, les `ul` gardent puces et retrait. */
 .sw-nav-list { list-style: none; padding-left: 0; margin: 0; }
+
+/* ---------------------------------------------------------------- Barre laterale
+ * Les liens sont stylés ICI et non par des utilitaires de couleur : Bootstrap pose
+ * `a { color: var(--bs-link-color) }` et, sans utilitaire genere pour la teinte de la barre, les
+ * libelles retombaient sur le bleu Bootstrap (#0d6efd, mesure au navigateur). Une classe dediee
+ * l'emporte sans ambiguite et evite d'empiler des `!important`.
+ */
+.sw-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background-color: transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: var(--text-sm);
+  color: var(--color-sidebar-text);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.sw-sidebar-link:hover { background-color: var(--color-sidebar-hover); color: #fff; }
+.sw-sidebar-link > i { width: 20px; text-align: center; font-size: 1rem; }
+.sw-sidebar-link > span { flex: 1; }
+
+.sw-sidebar-link--active {
+  background-color: var(--color-sidebar-active);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Sous-entrees : legerement plus discretes que les entrees de premier niveau. */
+.sw-sidebar-sublink {
+  padding: 7px 12px;
+  font-size: var(--text-sm);
+}
+.sw-sidebar-sublink > i { font-size: 0.6rem; opacity: 0.75; }
+
+/* Chevron du groupe repliable. */
+.sw-sidebar-caret { font-size: 0.7rem; opacity: 0.8; transition: transform 0.2s ease; }
+.sw-sidebar-caret--open { transform: rotate(180deg); }
 
 .sw-kpi-grid {
   display: grid;

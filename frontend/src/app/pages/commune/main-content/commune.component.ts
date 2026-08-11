@@ -10,6 +10,7 @@ import { CreateCommuneComponent } from '../create-commune/create-commune.compone
 import { headerTitleService } from '../../../services/headerTitle.service';
 import { ModalService } from '../../../services/modal.service';
 import { DeleteComponent } from '../../../shared/components/delete/delete.component';
+import { ColumnManagerComponent, ManagedColumn } from '../../../shared/components/column-manager/column-manager.component';
 
 @Component({
     selector: 'app-commune',
@@ -23,10 +24,29 @@ export class CommuneComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // `select` (cases à cocher) et `communeArea` réaffecté au statut, d'après les maquettes.
-  // `communeLength` retiré : une longueur de commune n'aide personne à décider, et la maquette
-  // privilégie moins de colonnes mais lisibles.
-  displayedColumns: string[] = ['select', 'communeName', 'communeCode', 'department', 'totalResident', 'womanResident', 'manResident', 'communeArea', 'action'];
+  /**
+   * Inventaire des colonnes proposées par « Gérer les colonnes » (maquettes).
+   *
+   * <p>`select` et `action` sont verrouillées : les masquer priverait l'écran de la sélection et
+   * des actions de ligne sans que l'utilisateur comprenne pourquoi.
+   */
+  readonly manageableColumns: ManagedColumn[] = [
+    { key: 'select', label: 'Sélection', locked: true },
+    { key: 'communeName', label: 'Nom' },
+    { key: 'communeCode', label: 'Code' },
+    { key: 'department', label: 'Département' },
+    { key: 'totalResident', label: 'Habitants' },
+    { key: 'womanResident', label: 'Femmes' },
+    { key: 'manResident', label: 'Hommes' },
+    { key: 'communeLength', label: 'Longueur' },
+    { key: 'communeArea', label: 'Statut' },
+    { key: 'action', label: 'Actions', locked: true },
+  ];
+
+  /** Clé de persistance : le choix de colonnes est propre à l'utilisateur, pas à la session. */
+  private static readonly COLUMNS_KEY = 'communes.columns';
+
+  displayedColumns: string[] = this.restoreColumns();
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
 
@@ -166,6 +186,42 @@ export class CommuneComponent {
       return;
     }
     this.onPaginatedChange({ pageIndex, pageSize: this.itemsPerPage });
+  }
+
+  /** Colonnes par défaut : tout sauf « Longueur », que la maquette écarte au profit de la lisibilité. */
+  private defaultColumns(): string[] {
+    return this.manageableColumns.map(c => c.key).filter(k => k !== 'communeLength');
+  }
+
+  private restoreColumns(): string[] {
+    try {
+      const stored = JSON.parse(localStorage.getItem(CommuneComponent.COLUMNS_KEY) || 'null');
+      // On revalide contre l'inventaire courant : une colonne renommée ou retirée du code ne doit
+      // pas casser l'écran au prochain chargement.
+      if (Array.isArray(stored)) {
+        const known = stored.filter((k: string) => this.manageableColumns.some(c => c.key === k));
+        const locked = this.manageableColumns.filter(c => c.locked).map(c => c.key);
+        if (known.length > 0 && locked.every(k => known.includes(k))) {
+          return known;
+        }
+      }
+    } catch {
+      // Stockage illisible : on repart des colonnes par défaut plutôt que d'échouer.
+    }
+    return this.defaultColumns();
+  }
+
+  openColumnManager(): void {
+    this.modalService.openModal<ColumnManagerComponent>(ColumnManagerComponent, {
+      columns: this.manageableColumns,
+      visible: this.displayedColumns,
+    }, { panelClass: [], maxWidth: '720px', width: '100%' })
+      .afterClosed().subscribe((columns: string[] | null) => {
+        if (columns) {
+          this.displayedColumns = columns;
+          localStorage.setItem(CommuneComponent.COLUMNS_KEY, JSON.stringify(columns));
+        }
+      });
   }
  
    /** Announce the change in sort state for assistive technology. */

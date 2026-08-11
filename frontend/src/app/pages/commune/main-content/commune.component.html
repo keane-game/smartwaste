@@ -33,6 +33,10 @@
       <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Filtrer">
         <i class="bi bi-sliders"></i>
       </button>
+      <button type="button" class="sw-btn-icon sw-btn-icon--bordered" aria-label="Gérer les colonnes"
+        title="Gérer les colonnes" (click)="openColumnManager()">
+        <i class="bi bi-layout-three-columns"></i>
+      </button>
     </div>
 
     <div class="sw-table-wrap">
@@ -80,6 +84,13 @@
         <ng-container matColumnDef="manResident">
           <th mat-header-cell *matHeaderCellDef>Hommes</th>
           <td mat-cell *matCellDef="let element">{{ element.men }}</td>
+        </ng-container>
+
+        <!-- Masquée par défaut mais définie : « Gérer les colonnes » permet de l'activer, et
+             Material exige que chaque colonne activable ait sa définition. -->
+        <ng-container matColumnDef="communeLength">
+          <th mat-header-cell *matHeaderCellDef>Longueur</th>
+          <td mat-cell *matCellDef="let element">{{ element.length }}</td>
         </ng-container>
 
         <ng-container matColumnDef="communeArea">

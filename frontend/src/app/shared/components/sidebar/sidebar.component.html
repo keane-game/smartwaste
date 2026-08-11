@@ -2,56 +2,50 @@
   Barre latérale sombre, d'après les maquettes de référence (frontend/mockup) : fond vert profond,
   libellés clairs, entrée active en rectangle arrondi plus clair, « Se déconnecter » en pilule
   contournée détachée en bas. Le noir des maquettes est remplacé par le vert de marque SONAGED.
+
+  Les couleurs des liens viennent de `.sw-sidebar-link` (components.css) et non d'utilitaires :
+  Bootstrap impose `a { color: … }` et les libellés retombaient sur son bleu (#0d6efd).
+  Le repli des groupes est géré par le composant, plus par le JavaScript de Bootstrap, qui laissait
+  le sous-menu en `display: none`.
 -->
 <aside id="sidebar" class="sidebar flex flex-col h-full bg-sidebar" #sidebar>
 
-  <a [routerLink]="['/']" class="flex items-center gap-gutter-sm px-gutter-lg py-gutter-lg">
+  <a [routerLink]="['/']" class="flex items-center gap-gutter-sm px-gutter-lg py-gutter-lg no-underline">
     <img src="/assets/images/SONAGED.png" alt="SONAGED" class="h-8 w-auto" />
     <span class="font-heading text-lg font-bold text-white tracking-tight">SmartCollect</span>
   </a>
 
-  <!-- `list-none pl-0` explicites : le preflight de Tailwind est désactivé (coexistence avec
-       Bootstrap), les `ul` gardent donc les puces `disc` et le retrait de 32px du navigateur. -->
-  <ul class="sidebar-nav flex-1 overflow-y-auto px-gutter-sm flex flex-col gap-1 list-none pl-0" id="sidebar-nav">
+  <ul class="sidebar-nav sw-nav-list flex-1 overflow-y-auto px-gutter-sm flex flex-col gap-1" id="sidebar-nav">
     @for (item of items(); track item.route + item.label) {
-      <li class="nav-item">
+      <li>
         @if (item.children) {
-          <a
-            class="nav-link collapsed flex items-center gap-gutter-sm px-gutter-sm py-2.5 rounded-sm
-                   text-sidebar-text hover:bg-sidebar-hover hover:text-white cursor-pointer transition-colors duration-150"
-            data-bs-target="#components-nav"
-            data-bs-toggle="collapse"
-            href="#"
-          >
-            <i [class]="item.icon + ' text-base w-5 text-center'"></i>
-            <span class="flex-1 text-sm">{{ item.label }}</span>
-            <i class="bi bi-chevron-down text-xs opacity-70"></i>
-          </a>
-          <ul id="components-nav" class="nav-content collapse pl-gutter-md flex flex-col gap-1 list-none"
-              data-bs-parent="#sidebar-nav">
-            @for (child of item.children; track child.route) {
-              <li>
-                <a
-                  [routerLink]="child.route"
-                  routerLinkActive="!bg-sidebar-active !text-white"
-                  class="flex items-center gap-gutter-sm px-gutter-sm py-2 rounded-sm text-sm
-                         text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors duration-150"
-                >
-                  <i [class]="child.icon + ' text-xs w-5 text-center opacity-80'"></i>
-                  <span>{{ child.label }}</span>
-                </a>
-              </li>
-            }
-          </ul>
+          <button type="button" class="sw-sidebar-link" (click)="toggleGroup(item.label)"
+            [attr.aria-expanded]="isGroupOpen(item.label)">
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+            <i class="bi bi-chevron-down sw-sidebar-caret"
+              [class.sw-sidebar-caret--open]="isGroupOpen(item.label)"></i>
+          </button>
+
+          @if (isGroupOpen(item.label)) {
+            <ul class="sw-nav-list flex flex-col gap-1 pl-gutter-md mt-1">
+              @for (child of item.children; track child.route) {
+                <li>
+                  <a [routerLink]="child.route" routerLinkActive="sw-sidebar-link--active"
+                    class="sw-sidebar-link sw-sidebar-sublink">
+                    <i [class]="child.icon"></i>
+                    <span>{{ child.label }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
         } @else {
-          <a
-            [routerLink]="item.route"
+          <a [routerLink]="item.route"
             [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-            routerLinkActive="!bg-sidebar-active !text-white font-medium"
-            class="flex items-center gap-gutter-sm px-gutter-sm py-2.5 rounded-sm text-sm
-                   text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors duration-150"
-          >
-            <i [class]="item.icon + ' text-base w-5 text-center'"></i>
+            routerLinkActive="sw-sidebar-link--active"
+            class="sw-sidebar-link">
+            <i [class]="item.icon"></i>
             <span>{{ item.label }}</span>
           </a>
         }
@@ -62,12 +56,9 @@
   <div class="px-gutter-md py-gutter-lg">
     <!-- `bg-transparent` explicite : sans preflight, Bootstrap donne un fond gris clair aux
          `button`, sur lequel le texte blanc devenait illisible. -->
-    <button
-      type="button"
-      (click)="logout()"
+    <button type="button" (click)="logout()"
       class="w-full rounded-pill bg-transparent border border-solid border-white/30 px-gutter-md py-2.5
-             text-sm text-white hover:bg-white/10 transition-colors duration-150 cursor-pointer"
-    >
+             text-sm text-white hover:bg-white/10 transition-colors duration-150 cursor-pointer">
       Se déconnecter
     </button>
   </div>

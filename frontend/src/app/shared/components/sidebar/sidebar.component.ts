@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -65,10 +65,31 @@ const NAV_ITEMS: NavItem[] = [
 })
 export class SidebarComponent {
 
+  /**
+   * Groupes repliables ouverts.
+   *
+   * <p>Le repli était auparavant confié au JavaScript de Bootstrap (`data-bs-toggle="collapse"`) :
+   * le sous-menu naissait en `display: none` et ne se rouvrait que si ce script s'exécutait
+   * correctement — d'où des entrées « Gestion des ressources » qui disparaissaient. L'état est
+   * désormais porté par le composant, sans dépendance externe. Ouvert par défaut : le groupe
+   * contient l'essentiel du référentiel, le replier au chargement cachait la moitié du menu.
+   */
+  private readonly openGroups = signal<Set<string>>(new Set(['Gestion des ressources']));
+
   constructor(
     private authService: AuthService,
     private sessionService: SessionService,
   ) {}
+
+  isGroupOpen(label: string): boolean {
+    return this.openGroups().has(label);
+  }
+
+  toggleGroup(label: string): void {
+    const next = new Set(this.openGroups());
+    next.has(label) ? next.delete(label) : next.add(label);
+    this.openGroups.set(next);
+  }
 
   readonly items = computed<NavItem[]>(() => this.filterByRole(NAV_ITEMS));
 

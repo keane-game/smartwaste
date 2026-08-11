@@ -1,0 +1,68 @@
+<div class="sw-dialog">
+  <div class="flex flex-col items-center gap-1 px-gutter-lg pt-gutter-lg pb-gutter-md border-b border-border text-center">
+    <h2 class="sw-dialog-title">Gérer les colonnes à afficher</h2>
+    <p class="text-sm text-muted max-w-md">
+      Sélectionnez les colonnes que vous souhaitez afficher. Pour modifier l'ordre des colonnes,
+      glissez-déposez les champs visibles.
+    </p>
+    <button type="button" (click)="reset()"
+      class="mt-1 bg-transparent border-0 text-sm text-primary underline cursor-pointer">
+      Réinitialiser
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+
+    <div class="p-gutter-lg">
+      <h3 class="sw-subtitle">
+        Colonnes visibles
+        <span class="sw-tab-count">{{ visibleColumns.length }}</span>
+      </h3>
+
+      <ul class="sw-nav-list flex flex-col gap-1" cdkDropList (cdkDropListDropped)="drop($event)">
+        @for (column of reorderable; track column.key) {
+          <li cdkDrag
+            class="flex items-center gap-3 rounded-sm px-2 py-2 text-sm text-text bg-surface
+                   hover:bg-muted-surface cursor-grab active:cursor-grabbing">
+            <i class="bi bi-grip-vertical text-muted"></i>
+            {{ column.label }}
+          </li>
+        }
+      </ul>
+
+      @if (reorderable.length === 0) {
+        <p class="text-sm text-muted">Aucune colonne visible.</p>
+      }
+    </div>
+
+    <div class="p-gutter-lg">
+      <h3 class="sw-subtitle">
+        Colonnes disponibles
+        <span class="sw-tab-count">{{ columns.length }}</span>
+      </h3>
+
+      <ul class="sw-nav-list flex flex-col gap-1">
+        @for (column of columns; track column.key) {
+          <li>
+            <label class="flex items-center gap-3 rounded-sm px-2 py-2 text-sm text-text
+                          hover:bg-muted-surface"
+              [class.opacity-50]="column.locked"
+              [class.cursor-pointer]="!column.locked">
+              <input type="checkbox" class="sw-checkbox" [checked]="isVisible(column)"
+                [disabled]="column.locked" (change)="toggle(column)" />
+              {{ column.label }}
+              @if (column.locked) {
+                <span class="text-xs text-muted">(toujours affichée)</span>
+              }
+            </label>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="flex justify-center gap-gutter-sm p-gutter-lg border-t border-border">
+    <button type="button" class="sw-btn-primary" [disabled]="!dirty" (click)="save()">Enregistrer</button>
+    <button type="button" class="sw-btn-danger" [mat-dialog-close]="null">Annuler</button>
+  </div>
+</div>
