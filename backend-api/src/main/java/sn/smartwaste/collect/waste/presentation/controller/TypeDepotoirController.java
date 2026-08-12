@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sn.smartwaste.collect.waste.application.dto.TypeDepotoir;
@@ -38,9 +41,26 @@ public class TypeDepotoirController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping("s")
     public List<TypeDepotoir> readAllTypeDepotoir(){
         return typeDepotoirService.readAllTypeDepotoir ();
+    }
+
+    /**
+     * Corrige une incohérence relevée par audit (2026-08-10, `docs/FRONTEND_API_MAPPING.md`) : cette
+     * ressource n'avait qu'une liste plate. Même patron que Commune/Quartier/Depotoir/User/Alert.
+     */
+    @Operation(summary = "Read TypeDepotoir by pagination with size", description = "Read TypeDepotoirs")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public Page<TypeDepotoir> readAllTypeDepotoir(@RequestParam("page") int page, @RequestParam("size") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return typeDepotoirService.readAllTypeDepotoir(pageable);
     }
 
     @Operation(summary = "Create one TypeDepotoir")
@@ -49,7 +69,7 @@ public class TypeDepotoirController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public TypeDepotoir createTypeDepotoir(@RequestBody TypeDepotoir typeDepotoir){
         return typeDepotoirService.createTypeDepotoir (typeDepotoir);
@@ -61,7 +81,7 @@ public class TypeDepotoirController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{typeDepotoirId}")
     public TypeDepotoir  updateTypeDepotoir(@PathVariable("typeDepotoirId") UUID typeDepotoirId, @RequestBody() TypeDepotoir typeDepotoir) {
         return typeDepotoirService.updateTypeDepotoir (typeDepotoirId, typeDepotoir);

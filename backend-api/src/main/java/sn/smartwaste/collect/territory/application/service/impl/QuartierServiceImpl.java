@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.CommuneMapper;
 import sn.smartwaste.collect.territory.application.mapper.RegionMapper;
@@ -20,8 +21,11 @@ import sn.smartwaste.collect.territory.application.service.QuartierService;
 import java.util.List;
 import java.util.Objects;
 
+// P1-2 : QuartierMapper.asDto lit désormais l'association lazy `commune` (EAGER->LAZY) — même
+// correctif que RegionServiceImpl/DepartmentServiceImpl.
 @RequiredArgsConstructor
 @Service
+@Transactional
 @Slf4j
 public class QuartierServiceImpl implements QuartierService {
     private final CommuneRepository communeRepository;
@@ -30,6 +34,7 @@ public class QuartierServiceImpl implements QuartierService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Quartier readQuartier(UUID quartierId) {
         var quartier = quartierRepository.findById(quartierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -40,12 +45,14 @@ public class QuartierServiceImpl implements QuartierService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Quartier> readAllQuartier() {
         var quartierList = quartierRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return QuartierMapper.QMP.listModelToDto(quartierList);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Quartier> readAllQuartier(Pageable pageable) {
         return quartierRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map (QuartierMapper.QMP::asDto);
     }
@@ -53,14 +60,18 @@ public class QuartierServiceImpl implements QuartierService {
     @Override
     public Quartier createQuartier(Quartier quartier) {
 
-        var communeId = quartier.getCommune().getCommuneId ();
-        if(communeId != null) {
-            var commune = communeRepository.findById (communeId).orElseThrow (
-                    () -> new ResourceNotFoundException ("")
+        // P1-2 : le DTO porte désormais `communeId` (le mapper ignore l'association côté
+        // entité). Au passage, corrige une NullPointerException systématique quand un
+        // quartier était créé sans commune (déréférencement de `getCommune()` sans garde).
+        var quartierEntity = QuartierMapper.QMP.asModel(quartier);
+        if (quartier.getCommuneId() != null) {
+            var commune = communeRepository.findById(quartier.getCommuneId()).orElseThrow(
+                    () -> new ResourceNotFoundException(
+                            "Commune with id [%s] not found".formatted(quartier.getCommuneId()))
             );
-           quartier.setCommune (commune);
+            quartierEntity.setCommune(commune);
         }
-        var quartierSave = quartierRepository.save(QuartierMapper.QMP.asModel(quartier));
+        var quartierSave = quartierRepository.save(quartierEntity);
         return QuartierMapper.QMP.asDto(quartierSave);
     }
 

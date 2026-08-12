@@ -159,6 +159,14 @@ public class SecurityConfiguration{
                                                 .requestMatchers("/v1/collection-subscriptions",
                                                                  "/v1/collection-subscriptions/**").authenticated()
 
+                                                // Consulter SES PROPRES permissions n'a rien à voir avec le
+                                                // droit d'administrer les rôles d'autrui : exception nommée
+                                                // AVANT le bloc administration ci-dessous, sinon la chaîne de
+                                                // filtres refuserait la requête avant même d'atteindre le
+                                                // @PreAuthorize("isAuthenticated()") de la méthode — même
+                                                // piège que celui déjà documenté pour l'agent de collecte.
+                                                .requestMatchers(GET, "/v1/permissions/mine").authenticated()
+
                                                 // ---- Administration : la LECTURE aussi est réservée.
                                                 // La liste des comptes, l'état de la corbeille et les
                                                 // rapports de supervision renseignent sur l'organisation

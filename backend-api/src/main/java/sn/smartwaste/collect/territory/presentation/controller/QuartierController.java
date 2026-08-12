@@ -70,7 +70,7 @@ public class QuartierController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Quartier createQuartier(@RequestBody Quartier quartier){
         return quartierService.createQuartier (quartier);
@@ -82,7 +82,7 @@ public class QuartierController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{quartierId}")
     public Quartier updateQuartier(@PathVariable("quartierId") UUID quartierId, @RequestBody() Quartier quartier) {
         return quartierService.updateQuartier (quartierId, quartier);

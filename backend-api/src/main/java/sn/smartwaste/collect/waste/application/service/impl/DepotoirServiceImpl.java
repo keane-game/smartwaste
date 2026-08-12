@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.waste.application.api.DepotoirMaps;
 import sn.smartwaste.collect.shared.domain.model.DeletionStatus;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
@@ -17,7 +18,6 @@ import sn.smartwaste.collect.waste.application.mapper.DepotoirMapper;
 import sn.smartwaste.collect.waste.domain.model.DepotoirEntity;
 import sn.smartwaste.collect.territory.domain.model.GeometryEntity;
 import sn.smartwaste.collect.waste.domain.repository.DepotoirRepository;
-import sn.smartwaste.collect.territory.domain.repository.GeometryRepository;
 import sn.smartwaste.collect.territory.domain.repository.QuartierRepository;
 import sn.smartwaste.collect.waste.domain.repository.TypeDepotoirRepository;
 import sn.smartwaste.collect.waste.application.service.CrossContextReferenceValidator;
@@ -30,11 +30,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+// P1-2 : DepotoirMapper.asDto lit les associations lazy `typeDepotoir`/`geometry` — même
+// correctif que les services du référentiel territorial.
 @RequiredArgsConstructor
 @Service
+@Transactional
 @Slf4j
 public class DepotoirServiceImpl implements DepotoirService {
-    private final GeometryRepository geometryRepository;
     private final QuartierRepository quartierRepository;
     private final TypeDepotoirRepository typeDepotoirRepository;
 
@@ -44,6 +46,7 @@ public class DepotoirServiceImpl implements DepotoirService {
     private final CurrentTenantProvider currentTenantProvider;
 
     @Override
+    @Transactional(readOnly = true)
     public Depotoir readDepotoir(UUID depotoirId) {
         var depotoir  = depotoirRepository.findById(depotoirId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -54,6 +57,7 @@ public class DepotoirServiceImpl implements DepotoirService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Depotoir> readAllDepotoir() {
         // n'expose que les dépotoirs actifs (les soft-deletés sont masqués des listes normales)
         var depotoirList = depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE);
@@ -61,25 +65,34 @@ public class DepotoirServiceImpl implements DepotoirService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Depotoir> readAllDepotoir(Pageable pageable) {
         //return depotoirRepository.findAll (pageable).map (DepotoirMapper.DETMP::asDto);
        return readAllDepotoirs(pageable);
     }
     public Page<Depotoir> readAllDepotoirs(Pageable pageable) {
+        // P1-2 : appelait `geometryRepository.findById` pour relire une Geometry déjà chargée
+        // par `DepotoirMapper.asDto` une ligne plus haut (via l'association lazy `geometry`) —
+        // un aller-retour DB redondant par ligne de page. Le mapper a déjà déclenché le
+        // chargement lazy, on en réutilise directement le résultat.
         return depotoirRepository.findByDeletionStatus(DeletionStatus.ACTIVE, pageable)
                 .map(depotoir -> {
                     Depotoir dto = DepotoirMapper.DETMP.asDto(depotoir);
-                    UUID geometryId = dto.getGeometry().getGeometryId();
-
-                    geometryRepository.findById(geometryId).ifPresent(geometry -> {
+                    // Même défaut que celui corrigé dans `getDepotoirMap` plus bas, resté ici :
+                    // la géométrie est facultative en base et un point créé depuis les écrans CRUD
+                    // n'en a aucune. Un seul enregistrement de ce genre faisait répondre 500 à TOUTE
+                    // la liste paginée — donc créer un point depuis l'interface cassait l'écran qui
+                    // sert à le consulter.
+                    var geometry = dto.getGeometry();
+                    if (geometry != null) {
                         dto.setCoordinates(CoordinateMapper.CODMP.asListDto(geometry.getCoordinates()));
-                    });
-
+                    }
                     return dto;
                 });
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DepotoirMaps> getDepotoirMap() {
         var depotoirs = depotoirRepository.findByDeletionStatus (DeletionStatus.ACTIVE);
         List<DepotoirMaps> depotoirMaps = new ArrayList<>();

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.waste.domain.model.CircuitShift;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.domain.repository.CircuitBalayageRepository;
@@ -15,14 +16,19 @@ import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 import java.util.UUID;
+
+// P1-2 : CircuitBalayageMapper.asDto lit l'association lazy `geometry` — même correctif que
+// DepotoirServiceImpl.
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
     private final CircuitBalayageRepository circuitBalayageRepository;
     private final CurrentTenantProvider currentTenantProvider;
 
     @Override
+    @Transactional(readOnly = true)
     public CircuitBalayage readCircuitBalayage(UUID circuitBalayageId) {
         var circuitBalayage = circuitBalayageRepository.findById(circuitBalayageId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -33,11 +39,13 @@ public class CircuitBalayageServiceImpl implements CircuitBalayageService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<CircuitBalayage> readAllCircuitBalayage() {
         var circuitBalayageList = circuitBalayageRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CircuitBalayageMapper.CBMP.asListDto(circuitBalayageList);
     }
 
+    @Transactional(readOnly = true)
     public Page<CircuitBalayage> readAllCircuitBalayage(Pageable pageable){
         return circuitBalayageRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CircuitBalayageMapper.CBMP::asDto);
     }

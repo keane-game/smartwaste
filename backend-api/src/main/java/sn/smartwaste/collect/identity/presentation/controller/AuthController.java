@@ -12,6 +12,7 @@ import sn.smartwaste.collect.identity.application.dto.AuthTokens;
 import sn.smartwaste.collect.identity.application.service.AuthService;
 import sn.smartwaste.collect.identity.application.service.PasswordResetService;
 import sn.smartwaste.collect.identity.application.service.SessionService;
+import sn.smartwaste.collect.identity.application.service.UserService;
 import sn.smartwaste.collect.identity.infrastructure.security.JwtService;
 
 import java.util.List;
@@ -28,8 +29,10 @@ public class AuthController {
     private JwtService jwtService;
     private PasswordResetService passwordResetService;
     private CurrentUserProvider currentUserProvider;
+    private UserService userService;
 
     @PostMapping(path = "register")
+    @ResponseStatus(HttpStatus.CREATED)
     public void register(@RequestBody User user) {
         log.info("register");
         this.authService.register(user);
@@ -79,6 +82,20 @@ public class AuthController {
 
     /** Corps de {@code POST /auth/refresh}. */
     public record RefreshRequest(String refresh) { }
+
+    /**
+     * Profil du compte authentifié — le « qui suis-je » qui manquait.
+     *
+     * <p>Sans lui, un frontend n'avait aucun moyen fiable de savoir qui venait de se connecter
+     * autrement qu'en décodant lui-même le JWT (dont le claim {@code role} est explicitement
+     * documenté comme informatif, cf. {@code JwtService}). Aucune règle dédiée dans
+     * {@code SecurityConfiguration} : {@code GET /auth/**} n'est jamais rendu public, donc ce
+     * chemin retombe sur {@code anyRequest().authenticated()} — un jeton valide suffit et est exigé.
+     */
+    @GetMapping(path = "me")
+    public User me() {
+        return userService.readUser(currentUserProvider.requireCurrentUserId());
+    }
 
     /**
      * Change le mot de passe du compte authentifié.

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.DepartmentMapper;
 import sn.smartwaste.collect.territory.domain.repository.CommuneRepository;
@@ -18,8 +19,11 @@ import sn.smartwaste.collect.tenant.application.api.CurrentTenantProvider;
 
 import java.util.List;
 
+// P1-2 : CommuneMapper.asDto lit l'identifiant de l'association lazy `department` — même
+// correctif que les autres services du référentiel territorial.
 @RequiredArgsConstructor
 @Service
+@Transactional
 @Slf4j
 public class CommuneServiceImpl implements CommuneService {
     private final DepartmentRepository departmentRepository;
@@ -29,6 +33,7 @@ public class CommuneServiceImpl implements CommuneService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Commune readCommune(UUID communeId) {
        var commune = communeRepository.findById(communeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -38,11 +43,13 @@ public class CommuneServiceImpl implements CommuneService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Commune> readAllCommune() {
        var communeList = communeRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CommuneMapper.COMP.asListDto(communeList);
     }
 
+    @Transactional(readOnly = true)
     public Page<Commune> readAllCommune(Pageable pageable){
         return communeRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CommuneMapper.COMP::asDto);
     }

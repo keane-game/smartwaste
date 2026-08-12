@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.domain.repository.CircuitCollectRepository;
 import sn.smartwaste.collect.waste.application.dto.CircuitCollect;
@@ -15,14 +16,18 @@ import java.util.List;
 import java.util.UUID;
 
 
+// P1-2 : CircuitCollectMapper.asDto lit l'association lazy `geometry` — même correctif que
+// DepotoirServiceImpl.
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class CircuitCollectServiceImpl implements CircuitCollectService {
 
     private final CircuitCollectRepository circuitCollectRepository;
     private final CurrentTenantProvider currentTenantProvider;
 
     @Override
+    @Transactional(readOnly = true)
     public CircuitCollect readCircuitCollect(UUID circuitCollectId) {
         var circuitCollect = circuitCollectRepository.findById(circuitCollectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -32,12 +37,14 @@ public class CircuitCollectServiceImpl implements CircuitCollectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CircuitCollect> readAllCircuitCollect() {
         var circuitCollectList = circuitCollectRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CircuitCollectMapper.CCMP.asListDto (circuitCollectList);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<CircuitCollect> readAllCircuitCollect(Pageable pageable){
         return circuitCollectRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CircuitCollectMapper.CCMP::asDto);
     }

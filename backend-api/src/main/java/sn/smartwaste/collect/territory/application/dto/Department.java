@@ -3,15 +3,12 @@ package sn.smartwaste.collect.territory.application.dto;
 import java.util.UUID;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import sn.smartwaste.collect.territory.domain.model.CommuneEntity;
-import sn.smartwaste.collect.territory.domain.model.RegionEntity;
 
 import java.util.List;
 
@@ -29,10 +26,12 @@ public class Department {
 
     String code;
 
-    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
-    List<CommuneEntity> communes;
+    // P1-2 : portait `List<CommuneEntity>`/`RegionEntity` (entités JPA exposées telles quelles
+    // dans le DTO), ce qui forçait un chargement complet des associations à chaque lecture et
+    // fuitait le modèle de persistance par l'API. Même patron que `Commune.departmentId`.
+    List<UUID> communeIds;
 
-    RegionEntity region;
+    UUID regionId;
 
     Geometry geometry;
 

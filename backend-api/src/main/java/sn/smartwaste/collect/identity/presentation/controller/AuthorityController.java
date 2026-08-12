@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
+import sn.smartwaste.collect.identity.application.dto.Authority;
 import sn.smartwaste.collect.identity.application.service.AuthorityService;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class AuthorityController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{authorityId}")
-    public AuthorityEntity readAuthority(@PathVariable("authorityId") UUID authorityId){
+    public Authority readAuthority(@PathVariable("authorityId") UUID authorityId){
         return authorityService.readAuthority(authorityId);
     }
 
@@ -56,7 +56,7 @@ public class AuthorityController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<AuthorityEntity> readAuthorities(){
+    public List<Authority> readAuthorities(){
         return authorityService.readAllAuthority();
     }
 
@@ -68,7 +68,7 @@ public class AuthorityController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public AuthorityEntity createAuthority(@RequestBody AuthorityEntity authority){
+    public Authority createAuthority(@RequestBody Authority authority){
         return authorityService.createAuthority(authority);
     }
 
@@ -78,9 +78,9 @@ public class AuthorityController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{authorityId}")
-    public AuthorityEntity updateAuthority(@PathVariable("authorityId") UUID authorityId, @RequestBody() AuthorityEntity authority) {
+    public Authority updateAuthority(@PathVariable("authorityId") UUID authorityId, @RequestBody() Authority authority) {
         return authorityService.updateAuthority(authorityId, authority);
     }
 

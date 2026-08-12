@@ -70,7 +70,7 @@ public class DepotoirController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Depotoir createOneDepotoir(@RequestBody Depotoir depotoir){
         return depotoirService.createDepotoir(depotoir);
@@ -82,7 +82,7 @@ public class DepotoirController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{depotoirId}")
     public Depotoir  updateDepotoir(@PathVariable("depotoirId") UUID depotoirId, @RequestBody() Depotoir depotoir) {
         return depotoirService.updateDepotoir(depotoirId, depotoir);

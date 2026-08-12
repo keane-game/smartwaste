@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  * Endpoints transverses de suppression logique (soft-delete) pour <b>toutes</b> les ressources.
@@ -62,10 +63,16 @@ public class DeletionController {
                 .toList();
     }
 
+    /**
+     * Corrige un défaut universel relevé par audit (2026-08-10, `docs/FRONTEND_API_MAPPING.md`) :
+     * {@code id} était typé {@code Long} alors que <b>toutes</b> les entités de ce projet utilisent
+     * des identifiants {@code UUID} (générateur maison v7) — aucune restauration via cet endpoint
+     * générique ne pouvait donc jamais réussir, pour aucune des ressources qui y sont rattachées.
+     */
     @Operation(summary = "Restaurer un élément en attente de suppression")
     @PostMapping("/{resource}/{id}/restore")
     public AbstractAuditingEntity<?> restore(@PathVariable("resource") String resource,
-                                             @PathVariable("id") Long id) {
+                                             @PathVariable("id") UUID id) {
         return softDeleteService.restoreById(resolve(resource), id);
     }
 

@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.territory.application.dto.Coordinate;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
@@ -41,6 +43,12 @@ public class GeometryServiceImpl implements GeometryService {
     public List<Geometry> readAllGeometry() {
         var geometryList = geometryRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return GeometryMapper.GMP.asListDto(geometryList);
+    }
+
+    @Override
+    public Page<Geometry> readAllGeometry(Pageable pageable) {
+        return geometryRepository.findByDeletionStatus(
+                sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(GeometryMapper.GMP::asDto);
     }
 
 

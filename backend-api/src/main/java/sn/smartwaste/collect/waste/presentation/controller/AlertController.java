@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import org.springframework.web.multipart.MultipartFile;
 import sn.smartwaste.collect.waste.application.dto.Alert;
@@ -103,49 +102,13 @@ public class AlertController {
         return  alertService.createAlert(alert, file);
     }
 
-    @Operation(summary = "Create one Alert")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Create one alert"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
-    })
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/test", consumes = {"multipart/form-data", "application/octet-stream", "application/json"})
-    public Alert createAlerts(@RequestBody Alert alert, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        return  alertService.createAlert(alert, file);
-    }
-
-    @Operation(summary = "Create one Alert")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Create one alert"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
-    })
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/test1", consumes = {"multipart/form-data", "application/octet-stream", "application/json"})
-    public Alert createAlerts1(@RequestBody Alert alert, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-        return  alertService.createAlert(alert, file);
-    }
-
-    @Operation(summary = "Create one Alert")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Create one alert"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
-    })
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/test2", consumes = {"multipart/form-data", "application/octet-stream", "application/json"})
-    public Alert createAlerts2(@ModelAttribute Alert alert) throws IOException {
-        return  alertService.createAlertFile(alert);
-    }
-
     @Operation(summary = "update  Alert by Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Update one alert"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping(value = "/{alertId}",  consumes = {"multipart/form-data", "application/octet-stream", "application/json"})
     public Alert updateAlert(@PathVariable("alertId") UUID alertId, @RequestParam("alert") String alert, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         return alertService.updateAlert(alertId, alert, file);

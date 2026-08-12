@@ -80,12 +80,22 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Impact** : réduction du risque de conflit classpath ; démarrage plus sûr.
 - **Complexité** : S · **ADR-0009**.
 
-### P1-2 · Corriger le fetch/cascade des entités
+### P1-2 · Corriger le fetch/cascade des entités — ✅ **fait le 2026-08-11**
 - **Objectif** : `LAZY` par défaut, retirer les `CascadeType.ALL` fautifs.
 - **Justification** : EAGER en chaîne (Depotoir→Commune→Department→Region, Geometry) → N+1 ; `CascadeType.ALL` vers `TypeDepotoir` (référentiel partagé) peut supprimer des données de référence (R3, R4).
 - **Fichiers** : `model/DepotoirEntity`, `CommuneEntity`, `DepartmentEntity`, `Circuit*Entity`.
 - **Impact** : perfs + intégrité ; adapter les requêtes qui dépendaient de l'EAGER (fetch-joins/projections).
 - **Complexité** : M · **ADR-0008**.
+- **Résultat** : traité en deux passes. La chaîne `Depotoir/CircuitCollect/CircuitBalayage →
+  Commune → Department → Region` et le cascade `Depotoir.typeDepotoir` sont passés en LAZY/cascade
+  sûr le 2026-07-25. Cette itération (2026-08-11) ferme les angles morts restants : les deux
+  dernières associations encore EAGER (`CircuitEntity.geometry`, `QuartierEntity.commune`), le
+  cascade `ALL` inverse encore fautif (`TypeDepotoirEntity.depotoirs`), et surtout les DTO
+  `Region`/`Department`/`Quartier` qui exposaient encore des **entités JPA brutes** — remplacées
+  par des identifiants (même patron que `Commune.departmentId`), ce qui a aussi mis au jour et
+  corrigé deux `NullPointerException` (département/quartier créés sans parent). `@Transactional`
+  ajouté à 7 services du référentiel qui dépendaient implicitement d'`open-in-view`. Détail complet :
+  `docs/IMPLEMENTATION_LOG.md`, entrée 2026-08-11.
 
 ### P1-3 · Sortir les images du BLOB
 - **Objectif** : ne plus stocker `displayPicture byte[]` dans la table `ALERT`.

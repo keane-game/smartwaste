@@ -5,12 +5,16 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
-import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
+import sn.smartwaste.collect.identity.application.dto.Authority;
+import sn.smartwaste.collect.identity.application.mapper.AuthorityMapper;
 import sn.smartwaste.collect.identity.domain.repository.AuthorityRepository;
 import sn.smartwaste.collect.identity.application.service.AuthorityService;
 
 import java.util.List;
 
+// P1-2/audit : AuthorityController exposait l'entité JPA `AuthorityEntity` directement (aucun
+// DTO) sur un endpoint de gestion des rôles — même défaut que Region/Department/Quartier déjà
+// corrigé, ici sans DTO intermédiaire du tout plutôt qu'un simple champ qui fuit.
 @RequiredArgsConstructor
 @Service
 class AuthorityServiceImpl implements AuthorityService {
@@ -18,26 +22,28 @@ class AuthorityServiceImpl implements AuthorityService {
     private final AuthorityRepository authorityRepository;
 
     @Override
-    public AuthorityEntity readAuthority(UUID authorityId) {
-        return authorityRepository.findById(authorityId)
+    public Authority readAuthority(UUID authorityId) {
+        var authority = authorityRepository.findById(authorityId)
                 .orElseThrow(() -> new ResourceNotFoundException (
                         "Authority with id [%s] not found ".formatted(authorityId)
                 ));
+        return AuthorityMapper.AMP.asDto(authority);
     }
 
     @Override
-    public List<AuthorityEntity> readAllAuthority() {
+    public List<Authority> readAllAuthority() {
         var authorityList = authorityRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
-        return authorityList.stream().toList();
+        return AuthorityMapper.AMP.asListDto(authorityList);
     }
 
     @Override
-    public AuthorityEntity createAuthority(AuthorityEntity authority) {
-        return authorityRepository.save(authority);
+    public Authority createAuthority(Authority authority) {
+        var saved = authorityRepository.save(AuthorityMapper.AMP.asModel(authority));
+        return AuthorityMapper.AMP.asDto(saved);
     }
 
     @Override
-    public AuthorityEntity updateAuthority(UUID authorityId, AuthorityEntity authority) {
+    public Authority updateAuthority(UUID authorityId, Authority authority) {
         var existedAuthority = authorityRepository.findById(authorityId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Authority with id [%s] not found ".formatted(authorityId)
@@ -51,7 +57,7 @@ class AuthorityServiceImpl implements AuthorityService {
         if (authority.getPermissions() != null) {
             existedAuthority.setPermissions(authority.getPermissions());
         }
-        return authorityRepository.save(existedAuthority);
+        return AuthorityMapper.AMP.asDto(authorityRepository.save(existedAuthority));
     }
 
 

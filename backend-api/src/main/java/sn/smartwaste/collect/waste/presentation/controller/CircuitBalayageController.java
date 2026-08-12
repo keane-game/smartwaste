@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +29,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/circuit-balayage/{circuitBalayageId}")
+    @GetMapping("/{circuitBalayageId}")
     public CircuitBalayage readCircuitBalayage(@PathVariable("circuitBalayageId") UUID circuitBalayageId){
         return  circuitBalayageService.readCircuitBalayage(circuitBalayageId);
 
@@ -39,9 +42,27 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping("s")
     public List<CircuitBalayage> readAllCircuitBalayage(){
         return circuitBalayageService.readAllCircuitBalayage();
+    }
+
+    /**
+     * Corrige une incohérence relevée par audit (2026-08-10, `docs/FRONTEND_API_MAPPING.md`) : cette
+     * ressource n'avait qu'une liste plate exposée, alors que le service portait déjà la méthode
+     * paginée. Même patron que Commune/Quartier/Depotoir/User/Alert.
+     */
+    @Operation(summary = "Read CircuitBalayage by pagination with size", description = "Read CircuitBalayages")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during request processing")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public Page<CircuitBalayage> readAllCircuitBalayage(@RequestParam("page") int page, @RequestParam("size") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return circuitBalayageService.readAllCircuitBalayage(pageable);
     }
 
     @Operation(summary = "Create one CircuitBalayage")
@@ -50,7 +71,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CircuitBalayage createCircuitBalayage(@RequestBody CircuitBalayage circuitBalayage){
         return circuitBalayageService.createCircuitBalayage(circuitBalayage);
@@ -63,7 +84,7 @@ public class CircuitBalayageController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{circuitBalayageId}")
     public CircuitBalayage  updateCircuitBalayage(@PathVariable("circuitBalayageId") UUID circuitBalayageId, @RequestBody() CircuitBalayage circuitBalayageDto) {
         return circuitBalayageService.updateCircuitBalayage(circuitBalayageId, circuitBalayageDto);

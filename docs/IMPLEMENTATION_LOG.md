@@ -16,6 +16,8 @@
 
 | Date | Tâche | Fichiers | Statut | À vérifier manuellement |
 |---|---|---|---|---|
+| 2026-08-12 | Audit du même défaut que P1-2 (entité JPA exposée en DTO) étendu au reste du code : `AuthorityController` (`/v1/authorities`, gestion des rôles) n'avait **aucun DTO du tout**, entrée et sortie étaient l'entité `AuthorityEntity` brute — le cas le plus profond trouvé, sur un endpoint sensible (`MANAGE_ROLE`) | nouveau DTO `identity.application.dto.Authority` + `AuthorityMapper` ; `AuthorityService`/`AuthorityServiceImpl`/`AuthorityController` reformulés autour du DTO ; `AuthorityServiceImplTest` adapté | ✅ **compilé et testé, 319 tests, 0 échec** | Risque de crash acquis plus faible que Region/Department (l'association concernée, `permissions`, est une collection lazy d'enum, pas un proxy d'entité lazy — le bug Jackson/ByteBuddy ne s'applique pas ici) ; changement de contrat mineur : les champs d'audit hérités (`createdBy`/`archived`/`deletionStatus`...) que l'entité exposait par accident ont disparu de la réponse, aucun écran connu n'en dépend |
+| 2026-08-11 | **P1-2 (suite et clôture)** : dernières associations EAGER (`CircuitEntity.geometry`, `QuartierEntity.commune`), cascade `ALL` fautif restant (`TypeDepotoirEntity.depotoirs`), et surtout les DTO `Region`/`Department`/`Quartier` qui exposaient encore des entités JPA brutes (`List<DepartmentEntity>`, `RegionEntity`, `List<CommuneEntity>`, `CommuneEntity`) — remplacés par des identifiants (`departmentIds`, `regionId`, `communeIds`, `communeId`), même patron que `Commune.departmentId` | entités `CircuitEntity`/`TypeDepotoirEntity`/`QuartierEntity` ; DTO+mapper `Region`/`Department`/`Quartier` ; `DepartmentServiceImpl.createDepartment`/`QuartierServiceImpl.createQuartier` (corrige au passage 2 NullPointerException sur département/quartier créés sans parent) ; `DepotoirServiceImpl.readAllDepotoirs` (retire un aller-retour DB redondant) ; `@Transactional` ajouté sur 6 services du référentiel qui dépendaient implicitement d'`open-in-view` | ✅ **compilé et testé, 316 tests, 0 échec** | 6 nouveaux tests (`DepartmentServiceImplTest`, `QuartierServiceImplTest`) verrouillent les deux NPE corrigées ; le reste de la chaîne EAGER (`Depotoir`/`CircuitCollect`/`CircuitBalayage`→`Commune`→`Department`→`Region`) était déjà LAZY depuis l'itération du 2026-07-25 (voir entrée P1-2 ci-dessous) |
 | 2026-08-06 | Documentation périmée corrigée (CLAUDE.md, KNOWLEDGE_MAP.md) : la chaîne capteur→seuil→alerte, y compris température/humidité, est bien implémentée — plus de mention d'ADR-0004bis à écrire | `CLAUDE.md`, `docs/KNOWLEDGE_MAP.md` | ✅ | `docs/architecture-cible.md` et `docs/keycloak-migration.md` portaient déjà les mêmes corrections (session antérieure), non retouchés |
 | 2026-08-06 | ADR-0012 poursuivi : `TypeDepotoir`, `MoblierUrbain`, `Circuit`, `CircuitCollect`, `CircuitBalayage` migrés en UUID v7 (`depotoirs`, `alerts` restent en `Long`, non traités) | entités/dto/repository/service/controller des 5 ressources + `AlertThreshold.typeDepotoirId`, `Vehicle.circuitCollectId`, `CollectionSchedule.circuitCollectId` ; changelogs `2.18.0`/`2.19.0`/`2.20.0` ; `frontend/.../api-endpoints.ts` (`idType`) et 2 composants (`moblier-urbain`, `vehicle`) | 🟡 code écrit, **non compilé** (pas de JDK dans cet environnement) | `./mvnw clean compile` puis `test` avant tout démarrage réel ; **`2.19.0` et l'étape `circuit` de `2.20.0` sont destructrices sans réimport possible** (contrairement à `typedepotoir`/`circuitcollect`/`circuitbalayage`, réimportables via GeoJSON) — vérifier qu'aucune ligne réelle n'existe déjà dans `moblierurbain`/`circuit` avant d'appliquer sur une base non jetable |
 | 2026-08-06 | Docker Compose : service `postgres:17` ajouté (P2-2, jusqu'ici absent — seuls smtp4dev/MinIO l'étaient) | `backend-api/src/main/resources/docker-compose.yml`, `.env.example` (`DB_NAME` ajouté) | 🟡 non testé (pas de démon Docker ici) | `docker compose up postgres` puis `./mvnw spring-boot:run` contre ce conteneur |
@@ -37,6 +39,59 @@
 | 2026-07-25 | **P1-3** Sortir les images du BLOB (→ **MinIO**) | `model/AlertEntity`, `model/ImageEntity`, `dto/Image`, `service/ImageService`, `service/impl/ImageServiceImpl` (MinIO), `service/impl/AlertServiceImpl`, `config/MinioConfig`, `pom.xml` (`io.minio:minio`), `application.yml` (`sonaged.storage.minio.*`), `docker-compose.yml` (service minio), `.env.example`, `config/liquibase/changelog/1.2.0_image_out_of_blob.xml` + `master.xml` | ✅ implémenté (non compilé) | Démarrer MinIO (`docker compose -f src/main/resources/docker-compose.yml up`) ; bucket créé au 1er upload ; `image.url` = `{endpoint}/{bucket}/{clé}` → **rendre le bucket lisible** (policy) ou passer par des URLs présignées/proxy (`MINIO_PUBLIC_URL`) ; tester upload alerte → objet présent dans le bucket + URL accessible ; **Naming strategy ambiguë** : changelog cible `displaypicture`/`imageid` en minuscules (convention baseline) — vérifier le nom physique avant `dropColumn` (préconditions `MARK_RAN` = tolérant) ; `ddl-auto=validate` en dérive baseline (cf. P0-4) → l'app peut ne pas démarrer ; **migrer les BLOB existants** (ADR-0005 §3) vers MinIO (job non fourni) ; front/mobile : consommer `image.url` (plus de base64) |
 
 ## Détail
+
+### P1-2 (suite et clôture) — dernières EAGER, cascade fautif, DTO qui fuitaient des entités (2026-08-11)
+- **Point de départ** : l'entrée P1-2 du 2026-07-25 (ci-dessous) avait traité la chaîne
+  `Depotoir/CircuitCollect/CircuitBalayage → Commune → Department → Region` et le cascade
+  `Depotoir.typeDepotoir`, mais notait explicitement deux angles morts : `CircuitEntity.geometry`
+  (laissé EAGER) et les DTO qui « accédaient à commune/department/region après fermeture de
+  session ». Cette itération ferme les deux, plus un troisième trouvé en chemin : `QuartierEntity.commune`
+  était resté EAGER (seul maillon encore non-LAZY de toute la chaîne territoriale).
+- **EAGER restants corrigés** : `CircuitEntity.geometry` (LAZY + cascade `ALL`, cohérent avec ses
+  deux homologues `CircuitCollectEntity`/`CircuitBalayageEntity` — composition 1:1, jamais partagée ;
+  aucun DTO/mapper ne le lit, correctif sans risque) ; `QuartierEntity.commune` (LAZY, cascade
+  `{REFRESH, MERGE}` inchangée).
+- **Cascade fautif restant** : `TypeDepotoirEntity.depotoirs` (`@OneToMany` inverse, cascade `ALL`)
+  — supprimer un type de dépotoir partagé aurait cascade-supprimé tous les dépotoirs qui le
+  référencent (R4, même risque que celui déjà corrigé sur `Depotoir.typeDepotoir` lui-même en
+  2026-07-25, ici sur le sens inverse). Rien ne lit cette collection aujourd'hui ; cascade retiré.
+- **Le vrai angle mort** : les DTO `Region`/`Department`/`Quartier` portaient encore
+  `List<DepartmentEntity> departments`, `List<CommuneEntity> communes`, `RegionEntity region`,
+  `CommuneEntity commune` — des **entités JPA exposées telles quelles par l'API**. Deux
+  conséquences : (1) fuite du modèle de persistance côté client (2) accès direct par
+  `RegionMapper`/`DepartmentMapper`/`QuartierMapper` à des associations lazy, sans transaction
+  explicite sur les services propriétaires (`RegionServiceImpl`, `DepartmentServiceImpl`,
+  `QuartierServiceImpl`, `CommuneServiceImpl`, `DepotoirServiceImpl`, `CircuitCollectServiceImpl`,
+  `CircuitBalayageServiceImpl` : aucun n'avait `@Transactional`, tous dépendaient implicitement
+  d'`open-in-view`, actif par défaut mais jamais garanti). Remplacés par des identifiants
+  (`departmentIds`, `regionId`, `communeIds`, `communeId`), exactement le patron déjà en place sur
+  `Commune.departmentId` — et `@Transactional` (classe en écriture, méthodes de lecture en
+  `readOnly = true`, même patron que `VehicleServiceImpl`) ajouté aux 7 services ci-dessus pour ne
+  plus dépendre d'`open-in-view`.
+- **Deux NullPointerException trouvées et corrigées en chemin** : `DepartmentServiceImpl.createDepartment`
+  et `QuartierServiceImpl.createQuartier` déréférençaient `department.getRegion().getRegionId()` /
+  `quartier.getCommune().getCommuneId()` sans garde — créer un département sans région, ou un
+  quartier sans commune, levait une NPE. Le passage à `regionId`/`communeId` (UUID, potentiellement
+  `null`) force une garde explicite, sur le même patron que le correctif déjà appliqué à
+  `CommuneServiceImpl.createCommune` (voir son commentaire de code, daté d'avant cette itération).
+- **Redondance retirée** : `DepotoirServiceImpl.readAllDepotoirs(Pageable)` refaisait un
+  `geometryRepository.findById(...)` pour relire une `Geometry` déjà chargée une ligne plus haut par
+  `DepotoirMapper.asDto` (association lazy `geometry`, déjà résolue) — remplacé par la réutilisation
+  directe du résultat déjà en mémoire.
+- **Recherche préalable** : un agent d'exploration en lecture seule a cartographié toutes les
+  associations JPA réelles des contextes `territory`/`waste` (fetch, cascade, lecture par mapper,
+  présence de `@Transactional`) avant tout changement, confirmant qu'aucun `@EntityGraph`/`JOIN
+  FETCH` n'existe nulle part dans le code — les changements de fetch ne créent donc aucune
+  redondance avec un mécanisme de compensation existant.
+- **Hors périmètre, noté pour plus tard** : les cascades `ALL` intra-contexte
+  `RegionEntity.departments`/`DepartmentEntity.communes`/`CommuneEntity.quartiers` (composition DDD
+  légitime, différente du cas `TypeDepotoir`) ; deux cascades du même type que `TypeDepotoir` mais
+  hors du périmètre de fichiers du P1-2 du `ROADMAP.md` : `identity.AuthorityEntity.users` et
+  `identity.Validation.user` (`@OneToOne` cascade `ALL` vers `UserEntity` — supprimer un jeton de
+  validation cascade-supprimerait l'utilisateur).
+- **Statut** : ✅ compilé (`clean compile`) et testé — **316 tests, 0 échec, 0 erreur** (progression
+  depuis 310) ; 6 tests ajoutés (`DepartmentServiceImplTest`, `QuartierServiceImplTest`)
+  verrouillent les deux NPE corrigées.
 
 ### Le tableau de bord admin devient réellement un tableau de bord (2026-08-06)
 

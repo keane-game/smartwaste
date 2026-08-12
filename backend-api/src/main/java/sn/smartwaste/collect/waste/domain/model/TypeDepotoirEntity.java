@@ -46,9 +46,12 @@ public class TypeDepotoirEntity  extends AbstractAuditingEntity<UUID> {
     @Column(name = "Name")
     String name;
 
+    // P1-2 : cascade ALL retiré — TypeDepotoir est un référentiel partagé (R4) ; le supprimer
+    // ne doit jamais cascade-supprimer tous les Depotoir qui le référencent. Rien ne lit
+    // aujourd'hui cette collection (aucun champ `depotoirs` sur le DTO TypeDepotoir, aucun
+    // appelant), elle reste néanmoins déclarée côté entité pour la navigation JPA inverse.
     @JsonIgnore
     @OneToMany(
-            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "typeDepotoir")
     @ToString.Exclude

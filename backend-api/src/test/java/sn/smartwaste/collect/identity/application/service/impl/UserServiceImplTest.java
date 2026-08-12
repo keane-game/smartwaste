@@ -1,5 +1,6 @@
 package sn.smartwaste.collect.identity.application.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -136,5 +137,41 @@ class UserServiceImplTest {
 
         assertThatThrownBy(() -> userService.activateUser(userId))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("supprimer un compte le marque en PENDING_DELETION et ferme ses sessions, sans le supprimer vraiment")
+    void deleteUserIsSoftDelete() {
+        // Defaut releve par audit (2026-08-10) : User etait le seul repository du projet a
+        // supprimer reellement ses lignes, contrairement au reste du referentiel.
+        UUID userId = UUID.randomUUID();
+        UserEntity existing = new UserEntity();
+        existing.setUserId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        userService.deleteUser(userId);
+
+        org.mockito.ArgumentCaptor<UserEntity> saved = org.mockito.ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepository).save(saved.capture());
+        assertThat(saved.getValue().isPendingDeletion()).isTrue();
+        verify(userRepository, never()).delete(any(UserEntity.class));
+        verify(sessionService).revokeAllForUser(userId);
+    }
+
+    @Test
+    @DisplayName("la recherche delegue au repository et mappe le resultat en DTO")
+    void searchUserDelegatesToRepository() {
+        UserEntity entity = new UserEntity();
+        entity.setUserId(UUID.randomUUID());
+        entity.setUserEmail("awa@example.sn");
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 20);
+        when(userRepository.search("awa", pageable))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(entity)));
+
+        var result = userService.searchUser("awa", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getUserEmail()).isEqualTo("awa@example.sn");
     }
 }

@@ -22,7 +22,7 @@ documentation (qui peut diverger — voir `CLAUDE.md` §Which document to trust)
 | Logout | OUI | `/auth/logout` | POST | `AuthController` | `SessionServiceImpl.revoke` | Lit le Bearer si présent | Couvert via service | Idempotent, jamais d'erreur |
 | Révocation (1 session) | OUI | via logout | POST | - | `SessionService.revoke(sessionId)` | - | OUI | `UserSession.revokedAt` |
 | Révocation (toutes sessions user) | **PARTIEL — code mort à l'audit** | aucun endpoint alors | - | - | `revokeAllForUser` existait, jamais appelée | - | Aucun | **Corrigé par ADR-0021 §Vague 1** : branchée sur la désactivation de compte |
-| Current user / profil | **NON** | aucun `/auth/me` ou équivalent | - | - | `CurrentUserProvider` existe mais **port interne uniquement** | - | - | Non traité par ADR-0021 — à instruire séparément si un frontend en a besoin |
+| Current user / profil | **Corrigé le 2026-08-10** | `GET /auth/me` | GET | `AuthController` | Oui | - | Autorisation (`AdministrationAuthorizationTest`) | Retourne le `User` (mot de passe en écriture seule, jamais renvoyé) |
 | Token validation | OUI (implicite) | - | - | `JwtFilter` | - | - | - | Vérifié à chaque requête protégée |
 | Token revoke (access seul) | **NON, impossible par construction** | - | - | - | - | - | - | JWT auto-porteur ; seule la session est révocable |
 | Expiration session | OUI | - | - | `UserSession.isActive()` | - | - | `SessionServiceImplTest` | TTL configurables (access 10j, refresh 30j par défaut) |
@@ -57,7 +57,7 @@ documentation (qui peut diverger — voir `CLAUDE.md` §Which document to trust)
 | Suppression | OUI, dure | `DELETE /v1/users/{id}` | Pas de corbeille |
 | Activation | PARTIEL | `/auth/activation` | Self-service uniquement |
 | Désactivation | **corrigé depuis** | `POST /v1/users/{id}/deactivate` | ADR-0021 §Vague 1 |
-| Recherche/filtres | NON | - | Non traité par ce plan |
+| Recherche/filtres | **Corrigé le 2026-08-10** | `GET /v1/users?q=` | Terme cherché sur email/prénom/nom, insensible à la casse, en plus de `page`/`size` déjà existants |
 | Pagination | OUI | - | Params obligatoires |
 | Utilisateurs par agence | NON | - | Traité par ADR-0020 (`GET /v1/organizations/{id}/members`) |
 | Affectation user → agence | NON exposé | - | Traité par ADR-0020 |
@@ -102,10 +102,10 @@ Risque déjà connu, non traité par ce plan (décision produit, pas un bug) : `
 
 | Fonctionnalité | État à l'audit | Remarque |
 |---|---|---|
-| Catalogue exposé | NON | Traité par ADR-0021 §Vague 2 (`GET /v1/permissions`), non livré à cette date |
+| Catalogue exposé | **Corrigé** | `GET /v1/permissions` (ADR-0021 §Vague 2, livré le 2026-08-09) |
 | Permissions d'un rôle | PARTIEL | Visible via `GET /v1/authorities/{id}` en entier |
 | Attribution/retrait | **PARTIEL (bug)** | Seulement à la création — **corrigé le 2026-08-09** pour la modification |
-| Vérification côté client | NON | Le JWT ne porte que le premier rôle/authority, explicitement informatif |
+| Vérification côté client | **Corrigé le 2026-08-10** | `GET /v1/permissions/mine` — permissions du compte authentifié, ouvert à tout authentifié (le catalogue complet, lui, reste réservé `MANAGE_ROLE`) |
 
 Catalogue réel (`Permission` enum, 10 valeurs seedées) : `USER_VIEW, ACCESS_ADMIN, MANAGE_ROLE,
 CREATE_USER, ACCESS_MY_ACTIVITIES, VIEW_COLLECTION_ROUTE, DECLARE_COLLECTION, VIEW_SUPERVISION,
@@ -135,3 +135,19 @@ catalogue, pas dans le JWT).
 
 **Suite donnée** : voir `docs/PLAN_IDENTITE_TENANT_RBAC.md` pour le détail d'exécution des trois ADR
 listés en tête de ce document.
+
+## Mise à jour du verdict (2026-08-10, après correctifs)
+
+Tous les manques listés au verdict initial sont fermés : API `/v1/organizations*` (tenant),
+changement/reset de mot de passe (`/auth/change-password`, `/auth/password-reset/*`),
+désactivation de compte réparée (`POST /v1/users/{id}/deactivate`), catalogue de permissions
+(`GET /v1/permissions`) et permissions du compte courant (`GET /v1/permissions/mine`). S'y ajoutent
+trois gaps mineurs relevés par ce même audit et fermés dans la foulée : profil du compte authentifié
+(`GET /auth/me`), recherche sur la liste des utilisateurs (`GET /v1/users?q=`), et le cloisonnement
+multi-tenant réel (discriminant `organizationId` + filtre Hibernate, ADR-0020).
+
+### BACKEND API COMPLETE (pour le périmètre audité)
+
+Restent hors périmètre, par décision explicite et non par oubli : Keycloak (bloqué, pas de démon
+Docker dans cet environnement), le multi-rôle par utilisateur (hors scope ADR-0003), et un test
+bout-en-bout multi-collectivités réel pour le filtre tenant (comportement vérifié unitairement).

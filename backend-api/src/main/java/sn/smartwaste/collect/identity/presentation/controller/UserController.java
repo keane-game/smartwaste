@@ -49,7 +49,8 @@ public class UserController {
     }
 
 
-    @Operation(summary = "Read user by pagination with size", description = "Read users")
+    @Operation(summary = "Read user by pagination with size, optionally filtered by search term",
+            description = "Read users. `q` matches email, first name or last name (case-insensitive, partial).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad request - request sent by the client was syntactically incorrect"),
@@ -59,9 +60,10 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public Page<User> readAllUser(@RequestParam("page") int page, @RequestParam("size") int size) {
+    public Page<User> readAllUser(@RequestParam("page") int page, @RequestParam("size") int size,
+                                   @RequestParam(value = "q", required = false) String q) {
         Pageable pageable = PageRequest.of (page, size);
-        return userService.readAllUser (pageable);
+        return userService.searchUser(q, pageable);
     }
     @Operation(summary = "Create one User")
     @ApiResponses(value = {
@@ -69,7 +71,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User createUser(@RequestBody User user){
         return userService.createUser (user);
@@ -81,7 +83,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{id}")
     public User updateUser(@PathVariable("id") UUID id, @RequestBody() User user) {
         return userService.updateUser (id, user);

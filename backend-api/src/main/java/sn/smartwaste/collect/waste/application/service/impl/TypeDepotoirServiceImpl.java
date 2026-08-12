@@ -2,6 +2,8 @@ package sn.smartwaste.collect.waste.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.application.dto.TypeDepotoir;
@@ -36,6 +38,12 @@ public class TypeDepotoirServiceImpl implements TypeDepotoirService {
     public List<TypeDepotoir> readAllTypeDepotoir() {
         var typeDepotoirList = typeDepotoirRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return TypeDepotoirMapper.TDMP.asListDto(typeDepotoirList);
+    }
+
+    @Override
+    public Page<TypeDepotoir> readAllTypeDepotoir(Pageable pageable) {
+        return typeDepotoirRepository.findByDeletionStatus(
+                sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(TypeDepotoirMapper.TDMP::asDto);
     }
 
 

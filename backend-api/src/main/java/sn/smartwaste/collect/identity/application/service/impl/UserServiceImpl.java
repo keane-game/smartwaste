@@ -57,14 +57,14 @@ public class UserServiceImpl  implements UserService {
 
     @Override
     public List<User> readAllUser() {
-        var userList = userRepository.findAll();
+        var userList = userRepository.findByDeletionStatus(
+                sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return UserMapper.UMP.asListDto(userList);
     }
 
     @Override
-    public Page<User> readAllUser(Pageable pageable) {
-        return userRepository.findAll (pageable).map (UserMapper.UMP::asDto);
-
+    public Page<User> searchUser(String q, Pageable pageable) {
+        return userRepository.search(q, pageable).map(UserMapper.UMP::asDto);
     }
 
     /**
@@ -134,13 +134,24 @@ public class UserServiceImpl  implements UserService {
         return UserMapper.UMP.asDto(updatedUser);
     }
 
+    /**
+     * Corrige un défaut relevé par audit (2026-08-10, `docs/FRONTEND_API_MAPPING.md`) : {@code User}
+     * était le seul repository de ce projet à supprimer réellement ses lignes, alors que
+     * {@code UserRepository} étend désormais {@link sn.smartwaste.collect.shared.domain.repository.SoftDeleteRepository}
+     * — même geste que {@code AuthorityServiceImpl.deleteAuthority} et le reste du référentiel.
+     * Ferme aussi les sessions ouvertes, comme {@link #deactivateUser} : un compte supprimé ne doit
+     * pas rester connecté jusqu'à l'expiration de son jeton.
+     */
     @Override
+    @Transactional
     public void deleteUser(UUID userId) {
         var user  = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id [%s] not found to delete".formatted(userId)
                 ));
-        userRepository.delete(user);
+        user.markForDeletion(java.time.LocalDateTime.now());
+        userRepository.save(user);
+        sessionService.revokeAllForUser(userId);
     }
 
     @Override

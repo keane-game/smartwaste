@@ -97,7 +97,10 @@ public class QuartierEntity extends AbstractAuditingEntity<UUID>{
     @ToString.Exclude
     List<DepotoirEntity> depotoirs;*/
 
-    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    // P1-2 : EAGER->LAZY, cohérent avec Commune->Department et Department->Region déjà
+    // corrigés. Le DTO Quartier expose désormais `communeId` (UUID) et non plus l'entité —
+    // voir QuartierMapper/QuartierServiceImpl.
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinColumn(name = "communeId")
     @JsonIgnore
     CommuneEntity commune;

@@ -56,6 +56,12 @@ côté client, se fier au verbe.
 CRUD des rôles/permissions. Écran sensible : un `ADMIN` peut ici s'auto-attribuer `SUPER_ADMIN`
 (risque déjà documenté côté backend, produit assumé) — l'UI doit au moins le rendre visible
 (confirmation renforcée avant d'assigner une permission à soi-même), pas nécessairement le bloquer.
+~~Le contrôleur exposait l'entité JPA `AuthorityEntity` brute en entrée/sortie (aucun DTO)~~ —
+**corrigé le 2026-08-12** : nouveau DTO `Authority` (`authorityId`, `name`, `description`,
+`permissions`). **Changement de contrat mineur** : les champs d'audit hérités
+(`createdBy`/`lastModifiedBy`/`createdDate`/`lastModifiedDate`/`archived`/`deletionStatus`/
+`deletionRequestedAt`) que l'entité exposait accidentellement ne sont plus dans la réponse — aucun
+écran connu n'en dépend (non affichés côté UI).
 
 ### `TerritoryApiService` — regroupe 6 contrôleurs
 `RegionController` (`/v1/regions` — CRUD complet depuis le 2026-08-10 : `updateRegion`/
@@ -66,8 +72,13 @@ CRUD des rôles/permissions. Écran sensible : un `ADMIN` peut ici s'auto-attrib
 2026-08-10, l'ancien chemin `/delete/coordinate/{id}` n'existe plus). **Pagination désormais
 uniforme depuis le 2026-08-11** : les 6 contrôleurs ont tous `?page=&size=` (obligatoires) **et**
 `/s` (liste complète), même patron — plus besoin de distinguer deux formes de réponse par
-ressource. Department/Region **exposent encore des entités JPA brutes** (`communes`, `departments`
-imbriqués) — ne pas s'appuyer sur cette profondeur, elle peut disparaître si corrigée côté backend.
+ressource. ~~Department/Region exposent encore des entités JPA brutes (`communes`, `departments`
+imbriqués)~~ — **corrigé le 2026-08-11** : `Department`/`Region`/`Quartier` exposent désormais des
+identifiants (`communeIds`, `regionId`, `departmentIds`, `communeId`) au lieu des entités JPA
+imbriquées, même patron que `Commune.departmentId`. **Changement de contrat** : un client qui lisait
+`department.region.regionId` doit désormais lire `department.regionId` directement (idem
+`department.communes[].communeId` → `department.communeIds[]`, `region.departments[]` →
+`region.departmentIds[]`, `quartier.commune.communeId` → `quartier.communeId`).
 
 ### `WasteApiService` — regroupe 9 contrôleurs du contexte `waste`
 `DepotoirController` (`/v1/depotoirs` — **plus le seul soft-delete du lot depuis le 2026-08-11**,

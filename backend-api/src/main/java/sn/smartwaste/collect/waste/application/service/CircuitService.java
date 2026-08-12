@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.waste.application.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import sn.smartwaste.collect.waste.application.dto.Circuit;
 
 import java.util.List;
@@ -10,6 +12,9 @@ public interface CircuitService {
     Circuit readCircuit(UUID circuitId);
 
     List<Circuit> readAllCircuit();
+
+    /** Corrige un gap relevé par audit (2026-08-10) : ressource sans pagination. */
+    Page<Circuit> readAllCircuit(Pageable pageable);
 
     Circuit createCircuit(Circuit circuit);
 

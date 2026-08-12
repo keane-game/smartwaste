@@ -15,6 +15,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.CascadeType;
 
 import lombok.EqualsAndHashCode;
 import lombok.AllArgsConstructor;
@@ -62,7 +63,11 @@ public class CircuitEntity extends AbstractAuditingEntity<UUID> {
     @Column(name = "Code")
     String code;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    // P1-2 : EAGER->LAZY comme ses homologues (CircuitCollectEntity/CircuitBalayageEntity) ;
+    // cascade ALL par cohérence, Geometry est possédée en composition 1:1 par ce Circuit,
+    // jamais partagée. Aucun DTO/mapper ne lit ce champ (Circuit DTO n'a pas de `geometry`) :
+    // rien d'autre à adapter.
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "geometryId", nullable = false)
     @EqualsAndHashCode.Include
     GeometryEntity geometry;

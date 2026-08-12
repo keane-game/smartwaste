@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sn.smartwaste.collect.territory.application.api.DepartmentMaps;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.territory.application.mapper.CoordinateMapper;
@@ -21,14 +22,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+// P1-2 : DepartmentMapper.asDto lit les associations lazy `region`/`communes` — même correctif
+// que RegionServiceImpl (dépendait implicitement d'open-in-view).
 @RequiredArgsConstructor
 @Service
+@Transactional
 @Slf4j
 public class DepartmentServiceImpl implements DepartmentService {
     private final RegionRepository regionRepository;
     private final DepartmentRepository departmentRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Department readDepartment(UUID departmentId) {
         var department  = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -39,12 +44,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Department> readAllDepartment() {
         var departmentList = departmentRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return DepartmentMapper.DMP.asListDto(departmentList);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DepartmentMaps getFirstDepartment() {
         var department = departmentRepository.findFirstByOrderByNameAsc ();
         if (department == null){
@@ -65,20 +72,26 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Department> readAllDepartment(Pageable pageable) {
         return departmentRepository.findByDeletionStatus (sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map (DepartmentMapper.DMP::asDto);
     }
 
     @Override
     public Department createDepartment(Department department) {
-        if(department.getRegion ().getRegionId () != null) {
-            var region = regionRepository.findById (department.getRegion ( ).getRegionId ( )).orElseThrow (
-                    () -> new ResourceNotFoundException ("")
+        // P1-2 : le DTO porte désormais `regionId` (le mapper ignore l'association côté
+        // entité). Au passage, corrige une NullPointerException systématique quand un
+        // département était créé sans région (déréférencement de `getRegion()` sans garde).
+        var departmentEntity = DepartmentMapper.DMP.asModel(department);
+        if (department.getRegionId() != null) {
+            var region = regionRepository.findById(department.getRegionId()).orElseThrow(
+                    () -> new ResourceNotFoundException(
+                            "Region with id [%s] not found".formatted(department.getRegionId()))
             );
-            department.setRegion (region);
+            departmentEntity.setRegion(region);
         }
 
-        var departmentSave = departmentRepository.save(DepartmentMapper.DMP.asModel(department));
+        var departmentSave = departmentRepository.save(departmentEntity);
         return DepartmentMapper.DMP.asDto(departmentSave);
     }
 

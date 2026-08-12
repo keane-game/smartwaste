@@ -68,7 +68,7 @@ public class CommuneController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Commune createCommune(@RequestBody Commune communeDto){
         return communeService.createCommune(communeDto);
@@ -80,7 +80,7 @@ public class CommuneController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{communeId}")
     public Commune updateOneCommune(@PathVariable("communeId") UUID communeId, @RequestBody() Commune commune) {
         return communeService.updateCommune(communeId, commune);

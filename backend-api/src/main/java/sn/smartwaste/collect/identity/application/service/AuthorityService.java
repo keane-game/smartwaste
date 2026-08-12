@@ -2,18 +2,18 @@ package sn.smartwaste.collect.identity.application.service;
 
 import java.util.UUID;
 
-import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
+import sn.smartwaste.collect.identity.application.dto.Authority;
 
 import java.util.List;
 
 public interface AuthorityService {
 
-    AuthorityEntity readAuthority(UUID authorityId);
+    Authority readAuthority(UUID authorityId);
 
-    List<AuthorityEntity> readAllAuthority();
+    List<Authority> readAllAuthority();
 
-    AuthorityEntity createAuthority(AuthorityEntity authority);
+    Authority createAuthority(Authority authority);
 
-    AuthorityEntity updateAuthority (UUID authorityId, AuthorityEntity authority);
+    Authority updateAuthority (UUID authorityId, Authority authority);
     void deleteAuthority(UUID authorityId);
 }

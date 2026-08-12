@@ -1,5 +1,7 @@
 package sn.smartwaste.collect.waste.application.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import sn.smartwaste.collect.waste.application.dto.MoblierUrbain;
 
 import java.util.List;
@@ -9,6 +11,9 @@ public interface MoblierUrbainService {
     MoblierUrbain readMoblierUrbain(UUID moblierUrbainId);
 
     List<MoblierUrbain> readAllMoblierUrbain();
+
+    /** Corrige un gap relevé par audit (2026-08-10) : ressource sans pagination. */
+    Page<MoblierUrbain> readAllMoblierUrbain(Pageable pageable);
 
     MoblierUrbain createMoblierUrbain(MoblierUrbain moblierUrbain);
 

@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import sn.smartwaste.collect.identity.application.dto.Authority;
 import sn.smartwaste.collect.identity.domain.model.AuthorityEntity;
 import sn.smartwaste.collect.identity.domain.model.Permission;
 import sn.smartwaste.collect.identity.domain.repository.AuthorityRepository;
@@ -33,6 +34,10 @@ import static org.mockito.Mockito.when;
  * réécrites ici, à l'occasion de la migration du contexte, pour couvrir ce que le service fait
  * réellement — y compris ses deux comportements contre-intuitifs : la lecture ne renvoie que les
  * rôles actifs, et la suppression est logique.
+ *
+ * <p>Le service manipule désormais un DTO {@code Authority} en entrée/sortie plutôt que l'entité
+ * JPA {@code AuthorityEntity} directement (audit 2026-08-12, même défaut que Region/Department/
+ * Quartier déjà corrigé) — le repository, lui, continue de parler entité.
  */
 @ExtendWith(MockitoExtension.class)
 class AuthorityServiceImplTest {
@@ -43,9 +48,15 @@ class AuthorityServiceImplTest {
     @InjectMocks
     private AuthorityServiceImpl authorityService;
 
-    private static AuthorityEntity authority(UUID id, String name) {
+    private static AuthorityEntity authorityEntity(UUID id, String name) {
         AuthorityEntity authority = new AuthorityEntity();
         authority.setAuthorityId(id);
+        authority.setName(name);
+        return authority;
+    }
+
+    private static Authority authorityDto(String name) {
+        var authority = new Authority();
         authority.setName(name);
         return authority;
     }
@@ -54,7 +65,7 @@ class AuthorityServiceImplTest {
     @DisplayName("readAuthority renvoie le rôle demandé")
     void readAuthority_returnsEntity() {
         UUID id = UUID.randomUUID();
-        when(authorityRepository.findById(id)).thenReturn(Optional.of(authority(id, "ADMIN")));
+        when(authorityRepository.findById(id)).thenReturn(Optional.of(authorityEntity(id, "ADMIN")));
 
         assertThat(authorityService.readAuthority(id).getName()).isEqualTo("ADMIN");
     }
@@ -74,7 +85,7 @@ class AuthorityServiceImplTest {
     @DisplayName("readAllAuthority ne remonte que les rôles ACTIVE, jamais ceux en attente de purge")
     void readAllAuthority_filtersOnActiveStatus() {
         when(authorityRepository.findByDeletionStatus(DeletionStatus.ACTIVE))
-                .thenReturn(List.of(authority(UUID.randomUUID(), "USER")));
+                .thenReturn(List.of(authorityEntity(UUID.randomUUID(), "USER")));
 
         assertThat(authorityService.readAllAuthority()).hasSize(1);
         // findAll() renverrait aussi les rôles supprimés logiquement : la distinction est le
@@ -83,27 +94,31 @@ class AuthorityServiceImplTest {
     }
 
     @Test
-    @DisplayName("createAuthority persiste le rôle tel quel")
+    @DisplayName("createAuthority persiste le rôle demandé")
     void createAuthority_savesEntity() {
-        AuthorityEntity toCreate = authority(null, "SUPPORT");
-        when(authorityRepository.save(toCreate)).thenReturn(toCreate);
+        when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        assertThat(authorityService.createAuthority(toCreate)).isSameAs(toCreate);
+        var created = authorityService.createAuthority(authorityDto("SUPPORT"));
+
+        assertThat(created.getName()).isEqualTo("SUPPORT");
+        ArgumentCaptor<AuthorityEntity> saved = ArgumentCaptor.forClass(AuthorityEntity.class);
+        verify(authorityRepository).save(saved.capture());
+        assertThat(saved.getValue().getName()).isEqualTo("SUPPORT");
     }
 
     @Test
     @DisplayName("updateAuthority applique le nom sur l'entité existante et ignore un nom absent")
     void updateAuthority_patchesNameOnly() {
         UUID id = UUID.randomUUID();
-        AuthorityEntity existing = authority(id, "ADMIN");
+        AuthorityEntity existing = authorityEntity(id, "ADMIN");
         when(authorityRepository.findById(id)).thenReturn(Optional.of(existing));
         when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        AuthorityEntity renamed = authorityService.updateAuthority(id, authority(null, "ADMIN_V2"));
+        Authority renamed = authorityService.updateAuthority(id, authorityDto("ADMIN_V2"));
         assertThat(renamed.getName()).isEqualTo("ADMIN_V2");
 
         // Un champ nul est une absence de modification, pas un effacement.
-        AuthorityEntity untouched = authorityService.updateAuthority(id, authority(null, null));
+        Authority untouched = authorityService.updateAuthority(id, authorityDto(null));
         assertThat(untouched.getName()).isEqualTo("ADMIN_V2");
     }
 
@@ -114,15 +129,15 @@ class AuthorityServiceImplTest {
         // permissions du corps de la requete etaient ignorees en silence — un administrateur
         // modifiant les droits d'un role existant n'avait donc aucun effet observable.
         UUID id = UUID.randomUUID();
-        AuthorityEntity existing = authority(id, "AGENT");
+        AuthorityEntity existing = authorityEntity(id, "AGENT");
         existing.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE));
         when(authorityRepository.findById(id)).thenReturn(Optional.of(existing));
         when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        AuthorityEntity request = authority(null, null);
+        Authority request = authorityDto(null);
         request.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE, Permission.DECLARE_COLLECTION));
 
-        AuthorityEntity updated = authorityService.updateAuthority(id, request);
+        Authority updated = authorityService.updateAuthority(id, request);
 
         assertThat(updated.getPermissions())
                 .containsExactlyInAnyOrder(Permission.VIEW_COLLECTION_ROUTE, Permission.DECLARE_COLLECTION);
@@ -132,12 +147,12 @@ class AuthorityServiceImplTest {
     @DisplayName("updateAuthority sans permissions dans la requete laisse les permissions existantes intactes")
     void updateAuthority_missingPermissionsLeavesExistingUntouched() {
         UUID id = UUID.randomUUID();
-        AuthorityEntity existing = authority(id, "AGENT");
+        AuthorityEntity existing = authorityEntity(id, "AGENT");
         existing.setPermissions(List.of(Permission.VIEW_COLLECTION_ROUTE));
         when(authorityRepository.findById(id)).thenReturn(Optional.of(existing));
         when(authorityRepository.save(any(AuthorityEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        AuthorityEntity updated = authorityService.updateAuthority(id, authority(null, "AGENT_V2"));
+        Authority updated = authorityService.updateAuthority(id, authorityDto("AGENT_V2"));
 
         assertThat(updated.getPermissions()).containsExactly(Permission.VIEW_COLLECTION_ROUTE);
     }
@@ -146,7 +161,7 @@ class AuthorityServiceImplTest {
     @DisplayName("deleteAuthority marque le rôle en PENDING_DELETION au lieu de le supprimer")
     void deleteAuthority_isSoftDelete() {
         UUID id = UUID.randomUUID();
-        when(authorityRepository.findById(id)).thenReturn(Optional.of(authority(id, "ADMIN")));
+        when(authorityRepository.findById(id)).thenReturn(Optional.of(authorityEntity(id, "ADMIN")));
 
         authorityService.deleteAuthority(id);
 

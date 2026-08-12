@@ -1,6 +1,8 @@
 package sn.smartwaste.collect.waste.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.application.dto.MoblierUrbain;
@@ -34,6 +36,12 @@ public class MoblierUrbainServiceImpl implements MoblierUrbainService {
     public List<MoblierUrbain> readAllMoblierUrbain() {
         var moblierUrbainList = moblierUrbainRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return MoblierUrbainMapper.MUMP.asListDto(moblierUrbainList);
+    }
+
+    @Override
+    public Page<MoblierUrbain> readAllMoblierUrbain(Pageable pageable) {
+        return moblierUrbainRepository.findByDeletionStatus(
+                sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(MoblierUrbainMapper.MUMP::asDto);
     }
 
 

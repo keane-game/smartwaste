@@ -34,6 +34,11 @@ public interface UserService extends UserDetailsService {
 
     UserEntity loadUserByUsername(String username);
 
-    Page<User> readAllUser(Pageable pageable);
+    /**
+     * Liste paginée, filtrée par email, prénom ou nom.
+     *
+     * @param q terme de recherche ; {@code null} ou vide rend la liste complète
+     */
+    Page<User> searchUser(String q, Pageable pageable);
 
 }

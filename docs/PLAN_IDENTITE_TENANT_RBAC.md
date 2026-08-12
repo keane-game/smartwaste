@@ -85,6 +85,23 @@ ponctuelles du Lot 0.
 
 ---
 
+## Lot 1bis — Gaps mineurs relevés par l'audit, hors ADR-0021 — ✅ **livré (2026-08-10)**
+
+Trois manques identifiés par l'audit et non couverts par les ADR 0020/0021, fermés dans la foulée :
+
+- **`GET /auth/me`** : profil du compte authentifié — un frontend n'avait jusqu'ici aucun moyen de
+  savoir « qui suis-je » sans décoder le JWT lui-même.
+- **`GET /v1/permissions/mine`** : permissions du compte courant, ouvert à tout authentifié
+  (exception explicite dans `SecurityConfiguration`, avant la règle générale qui réserve
+  `/v1/permissions/**` à l'administration — même piège d'ordre filtre/méthode déjà documenté pour
+  l'agent de collecte).
+- **`GET /v1/users?q=`** : recherche par email/prénom/nom (`UserRepository.search`, JPQL avec
+  correspondance partielle insensible à la casse), en plus de la pagination déjà existante.
+
+Vérifié : 304 tests, 0 échec. Aucune migration de schéma requise (ajouts purement applicatifs).
+
+---
+
 ## Lot 2 — Bascule Keycloak (P0-A, XL, cf. ADR-0011)
 
 **Ne pas démarrer le code avant l'étape 2.1.** C'est la leçon du blocage initial de 2026-07-29 :
@@ -197,6 +214,60 @@ réel reste à observer le jour où une deuxième collectivité est réellement 
 
 ---
 
+## Lot 4 — Nettoyage API générale (dette, hors identité/tenant) — ✅ **livré (2026-08-10)**
+
+**Pourquoi dans ce plan.** Repéré en poursuivant l'audit au-delà de son périmètre initial
+(Auth/Users/Tenant/RBAC) : le même passage en revue systématique, appliqué au reste de l'API
+(`territory`, `waste`), a trouvé des bugs et incohérences de même nature que ceux du Lot 0/1bis —
+endpoints morts, chemins irréguliers, stubs jamais branchés, codes HTTP non conformes, pagination
+non uniforme. Traité comme un lot à part plutôt que rattaché au 1bis car sans lien fonctionnel avec
+identité/tenant ; documenté ici pour garder une trace unique de « tout ce qui a été corrigé pendant
+cette session », `docs/FRONTEND_API_MAPPING.md` restant la référence détaillée côté contrat API.
+
+**Réalisé** :
+- **Endpoints morts supprimés** : `AlertController` exposait trois endpoints de test
+  (`/test`, `/test1`, `/test2`) sans usage ni documentation — retirés avec l'import `@ModelAttribute`
+  devenu inutile.
+- **Chemins irréguliers corrigés** : `CoordinateController` (`DELETE` était sous
+  `/delete/coordinate/{id}`, aligné sur `/{coordinateId}`), `CircuitBalayageController` (`GET` par id
+  était sous `/circuit-balayage/{id}`, aligné sur `/{circuitBalayageId}`).
+- **Stub jamais implémenté corrigé** : `RegionServiceImpl.updateRegion`/`deleteRegion` retournaient
+  `null`/ne faisaient rien malgré leur présence dans l'interface — implémentés (patch nom/code,
+  soft-delete), `RegionController` gagne enfin `PUT`/`DELETE /v1/regions/{regionId}` (absents
+  jusqu'ici).
+- **Implémentations orphelines branchées** : `readAllDepartment(Pageable)`,
+  `readAllCoordinate(Pageable)`, `readAllCircuitCollect(Pageable)`, `readAllCircuitBalayage(Pageable)`
+  existaient côté service sans jamais être exposées par un contrôleur — câblées.
+- **Pagination uniformisée** (même patron que Commune/Quartier/Depotoir/User/Alert — liste plate sur
+  `GET .../s`, liste paginée avec `page`/`size` obligatoires sur `GET` nu) sur 9 ressources :
+  Department, Region, Circuit, CircuitCollect, CircuitBalayage, Coordinate, Geometry, MoblierUrbain,
+  TypeDepotoir. Pour Circuit/MoblierUrbain/TypeDepotoir, la méthode `readAllX(Pageable)` n'existait
+  pas encore côté service — ajoutée.
+- **Codes HTTP uniformisés** sur 15 contrôleurs (POST création → 201, PUT mise à jour → 200) — audit
+  exhaustif mené via un sous-agent Explore sur les 41 contrôleurs de l'API. Deux vrais bugs de
+  conformité HTTP trouvés au passage : `AlertController.updateAlert` et
+  `AuthorityController.updateAuthority` étaient déclarés `@ResponseStatus(NO_CONTENT)` tout en
+  renvoyant un corps de réponse — corrigés en `OK`.
+- **Soft-delete généralisé** : `UserRepository` passe de `JpaRepository` à
+  `SoftDeleteRepository<UserEntity, UUID>` (`deleteUser` ne fait plus un `DELETE` SQL réel mais
+  `markForDeletion` + révocation des sessions) — cohérent avec les ~21 autres ressources déjà
+  soft-deletables.
+- **Bug universel corrigé** : `DeletionController.restore(@PathVariable("id") Long id)` — alors que
+  toutes les entités du projet utilisent `UUID` (ADR UUID v7). La restauration n'avait donc jamais pu
+  fonctionner pour aucune des ressources déjà enregistrées dans le mécanisme générique de corbeille.
+  Corrigé en `UUID id` ; test dédié (`DeletionControllerTest`) ajouté pour verrouiller le
+  comportement.
+- 310 tests, 0 échec, 0 erreur après l'ensemble de ce lot (progression depuis le début de la
+  session : 47 → 310).
+
+**Explicitement exclu de ce lot** : `frontend/src/app/shared/constants/api-endpoints.ts` n'a **pas**
+été mis à jour, sur instruction explicite de l'utilisateur (« Ne rien toucher au frontend, juste
+faire la pagination backend ») — il reste donc en décalage avec les chemins/contrats corrigés
+ci-dessus tant qu'une session dédiée au frontend ne le reprend pas. Voir
+`docs/FRONTEND_API_MAPPING.md` pour le détail des écarts encore ouverts côté client.
+
+---
+
 ## Vue d'ensemble
 
 | Lot | Contenu | Priorité | Complexité | Statut |
@@ -208,3 +279,4 @@ réel reste à observer le jour où une deuxième collectivité est réellement 
 | 3.1 | API Organisation minimale | P2-3 | M | ✅ fait (2026-08-09, hors de ce plan) |
 | 3.2 | Discriminant `organizationId` (12 entités) | P2-3 | L | ✅ fait (2026-08-10) |
 | 3.3 | Filtre Hibernate (activation) | P2-3 | M | ✅ fait (2026-08-10) |
+| 4 | Nettoyage API générale (endpoints morts, chemins, stubs, codes HTTP, pagination, soft-delete) | P1 | M | ✅ fait (2026-08-10) |

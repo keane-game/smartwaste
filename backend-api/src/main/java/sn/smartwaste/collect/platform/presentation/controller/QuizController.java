@@ -80,6 +80,7 @@ public class QuizController {
     @Operation(summary = "Repondre a un quiz",
                description = "Une seule tentative par citoyen : une deuxieme soumission est refusee (409).")
     @PostMapping("/{quizId}/answers")
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("isAuthenticated()")
     public QuizService.QuizResult submit(@PathVariable("quizId") UUID quizId,
                                          @RequestBody(required = false) List<AnswerRequest> body) {

@@ -1,6 +1,8 @@
 package sn.smartwaste.collect.waste.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sn.smartwaste.collect.shared.domain.exception.ResourceNotFoundException;
 import sn.smartwaste.collect.waste.domain.repository.CircuitRepository;
@@ -34,6 +36,12 @@ public class CircuitServiceImpl implements CircuitService {
     public List<Circuit> readAllCircuit() {
         var circuitList = circuitRepository.findByDeletionStatus(sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE);
         return CircuitMapper.CIMP.asListDto (circuitList);
+    }
+
+    @Override
+    public Page<Circuit> readAllCircuit(Pageable pageable) {
+        return circuitRepository.findByDeletionStatus(
+                sn.smartwaste.collect.shared.domain.model.DeletionStatus.ACTIVE, pageable).map(CircuitMapper.CIMP::asDto);
     }
 
 
