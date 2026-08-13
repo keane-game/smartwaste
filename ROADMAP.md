@@ -48,32 +48,43 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Fichiers** : `security/JwtFilter.java`, `security/JwtService.java`.
 - **Complexité** : S · **ADR-0003** (remplacé par ADR-0011).
 
-### P0-4 · Trancher la gestion de schéma (Liquibase unique)
+### P0-4 · Trancher la gestion de schéma (Liquibase unique) — ✅ **fait**
 - **Objectif** : une seule source de vérité du schéma.
 - **Justification** : Liquibase **et** `ddl-auto=update` actifs → risque d'écrasement/dérive (R5).
 - **Fichiers** : `resources/application.properties` (`ddl-auto=validate`), `pom.xml`, nouveaux changelogs `resources/db/changelog/`.
 - **Impact** : déploiements reproductibles ; migration initiale à générer depuis l'existant.
 - **Complexité** : M · **ADR-0001**.
+- **Résultat** : `ddl-auto=validate` en vigueur, schéma exclusivement porté par Liquibase
+  (`config/liquibase/master.xml`) — convention verrouillée, ne jamais repasser en `update`/`create`
+  (voir `CLAUDE.md`).
 
-### P0-5 · Modèle d'ingestion du niveau de remplissage (cœur métier)
+### P0-5 · Modèle d'ingestion du niveau de remplissage (cœur métier) — ✅ **fait**
 - **Objectif** : recevoir/stocker le niveau de remplissage d'un point de collecte.
 - **Justification** : raison d'être du produit, aujourd'hui absente ; `Depotoir` n'a pas de `fillLevel`.
 - **Fichiers** : nouveau `model/MeasurementEntity`, `repository/MeasurementRepository`, `controller/IngestionController` (`POST /v1/measurements`), `service/measurement/*`, ajout `Depotoir.fillLevel`/`lastMeasuredAt`.
 - **Impact** : nouvelle brique centrale ; base des alertes.
 - **Complexité** : L · **ADR-0004**.
+- **Résultat** : livré via le contexte `iot` (`Sensor`, `Measurement`, device provisioning) +
+  `waste.FillLevelProjector`, vérifié bout-en-bout contre PostgreSQL — voir la correction en tête
+  de `CLAUDE.md` et `docs/IMPLEMENTATION_LOG.md`. L'ancienne note « `Alert` n'est pas relié à
+  `Depotoir` » ne reflète plus l'état du code.
 
-### P0-6 · Moteur de seuils + déclenchement automatique d'alerte
+### P0-6 · Moteur de seuils + déclenchement automatique d'alerte — ✅ **fait**
 - **Objectif** : seuil dépassé → création d'`Alert` reliée au dépotoir + notification.
 - **Justification** : boucle métier « détecter → alerter » ; `Alert` n'est pas relié à `Depotoir`.
 - **Fichiers** : `model/AlertEntity` (ajout `@ManyToOne Depotoir`), `service/AlertService`, nouveau `service/alerting/ThresholdEvaluator`, `service/impl/NotificationServiceImpl` (méthode d'alerte).
 - **Impact** : cœur fonctionnel opérationnel.
 - **Complexité** : L · **ADR-0004**, **ADR-0005**.
+- **Résultat** : `waste.FillLevelProjector`/`ThresholdResolver` évaluent indépendamment
+  remplissage, température et humidité contre `AlertThreshold` (par `TypeDepotoir` ou seuil global)
+  et déclenchent l'`Alert` automatiquement — la chaîne complète capteur → mesure → seuil → alerte
+  est verifiée, pas seulement scaffoldée.
 
 ---
 
 ## P1 — Important (fiabilité, échelle, fonctionnalités)
 
-### P1-1 · Nettoyer les dépendances backend
+### P1-1 · Nettoyer les dépendances backend — ✅ **fait le 2026-07-25**
 - **Objectif** : build stable et sans doublon.
 - **Justification** : springfox 3.0.0 (abandonné, incompatible Boot 3) coexiste avec springdoc ; 2 libs JWT (R6).
 - **Fichiers** : `pom.xml`.
@@ -97,13 +108,17 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
   ajouté à 7 services du référentiel qui dépendaient implicitement d'`open-in-view`. Détail complet :
   `docs/IMPLEMENTATION_LOG.md`, entrée 2026-08-11.
 
-### P1-3 · Sortir les images du BLOB
+### P1-3 · Sortir les images du BLOB — ✅ **fait le 2026-07-25**
 - **Objectif** : ne plus stocker `displayPicture byte[]` dans la table `ALERT`.
 - **Justification** : BLOB en table = tables lourdes, back-ups coûteux, mémoire (R3).
 - **Fichiers** : `model/AlertEntity`, `service/impl/UploadFileServiceImpl`, `service/ImageService`.
 - **Impact** : stockage fichier/objet + URL référencée.
 - **Complexité** : M · **ADR-0005**.
 - **minio**: utlise minio pour le stock de images et fichier et garder le filename en db
+- **Résultat** : livré via MinIO (`ImageServiceImpl`, `MinioConfig`, `docker-compose.yml`).
+  Nécessite MinIO démarré en local pour fonctionner (`docker compose -f
+  backend-api/src/main/resources/docker-compose.yml up`) ; la migration des BLOB déjà en base
+  n'a pas de job dédié (ADR-0005 §3).
 
 ### P1-4 · Aligner et consolider les frontends — ✅ **FAIT le 2026-08-05**
 - **Résultat** : `sonaged_web/` est le front unique. `angular/` et `ucgFrontend/` supprimés
@@ -115,21 +130,28 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
   de production, identifiants typés `number`.
 - **ADR-0006** (statut : exécuté, décision inversée) · **`docs/FRONTEND_AUDIT.md`**.
 
-### P1-5 · Import automatisé des GeoJSON
+### P1-5 · Import automatisé des GeoJSON — ✅ **fait le 2026-07-25**
 - **Objectif** : charger `datas/*.json` (quartiers, circuits, dépotoirs) en base.
 - **Justification** : données de référence indispensables à la carte/alertes.
 - **Fichiers** : nouveau seeder/`db/changelog` ou `service/import/GeoJsonImportService`.
 - **Impact** : jeu de données réel exploitable.
 - **Complexité** : M.
+- **Résultat** : `GeoJsonImportService(+Impl)`, `GeoJsonImportController`
+  (`POST /v1/admin/import/geojson`), déclenchable aussi au démarrage
+  (`sonaged.import.geojson.on-startup=true`).
 
-### P1-6 · Réactiver le lien Depotoir ↔ Quartier
-- **Objectif** : rétablir la relation `Depotoir *─1 Quartier` (actuellement commentée).
+### P1-6 · Réactiver le lien Depotoir ↔ Quartier — ✅ **fait le 2026-07-26**
+- **Objectif** : rétablir la relation `Depotoir *─1 Quartier` (~~actuellement commentée~~ — fait,
+  voir Résultat).
 - **Justification** : granularité de supervision (quartier) attendue métier.
 - **Fichiers** : `model/DepotoirEntity`, changelog Liquibase.
 - **Impact** : requêtes/carto par quartier. **NB** : entre contextes distincts, la relier par `quartierId` et non par association objet (ADR-0012).
 - **Complexité** : S.
+- **Résultat** : `Depotoir.quartierId` (référence par identifiant, pas association objet — ADR-0012)
+  ; aucune migration Liquibase requise, la colonne existait déjà dans le baseline. `DepotoirMaps`
+  n'expose pas encore le quartier (amélioration cartographique ultérieure, pas bloquant).
 
-### P1-7 · Frontières de contexte (Spring Modulith) + découplage des entités
+### P1-7 · Frontières de contexte (Spring Modulith) + découplage des entités — ✅ **fait le 2026-07-28**
 - **Objectif** : matérialiser les bounded contexts et remplacer les associations JPA **cross-contexte** par des références par identifiant.
 - **Justification** : condition de faisabilité de l'évolution microservices ; réduit le couplage fort et les N+1 (R3, R7).
 - **Fichiers** : ~~réorganisation en 5 modules — cf. `docs/architecture-cible.md`~~ **caduc** : cette tâche P1-7 décrit le découpage ADR-0010 (5 modules), remplacé par l'ADR-0013 (7 contextes bornés + 3 non-contextes sous `sn.smartwaste.collect`), **déjà réalisé** (migration terminée le 2026-07-28, `docs/IMPLEMENTATION_LOG.md`). `docs/architecture-cible.md` porte son propre bandeau obsolète — ne plus y renvoyer comme référence de cible. `pom.xml` (Spring Modulith) et le découplage par identifiant (FK objet → `…Id`) sont faits ; changelogs Liquibase associés déjà joués.
@@ -140,12 +162,14 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 
 ## P2 — Amélioration (qualité, confort, évolutivité)
 
-### P2-1 · Notifications temps réel
+### P2-1 · Notifications temps réel — ✅ **fait le 2026-07-26**
 - **Objectif** : pousser les alertes vers les superviseurs sans polling.
 - **Justification** : vision produit « temps réel ».
 - **Fichiers** : nouveau `controller/NotificationSseController` (SSE) ou WebSocket ; front abonnement.
 - **Impact** : UX supervision.
 - **Complexité** : L · **ADR-0007**.
+- **Résultat** : SSE bout-en-bout (`AlertStreamController`, `AlertBroadcaster`), plus G2 (canal hors
+  application ouverte, 2026-08-05) au-dessus.
 
 ### P2-2 · Tests automatisés + CI/CD
 - **Objectif** : couvrir services critiques (auth, seuils, alertes) + pipeline.
@@ -154,25 +178,34 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Impact** : non-régression.
 - **Complexité** : L.
 
-### P2-3 · Multi-tenant (plusieurs collectivités) — **cadrage détaillé le 2026-08-09**
+### P2-3 · Multi-tenant (plusieurs collectivités) — ✅ **fait, cloisonnement vérifié effectif le 2026-08-11**
 - **Objectif** : isoler les données par collectivité + exposer une API Organisation.
 - **Mise à jour 2026-08-09** : l'API Organisation (`OrganizationController`, `/v1/organizations*`,
   permission `MANAGE_ORGANIZATIONS`) a été livrée en parallèle de ce cadrage — voir
-  `docs/TENANT_ORGANIZATIONS_PLAN.md` et ADR-0020 §5. **Reste non livré** : le discriminant
-  `organizationId` sur les agrégats métier et le filtre Hibernate (ADR-0020 §2-4) — c'est la partie
-  qui isole réellement les données, pas seulement la relation utilisateur↔organisation.
+  `docs/TENANT_ORGANIZATIONS_PLAN.md` et ADR-0020 §5.
 - **Justification** : évolution cible « plusieurs collectivités ».
 - **Fichiers** : `Commune` + `Depotoir`/`MoblierUrbain`/`Circuit*`/`Alert`/`Vehicle`/`Sensor`/
   `VehicleTracker`/`CollectionSchedule`/`AlertThreshold` (colonne `organizationId`), filtre Hibernate
   activé après authentification, nouveau `tenant/presentation/controller/OrganizationController`.
-- **Impact** : discriminant `organizationId` posé sur 12 entités, API `/v1/organizations*` et filtre
-  Hibernate d'isolation activés le 2026-08-10 (changelog `2.27.0`, appliqué contre la base réelle,
-  300 tests). Tout nouveau compte est rattaché automatiquement à Pikine
-  (`UserAccountCreated`/`DefaultOrganizationEnrollmentListener`) pour que le filtre par défaut fermé
-  ne vide pas le référentiel pour un habitant qui vient de s'inscrire — décision produit validée le
-  2026-08-10. **Non fait** : test bout-en-bout multi-collectivités (nécessiterait une authentification
-  `MockMvc` portée par un vrai `UserEntity`) — le comportement du composant est vérifié unitairement.
-- **Complexité** : XL, réalisée · **ADR-0008**, **ADR-0020** · plan détaillé : `docs/PLAN_IDENTITE_TENANT_RBAC.md`.
+- **Impact** : discriminant `organizationId` posé sur 12 entités et API `/v1/organizations*` livrés
+  le 2026-08-10 (changelog `2.27.0`). ⚠️ **Corrigé le 2026-08-11** : le filtre Hibernate
+  d'isolation posé le 2026-08-10 était en réalité **inopérant** — mesuré contre PostgreSQL réel, un
+  `ADMIN` d'une autre collectivité voyait les mêmes chiffres qu'un `SUPER_ADMIN` (71 dépotoirs, 52
+  circuits, 12 communes). Deux causes : (1) `TenantFilterActivationFilter` s'exécutait avant que
+  l'`EntityManager` d'open-in-view soit lié au thread, donc activait le filtre sur une session
+  jetée aussitôt (corrigé par `PersistenceSessionBindingConfig`, ordonnancement explicite) ; (2) un
+  `@Filter` Hibernate ne couvre pas `EntityManager.find()`/`findById` — étanche en liste, ouvert à
+  l'unité (corrigé par `applyToLoadByKey = true` sur le `@FilterDef`, 32 sites `findById` couverts
+  d'un coup). Un sélecteur `X-Organization-Id` a été ajouté pour le `SUPER_ADMIN` (observer une
+  collectivité sans changer de compte, ignoré pour tout autre rôle). **Revérifié contre PostgreSQL
+  réel après correctif** : `ADMIN` d'une autre collectivité → 0 partout, accès par identifiant hors
+  périmètre → 404. Tout nouveau compte est rattaché automatiquement à Pikine
+  (`UserAccountCreated`/`DefaultOrganizationEnrollmentListener`).
+- **Leçon** : le test qui couvrait ce composant avant le correctif utilisait une `Session` mockée —
+  il ne pouvait donc pas prouver le filtrage effectif, et n'a pas détecté la régression. Symptomatique
+  d'un principe déjà noté ailleurs dans ce projet : « ce qui n'a jamais été exécuté contre une vraie
+  base ne fonctionne pas forcément ».
+- **Complexité** : XL, réalisée et vérifiée effective · **ADR-0008**, **ADR-0020** · plan détaillé : `docs/PLAN_IDENTITE_TENANT_RBAC.md`.
 
 ### P2-4 · Nettoyage & documentation
 - **Objectif** : README racine réel, `endpoint.md` correct, retrait des restes de template Flutter, homogénéiser UCG/SONAGED.
@@ -180,7 +213,7 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Impact** : onboarding.
 - **Complexité** : S–M.
 
-### P2-5 · Dashboards avancés
+### P2-5 · Dashboards avancés — ✅ **fait le 2026-07-26**
 - **Objectif** : indicateurs (taux de remplissage, alertes/jour, tournées).
 - **Fichiers** : `service/impl/DashboardServiceImpl`, front dashboard.
 - **Complexité** : M.
