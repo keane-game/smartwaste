@@ -171,12 +171,16 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 - **Résultat** : SSE bout-en-bout (`AlertStreamController`, `AlertBroadcaster`), plus G2 (canal hors
   application ouverte, 2026-08-05) au-dessus.
 
-### P2-2 · Tests automatisés + CI/CD
+### P2-2 · Tests automatisés + CI/CD — ✅ **fait**
 - **Objectif** : couvrir services critiques (auth, seuils, alertes) + pipeline.
-- **Justification** : ~2 tests aujourd'hui ; aucune CI.
+- **Justification** : ~~~2 tests aujourd'hui ; aucune CI~~ — périmé, voir Résultat.
 - **Fichiers** : `backend-api/src/test/**`, `.github/workflows/*`.
 - **Impact** : non-régression.
 - **Complexité** : L.
+- **Résultat** : 319 tests (`./mvnw test`) ; CI GitHub Actions (`.github/workflows/backend.yml`)
+  construit le jar, l'exécute contre un PostgreSQL **vierge** provisionné par le job (schéma
+  appliqué depuis zéro à chaque run, jamais vérifié avant le 2026-08-05), confronte les entités au
+  schéma via `ddl-auto=validate`, puis lance la suite complète. Tourne sur chaque push/PR.
 
 ### P2-3 · Multi-tenant (plusieurs collectivités) — ✅ **fait, cloisonnement vérifié effectif le 2026-08-11**
 - **Objectif** : isoler les données par collectivité + exposer une API Organisation.
@@ -209,9 +213,16 @@ Cible : **évolutif vers microservices** via un **monolithe modulaire** (ADR-001
 
 ### P2-4 · Nettoyage & documentation
 - **Objectif** : README racine réel, `endpoint.md` correct, retrait des restes de template Flutter, homogénéiser UCG/SONAGED.
-- **Fichiers** : docs, `mobileFlutter/lib/core/app_env.dart`, `shared/domain/models/product/*`.
+- **Fichiers** : docs, `mobile/lib/core/app_env.dart`, `shared/domain/models/product/*`.
 - **Impact** : onboarding.
 - **Complexité** : S–M.
+- **État (2026-08-13)** : README racine réel — fait. `endpoint.md` — banni comme périmé, pointe
+  vers Swagger, pas réécrit ligne à ligne (voir `docs/IMPLEMENTATION_LOG.md`). Restes de template
+  Flutter — **plus gros que prévu** : `product_model.dart` n'est pas un fichier isolé à supprimer,
+  c'est la dépendance d'un écran entier et routé (`features/dashboard/`, `/dashboard`, 10 fichiers)
+  qui affiche encore des données tutoriel plutôt que des données SONAGED — décision explicite du
+  2026-08-13 de ne rien supprimer tant qu'aucun remplacement n'existe (voir `CLAUDE.md`, section
+  Mobile). Homogénéiser UCG/SONAGED — non fait, cosmétique, faible priorité.
 
 ### P2-5 · Dashboards avancés — ✅ **fait le 2026-07-26**
 - **Objectif** : indicateurs (taux de remplissage, alertes/jour, tournées).

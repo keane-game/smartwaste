@@ -3,18 +3,30 @@
 > Généré depuis les contrôleurs le 2026-07-26.
 > Documentation interactive : **Swagger UI** `/swagger-ui` — OpenAPI JSON `/sonaged-docs`.
 
+⚠️ **Périmé (2026-08-13)** : ce fichier date d'avant une longue série de correctifs API
+(endpoints morts retirés, chemins irréguliers corrigés, pagination étendue à 9 ressources
+supplémentaires, DTO `Authority`...) — voir `docs/IMPLEMENTATION_LOG.md` et
+`docs/FRONTEND_API_MAPPING.md` pour l'état réel. Ne pas s'y fier ; ci-dessous seulement pour les
+grandes lignes encore vraies. **Swagger UI (`/swagger-ui`) est la référence à jour**, générée à
+chaque démarrage depuis le code — ce fichier statique, lui, ne l'est pas.
+
 ## Conventions
 
 | Préfixe | Authentification | Remarque |
 |---|---|---|
 | `/auth/**` | publique | inscription, activation, connexion |
 | `/v1/**` | **JWT requis** (`Authorization: Bearer …`) | ressources métier |
-| `/data/**` | publique | compteurs tableau de bord + upload GeoJSON (dette : devrait être protégé) |
+| `/data/**` | ~~publique (dette : devrait être protégé)~~ **corrigé** : `GET` seul reste public, les écritures exigent désormais une authentification |
 | `/swagger-ui`, `/sonaged-docs` | publique | documentation |
 
-⚠️ Certaines ressources exposent la **liste complète** sur un chemin à double « s »
-(`/v1/communess`, `/v1/quartierss`, `/v1/depotoirss`, `/v1/userss`, `/v1/alertss`),
-tandis que le chemin simple renvoie une réponse **paginée** (`?page=&size=`).
+⚠️ **Correction** : la ligne ci-dessous décrivait mal le chemin réel — un double « s » collé
+(`/v1/communess`) **n'existe pas**. `PathPattern.combine` insère un séparateur : le vrai chemin de
+liste complète est **`/v1/communes/s`** (idem `/v1/quartiers/s`, `/v1/depotoirs/s`, `/v1/users/s`,
+`/v1/alerts/s`) — vérifié, voir `CLAUDE.md`. ~~Certaines ressources exposent la liste complète sur
+un chemin à double « s » (`/v1/communess`, `/v1/quartierss`, `/v1/depotoirss`, `/v1/userss`,
+`/v1/alertss`), tandis que le chemin simple renvoie une réponse paginée (`?page=&size=`).~~ Le
+chemin simple (`GET /v1/communes` etc.) renvoie bien une réponse paginée, avec `page`/`size`
+**obligatoires** (400 sinon) pour les cinq ressources concernées.
 
 ---
 
